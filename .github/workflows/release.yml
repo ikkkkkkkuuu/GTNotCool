@@ -44,7 +44,9 @@ jobs:
           echo "New version: $NEW_VERSION"
 
       - name: Build
-        run: ./gradlew build --build-cache --no-daemon
+        run: |
+          chmod +x gradlew
+          ./gradlew build --build-cache --no-daemon
 
       - name: Create Tag and Release
         uses: softprops/action-gh-release@v2
