@@ -1,0 +1,731 @@
+package com.xyp.gtnc.Common.machines.multiblock.steam;
+
+import static gregtech.api.util.GTStructureUtility.buildHatchAdder;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import net.minecraft.block.Block;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.StatCollector;
+import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.FluidStack;
+
+import org.jetbrains.annotations.NotNull;
+
+import com.gtnewhorizon.structurelib.alignment.constructable.ISurvivalConstructable;
+import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
+import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
+import com.gtnewhorizon.structurelib.structure.StructureDefinition;
+import com.gtnewhorizon.structurelib.structure.StructureUtility;
+
+import gregtech.GTMod;
+import gregtech.api.GregTechAPI;
+import gregtech.api.enums.GTValues;
+import gregtech.api.enums.HatchElement;
+import gregtech.api.enums.ItemList;
+import gregtech.api.enums.Materials;
+import gregtech.api.enums.OrePrefixes;
+import gregtech.api.enums.Textures;
+import gregtech.api.interfaces.ITexture;
+import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
+import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
+import gregtech.api.metatileentity.implementations.MTEEnhancedMultiBlockBase;
+import gregtech.api.recipe.RecipeMap;
+import gregtech.api.recipe.RecipeMaps;
+import gregtech.api.recipe.check.CheckRecipeResult;
+import gregtech.api.recipe.check.CheckRecipeResultRegistry;
+import gregtech.api.render.TextureFactory;
+import gregtech.api.structure.error.StructureError;
+import gregtech.api.util.GTModHandler;
+import gregtech.api.util.GTOreDictUnificator;
+import gregtech.api.util.GTRecipe;
+import gregtech.api.util.GTUtility;
+import gregtech.api.util.MultiblockTooltipBuilder;
+
+// #tr NameLargeBoilerBronze
+// # Large Bronze Boiler
+// # zh_CN 大型青铜锅炉
+
+// #tr NameLargeBoilerSteel
+// # Large Steel Boiler
+// # zh_CN 大型钢锅炉
+
+// #tr NameLargeBoilerTitanium
+// # Large Titanium Boiler
+// # zh_CN 大型钛锅炉
+
+// #tr NameLargeBoilerTungstenSteel
+// # Large Tungstensteel Boiler
+// # zh_CN 大型钨钢锅炉
+
+// #tr LargeBoilerRecipeType
+// # Boiler
+// # zh_CN 锅炉
+
+// #tr Tooltip_LargeBoilerBronze_00
+// # Each piece of coal produces 1,280,000L of steam at a rate of 640,000L/s.
+// # zh_CN 每块煤炭将以640000升/秒的速率产生共计1280000升的蒸汽
+
+// #tr Tooltip_LargeBoilerSteel_00
+// # Each piece of coal produces 1,280,000L of steam at a rate of 1,280,000L/s.
+// # zh_CN 每块煤炭将以1280000升/秒的速率产生共计1280000升的蒸汽
+
+// #tr Tooltip_LargeBoilerTitanium_00
+// # Each piece of coal produces 10,240,000L of steam at a rate of 2,560,000L/s.
+// # zh_CN 每块煤炭将以2560000升/秒的速率产生共计10240000升的蒸汽
+
+// #tr Tooltip_LargeBoilerTungstenSteel_00
+// # Each piece of coal produces 20,480,000L of steam at a rate of 5,120,000L/s.
+// # zh_CN 每块煤炭将以5120000升/秒的速率产生共计20480000升的蒸汽
+
+// #tr Tooltip_LargeBoiler_00
+// # No preheating required.
+// # zh_CN 无需预热
+
+// #tr Tooltip_LargeBoiler_Casing_00
+// # Any Machine Block
+// # zh_CN 任意机械方块
+
+// #tr Tooltip_LargeBoiler_Casing_01
+// # Any Firebox Machine Block
+// # zh_CN 任意燃烧室机械方块
+
+public abstract class LargeBoiler extends MTEEnhancedMultiBlockBase<LargeBoiler> implements ISurvivalConstructable {
+
+    public boolean firstRun = true;
+    public int integratedCircuitConfig = 0;
+    public long excessWater = 0;
+    public int excessFuel = 0;
+    public int excessProjectedEU = 0;
+    public int mCountCasing;
+    public int mFireboxCasing;
+    private static final String STRUCTURE_PIECE_MAIN = "main";
+
+    public LargeBoiler(int aID, String aName, String aNameRegional) {
+        super(aID, aName, aNameRegional);
+    }
+
+    public LargeBoiler(String aName) {
+        super(aName);
+    }
+
+    public abstract Block getCasingBlock();
+
+    public abstract byte getCasingMeta();
+
+    public abstract byte getCasingTextureIndex();
+
+    public abstract Block getPipeBlock();
+
+    public abstract byte getPipeMeta();
+
+    public abstract Block getFireboxBlock();
+
+    public abstract byte getFireboxMeta();
+
+    public abstract byte getFireboxTextureIndex();
+
+    public abstract int getEUt();
+
+    abstract int runtimeBoost(int mTime);
+
+    @Override
+    public boolean supportsVoidProtection() {
+        return true;
+    }
+
+    @Override
+    public boolean getDefaultHasMaintenanceChecks() {
+        return false;
+    }
+
+    @Override
+    public boolean shouldCheckMaintenance() {
+        return false;
+    }
+
+    public void onCasingAdded() {
+        mCountCasing++;
+    }
+
+    public void onFireboxAdded() {
+        mFireboxCasing++;
+    }
+
+    @Override
+    public ITexture[] getTexture(IGregTechTileEntity aBaseMetaTileEntity, ForgeDirection side, ForgeDirection aFacing,
+        int colorIndex, boolean aActive, boolean redstoneLevel) {
+        if (side == aFacing) {
+            if (aActive) return new ITexture[] { Textures.BlockIcons.getCasingTextureForId(getCasingTextureIndex()),
+                TextureFactory.builder()
+                    .addIcon(Textures.BlockIcons.OVERLAY_FRONT_LARGE_BOILER_ACTIVE)
+                    .extFacing()
+                    .build(),
+                TextureFactory.builder()
+                    .addIcon(Textures.BlockIcons.OVERLAY_FRONT_LARGE_BOILER_ACTIVE_GLOW)
+                    .extFacing()
+                    .glow()
+                    .build() };
+            return new ITexture[] { Textures.BlockIcons.getCasingTextureForId(getCasingTextureIndex()),
+                TextureFactory.builder()
+                    .addIcon(Textures.BlockIcons.OVERLAY_FRONT_LARGE_BOILER)
+                    .extFacing()
+                    .build(),
+                TextureFactory.builder()
+                    .addIcon(Textures.BlockIcons.OVERLAY_FRONT_LARGE_BOILER_GLOW)
+                    .extFacing()
+                    .glow()
+                    .build() };
+        }
+        return new ITexture[] { Textures.BlockIcons.getCasingTextureForId(getCasingTextureIndex()) };
+    }
+
+    @Override
+    public boolean isCorrectMachinePart(ItemStack aStack) {
+        return true;
+    }
+
+    @Override
+    public RecipeMap<?> getRecipeMap() {
+        return RecipeMaps.largeBoilerFakeFuels;
+    }
+
+    @Override
+    public boolean filtersFluid() {
+        return false;
+    }
+
+    @Override
+    @NotNull
+    public CheckRecipeResult checkProcessing() {
+
+        if (ItemList.Circuit_Integrated.isStackEqual(mInventory[1], true, true)) {
+            int circuit_config = mInventory[1].getItemDamage();
+            if (circuit_config >= 1 && circuit_config <= 25) {
+                this.integratedCircuitConfig = circuit_config;
+            }
+        } else {
+            this.integratedCircuitConfig = 0;
+        }
+
+        for (GTRecipe tRecipe : RecipeMaps.dieselFuels.getAllRecipes()) {
+            FluidStack tFluid = GTUtility.getFluidForFilledItem(tRecipe.getRepresentativeInput(0), true);
+            if (tFluid != null && tRecipe.mSpecialValue > 1) {
+                tFluid.amount = 1000;
+                if (depleteInput(tFluid)) {
+                    this.mEfficiencyIncrease = 10000;
+                    this.mMaxProgresstime = adjustBurnTimeForConfig(runtimeBoost(tRecipe.mSpecialValue / 2));
+                    this.mEUt = adjustEUtForConfig(getEUt());
+                    return CheckRecipeResultRegistry.SUCCESSFUL;
+                }
+            }
+        }
+        for (GTRecipe tRecipe : RecipeMaps.denseLiquidFuels.getAllRecipes()) {
+            FluidStack tFluid = GTUtility.getFluidForFilledItem(tRecipe.getRepresentativeInput(0), true);
+            if (tFluid != null) {
+                tFluid.amount = 1000;
+                if (depleteInput(tFluid)) {
+                    this.mEfficiencyIncrease = 10000;
+                    this.mMaxProgresstime = adjustBurnTimeForConfig(
+                        Math.max(1, runtimeBoost(tRecipe.mSpecialValue * 2)));
+                    this.mEUt = adjustEUtForConfig(getEUt());
+                    return CheckRecipeResultRegistry.SUCCESSFUL;
+                }
+            }
+        }
+
+        ArrayList<ItemStack> tInputList = getStoredInputs();
+        if (!tInputList.isEmpty()) {
+            for (ItemStack tInput : tInputList) {
+                if (tInput != GTOreDictUnificator.get(OrePrefixes.bucket, Materials.Lava, 1)) {
+                    if (GTUtility.getFluidForFilledItem(tInput, true) == null
+                        && (this.mMaxProgresstime = GTModHandler.getFuelValue(tInput) / 80) > 0) {
+                        this.excessFuel += GTModHandler.getFuelValue(tInput) % 80;
+                        this.mMaxProgresstime += this.excessFuel / 80;
+                        this.excessFuel %= 80;
+                        this.mEfficiencyIncrease = 10000;
+                        this.mMaxProgresstime = adjustBurnTimeForConfig(runtimeBoost(this.mMaxProgresstime));
+                        this.mEUt = adjustEUtForConfig(getEUt());
+                        this.mOutputItems = new ItemStack[] { GTUtility.getContainerItem(tInput, true) };
+                        tInput.stackSize -= 1;
+                        updateSlots();
+                        return CheckRecipeResultRegistry.SUCCESSFUL;
+                    }
+                }
+            }
+        }
+        this.mMaxProgresstime = 0;
+        this.mEUt = 0;
+        return CheckRecipeResultRegistry.NO_FUEL_FOUND;
+    }
+
+    @Override
+    public boolean onRunningTick(ItemStack aStack) {
+        if (this.mEUt > 0) {
+            this.mEfficiency = 10000;
+
+            int tGeneratedEU = (int) (this.mEUt * 2L * this.mEfficiency / 10000L);
+            if (tGeneratedEU > 0) {
+
+                long amount = (tGeneratedEU + GTValues.STEAM_PER_WATER) / GTValues.STEAM_PER_WATER;
+                excessWater += amount * GTValues.STEAM_PER_WATER - tGeneratedEU;
+                amount -= excessWater / GTValues.STEAM_PER_WATER;
+                excessWater %= GTValues.STEAM_PER_WATER;
+                startRecipeProcessing();
+
+                if (depleteInput(Materials.Water.getFluid(amount))
+                    || depleteInput(GTModHandler.getDistilledWater(amount))) {
+                    addOutput(Materials.Steam.getGas(tGeneratedEU));
+                } else {
+                    explodeMultiblock();
+                }
+
+                endRecipeProcessing();
+            }
+            return true;
+        }
+        return true;
+    }
+
+    @Override
+    public void saveNBTData(NBTTagCompound aNBT) {
+        super.saveNBTData(aNBT);
+        aNBT.setInteger("excessFuel", excessFuel);
+        aNBT.setLong("excessWater", excessWater);
+        aNBT.setInteger("excessProjectedEU", excessProjectedEU);
+    }
+
+    @Override
+    public void loadNBTData(NBTTagCompound aNBT) {
+        super.loadNBTData(aNBT);
+        excessFuel = aNBT.getInteger("excessFuel");
+        excessWater = aNBT.getLong("excessWater");
+        excessProjectedEU = aNBT.getInteger("excessProjectedEU");
+    }
+
+    @Override
+    public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
+        if (mProgresstime > 0 && firstRun) {
+            firstRun = false;
+            GTMod.achievements.issueAchievement(
+                aBaseMetaTileEntity.getWorld()
+                    .getPlayerEntityByName(aBaseMetaTileEntity.getOwnerName()),
+                "extremepressure");
+        }
+        super.onPostTick(aBaseMetaTileEntity, aTick);
+    }
+
+    @Override
+    public IStructureDefinition<LargeBoiler> getStructureDefinition() {
+        return StructureDefinition.<LargeBoiler>builder()
+            .addShape(
+                STRUCTURE_PIECE_MAIN,
+                StructureUtility.transpose(
+                    new String[][] { { "ccc", "ccc", "ccc" }, { "ccc", "cPc", "ccc" }, { "ccc", "cPc", "ccc" },
+                        { "ccc", "cPc", "ccc" }, { "f~f", "fff", "fff" }, }))
+            .addElement('P', StructureUtility.lazy(t -> StructureUtility.ofBlock(t.getPipeBlock(), t.getPipeMeta())))
+            .addElement(
+                'c',
+                StructureUtility.lazy(
+                    t -> buildHatchAdder(LargeBoiler.class).atLeast(HatchElement.OutputHatch)
+                        .casingIndex(t.getCasingTextureIndex())
+                        .hint(2)
+                        .buildAndChain(
+                            StructureUtility.onElementPass(
+                                LargeBoiler::onCasingAdded,
+                                StructureUtility.ofBlock(t.getCasingBlock(), t.getCasingMeta())))))
+            .addElement(
+                'f',
+                StructureUtility.lazy(
+                    t -> buildHatchAdder(LargeBoiler.class)
+                        .atLeast(HatchElement.Maintenance, HatchElement.InputHatch, HatchElement.InputBus)
+                        .casingIndex(t.getFireboxTextureIndex())
+                        .hint(1)
+                        .buildAndChain(
+                            StructureUtility.onElementPass(
+                                LargeBoiler::onFireboxAdded,
+                                StructureUtility.ofBlock(t.getFireboxBlock(), t.getFireboxMeta())))))
+            .build();
+    }
+
+    @Override
+    public void checkMachine(IGregTechTileEntity aBaseMetaTileEntity, ItemStack aStack, List<StructureError> errors) {
+        mCountCasing = 0;
+        mFireboxCasing = 0;
+
+        if (!checkPiece(STRUCTURE_PIECE_MAIN, 1, 4, 0, errors)) return;
+        checkCasingMin(errors, mCountCasing, 20);
+        checkCasingMin(errors, mFireboxCasing, 3);
+    }
+
+    @Override
+    public int getMaxEfficiency(ItemStack aStack) {
+        return 10000;
+    }
+
+    @Override
+    public int getDamageToComponent(ItemStack aStack) {
+        return 0;
+    }
+
+    private int adjustEUtForConfig(int rawEUt) {
+        int adjustedSteamOutput = rawEUt - 25 * integratedCircuitConfig;
+        return Math.max(adjustedSteamOutput, 25);
+    }
+
+    private int getCorrectedMaxEfficiency(ItemStack itemStack) {
+        return getMaxEfficiency(itemStack) - ((getIdealStatus() - getRepairStatus()) * 1000);
+    }
+
+    private int adjustBurnTimeForConfig(int rawBurnTime) {
+        // Checks if the fuel is eligible for a super efficiency increase and if so, we want to immediately apply the
+        // adjustment!
+        // We also want to check that the fuel
+        if (mEfficiencyIncrease <= 5000 && mEfficiency < getCorrectedMaxEfficiency(mInventory[1])) {
+            return rawBurnTime;
+        }
+        int adjustedEUt = Math.max(25, getEUt() - 25 * integratedCircuitConfig);
+        int adjustedBurnTime = (int) (rawBurnTime * (long) getEUt() / adjustedEUt);
+        this.excessProjectedEU += getEUt() * rawBurnTime - adjustedEUt * adjustedBurnTime;
+        adjustedBurnTime += this.excessProjectedEU / adjustedEUt;
+        this.excessProjectedEU %= adjustedEUt;
+        return adjustedBurnTime;
+    }
+
+    @Override
+    public void construct(ItemStack stackSize, boolean hintsOnly) {
+        buildPiece(STRUCTURE_PIECE_MAIN, stackSize, hintsOnly, 1, 4, 0);
+    }
+
+    @Override
+    public int survivalConstruct(ItemStack stackSize, int elementBudget, ISurvivalBuildEnvironment env) {
+        if (mMachine) return -1;
+        return survivalBuildPiece(STRUCTURE_PIECE_MAIN, stackSize, 1, 4, 0, elementBudget, env, false, true);
+    }
+
+    public static class LargeBoilerBronze extends LargeBoiler {
+
+        public LargeBoilerBronze(int aID, String aName, String aNameRegional) {
+            super(aID, aName, aNameRegional);
+        }
+
+        public LargeBoilerBronze(String aName) {
+            super(aName);
+        }
+
+        @Override
+        public IMetaTileEntity newMetaEntity(IGregTechTileEntity aTileEntity) {
+            return new LargeBoilerBronze(this.mName);
+        }
+
+        @Override
+        public MultiblockTooltipBuilder createTooltip() {
+            MultiblockTooltipBuilder tt = new MultiblockTooltipBuilder();
+            tt.addMachineType(StatCollector.translateToLocal("LargeBoilerRecipeType"))
+                .addInfo(StatCollector.translateToLocal("Tooltip_LargeBoilerBronze_00"))
+                .addInfo(StatCollector.translateToLocal("Tooltip_LargeBoiler_00"))
+                .beginStructureBlock(3, 5, 3, false)
+                .addOutputHatch(StatCollector.translateToLocal("Tooltip_LargeBoiler_Casing_00"), 1)
+                .addInputBus(StatCollector.translateToLocal("Tooltip_LargeBoiler_Casing_01"), 1)
+                .addInputHatch(StatCollector.translateToLocal("Tooltip_LargeBoiler_Casing_01"), 1)
+                .toolTipFinisher();
+            return tt;
+        }
+
+        @Override
+        public Block getCasingBlock() {
+            return GregTechAPI.sBlockCasings1;
+        }
+
+        @Override
+        public byte getCasingMeta() {
+            return 10;
+        }
+
+        @Override
+        public byte getCasingTextureIndex() {
+            return 10;
+        }
+
+        @Override
+        public Block getPipeBlock() {
+            return GregTechAPI.sBlockCasings2;
+        }
+
+        @Override
+        public byte getPipeMeta() {
+            return 12;
+        }
+
+        @Override
+        public Block getFireboxBlock() {
+            return GregTechAPI.sBlockCasings3;
+        }
+
+        @Override
+        public byte getFireboxMeta() {
+            return 13;
+        }
+
+        @Override
+        public byte getFireboxTextureIndex() {
+            return 45;
+        }
+
+        @Override
+        public int getEUt() {
+            return 16000;
+        }
+
+        @Override
+        int runtimeBoost(int mTime) {
+            return mTime * 2;
+        }
+
+    }
+
+    public static class LargeBoilerSteel extends LargeBoiler {
+
+        public LargeBoilerSteel(int aID, String aName, String aNameRegional) {
+            super(aID, aName, aNameRegional);
+        }
+
+        public LargeBoilerSteel(String aName) {
+            super(aName);
+        }
+
+        @Override
+        public IMetaTileEntity newMetaEntity(IGregTechTileEntity aTileEntity) {
+            return new LargeBoilerSteel(this.mName);
+        }
+
+        @Override
+        public MultiblockTooltipBuilder createTooltip() {
+            MultiblockTooltipBuilder tt = new MultiblockTooltipBuilder();
+            tt.addMachineType(StatCollector.translateToLocal("LargeBoilerRecipeType"))
+                .addInfo(StatCollector.translateToLocal("Tooltip_LargeBoilerSteel_00"))
+                .addInfo(StatCollector.translateToLocal("Tooltip_LargeBoiler_00"))
+                .beginStructureBlock(3, 5, 3, false)
+                .addOutputHatch(StatCollector.translateToLocal("Tooltip_LargeBoiler_Casing_00"), 1)
+                .addInputBus(StatCollector.translateToLocal("Tooltip_LargeBoiler_Casing_01"), 1)
+                .addInputHatch(StatCollector.translateToLocal("Tooltip_LargeBoiler_Casing_01"), 1)
+                .toolTipFinisher();
+            return tt;
+        }
+
+        @Override
+        public Block getCasingBlock() {
+            return GregTechAPI.sBlockCasings2;
+        }
+
+        @Override
+        public byte getCasingMeta() {
+            return 0;
+        }
+
+        @Override
+        public byte getCasingTextureIndex() {
+            return 16;
+        }
+
+        @Override
+        public Block getPipeBlock() {
+            return GregTechAPI.sBlockCasings2;
+        }
+
+        @Override
+        public byte getPipeMeta() {
+            return 13;
+        }
+
+        @Override
+        public Block getFireboxBlock() {
+            return GregTechAPI.sBlockCasings3;
+        }
+
+        @Override
+        public byte getFireboxMeta() {
+            return 14;
+        }
+
+        @Override
+        public byte getFireboxTextureIndex() {
+            return 46;
+        }
+
+        @Override
+        public int getEUt() {
+            return 32000;
+        }
+
+        @Override
+        int runtimeBoost(int mTime) {
+            return mTime;
+        }
+
+    }
+
+    public static class LargeBoilerTitanium extends LargeBoiler {
+
+        public LargeBoilerTitanium(int aID, String aName, String aNameRegional) {
+            super(aID, aName, aNameRegional);
+        }
+
+        public LargeBoilerTitanium(String aName) {
+            super(aName);
+        }
+
+        @Override
+        public IMetaTileEntity newMetaEntity(IGregTechTileEntity aTileEntity) {
+            return new LargeBoilerTitanium(this.mName);
+        }
+
+        @Override
+        public MultiblockTooltipBuilder createTooltip() {
+            MultiblockTooltipBuilder tt = new MultiblockTooltipBuilder();
+            tt.addMachineType(StatCollector.translateToLocal("LargeBoilerRecipeType"))
+                .addInfo(StatCollector.translateToLocal("Tooltip_LargeBoilerTitanium_00"))
+                .addInfo(StatCollector.translateToLocal("Tooltip_LargeBoiler_00"))
+                .beginStructureBlock(3, 5, 3, false)
+                .addOutputHatch(StatCollector.translateToLocal("Tooltip_LargeBoiler_Casing_00"), 1)
+                .addInputBus(StatCollector.translateToLocal("Tooltip_LargeBoiler_Casing_01"), 1)
+                .addInputHatch(StatCollector.translateToLocal("Tooltip_LargeBoiler_Casing_01"), 1)
+                .toolTipFinisher();
+            return tt;
+        }
+
+        @Override
+        public Block getCasingBlock() {
+            return GregTechAPI.sBlockCasings4;
+        }
+
+        @Override
+        public byte getCasingMeta() {
+            return 2;
+        }
+
+        @Override
+        public byte getCasingTextureIndex() {
+            return 50;
+        }
+
+        @Override
+        public Block getPipeBlock() {
+            return GregTechAPI.sBlockCasings2;
+        }
+
+        @Override
+        public byte getPipeMeta() {
+            return 14;
+        }
+
+        @Override
+        public Block getFireboxBlock() {
+            return GregTechAPI.sBlockCasings4;
+        }
+
+        @Override
+        public byte getFireboxMeta() {
+            return 3;
+        }
+
+        @Override
+        public byte getFireboxTextureIndex() {
+            return 51;
+        }
+
+        @Override
+        public int getEUt() {
+            return 64000;
+        }
+
+        @Override
+        int runtimeBoost(int mTime) {
+            return mTime * 4;
+        }
+
+    }
+
+    public static class LargeBoilerTungstenSteel extends LargeBoiler {
+
+        public LargeBoilerTungstenSteel(int aID, String aName, String aNameRegional) {
+            super(aID, aName, aNameRegional);
+        }
+
+        public LargeBoilerTungstenSteel(String aName) {
+            super(aName);
+        }
+
+        @Override
+        public IMetaTileEntity newMetaEntity(IGregTechTileEntity aTileEntity) {
+            return new LargeBoilerTungstenSteel(this.mName);
+        }
+
+        @Override
+        public MultiblockTooltipBuilder createTooltip() {
+            MultiblockTooltipBuilder tt = new MultiblockTooltipBuilder();
+            tt.addMachineType(StatCollector.translateToLocal("LargeBoilerRecipeType"))
+                .addInfo(StatCollector.translateToLocal("Tooltip_LargeBoilerTungstenSteel_00"))
+                .addInfo(StatCollector.translateToLocal("Tooltip_LargeBoiler_00"))
+                .beginStructureBlock(3, 5, 3, false)
+                .addOutputHatch(StatCollector.translateToLocal("Tooltip_LargeBoiler_Casing_00"), 1)
+                .addInputBus(StatCollector.translateToLocal("Tooltip_LargeBoiler_Casing_01"), 1)
+                .addInputHatch(StatCollector.translateToLocal("Tooltip_LargeBoiler_Casing_01"), 1)
+                .toolTipFinisher();
+            return tt;
+        }
+
+        @Override
+        public Block getCasingBlock() {
+            return GregTechAPI.sBlockCasings4;
+        }
+
+        @Override
+        public byte getCasingMeta() {
+            return 0;
+        }
+
+        @Override
+        public byte getCasingTextureIndex() {
+            return 48;
+        }
+
+        @Override
+        public Block getPipeBlock() {
+            return GregTechAPI.sBlockCasings2;
+        }
+
+        @Override
+        public byte getPipeMeta() {
+            return 15;
+        }
+
+        @Override
+        public Block getFireboxBlock() {
+            return GregTechAPI.sBlockCasings3;
+        }
+
+        @Override
+        public byte getFireboxMeta() {
+            return 15;
+        }
+
+        @Override
+        public byte getFireboxTextureIndex() {
+            return 47;
+        }
+
+        @Override
+        public int getEUt() {
+            return 128000;
+        }
+
+        @Override
+        int runtimeBoost(int mTime) {
+            return mTime * 4;
+        }
+    }
+
+}

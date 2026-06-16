@@ -1,0 +1,150 @@
+ import java.util.regex.Matcher
+
+// Minecraft 颜色代码映射
+def colorCodes = [
+    "BLACK": "§0", "DARK_BLUE": "§1", "DARK_GREEN": "§2", "DARK_AQUA": "§3",
+    "DARK_RED": "§4", "DARK_PURPLE": "§5", "GOLD": "§6", "GRAY": "§7",
+    "DARK_GRAY": "§8", "BLUE": "§9", "GREEN": "§a", "AQUA": "§b",
+    "RED": "§c", "LIGHT_PURPLE": "§d", "YELLOW": "§e", "WHITE": "§f",
+    "OBFUSCATED": "§k", "BOLD": "§l", "STRIKETHROUGH": "§m",
+    "UNDERLINE": "§n", "ITALIC": "§o", "RESET": "§r", "SPACE": " ", "NULL": ""
+]
+
+// 替换颜色代码
+def replaceColors = { String text ->
+    text.replaceAll(/\{\\\\([A-Z_]+)\}/) { match, code -> colorCodes[code] ?: match }
+}
+
+// 检查格式化字符串
+def isValidFormat = { String str ->
+    try { String.format(str, (Object[]) []); true } catch (Exception e) { false }
+}
+
+afterEvaluate {
+    tasks.register('preprocessLangInJavaFiles') {
+        group = 'language'
+        description = '从Java文件提取翻译字符串并生成语言文件'
+
+        def javaSource = sourceSets.main.java
+        def langDir = file("src/main/resources/assets/sciencenotcool/lang")
+
+        inputs.files(javaSource)
+        outputs.dir(langDir)
+
+        doLast {
+            Map<String, Map<String, String>> langs = ['en_US': [:]]
+            Set<String> keyOrder = [] as LinkedHashSet
+
+            // 1. 扫描Java源文件中的翻译注释
+            String pendingKey = null
+            javaSource.each { file ->
+                file.getText("UTF-8").eachLine { line ->
+                    if (pendingKey != null) {
+                        // 处理多行翻译的后续行 (//# lang_CODE value 或 //# value)
+                        def m = line =~ /\/\/\s*#\s*([a-z]{2}_[A-Z]{2})?\s+(.+)/
+                        if (m) {
+                            def lang = m.group(1) ?: 'en_US'
+                            def value = replaceColors(m.group(2))
+
+                            if (!langs.containsKey(lang)) langs[lang] = [:]
+
+                            if (langs[lang].containsKey(pendingKey) && langs[lang][pendingKey] != value) {
+                                logger.lifecycle("[覆盖] '$pendingKey' 在 ${file.name}: ${langs[lang][pendingKey]} -> $value")
+                            }
+                            if (!isValidFormat(value)) {
+                                logger.warn("[格式错误] '$pendingKey' 在 ${file.name}: $value")
+                            }
+
+                            langs[lang][pendingKey] = value
+                            keyOrder.add(pendingKey)
+                            // 不清空 pendingKey，继续处理下一行可能的翻译
+                        } else {
+                            // 遇到非翻译行，清空 pendingKey
+                            pendingKey = null
+                        }
+                    }
+                    if (pendingKey == null) {
+                        // 匹配 //#tr key [value]
+                        def m = line =~ /\/\/\s*#tr\s+([a-zA-Z0-9._]+)\s*(.*)/
+                        if (m) {
+                            def key = m.group(1)
+                            def value = m.group(2)?.trim()
+
+                            if (value) {
+                                langs['en_US'][key] = replaceColors(value)
+                                keyOrder.add(key)
+                            } else {
+                                pendingKey = key
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 2. 读取现有语言文件
+            if (langDir.exists()) {
+                langDir.listFiles({ it.name.endsWith('.lang') } as FileFilter)?.each { file ->
+                    def langCode = file.name.replace('.lang', '')
+                    if (!langs.containsKey(langCode)) langs[langCode] = [:]
+                    def langMap = langs[langCode]
+
+                    file.getText("UTF-8").eachLine { line ->
+                        if (!line.startsWith('#') && !line.trim().isEmpty()) {
+                            def parts = line.split('=', 2)
+                            if (parts.length == 2) {
+                                def key = parts[0].trim()
+                                if (!langMap.containsKey(key)) {
+                                    langMap[key] = parts[1]
+                                }
+                                if (langCode == 'en_US') keyOrder.add(key)
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 3. 检查缺失翻译
+            def enKeys = langs['en_US'].keySet()
+            langs.each { langCode, map ->
+                if (langCode != 'en_US') {
+                    enKeys.each { key ->
+                        if (!map.containsKey(key)) {
+                            logger.warn("[缺失翻译] '$key' 在 $langCode 中缺失 (en_US=${langs['en_US'][key]})")
+                        }
+                    }
+                }
+            }
+
+            // 4. 写入语言文件
+            langDir.mkdirs()
+            langs.each { langCode, map ->
+                def outFile = new File(langDir, "${langCode}.lang")
+                outFile.withWriter("UTF-8") { w ->
+                    keyOrder.each { key ->
+                        def value = map[key] ?: langs['en_US'][key]
+                        if (value != null) w.writeLine("${key}=${value}")
+                    }
+                }
+            }
+
+            logger.lifecycle("语言文件已生成到: $langDir")
+        }
+    }
+
+    tasks.processResources.dependsOn preprocessLangInJavaFiles
+}
+
+// Git Hook 任务
+tasks.register("installPreCommitHook", Copy) {
+    group = 'development'
+    description = '安装 git pre-commit hook'
+    from "scripts/pre-commit"
+    into ".git/hooks"
+    onlyIf { file("scripts/pre-commit").exists() }
+}
+
+tasks.register("uninstallPreCommitHook", Delete) {
+    group = 'development'
+    description = '移除 git pre-commit hook'
+    delete ".git/hooks/pre-commit"
+}
