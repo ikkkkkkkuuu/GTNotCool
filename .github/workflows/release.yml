@@ -48,6 +48,16 @@ jobs:
           chmod +x gradlew
           ./gradlew build --build-cache --no-daemon
 
+      - name: Rename JAR
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          for f in build/libs/*.jar; do
+            if [[ "$f" != *sources* ]] && [[ "$f" != *dev* ]]; then
+              mv "$f" "build/libs/GTNotCool-${VERSION}.jar"
+              break
+            fi
+          done
+
       - name: Create Tag and Release
         uses: softprops/action-gh-release@v2
         with:
