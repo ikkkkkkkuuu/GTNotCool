@@ -122,6 +122,7 @@ Tooltip_LargeSteamBeeBreeder_03=6.4 seconds per breeding cycle, uses actual muta
 Tooltip_LargeSteamBeeBreeder_04=Each princess input → one target princess output when chain completes
 Tooltip_LargeSteamBeeBreeder_05=Consumes 51200L steam per breeding attempt
 Tooltip_LargeSteamBeeBreeder_06=Insert Stainless Steel gear in controller slot for +10% mutation chance
+Tooltip_LargeSteamBeeBreeder_07=Glass tier: +1% mutation chance & +51200L steam consumption per tier
 Tooltip_LargeSteamBeeBreeder_Casing=Machine casing
 BeeBreeder_missing_drone=Drone pool missing required species!
 BeeBreeder_unreachable_target=Target species unreachable from current pool!
