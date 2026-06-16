@@ -101,6 +101,10 @@ import gregtech.common.gui.modularui.multiblock.base.MTEMultiBlockBaseGui;
 // # Consumes 51200L steam per breeding attempt
 // # zh_CN 每次繁育尝试消耗 51200L 蒸汽
 
+// #tr Tooltip_LargeSteamBeeBreeder_06
+// # Insert Stainless Steel gear in controller slot for +10% mutation chance
+// # zh_CN 在主机内插入不锈钢齿轮 +10% 杂交成功率
+
 // #tr Tooltip_LargeSteamBeeBreeder_Casing
 // # Machine casing
 // # zh_CN 机器外壳
@@ -121,8 +125,8 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
     /** 每次繁育消耗的蒸汽量 (L) */
     private static final int STEAM_PER_BREEDING = 51200;
 
-    /** 每次繁育的时间 (tick)，6.4秒 = 128 ticks */
-    private static final int TICKS_PER_BREEDING = 128;
+    /** 每周期繁育耗时 (ticks) */
+    private static final int TICKS_PER_BREEDING = 64;
 
     /** 每周期最大并行繁育步骤数 */
     private static final int MAX_PARALLEL_STEPS = 16;
@@ -849,6 +853,7 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamBeeBreeder_03"))
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamBeeBreeder_04"))
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamBeeBreeder_05"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamBeeBreeder_06"))
             .beginStructureBlock(9, 5, 5, false)
             .addInputBus(StatCollector.translateToLocal("Tooltip_LargeSteamBeeBreeder_Casing"), 1)
             .addOutputBus(StatCollector.translateToLocal("Tooltip_LargeSteamBeeBreeder_Casing"), 1)

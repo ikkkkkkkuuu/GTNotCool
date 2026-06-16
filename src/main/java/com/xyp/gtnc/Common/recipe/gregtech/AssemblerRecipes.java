@@ -24,6 +24,18 @@ public class AssemblerRecipes {
     public static void loadRecipes() {
         RecipeMap<?> As = RecipeMaps.assemblerRecipes;
 
+        // 蒸汽蜜蜂
+        GTRecipeBuilder.builder()
+            .itemInputs(
+                GTNCItemList.LargeSteamAssembler.get(1L),
+                GTOreDictUnificator.get(OrePrefixes.circuit, Materials.LV, 8),
+                GTOreDictUnificator.get(OrePrefixes.plate, Materials.Steel, 2),
+                GTUtility.getIntegratedCircuit(20))
+            .itemOutputs(GTNCItemList.LargeSteamBeeBreeder.get(1))
+            .duration(100)
+            .eut(32)
+            .addTo(As);
+
         // 超级样板输入总线
         GTRecipeBuilder.builder()
             .itemInputs(
