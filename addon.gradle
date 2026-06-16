@@ -132,6 +132,10 @@ afterEvaluate {
     }
 
     tasks.processResources.dependsOn preprocessLangInJavaFiles
+
+    tasks.named('sourcesJar').configure {
+        dependsOn preprocessLangInJavaFiles
+    }
 }
 
 // Git Hook 任务
