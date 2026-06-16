@@ -15,8 +15,6 @@
 | **Singularity Data Hub** | 奇点数据枢纽 |
 | **Vault Port Hatch** | 仓库端口仓 |
 | **Large Ore Processor** | 大型矿石处理器 |
-| **Assembler Matrix** | 装配矩阵 — 大规模并行合成 |
-| **Quantum Computer** | 量子计算机 — 极致合成存储与并行 |
   
 
 ### 大型蒸汽机器

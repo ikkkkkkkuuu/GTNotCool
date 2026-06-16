@@ -1,7 +1,7 @@
 package com.xyp.gtnc.Common.machines.multiblock.steam;
 
-import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofBlocksTiered;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofChain;
+import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofBlock;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.onElementPass;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.transpose;
 import static gregtech.api.GregTechAPI.sBlockCasings1;
@@ -21,15 +21,11 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
 
-import org.apache.commons.lang3.tuple.Pair;
-
-import com.google.common.collect.ImmutableList;
 import com.gtnewhorizon.structurelib.alignment.constructable.ISurvivalConstructable;
 import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
 import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
@@ -91,7 +87,7 @@ import gregtech.common.gui.modularui.multiblock.base.MTEMultiBlockBaseGui;
 
 // #tr Tooltip_LargeSteamBeeBreeder_03
 // # 6.4 seconds per breeding cycle, uses actual mutation chance from Forestry
-// # zh_CN 每次繁育周期 6.4 秒，使用林业原版杂交概率
+// # zh_CN 每次繁育周期 3.2 秒，使用林业原版杂交概率
 
 // #tr Tooltip_LargeSteamBeeBreeder_04
 // # Each princess input → one target princess output when chain completes
@@ -134,8 +130,8 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
     // ==================== 结构定义 ====================
 
     private static final String STRUCTURE_PIECE_MAIN = "main";
-    private static final int HORIZONTAL_OFF_SET = 4;
-    private static final int VERTICAL_OFF_SET = 4;
+    private static final int HORIZONTAL_OFF_SET = 7;
+    private static final int VERTICAL_OFF_SET = 8;
     private static final int DEPTH_OFF_SET = 0;
 
     private int mCountCasing = 0;
@@ -146,14 +142,28 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
 
     private IStructureDefinition<LargeSteamBeeBreeder> STRUCTURE_DEFINITION = null;
 
-    // 9 wide (x), 5 tall (y), 5 deep (z)
-    // 'A' = glass, 'B' = tiered casing + hatches, 'D' = bronze frame
-    private final String[][] shape = new String[][] {
-        { "BBBBBBBBB", "BBBBBBBBB", "BBBBBBBBB", "BBBBBBBBB", "BBBBBBBBB" },
-        { "D       D", "BAAAAAAAB", "B       B", "BAAAAAAAB", "D       D" },
-        { "D       D", "BAAAAAAAB", "B       B", "BAAAAAAAB", "D       D" },
-        { "D       D", "BAAAAAAAB", "B       B", "BAAAAAAAB", "D       D" },
-        { "BBBB~BBBB", "BBBBBBBBB", "BBBBBBBBB", "BBBBBBBBB", "BBBBBBBBB" } };
+    // 15 wide (x), 17 tall (y), 15 deep (z)
+    // A=glass, B/G/H=casing, G=hatches, I/J/K/L/N/O/P=bronze frame
+    // W(water) and F(flowers) replaced with spaces (air)
+    private final String[][] shape = transpose(new String[][] {
+        {"               ","               ","               ","      HHH      ","    HHAAAHH    ","    HAPLPAH    ","   HAPAAAPAH   ","   HALAAALAH   ","   HAPAAAPAH   ","    HAPLPAH    ","    HHAAAHH    ","      HHH      ","               ","               ","               "},
+        {"               ","               ","      GGG      ","    GG   GG    ","   G       G   ","   G       G   ","  G         G  ","  G         G  ","  G         G  ","   G       G   ","   G       G   ","    GG   GG    ","      GGG      ","               ","               "},
+        {"               ","      HHH      ","   HHH   HHH   ","  HG       GH  ","  H         H  ","  H         H  "," H           H "," H           H "," H           H ","  H         H  ","  H         H  ","  HG       GH  ","   HHH   HHH   ","      HHH      ","               "},
+        {"      GGG      ","   GGG   GGG   ","  G         G  "," G           G "," G           G "," G           G ","G             G","G             G","G             G"," G           G "," G           G "," G           G ","  G         G  ","   GGG   GGG   ","      GGG      "},
+        {"      AAA      ","   OLA   ALO   ","  P         P  "," O           O "," L           L "," A           A ","A             A","A             A","A             A"," A           A "," L           L "," O           O ","  P         P  ","   OLA   ALO   ","      AAA      "},
+        {"     AAAAA     ","   NA     AO   ","  P         P  "," N           O "," A           A ","A             A","A     III     A","A     III     A","A     III     A","A             A"," A           A "," N           N ","  P         P  ","   NA     AN   ","     AAAAA     "},
+        {"     AAAAA     ","   NA     AO   ","  P         P  "," N           O "," A           A ","A             A","A     JJJ     A","A     JKJ     A","A     JJJ     A","A             A"," A           A "," N           N ","  P         P  ","   NA     AN   ","     AAAAA     "},
+        {"      AAA      ","   OLA   ALO   ","  P         P  "," O           O "," L           L "," A           A ","A             A","A             A","A             A"," A           A "," L           L "," O           O ","  P         P  ","   OLA   ALO   ","      AAA      "},
+        {"      G~G      ","   GGGBBBGGG   ","  GBB     BBG  "," GBB       BBG "," GB         BG "," G           G ","GB           BG","GB           BG","GB           BG"," G           G "," GB         BG "," GBB       BBG ","  GBB     BBG  ","   GGGBBBGGG   ","      GGG      "},
+        {"      HHH      ","    HHBBBHH    ","  HHBBBBBBBHH  ","  HBBB   BBBH  "," HBB       BBH "," HBB BBBBB BBH ","HBB  BBBBBB BBH","HBB BBBBBBB BBH","HBB BBBBBB  BBH"," HB  BBBBB BBH "," HBB   BB BBH ","  HBBB    BBH  ","  HHBBBBBBBHH  ","    HHBBBHH    ","      HHH      "},
+        {"               ","     GGGGG     ","   GGBBBBBGG   ","  GBBBBBBBBBG  ","  GBBBBBBBBBG  "," GBBBBBBBBBBBG "," GBBBBBBBBBBBG "," GBBBBBBBBBBBG "," GBBBBBBBBBBBG "," GBBBBBBBBBBBG ","  GBBBBBBBBBG  ","  GBBBBBBBBBG  ","   GGBBBBBGG   ","     GGGGG     ","               "},
+        {"               ","      HHH      ","    HHBBBHH    ","   HBBBBBBBH   ","  HBBBBBBBBBH  ","  HBBBBBBBBBH  "," HBBBBBBBBBBBH "," HBBBBBBBBBBBH "," HBBBBBBBBBBBH ","  HBBBBBBBBBH  ","  HBBBBBBBBBH  ","   HBBBBBBBH   ","    HHBBBHH    ","      HHH      ","               "},
+        {"               ","               ","      GGG      ","    GGBBBGG    ","   GBBBBBBBG   ","   GBBBBBBBG   ","  GBBBBBBBBBG  ","  GBBBBBBBBBG  ","  GBBBBBBBBBG  ","   GBBBBBBBG   ","   GBBBBBBBG   ","    GGBBBGG    ","      GGG      ","               ","               "},
+        {"               ","               ","       H       ","     HHBHH     ","    HBBBBBH    ","   HBBBBBBBH   ","   HBBBBBBBH   ","  HBBBBBBBBBH  ","   HBBBBBBBH   ","   HBBBBBBBH   ","    HBBBBBH    ","     HHBHH     ","       H       ","               ","               "},
+        {"               ","               ","               ","       G       ","     GGBGG     ","    GBBBBBG    ","    GBBBBBG    ","   GBBBBBBBG   ","    GBBBBBG    ","    GBBBBBG    ","     GGBGG     ","       G       ","               ","               ","               "},
+        {"               ","               ","               ","               ","      HHH      ","     HHHHH     ","    HHBBBHH    ","    HHBBBHH    ","    HHBBBHH    ","     HHHHH     ","      HHH      ","               ","               ","               ","               "},
+        {"               ","               ","               ","               ","               ","               ","      GGG      ","      GHG      ","      GGG      ","               ","               ","               ","               ","               ","               "}
+    });
 
     // ==================== 机器状态 ====================
 
@@ -251,10 +261,11 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
     public IStructureDefinition<LargeSteamBeeBreeder> getStructureDefinition() {
         if (STRUCTURE_DEFINITION == null) {
             STRUCTURE_DEFINITION = StructureDefinition.<LargeSteamBeeBreeder>builder()
-                .addShape(STRUCTURE_PIECE_MAIN, transpose(shape))
+                .addShape(STRUCTURE_PIECE_MAIN, shape)
                 .addElement('A', chainAllGlasses())
+                .addElement('B', onElementPass(x -> ++x.mCountCasing, ofBlock(sBlockCasings1, 10)))
                 .addElement(
-                    'B',
+                    'G',
                     ofChain(
                         buildSteamInput(LargeSteamBeeBreeder.class).casingIndex(10)
                             .hint(1)
@@ -269,23 +280,15 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
                             .casingIndex(10)
                             .hint(1)
                             .buildAndChain(),
-                        onElementPass(
-                            x -> ++x.mCountCasing,
-                            ofBlocksTiered(
-                                this::getTierMachineCasing,
-                                ImmutableList.of(Pair.of(sBlockCasings1, 10)),
-                                -1,
-                                (t, m) -> {},
-                                t -> 1))))
-                .addElement(
-                    'D',
-                    ofBlocksTiered(
-                        (block, meta) -> 1,
-                        ImmutableList
-                            .of(Pair.of(gregtech.api.GregTechAPI.sBlockFrames, (int) Materials.Bronze.mMetaItemSubID)),
-                        -1,
-                        (t, m) -> {},
-                        t -> 1))
+                        onElementPass(x -> ++x.mCountCasing, ofBlock(sBlockCasings1, 10))))
+                .addElement('H', onElementPass(x -> ++x.mCountCasing, ofBlock(sBlockCasings1, 10)))
+                .addElement('I', ofBlock(gregtech.api.GregTechAPI.sBlockFrames, (int) Materials.Bronze.mMetaItemSubID))
+                .addElement('J', ofBlock(gregtech.api.GregTechAPI.sBlockFrames, (int) Materials.Bronze.mMetaItemSubID))
+                .addElement('K', ofBlock(gregtech.api.GregTechAPI.sBlockFrames, (int) Materials.Bronze.mMetaItemSubID))
+                .addElement('L', ofBlock(gregtech.api.GregTechAPI.sBlockFrames, (int) Materials.Bronze.mMetaItemSubID))
+                .addElement('N', ofBlock(gregtech.api.GregTechAPI.sBlockFrames, (int) Materials.Bronze.mMetaItemSubID))
+                .addElement('O', ofBlock(gregtech.api.GregTechAPI.sBlockFrames, (int) Materials.Bronze.mMetaItemSubID))
+                .addElement('P', ofBlock(gregtech.api.GregTechAPI.sBlockFrames, (int) Materials.Bronze.mMetaItemSubID))
                 .build();
         }
         return STRUCTURE_DEFINITION;
@@ -323,20 +326,10 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
         if (!checkPiece(STRUCTURE_PIECE_MAIN, HORIZONTAL_OFF_SET, VERTICAL_OFF_SET, DEPTH_OFF_SET, errors)) return;
         tierMachine = 1;
         updateHatchTexture();
-        checkCasingMin(errors, mCountCasing, 3);
         checkHasInputBus(errors);
         checkHasInputHatch(errors);
         checkHasOutputBus(errors);
         hasStainlessSteelGear = checkStainlessSteelGear(getControllerSlot());
-    }
-
-    @Nullable
-    public Integer getTierMachineCasing(Block block, int meta) {
-        if (block == sBlockCasings1 && 10 == meta) {
-            mCountCasing++;
-            return 1;
-        }
-        return null;
     }
 
     private boolean checkStainlessSteelGear(ItemStack stack) {
@@ -854,7 +847,7 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamBeeBreeder_04"))
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamBeeBreeder_05"))
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamBeeBreeder_06"))
-            .beginStructureBlock(9, 5, 5, false)
+            .beginStructureBlock(15, 17, 15, false)
             .addInputBus(StatCollector.translateToLocal("Tooltip_LargeSteamBeeBreeder_Casing"), 1)
             .addOutputBus(StatCollector.translateToLocal("Tooltip_LargeSteamBeeBreeder_Casing"), 1)
             .toolTipFinisher();
