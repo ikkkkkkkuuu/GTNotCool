@@ -1,7 +1,9 @@
 package com.xyp.gtnc.Common.machines.multiblock.steam;
 
-import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofChain;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofBlock;
+import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofBlockAnyMeta;
+import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofBlocksMap;
+import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofChain;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.onElementPass;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.transpose;
 import static gregtech.api.GregTechAPI.sBlockCasings1;
@@ -10,6 +12,7 @@ import static gregtech.api.enums.HatchElement.InputHatch;
 import static gregtech.api.enums.HatchElement.OutputBus;
 import static gregtech.api.util.GTStructureUtility.buildHatchAdder;
 import static gregtech.api.util.GTStructureUtility.chainAllGlasses;
+import static gregtech.api.util.GTStructureUtility.ofOreDictBlockMap;
 import static gtPlusPlus.xmod.gregtech.common.blocks.textures.TexturesGtBlock.oMCDIndustrialCuttingMachine;
 import static gtPlusPlus.xmod.gregtech.common.blocks.textures.TexturesGtBlock.oMCDIndustrialCuttingMachineActive;
 
@@ -21,6 +24,7 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.StatCollector;
@@ -143,7 +147,7 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
     private IStructureDefinition<LargeSteamBeeBreeder> STRUCTURE_DEFINITION = null;
 
     // 15 wide (x), 17 tall (y), 15 deep (z)
-    // A=glass, B/G/H=casing, G=hatches, I/J/K/L/N/O/P=bronze frame
+    // A=glass, B=dirt/grass, G=casing+hatches, H=wood planks, I=wood slabs, J/K/L/N/O/P=bronze frame
     // W(water) and F(flowers) replaced with spaces (air)
     private final String[][] shape = transpose(new String[][] {
         {"               ","               ","               ","      HHH      ","    HHAAAHH    ","    HAPLPAH    ","   HAPAAAPAH   ","   HALAAALAH   ","   HAPAAAPAH   ","    HAPLPAH    ","    HHAAAHH    ","      HHH      ","               ","               ","               "},
@@ -263,7 +267,7 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
             STRUCTURE_DEFINITION = StructureDefinition.<LargeSteamBeeBreeder>builder()
                 .addShape(STRUCTURE_PIECE_MAIN, shape)
                 .addElement('A', chainAllGlasses())
-                .addElement('B', onElementPass(x -> ++x.mCountCasing, ofBlock(sBlockCasings1, 10)))
+                .addElement('B', ofChain(ofBlockAnyMeta(Blocks.dirt, 0), ofBlock(Blocks.grass, 0)))
                 .addElement(
                     'G',
                     ofChain(
@@ -281,8 +285,8 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
                             .hint(1)
                             .buildAndChain(),
                         onElementPass(x -> ++x.mCountCasing, ofBlock(sBlockCasings1, 10))))
-                .addElement('H', onElementPass(x -> ++x.mCountCasing, ofBlock(sBlockCasings1, 10)))
-                .addElement('I', ofBlock(gregtech.api.GregTechAPI.sBlockFrames, (int) Materials.Bronze.mMetaItemSubID))
+                .addElement('H', ofBlocksMap(ofOreDictBlockMap("plankWood"), Blocks.planks, 0))
+                .addElement('I', ofBlocksMap(ofOreDictBlockMap("slabWood"), Blocks.wooden_slab, 0))
                 .addElement('J', ofBlock(gregtech.api.GregTechAPI.sBlockFrames, (int) Materials.Bronze.mMetaItemSubID))
                 .addElement('K', ofBlock(gregtech.api.GregTechAPI.sBlockFrames, (int) Materials.Bronze.mMetaItemSubID))
                 .addElement('L', ofBlock(gregtech.api.GregTechAPI.sBlockFrames, (int) Materials.Bronze.mMetaItemSubID))
