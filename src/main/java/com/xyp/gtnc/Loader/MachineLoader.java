@@ -15,6 +15,7 @@ import com.xyp.gtnc.Common.machines.multiblock.SingularityDataHub;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeBoiler;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamAlloySmelter;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamAssembler;
+import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamBeeBreeder;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamBending;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamCentrifuge;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamChemicalReactor;
@@ -371,6 +372,17 @@ public class MachineLoader {
                 StatCollector.translateToLocal("NameLargeSteamPyrolyseOven")));
         AnimatedTooltipHandler
             .addItemTooltip(GTNCItemList.LargeSteamPyrolyseOven.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        // #tr NameLargeSteamBeeBreeder
+        // # Large Steam Bee Breeder
+        // # zh_CN 大型蒸汽养蜂机
+        GTNCItemList.LargeSteamBeeBreeder.set(
+            new LargeSteamBeeBreeder(
+                GTNCMachineID.LARGE_STEAM_BEE_BREEDER.ID,
+                "LargeSteamBeeBreeder",
+                StatCollector.translateToLocal("NameLargeSteamBeeBreeder")));
+        AnimatedTooltipHandler
+            .addItemTooltip(GTNCItemList.LargeSteamBeeBreeder.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
 
     }
 
