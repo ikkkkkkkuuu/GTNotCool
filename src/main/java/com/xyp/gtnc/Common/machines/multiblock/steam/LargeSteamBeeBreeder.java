@@ -13,8 +13,10 @@ import static gregtech.api.enums.HatchElement.OutputBus;
 import static gregtech.api.util.GTStructureUtility.buildHatchAdder;
 import static gregtech.api.util.GTStructureUtility.chainAllGlasses;
 import static gregtech.api.util.GTStructureUtility.ofOreDictBlockMap;
-import static gtPlusPlus.xmod.gregtech.common.blocks.textures.TexturesGtBlock.oMCDIndustrialCuttingMachine;
-import static gtPlusPlus.xmod.gregtech.common.blocks.textures.TexturesGtBlock.oMCDIndustrialCuttingMachineActive;
+import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_FRONT_DISTILLATION_TOWER;
+import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_FRONT_DISTILLATION_TOWER_ACTIVE;
+import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_FRONT_DISTILLATION_TOWER_ACTIVE_GLOW;
+import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_FRONT_DISTILLATION_TOWER_GLOW;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -38,7 +40,6 @@ import com.xyp.gtnc.Common.gui.modularui.multiblock.steam.LargeSteamBeeBreederGu
 import com.xyp.gtnc.Common.machines.bee.BeeBreedingHelper;
 import com.xyp.gtnc.Common.machines.bee.DronePool;
 import com.xyp.gtnc.Common.machines.multiblock.multiMachineBase.GTNCSteamMultiBlockBase;
-import com.xyp.gtnc.utils.StructureUtils;
 import com.xyp.gtnc.utils.Utils;
 
 import gregtech.api.enums.Materials;
@@ -238,12 +239,12 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
 
     @Override
     protected gregtech.api.interfaces.IIconContainer getInactiveOverlay() {
-        return oMCDIndustrialCuttingMachine;
+        return OVERLAY_FRONT_DISTILLATION_TOWER;
     }
 
     @Override
     protected gregtech.api.interfaces.IIconContainer getActiveOverlay() {
-        return oMCDIndustrialCuttingMachineActive;
+        return OVERLAY_FRONT_DISTILLATION_TOWER_ACTIVE;
     }
 
     // ==================== 结构定义 ====================
@@ -360,18 +361,29 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
     @Override
     public ITexture[] getTexture(IGregTechTileEntity aBaseMetaTileEntity, ForgeDirection side, ForgeDirection aFacing,
         int colorIndex, boolean aActive, boolean redstoneLevel) {
-        int id = StructureUtils.getTextureIndex(sBlockCasings1, 10);
         if (side == aFacing) {
-            if (aActive) return new ITexture[] { Textures.BlockIcons.getCasingTextureForId(id), TextureFactory.builder()
-                .addIcon(oMCDIndustrialCuttingMachineActive)
-                .extFacing()
-                .build() };
-            return new ITexture[] { Textures.BlockIcons.getCasingTextureForId(id), TextureFactory.builder()
-                .addIcon(oMCDIndustrialCuttingMachine)
-                .extFacing()
-                .build() };
+            if (aActive) return new ITexture[] { Textures.BlockIcons.getCasingTextureForId(10),
+                TextureFactory.builder()
+                    .addIcon(OVERLAY_FRONT_DISTILLATION_TOWER_ACTIVE)
+                    .extFacing()
+                    .build(),
+                TextureFactory.builder()
+                    .addIcon(OVERLAY_FRONT_DISTILLATION_TOWER_ACTIVE_GLOW)
+                    .extFacing()
+                    .glow()
+                    .build() };
+            return new ITexture[] { Textures.BlockIcons.getCasingTextureForId(10),
+                TextureFactory.builder()
+                    .addIcon(OVERLAY_FRONT_DISTILLATION_TOWER)
+                    .extFacing()
+                    .build(),
+                TextureFactory.builder()
+                    .addIcon(OVERLAY_FRONT_DISTILLATION_TOWER_GLOW)
+                    .extFacing()
+                    .glow()
+                    .build() };
         }
-        return new ITexture[] { Textures.BlockIcons.getCasingTextureForId(id) };
+        return new ITexture[] { Textures.BlockIcons.getCasingTextureForId(10) };
     }
 
     // ==================== 核心处理逻辑 ====================
