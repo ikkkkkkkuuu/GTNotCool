@@ -17,6 +17,7 @@
 | **Large Ore Processor** | 大型矿石处理器 |
 | **Assembler Matrix** | 装配矩阵 — 大规模并行合成 |
 | **Quantum Computer** | 量子计算机 — 极致合成存储与并行 |
+  
 
 ### 大型蒸汽机器
 
@@ -88,36 +89,12 @@
 
 ---
 
-## 🧩 装配矩阵组件
-
-| 组件 | 说明 |
-|------|------|
-| Assembler Matrix Pattern Core | 每个提供 72 样板槽位 |
-| Assembler Matrix Crafter Core | 每个提供 2,048 并行 |
-| Assembler Matrix Speed Core | 每安装一个时间减半 |
-| Assembler Matrix Singularity Crafter Core | 每个提供 2,147,483,647 并行 |
-| Assembler Matrix Debug Crafter Core | 每个提供 9.22E 并行 |
-
----
-
-## 💻 量子计算机组件
-
-| 组件 | 说明 |
-|------|------|
-| Quantum Computer Casing | 量子计算机构筑方块 |
-| Quantum Computer Core | 提供 256M 合成存储 + 16384 并行 |
-| Quantum Computer Accelerator | 每个提供 16384 并行线程 |
-| Quantum Computer Data Entangler | 合成存储容量 ×4（最多 8 个） |
-| Quantum Computer MultiThreader | 并行线程数 ×4（限放置数量） |
-| Quantum Computer Singularity Core | 锁定合成存储为 9.22E |
-
----
-
 ## 🛠️ 其他物品
 
 | 物品 | 说明 |
 |------|------|
 | **Bioware SMD Inductor** | 生物贴片电感 |
+| **Wildcard Pattern (支持流体)** | 通配样板符 — 支持物品和流体通配匹配 |
 | **Super Pattern Input Bus (ME)** | 超级样板输入总线 |
 | **Super Pattern Input Hatch (ME)** | 超级样板输入总成 |
 | **Super Pattern Input Mirror (ME)** | 超级样板输入镜像 |
@@ -148,6 +125,16 @@
 - Botania
 - Thaumcraft
 - GalacticGreg
+
+---
+
+## 🔗 参考代码
+
+本项目部分功能借鉴自以下开源项目：
+
+- [GT-Not-Leisure](https://github.com/ABKQPO/GT-Not-Leisure) — 大型蒸汽多方块机器参考
+- [WildcardPatternforGTNH](https://github.com/clfpwp/WildcardPatternforGTNH-1.7.10) — 通配样板符功能参考
+- [NH-Utilities](https://github.com/Keriils/NH-Utilities) — GTNH 实用工具参考
 
 ---
 
