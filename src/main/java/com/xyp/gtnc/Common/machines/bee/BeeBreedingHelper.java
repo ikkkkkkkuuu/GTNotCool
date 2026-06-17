@@ -83,6 +83,18 @@ public class BeeBreedingHelper {
     }
 
     /**
+     * 获取蜜蜂的品种 UID（Forestry 内部唯一标识符，同一 unlocalizedName 可能有多个不同 UID 的品种）
+     */
+    public static String getBeeUID(ItemStack stack) {
+        if (!isBee(stack)) return null;
+        IBee bee = getBeeRoot().getMember(stack);
+        if (bee == null || bee.getGenome() == null) return null;
+        IAlleleBeeSpecies species = bee.getGenome()
+            .getPrimary();
+        return species != null ? species.getUID() : null;
+    }
+
+    /**
      * 剥离 Forestry/GTNH 模组蜜蜂 unlocalizedName 中的常见前缀。
      * 大小写不敏感，处理 "SpeciesTE"（如 "SpeciesTENickel"→"Nickel"）
      * 和 "species"（如 "speciesCertus"→"Certus"）前缀。
@@ -101,66 +113,53 @@ public class BeeBreedingHelper {
     }
 
     /**
-     * 从未本地化名称中提取可读的品种名。
+     * 从未本地化名称或 UID 中提取可读的品种名。
      * 优先取点分隔最后一段并剥离常见前缀；其次剥离无点格式的前缀；
-     * 最后尝试通过 getName() 获取英文名（仅 ASCII）。
+     * 最后尝试通过物种注册表获取英文名（仅 ASCII）。
+     * 如果传入的是 UID，会先通过 UID 查物种再提取显示名。
      * 例如 "magicbees.speciesCertus" → "Certus"、"SpeciesTENickel" → "Nickel"
      */
-    public static String getSpeciesDisplayName(String unlocalizedName) {
-        if (unlocalizedName == null || unlocalizedName.isEmpty()) return "";
-        int lastDot = unlocalizedName.lastIndexOf('.');
-        if (lastDot >= 0) {
-            String name = unlocalizedName.substring(lastDot + 1);
-            name = stripBeePrefix(name);
-            if (!name.isEmpty()) {
-                return Character.toUpperCase(name.charAt(0)) + name.substring(1);
-            }
+    public static String getSpeciesDisplayName(String input) {
+        if (input == null || input.isEmpty()) return "";
+        // 先尝试按 UID 查找物种，确保同 unlocalizedName 但不同 UID 的品种显示正确
+        IAlleleBeeSpecies uidSpecies = getSpeciesByUID(input);
+        if (uidSpecies != null) {
+            String uln = uidSpecies.getUnlocalizedName();
+            String display = extractDisplayFromUnlocalizedName(uln);
+            if (display != null) return display;
         }
-        // 无点分隔：尝试剥离前缀
-        String stripped = stripBeePrefix(unlocalizedName);
-        if (!stripped.equals(unlocalizedName) && !stripped.isEmpty()) {
-            return Character.toUpperCase(stripped.charAt(0)) + stripped.substring(1);
-        }
+        // 按普通名称处理
+        String display = extractDisplayFromUnlocalizedName(input);
+        if (display != null) return display;
         // 无法剥离前缀：尝试从物种注册表获取英文显示名
-        IAlleleBeeSpecies species = findSpeciesByUnlocalizedName(unlocalizedName);
+        IAlleleBeeSpecies species = findSpeciesByUnlocalizedName(input);
         if (species != null) {
             String name = species.getName();
             if (name != null && !name.isEmpty() && isAscii(name)) {
                 return name;
             }
         }
-        return Character.toUpperCase(unlocalizedName.charAt(0)) + unlocalizedName.substring(1);
+        return Character.toUpperCase(input.charAt(0)) + input.substring(1);
     }
 
     /**
-     * 将任意形式的品种名（显示名、基因组 unlocalizedName、物种模板 unlocalizedName 等）
-     * 规范化为物种注册表中的统一标识名。
-     * <p>
-     * 例如 "Nickel"、"SpeciesTENickel" 都会规范化为 "extrabees.species.nickel"。
-     * 这样雄蜂池和育种目标的品种名格式一致，避免匹配失败。
+     * 从 unlocalizedName 格式的字符串提取显示名（带前缀剥离和首字母大写）
      */
-    public static String getCanonicalSpeciesName(String rawName) {
-        if (rawName == null || rawName.isEmpty()) return rawName;
-        // 先尝试直接匹配
-        IAlleleBeeSpecies species = getSpeciesByName(rawName);
-        if (species != null) return species.getUnlocalizedName();
-        // 若失败，通过显示名作为桥接再查一次
-        String display = getSpeciesDisplayName(rawName);
-        if (!display.isEmpty() && !display.equals(rawName)) {
-            species = getSpeciesByName(display);
-            if (species != null) return species.getUnlocalizedName();
-        }
-        return rawName;
-    }
-
-    /**
-     * 从 unlocalizedName 中提取可读部分（不去首字母大写）。
-     * 用于 matchSpeciesName 快速匹配，统一走 stripBeePrefix。
-     */
-    private static String extractReadableName(String uln) {
+    private static String extractDisplayFromUnlocalizedName(String uln) {
         int lastDot = uln.lastIndexOf('.');
-        String name = lastDot >= 0 ? uln.substring(lastDot + 1) : uln;
-        return stripBeePrefix(name);
+        if (lastDot >= 0) {
+            String name = uln.substring(lastDot + 1);
+            name = stripBeePrefix(name);
+            if (!name.isEmpty()) {
+                return Character.toUpperCase(name.charAt(0)) + name.substring(1);
+            }
+        }
+        // 无点分隔：尝试剥离前缀
+        String stripped = stripBeePrefix(uln);
+        if (!stripped.equals(uln) && !stripped.isEmpty()) {
+            return Character.toUpperCase(stripped.charAt(0)) + stripped.substring(1);
+        }
+        return null;
     }
 
     /**
@@ -183,6 +182,83 @@ public class BeeBreedingHelper {
             if (template.length > 0 && template[0] instanceof IAlleleBeeSpecies) {
                 IAlleleBeeSpecies s = (IAlleleBeeSpecies) template[0];
                 if (uln.equalsIgnoreCase(s.getUnlocalizedName())) return s;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 将任意形式的品种名规范化为 UID（唯一标识符）。
+     * <p>
+     * 先尝试 UID 精确查找，再尝试名称模糊匹配。
+     * 例如 "Nickel"、"SpeciesTENickel"、"extrabees.species.nickel" 都会规范化为其 UID。
+     */
+    public static String getCanonicalUID(String rawName) {
+        if (rawName == null || rawName.isEmpty()) return rawName;
+        // 先尝试 UID 精确查找
+        IAlleleBeeSpecies species = getSpeciesByUID(rawName);
+        if (species != null) return species.getUID();
+        // 再尝试名称查找
+        species = getSpeciesByName(rawName);
+        if (species != null) return species.getUID();
+        // 通过显示名桥接
+        String display = getSpeciesDisplayName(rawName);
+        if (!display.isEmpty() && !display.equals(rawName)) {
+            species = getSpeciesByName(display);
+            if (species != null) return species.getUID();
+        }
+        return rawName;
+    }
+
+    /**
+     * 将任意形式的品种名规范化为物种注册表中的统一标识名（unlocalizedName）。
+     * <p>
+     * 例如 "Nickel"、"SpeciesTENickel" 都会规范化为 "extrabees.species.nickel"。
+     * ⚠️ 注意：同一 unlocalizedName 可能对应多个不同 UID 的品种，推荐使用 getCanonicalUID()。
+     */
+    public static String getCanonicalSpeciesName(String rawName) {
+        if (rawName == null || rawName.isEmpty()) return rawName;
+        IAlleleBeeSpecies species = getSpeciesByName(rawName);
+        if (species != null) return species.getUnlocalizedName();
+        String display = getSpeciesDisplayName(rawName);
+        if (!display.isEmpty() && !display.equals(rawName)) {
+            species = getSpeciesByName(display);
+            if (species != null) return species.getUnlocalizedName();
+        }
+        return rawName;
+    }
+
+    /**
+     * 从 unlocalizedName 中提取可读部分（不去首字母大写）。
+     * 用于 matchSpeciesName 快速匹配，统一走 stripBeePrefix。
+     */
+    private static String extractReadableName(String uln) {
+        int lastDot = uln.lastIndexOf('.');
+        String name = lastDot >= 0 ? uln.substring(lastDot + 1) : uln;
+        return stripBeePrefix(name);
+    }
+
+    /**
+     * 通过 UID 精确查找物种（UID 在 Forestry 中保证唯一）
+     */
+    public static IAlleleBeeSpecies getSpeciesByUID(String uid) {
+        if (uid == null || uid.isEmpty()) return null;
+        IBeeRoot root = getBeeRoot();
+        if (root == null) return null;
+        Map<String, IAllele[]> templates = root.getGenomeTemplates();
+        if (templates != null) {
+            for (IAllele[] template : templates.values()) {
+                if (template != null && template.length > 0 && template[0] instanceof IAlleleBeeSpecies) {
+                    IAlleleBeeSpecies s = (IAlleleBeeSpecies) template[0];
+                    if (uid.equals(s.getUID())) return s;
+                }
+            }
+        }
+        for (IBeeMutation mutation : root.getMutations(false)) {
+            IAllele[] template = mutation.getTemplate();
+            if (template.length > 0 && template[0] instanceof IAlleleBeeSpecies) {
+                IAlleleBeeSpecies s = (IAlleleBeeSpecies) template[0];
+                if (uid.equals(s.getUID())) return s;
             }
         }
         return null;
@@ -367,6 +443,31 @@ public class BeeBreedingHelper {
     }
 
     /**
+     * 通过 UID 获取指定品种的所有杂交配方（作为结果）。
+     * 返回的 MutationData 中 parent1/parent2/result 均为 UID 字符串。
+     */
+    public static List<MutationData> getMutationsForUID(String uid) {
+        List<MutationData> mutations = new ArrayList<>();
+        IBeeRoot root = getBeeRoot();
+        if (root == null) return mutations;
+
+        for (IBeeMutation mutation : root.getMutations(false)) {
+            IAllele[] resultTemplate = mutation.getTemplate();
+            if (resultTemplate.length > 0 && resultTemplate[0] instanceof IAlleleBeeSpecies) {
+                IAlleleBeeSpecies resultSpecies = (IAlleleBeeSpecies) resultTemplate[0];
+                if (uid.equals(resultSpecies.getUID())) {
+                    IAllele parent1Allele = mutation.getAllele0();
+                    IAllele parent2Allele = mutation.getAllele1();
+                    String p1 = parent1Allele != null ? parent1Allele.getUID() : "";
+                    String p2 = parent2Allele != null ? parent2Allele.getUID() : "";
+                    mutations.add(new MutationData(p1, p2, uid, mutation.getBaseChance()));
+                }
+            }
+        }
+        return mutations;
+    }
+
+    /**
      * 杂交路径中的一步
      */
     public static class BreedingStep {
@@ -435,11 +536,15 @@ public class BeeBreedingHelper {
      */
     private static boolean preferencesResolved = false;
 
+    /** UID 版本的偏好映射（与 BREEDING_PREFERENCES 对应，但键值为 UID） */
+    private static final Map<String, String[]> BREEDING_PREFERENCES_UID = new HashMap<>();
+
     private static void resolvePreferences() {
         if (preferencesResolved) return;
         preferencesResolved = true;
 
         Map<String, String[]> resolved = new HashMap<>();
+        Map<String, String[]> resolvedUID = new HashMap<>();
         for (Map.Entry<String, String[]> entry : BREEDING_PREFERENCES.entrySet()) {
             String targetEnglish = entry.getKey();
             String[] parentsEnglish = entry.getValue();
@@ -455,10 +560,16 @@ public class BeeBreedingHelper {
             String p2Key = p2Species != null ? p2Species.getUnlocalizedName() : parentsEnglish[1];
 
             resolved.put(targetKey, new String[] { p1Key, p2Key });
+
+            // UID 版本
+            if (targetSpecies != null && p1Species != null && p2Species != null) {
+                resolvedUID.put(targetSpecies.getUID(), new String[] { p1Species.getUID(), p2Species.getUID() });
+            }
         }
 
         BREEDING_PREFERENCES.clear();
         BREEDING_PREFERENCES.putAll(resolved);
+        BREEDING_PREFERENCES_UID.putAll(resolvedUID);
     }
 
     /**
@@ -495,14 +606,14 @@ public class BeeBreedingHelper {
     }
 
     /**
-     * 选择最佳杂交配方
+     * 选择最佳杂交配方（UID 版本）
      */
-    public static MutationData selectBestMutation(String beeName, List<MutationData> mutations) {
+    public static MutationData selectBestMutationForUID(String uid, List<MutationData> mutations) {
         if (mutations.isEmpty()) return null;
         if (mutations.size() == 1) return mutations.get(0);
 
         resolvePreferences();
-        String[] preference = BREEDING_PREFERENCES.get(beeName);
+        String[] preference = BREEDING_PREFERENCES_UID.get(uid);
         if (preference != null) {
             for (MutationData mutation : mutations) {
                 if ((mutation.parent1.equals(preference[0]) && mutation.parent2.equals(preference[1]))
@@ -512,6 +623,83 @@ public class BeeBreedingHelper {
             }
         }
         return mutations.get(0);
+    }
+
+    /**
+     * 创建从现有蜜蜂到目标蜜蜂的杂交路径（UID 版本 BFS）。
+     * 所有字符串参数均为 UID。
+     */
+    public static List<BreedingStep> createBreedingChainForUID(String targetUID, Set<String> existingUIDs) {
+        if (existingUIDs.contains(targetUID)) {
+            return new ArrayList<>();
+        }
+
+        Map<String, BreedingStep> breedingChain = new HashMap<>();
+        Queue<String> queue = new LinkedList<>();
+        Set<String> visited = new HashSet<>(existingUIDs);
+        visited.add(targetUID);
+
+        List<MutationData> targetMutations = getMutationsForUID(targetUID);
+        targetMutations.removeIf(m -> m.parent1.equals(targetUID) || m.parent2.equals(targetUID));
+        MutationData targetMutation = selectBestMutationForUID(targetUID, targetMutations);
+        if (targetMutation == null) {
+            return new ArrayList<>();
+        }
+
+        breedingChain.put(
+            targetUID,
+            new BreedingStep(targetMutation.parent1, targetMutation.parent2, targetUID, targetMutation.chance));
+        queue.add(targetUID);
+
+        while (!queue.isEmpty()) {
+            String current = queue.poll();
+            BreedingStep step = breedingChain.get(current);
+            if (step == null) continue;
+
+            for (String parent : new String[] { step.parent1, step.parent2 }) {
+                if (visited.contains(parent)) continue;
+                visited.add(parent);
+
+                List<MutationData> parentMutations = getMutationsForUID(parent);
+                parentMutations.removeIf(m -> m.parent1.equals(targetUID) || m.parent2.equals(targetUID));
+                MutationData parentMutation = selectBestMutationForUID(parent, parentMutations);
+                if (parentMutation != null) {
+                    breedingChain.put(
+                        parent,
+                        new BreedingStep(
+                            parentMutation.parent1,
+                            parentMutation.parent2,
+                            parent,
+                            parentMutation.chance));
+                    queue.add(parent);
+                }
+            }
+        }
+
+        List<BreedingStep> orderedSteps = new ArrayList<>();
+        Set<String> canBreed = new HashSet<>(existingUIDs);
+
+        boolean changed = true;
+        while (changed && !breedingChain.isEmpty()) {
+            changed = false;
+            List<String> toRemove = new ArrayList<>();
+
+            for (Map.Entry<String, BreedingStep> entry : breedingChain.entrySet()) {
+                BreedingStep step = entry.getValue();
+                if (canBreed.contains(step.parent1) && canBreed.contains(step.parent2)) {
+                    orderedSteps.add(step);
+                    canBreed.add(step.result);
+                    toRemove.add(entry.getKey());
+                    changed = true;
+                }
+            }
+
+            for (String key : toRemove) {
+                breedingChain.remove(key);
+            }
+        }
+
+        return orderedSteps;
     }
 
     /**
@@ -595,13 +783,15 @@ public class BeeBreedingHelper {
     }
 
     /**
-     * 创建指定品种的雄蜂 ItemStack
+     * 创建指定品种的雄蜂 ItemStack。
+     * 优先按 UID 查找，其次按名称查找。
      */
     public static ItemStack createDrone(String speciesName) {
         IBeeRoot root = getBeeRoot();
         if (root == null) return null;
 
-        IAlleleBeeSpecies species = getSpeciesByName(speciesName);
+        IAlleleBeeSpecies species = getSpeciesByUID(speciesName);
+        if (species == null) species = getSpeciesByName(speciesName);
         if (species == null) return null;
 
         IAllele[] template = root.getTemplate(species.getUID());
@@ -614,13 +804,15 @@ public class BeeBreedingHelper {
     }
 
     /**
-     * 创建指定品种的公主蜂 ItemStack
+     * 创建指定品种的公主蜂 ItemStack。
+     * 优先按 UID 查找，其次按名称查找。
      */
     public static ItemStack createPrincess(String speciesName) {
         IBeeRoot root = getBeeRoot();
         if (root == null) return null;
 
-        IAlleleBeeSpecies species = getSpeciesByName(speciesName);
+        IAlleleBeeSpecies species = getSpeciesByUID(speciesName);
+        if (species == null) species = getSpeciesByName(speciesName);
         if (species == null) return null;
 
         IAllele[] template = root.getTemplate(species.getUID());

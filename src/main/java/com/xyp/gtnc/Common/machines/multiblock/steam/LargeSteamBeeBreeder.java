@@ -491,7 +491,7 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
             }
 
             List<BeeBreedingHelper.MutationData> fallbackMutations = BeeBreedingHelper
-                .getMutationsForSpecies(targetBeeSpecies);
+                .getMutationsForUID(targetBeeSpecies);
             BeeBreedingHelper.MutationData usable = null;
             String actualMissing = "";
             for (BeeBreedingHelper.MutationData m : fallbackMutations) {
@@ -597,10 +597,10 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
                 toRemove.add(stack);
                 hasNew = true;
             } else if (BeeBreedingHelper.isPrincess(stack)) {
-                String rawSpecies = BeeBreedingHelper.getBeeSpecies(stack);
-                if (rawSpecies != null) {
-                    String canonicalSpecies = BeeBreedingHelper.getCanonicalSpeciesName(rawSpecies);
-                    ItemStack virtualDrone = BeeBreedingHelper.createDrone(canonicalSpecies);
+                // 使用基因组中的实际 UID，确保同 unlocalizedName 但不同 UID 的品种不过混淆
+                String uid = BeeBreedingHelper.getBeeUID(stack);
+                if (uid != null) {
+                    ItemStack virtualDrone = BeeBreedingHelper.createDrone(uid);
                     if (virtualDrone != null) {
                         virtualDrone.stackSize = 1;
                         dronePool.addDrone(virtualDrone);
@@ -682,7 +682,7 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
             if (dronePool.hasDrone(targetBeeSpecies)) return;
 
             List<BeeBreedingHelper.MutationData> fallbackMutations = BeeBreedingHelper
-                .getMutationsForSpecies(targetBeeSpecies);
+                .getMutationsForUID(targetBeeSpecies);
             BeeBreedingHelper.MutationData usable = null;
             String actualMissing = "";
             for (BeeBreedingHelper.MutationData m : fallbackMutations) {
@@ -741,7 +741,7 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
                 poolSpecies.add(species);
             }
         }
-        breedingChain = BeeBreedingHelper.createBreedingChain(targetBeeSpecies, poolSpecies);
+        breedingChain = BeeBreedingHelper.createBreedingChainForUID(targetBeeSpecies, poolSpecies);
     }
 
     /**
@@ -758,7 +758,7 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
         if (dronePool.hasDrone(species)) return null;
         if (!visited.add(species)) return species;
 
-        List<BeeBreedingHelper.MutationData> mutations = BeeBreedingHelper.getMutationsForSpecies(species);
+        List<BeeBreedingHelper.MutationData> mutations = BeeBreedingHelper.getMutationsForUID(species);
         // 排除自引用
         List<BeeBreedingHelper.MutationData> filtered = new ArrayList<>();
         for (BeeBreedingHelper.MutationData m : mutations) {
@@ -769,7 +769,7 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
         if (filtered.isEmpty()) return species;
 
         // 使用与 createBreedingChain() 相同的选择逻辑
-        BeeBreedingHelper.MutationData best = BeeBreedingHelper.selectBestMutation(species, filtered);
+        BeeBreedingHelper.MutationData best = BeeBreedingHelper.selectBestMutationForUID(species, filtered);
 
         // 优先沿 parent1 路径向下查
         String missing = findMostBasicMissing(best.parent1, visited);
@@ -901,13 +901,15 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
     }
 
     public void setTargetBeeSpecies(String species) {
-        // 尝试将显示名/用户输入转为内部标识名（unlocalizedName）
-        // 用户可能输入英文显示名（如 "Steel"）或中文名，或内部名
+        // 优先按 UID 精确查找（来自 NEI 拖放），再按名称模糊匹配（用户手动输入）
         if (species != null && !species.isEmpty()) {
-            IAlleleBeeSpecies resolved = BeeBreedingHelper.getSpeciesByName(species);
+            IAlleleBeeSpecies resolved = BeeBreedingHelper.getSpeciesByUID(species);
+            if (resolved == null) {
+                resolved = BeeBreedingHelper.getSpeciesByName(species);
+            }
             if (resolved != null) {
-                // 用 getUnlocalizedName() 作为统一标识（客户端/服务端一致）
-                this.targetBeeSpecies = resolved.getUnlocalizedName();
+                // 存储 UID 作为唯一标识（避免同 unlocalizedName 但不同 UID 的品种混淆）
+                this.targetBeeSpecies = resolved.getUID();
                 return;
             }
         }

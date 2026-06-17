@@ -26,13 +26,13 @@ public class BeeSpeciesDropTextField extends TextFieldWidget implements RecipeVi
 
         if (!BeeBreedingHelper.isBee(draggedStack)) return false;
 
-        // 获取未本地化的内部标识名（客户端/服务端一致，如 "for.bees.species.steel"）
-        String speciesKey = BeeBreedingHelper.getBeeSpecies(draggedStack);
-        if (speciesKey == null || speciesKey.isEmpty()) return false;
+        // 获取唯一 UID（而非 unlocalizedName），确保同 unlocalizedName 但不同 UID 的品种区分开
+        String uid = BeeBreedingHelper.getBeeUID(draggedStack);
+        if (uid == null || uid.isEmpty()) return false;
 
-        // 显示友好名称（如 "Steel"），setText 会触发 StringSyncValue 同步
-        String displayName = BeeBreedingHelper.getSpeciesDisplayName(speciesKey);
-        setText(displayName);
+        // 直接用 UID 设置文本，StringSyncValue 会将其送到 setTargetBeeSpecies
+        // 服务端 getter 会通过 getSpeciesDisplayName(uid) 返回友好名称
+        setText(uid);
         onTextChanged();
         return true;
     }
