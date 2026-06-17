@@ -105,13 +105,27 @@ public class CombProcessingRecipes {
         }
 
         // 第二遍：写入目标 RecipeMap
+        int specialCount = 0;
         for (Map.Entry<String, GTRecipe> entry : candidates.entrySet()) {
-            copyRecipe(entry.getValue());
+            GTRecipe recipe = entry.getValue();
+            if (isPlatinumCombRecipe(recipe)) {
+                copyPlatinumRecipe(recipe);
+                specialCount++;
+            } else if (isNaquadriaCombRecipe(recipe)) {
+                copyNaquadriaRecipe(recipe);
+                specialCount++;
+            } else if (isNaquadahCombRecipe(recipe)) {
+                copyNaquadahRecipe(recipe);
+                specialCount++;
+            } else {
+                copyRecipe(recipe);
+            }
         }
         ScienceNotCool.LOG.info(
-            "Imported {} comb recipes ({} total candidates) into SteamCombProcessingRecipes",
+            "Imported {} comb recipes ({} total candidates, {} special) into SteamCombProcessingRecipes",
             candidates.size(),
-            totalCandidates);
+            totalCandidates,
+            specialCount);
     }
 
     private static void collectRecipeMaps(Class<?> clazz, List<IRecipeMap> out) {
@@ -137,14 +151,122 @@ public class CombProcessingRecipes {
         return sb.toString();
     }
 
-    /** 直接用 instanceof ItemComb 检测输入是否为蜂窝，不依赖 GTBees.combs */
+    /** 多路检测：GT ItemComb + Forestry IItemBeeComb + 类名特征 */
     private static boolean hasCombInput(ItemStack[] inputs) {
         for (ItemStack is : inputs) {
-            if (is != null && is.getItem() instanceof ItemComb) {
+            if (is == null || is.getItem() == null) continue;
+            // 1) GT 蜂窝
+            if (is.getItem() instanceof ItemComb) return true;
+            // 2) Forestry 体系（ExtraBees/MagicBees/Gendustry）
+            if (isForestryComb(is.getItem())) return true;
+        }
+        return false;
+    }
+
+    private static Boolean cachedForestryCombInterface = null;
+
+    private static boolean isForestryComb(Item item) {
+        // 尝试 Forestry IItemBeeComb 接口
+        if (cachedForestryCombInterface == null) {
+            try {
+                Class<?> iface = Class.forName("forestry.api.apiculture.IItemBeeComb");
+                cachedForestryCombInterface = true;
+            } catch (ClassNotFoundException e) {
+                cachedForestryCombInterface = false;
+            }
+        }
+        if (cachedForestryCombInterface) {
+            try {
+                Class<?> iface = Class.forName("forestry.api.apiculture.IItemBeeComb");
+                if (iface.isInstance(item)) return true;
+            } catch (ClassNotFoundException ignored) {}
+        }
+        // 类名包含 Comb 的兜底（Gendustry 等）
+        for (Class<?> c = item.getClass(); c != null; c = c.getSuperclass()) {
+            String name = c.getSimpleName();
+            if (name.contains("Comb") && !name.equals("ItemComb")) return true;
+        }
+        return false;
+    }
+
+    /** 检测配方输入中是否含铂蜂窝 */
+    private static boolean isPlatinumCombRecipe(GTRecipe recipe) {
+        for (ItemStack is : recipe.mInputs) {
+            if (is == null || is.getItem() == null) continue;
+            if (!isCombItem(is.getItem())) continue;
+            String dn = is.getDisplayName();
+            if (dn != null && (dn.contains("Platinum") || dn.contains("platinum") || dn.contains("铂"))) {
                 return true;
             }
         }
         return false;
+    }
+
+    private static boolean isCombItem(Item item) {
+        if (item instanceof ItemComb) return true;
+        return isForestryComb(item);
+    }
+
+    /** 铂蜂窝特殊配方：输出4铂粉（匹配4个蜂窝） */
+    private static void copyPlatinumRecipe(GTRecipe recipe) {
+        GTRecipeBuilder.builder()
+            .itemInputs(recipe.mInputs)
+            .itemOutputs(d(Materials.Platinum, 4))
+            .eut(recipe.mEUt)
+            .duration(recipe.mDuration)
+            .special(recipe.mSpecialValue)
+            .addTo(RM);
+        ScienceNotCool.LOG.info("  Platinum comb special: comb -> 4x Platinum dust");
+    }
+
+    /** Naquadria 蜂窝：先于 Naquadah 检测（Naquadria 包含 Naquadah 子串） */
+    private static boolean isNaquadriaCombRecipe(GTRecipe recipe) {
+        for (ItemStack is : recipe.mInputs) {
+            if (is == null || is.getItem() == null) continue;
+            if (!isCombItem(is.getItem())) continue;
+            String dn = is.getDisplayName();
+            if (dn != null && (dn.contains("Naquadria") || dn.contains("超能"))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Naquadah 蜂窝（普通硅岩） */
+    private static boolean isNaquadahCombRecipe(GTRecipe recipe) {
+        for (ItemStack is : recipe.mInputs) {
+            if (is == null || is.getItem() == null) continue;
+            if (!isCombItem(is.getItem())) continue;
+            String dn = is.getDisplayName();
+            if (dn != null && (dn.contains("Naquadah") || dn.contains("硅岩"))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** 超能硅岩：1蜂窝 -> 576L molten.naquadria */
+    private static void copyNaquadriaRecipe(GTRecipe recipe) {
+        GTRecipeBuilder.builder()
+            .itemInputs(recipe.mInputs)
+            .fluidOutputs(Materials.Naquadria.getMolten(576))
+            .eut(recipe.mEUt)
+            .duration(recipe.mDuration)
+            .special(recipe.mSpecialValue)
+            .addTo(RM);
+        ScienceNotCool.LOG.info("  Naquadria comb special: comb -> 576L molten naquadria");
+    }
+
+    /** 普通硅岩：1蜂窝 -> 576L molten.naquadah */
+    private static void copyNaquadahRecipe(GTRecipe recipe) {
+        GTRecipeBuilder.builder()
+            .itemInputs(recipe.mInputs)
+            .fluidOutputs(Materials.Naquadah.getMolten(576))
+            .eut(recipe.mEUt)
+            .duration(recipe.mDuration)
+            .special(recipe.mSpecialValue)
+            .addTo(RM);
+        ScienceNotCool.LOG.info("  Naquadah comb special: comb -> 576L molten naquadah");
     }
 
     private static void copyRecipe(GTRecipe recipe) {
