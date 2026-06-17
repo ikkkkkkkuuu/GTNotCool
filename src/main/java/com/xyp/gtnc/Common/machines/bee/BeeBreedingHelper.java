@@ -83,28 +83,45 @@ public class BeeBreedingHelper {
     }
 
     /**
+     * 剥离 Forestry/GTNH 模组蜜蜂 unlocalizedName 中的常见前缀。
+     * 大小写不敏感，处理 "SpeciesTE"（如 "SpeciesTENickel"→"Nickel"）
+     * 和 "species"（如 "speciesCertus"→"Certus"）前缀。
+     */
+    private static String stripBeePrefix(String name) {
+        if (name == null || name.isEmpty()) return name;
+        // "SpeciesTE" 前缀（Forestry 原生蜜蜂，如 "SpeciesTENickel"）
+        if (name.length() > 9 && name.regionMatches(true, 0, "SpeciesTE", 0, 9)) {
+            return name.substring(9);
+        }
+        // "species" 前缀（ExtraBees/MagicBees 模组蜜蜂，如 "speciesCertus"）
+        if (name.length() > 7 && name.regionMatches(true, 0, "species", 0, 7)) {
+            return name.substring(7);
+        }
+        return name;
+    }
+
+    /**
      * 从未本地化名称中提取可读的品种名。
-     * 优先取点分隔的最后一段；其次尝试剥离 "SpeciesTE" 前缀（如 "SpeciesTENickel" → "Nickel"）；
+     * 优先取点分隔最后一段并剥离常见前缀；其次剥离无点格式的前缀；
      * 最后尝试通过 getName() 获取英文名（仅 ASCII）。
-     * 例如 "for.bees.species.Nickel" → "Nickel"、"SpeciesTENickel" → "Nickel"
+     * 例如 "magicbees.speciesCertus" → "Certus"、"SpeciesTENickel" → "Nickel"
      */
     public static String getSpeciesDisplayName(String unlocalizedName) {
         if (unlocalizedName == null || unlocalizedName.isEmpty()) return "";
         int lastDot = unlocalizedName.lastIndexOf('.');
         if (lastDot >= 0) {
             String name = unlocalizedName.substring(lastDot + 1);
+            name = stripBeePrefix(name);
             if (!name.isEmpty()) {
                 return Character.toUpperCase(name.charAt(0)) + name.substring(1);
             }
         }
-        // 剥离 "SpeciesTE" 前缀（Forestry/GTNH 模组蜜蜂常见前缀）
-        if (unlocalizedName.startsWith("SpeciesTE")) {
-            String stripped = unlocalizedName.substring("SpeciesTE".length());
-            if (!stripped.isEmpty()) {
-                return Character.toUpperCase(stripped.charAt(0)) + stripped.substring(1);
-            }
+        // 无点分隔：尝试剥离前缀
+        String stripped = stripBeePrefix(unlocalizedName);
+        if (!stripped.equals(unlocalizedName) && !stripped.isEmpty()) {
+            return Character.toUpperCase(stripped.charAt(0)) + stripped.substring(1);
         }
-        // 无点分隔：尝试从物种注册表获取英文显示名
+        // 无法剥离前缀：尝试从物种注册表获取英文显示名
         IAlleleBeeSpecies species = findSpeciesByUnlocalizedName(unlocalizedName);
         if (species != null) {
             String name = species.getName();
@@ -117,14 +134,12 @@ public class BeeBreedingHelper {
 
     /**
      * 从 unlocalizedName 中提取可读部分（不去首字母大写）。
-     * 仅做点分隔提取，用于 matchSpeciesName 的快速匹配。
+     * 用于 matchSpeciesName 快速匹配，统一走 stripBeePrefix。
      */
     private static String extractReadableName(String uln) {
         int lastDot = uln.lastIndexOf('.');
-        if (lastDot >= 0) return uln.substring(lastDot + 1);
-        // 剥离 "SpeciesTE" 前缀
-        if (uln.startsWith("SpeciesTE")) return uln.substring("SpeciesTE".length());
-        return uln;
+        String name = lastDot >= 0 ? uln.substring(lastDot + 1) : uln;
+        return stripBeePrefix(name);
     }
 
     /**
@@ -168,19 +183,19 @@ public class BeeBreedingHelper {
         int lastDot = uln.lastIndexOf('.');
         if (lastDot >= 0) {
             String name = uln.substring(lastDot + 1);
+            name = stripBeePrefix(name);
             if (!name.isEmpty()) {
                 return Character.toUpperCase(name.charAt(0)) + name.substring(1);
             }
         }
-        // 剥离 "SpeciesTE" 前缀
-        if (uln.startsWith("SpeciesTE")) {
-            String stripped = uln.substring("SpeciesTE".length());
-            if (!stripped.isEmpty()) {
-                return Character.toUpperCase(stripped.charAt(0)) + stripped.substring(1);
-            }
+        // 无点分隔：尝试剥离前缀
+        String stripped = stripBeePrefix(uln);
+        if (!stripped.equals(uln) && !stripped.isEmpty()) {
+            return Character.toUpperCase(stripped.charAt(0)) + stripped.substring(1);
         }
+        // 无法剥离前缀：尝试 getName()，但排除 "name" 等无效占位符
         String name = species.getName();
-        if (name != null && !name.isEmpty() && isAscii(name)) {
+        if (name != null && !name.isEmpty() && isAscii(name) && !"name".equalsIgnoreCase(name)) {
             return name;
         }
         return Character.toUpperCase(uln.charAt(0)) + uln.substring(1);
