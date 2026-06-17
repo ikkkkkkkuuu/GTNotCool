@@ -451,6 +451,8 @@ public class LargeSteamCutting extends GTNCSteamMultiBlockBase<LargeSteamCutting
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamCutting_01"))
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamCutting_02"))
             .addInfo(HIGH_PRESSURE_TOOLTIP_NOTICE)
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeParallel"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeDuration"))
             .beginStructureBlock(9, 4, 5, false)
             .addController("Front center")
             .addSteamInputBus(StatCollector.translateToLocal("Tooltip_LargeSteamCutting_Casing"), 1)

@@ -441,6 +441,8 @@ public class LargeSteamHammer extends GTNCSteamMultiBlockBase<LargeSteamHammer> 
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamHammer_01"))
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamHammer_02"))
             .addInfo(HIGH_PRESSURE_TOOLTIP_NOTICE)
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeParallel"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeDuration"))
             .beginStructureBlock(7, 13, 7, false)
             .addController("Front center")
             .addSteamInputBus(StatCollector.translateToLocal("Tooltip_LargeSteamHammer_Casing"), 1)

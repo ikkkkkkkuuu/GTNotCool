@@ -467,6 +467,8 @@ public class LargeSteamMixer extends GTNCSteamMultiBlockBase<LargeSteamMixer> im
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamMixer_02"))
             .addSteamBulkMachineInfo(8, 2f, 0.75f)
             .addInfo(HIGH_PRESSURE_TOOLTIP_NOTICE)
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeParallel"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeDuration"))
             .beginStructureBlock(7, 7, 7, false)
             .addController("Front center")
             .addSteamInputBus(StatCollector.translateToLocal("Tooltip_LargeSteamMixer_Casing"), 1)

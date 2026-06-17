@@ -468,6 +468,8 @@ public class LargeSteamCentrifuge extends GTNCSteamMultiBlockBase<LargeSteamCent
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamCentrifuge_02"))
             .addSteamBulkMachineInfo(16, 2f, 0.35f)
             .addInfo(HIGH_PRESSURE_TOOLTIP_NOTICE)
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeParallel"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeDuration"))
             .beginStructureBlock(7, 10, 7, false)
             .addController("Front center")
             .addSteamInputBus(StatCollector.translateToLocal("Tooltip_LargeSteamCentrifuge_Casing"), 1)

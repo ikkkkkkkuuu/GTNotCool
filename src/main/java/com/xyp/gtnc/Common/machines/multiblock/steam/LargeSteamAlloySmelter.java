@@ -388,6 +388,8 @@ public class LargeSteamAlloySmelter extends GTNCSteamMultiBlockBase<LargeSteamAl
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamAlloySmelter_01"))
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamAlloySmelter_02"))
             .addInfo(HIGH_PRESSURE_TOOLTIP_NOTICE)
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeParallel"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeDuration"))
             .beginStructureBlock(3, 4, 3, false)
             .addController("Front center")
             .addSteamInputBus(StatCollector.translateToLocal("Tooltip_LargeSteamAlloySmelter_Casing"), 1)

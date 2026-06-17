@@ -410,6 +410,8 @@ public class LargeSteamFluidExtractor extends GTNCSteamMultiBlockBase<LargeSteam
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamFluidExtractor_02"))
             .addSteamBulkMachineInfo(256, 2f, 0.45f)
             .addInfo(HIGH_PRESSURE_TOOLTIP_NOTICE)
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeParallel"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeDuration"))
             .beginStructureBlock(5, 3, 3, false)
             .addController("Front center")
             .addSteamInputBus(StatCollector.translateToLocal("Tooltip_LargeSteamFluidExtractor_Casing"), 1)

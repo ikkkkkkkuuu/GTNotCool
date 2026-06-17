@@ -967,6 +967,8 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamBeeBreeder_05"))
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamBeeBreeder_06"))
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamBeeBreeder_07"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeParallel"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeDuration"))
             .beginStructureBlock(15, 17, 15, false)
             .addInputBus(StatCollector.translateToLocal("Tooltip_LargeSteamBeeBreeder_Casing"), 1)
             .addOutputBus(StatCollector.translateToLocal("Tooltip_LargeSteamBeeBreeder_Casing"), 1)

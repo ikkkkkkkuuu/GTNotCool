@@ -439,6 +439,8 @@ public class LargeSteamCompressor extends GTNCSteamMultiBlockBase<LargeSteamComp
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamCompressor_01"))
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamCompressor_02"))
             .addInfo(HIGH_PRESSURE_TOOLTIP_NOTICE)
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeParallel"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeDuration"))
             .beginStructureBlock(7, 7, 7, false)
             .addController("Front center")
             .addSteamInputBus(StatCollector.translateToLocal("Tooltip_LargeSteamCompressor_Casing"), 1)

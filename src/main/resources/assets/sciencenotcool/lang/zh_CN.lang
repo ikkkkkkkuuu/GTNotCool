@@ -32,6 +32,8 @@ tooltip.wildcardpattern.item_syntax_oredict=矿辞模式: plate.*, ingot.*, dust
 Tooltip_DieselGenerator_00=需要液体燃料
 Tooltip_DieselGenerator_01=燃料效率：%s%%
 Tooltip_DieselGenerator_02=流体容量：%sL
+Tooltip_GTNC_CrossRecipeParallel=§b跨配方并行：§r可一次处理多个不同配方
+Tooltip_GTNC_CrossRecipeDuration=§e处理时长 = 所有配方超频后时长之和
 Tooltip_SteamTurbine_00=将蒸汽转换为EU
 Tooltip_SteamTurbine_01=基础效率：2L蒸汽/EU
 Tooltip_SteamTurbine_02=燃料效率：%s%%

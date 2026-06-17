@@ -401,6 +401,8 @@ public class LargeSteamFormingPress extends GTNCSteamMultiBlockBase<LargeSteamFo
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamFormingPress_01"))
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamFormingPress_02"))
             .addInfo(HIGH_PRESSURE_TOOLTIP_NOTICE)
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeParallel"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeDuration"))
             .beginStructureBlock(5, 3, 5, false)
             .addController("Front center")
             .addSteamInputBus(StatCollector.translateToLocal("Tooltip_LargeSteamFormingPress_Casing"), 1)

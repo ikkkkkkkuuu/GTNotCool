@@ -32,6 +32,8 @@ tooltip.wildcardpattern.item_syntax_oredict=OreDict mode: plate.*, ingot.*, dust
 Tooltip_DieselGenerator_00=Requires liquid fuel
 Tooltip_DieselGenerator_01=Fuel efficiency: %s%%
 Tooltip_DieselGenerator_02=Fluid capacity: %sL
+Tooltip_GTNC_CrossRecipeParallel=§bCross-Recipe Parallel:§r Can process multiple different recipes at once
+Tooltip_GTNC_CrossRecipeDuration=§eProcessing time = Sum of all recipes' overclocked durations
 Tooltip_SteamTurbine_00=Converts Steam to EU
 Tooltip_SteamTurbine_01=Basic Efficiency: 2L Steam/EU
 Tooltip_SteamTurbine_02=Fuel Efficiency: %s%%

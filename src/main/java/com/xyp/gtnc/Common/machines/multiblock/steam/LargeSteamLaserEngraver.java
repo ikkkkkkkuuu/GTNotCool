@@ -397,6 +397,8 @@ public class LargeSteamLaserEngraver extends GTNCSteamMultiBlockBase<LargeSteamL
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamLaserEngraver_02"))
             .addSteamBulkMachineInfo(8, 1.25f, 0.625f)
             .addInfo(HIGH_PRESSURE_TOOLTIP_NOTICE)
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeParallel"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeDuration"))
             .beginStructureBlock(5, 4, 5, false)
             .addController("Front center")
             .addSteamInputBus(StatCollector.translateToLocal("Tooltip_LargeSteamLaserEngraver_Casing"), 1)

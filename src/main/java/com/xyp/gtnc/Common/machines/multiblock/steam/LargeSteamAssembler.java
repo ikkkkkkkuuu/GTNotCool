@@ -443,6 +443,8 @@ public class LargeSteamAssembler extends GTNCSteamMultiBlockBase<LargeSteamAssem
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamAssembler_02"))
             .addSteamBulkMachineInfo(16, (float) (1.0 / (1.0 - STEAM_SAVE_PER_TIER)), (float) (1.0 + SPEED_PER_TIER))
             .addInfo(HIGH_PRESSURE_TOOLTIP_NOTICE)
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeParallel"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeDuration"))
             .beginStructureBlock(9, 5, 5, false)
             .addController("Front center")
             .addSteamInputBus(StatCollector.translateToLocal("Tooltip_LargeSteamAssembler_Casing"), 1)

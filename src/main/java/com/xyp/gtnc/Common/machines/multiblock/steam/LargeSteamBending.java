@@ -431,6 +431,8 @@ public class LargeSteamBending extends GTNCSteamMultiBlockBase<LargeSteamBending
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamBending_02"))
             .addSteamBulkMachineInfo(8, 1.9f, 0.475f)
             .addInfo(HIGH_PRESSURE_TOOLTIP_NOTICE)
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeParallel"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeDuration"))
             .beginStructureBlock(5, 4, 5, false)
             .addController("Front center")
             .addSteamInputBus(StatCollector.translateToLocal("Tooltip_LargeSteamBending_Casing"), 1)
