@@ -238,15 +238,18 @@ public class SingularityDataHub extends MTEEnhancedMultiBlockBase<SingularityDat
         }
     }
 
-    public void onModeChangeByScrewdriver(ForgeDirection side, EntityPlayer aPlayer, float aX, float aY, float aZ,
+    @Override
+    public void onScrewdriverRightClick(ForgeDirection side, EntityPlayer aPlayer, float aX, float aY, float aZ,
         ItemStack aTool) {
-        this.setDoVoidExcess(!doVoidExcess);
-        // #tr Info_SingularityDataHub_AutoVoiding
-        // # Auto-voiding: %b
-        // # zh_CN 自动销毁溢出: %b
-        GTUtility.sendChatToPlayer(
-            aPlayer,
-            StatCollector.translateToLocal("Info_SingularityDataHub_AutoVoiding") + doVoidExcess);
+        if (getBaseMetaTileEntity().isServerSide()) {
+            this.setDoVoidExcess(!doVoidExcess);
+            // #tr Info_SingularityDataHub_AutoVoiding
+            // # Auto-voiding: %b
+            // # zh_CN 自动销毁溢出: %b
+            GTUtility.sendChatToPlayer(
+                aPlayer,
+                StatCollector.translateToLocalFormatted("Info_SingularityDataHub_AutoVoiding", doVoidExcess));
+        }
     }
 
     @Override
