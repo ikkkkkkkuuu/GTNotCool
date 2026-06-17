@@ -41,6 +41,7 @@ import com.xyp.gtnc.Common.machines.bee.DronePool;
 import com.xyp.gtnc.Common.machines.multiblock.multiMachineBase.GTNCSteamMultiBlockBase;
 import com.xyp.gtnc.utils.Utils;
 
+import forestry.api.apiculture.IAlleleBeeSpecies;
 import gregtech.api.enums.Materials;
 import gregtech.api.enums.OrePrefixes;
 import gregtech.api.enums.Textures;
@@ -252,6 +253,9 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
     /** 用于客户端同步的繁育链摘要文本 */
     private String syncedChainSummary = "";
 
+    /** 用于客户端同步的缺少品种信息（与syncedChainSummary同步更新，解决同步延迟问题） */
+    private String syncedMissingInfo = "";
+
     // ==================== 构造函数 ====================
 
     public LargeSteamBeeBreeder(String aName) {
@@ -398,6 +402,12 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
             syncedChainSummary = buildChainSummary();
             syncedPoolSize = dronePool.getAvailableSpecies()
                 .size();
+            // 同步重建缺失信息，使其与 chainSummary 同时触发客户端更新
+            if (allTasksBlocked && missingDroneSpecies != null && !missingDroneSpecies.isEmpty()) {
+                syncedMissingInfo = BeeBreedingHelper.getSpeciesDisplayName(missingDroneSpecies);
+            } else {
+                syncedMissingInfo = "";
+            }
         }
     }
 
@@ -733,6 +743,12 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
         breedingChain = BeeBreedingHelper.createBreedingChain(targetBeeSpecies, poolSpecies);
     }
 
+    /**
+     * 从指定品种向下递归查找池中缺少的最基础品种
+     * <p>
+     * 使用与 createBreedingChain() 相同的 selectBestMutation() 选择最优杂交路径，
+     * 沿路径向下 DFS，直到找到第一个池中没有的品种为止。
+     */
     private String findMostBasicMissing(String species) {
         return findMostBasicMissing(species, new HashSet<>());
     }
@@ -740,15 +756,29 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
     private String findMostBasicMissing(String species, Set<String> visited) {
         if (dronePool.hasDrone(species)) return null;
         if (!visited.add(species)) return species;
+
         List<BeeBreedingHelper.MutationData> mutations = BeeBreedingHelper.getMutationsForSpecies(species);
-        if (mutations.isEmpty()) return species;
+        // 排除自引用
+        List<BeeBreedingHelper.MutationData> filtered = new ArrayList<>();
         for (BeeBreedingHelper.MutationData m : mutations) {
-            if (m.parent1.equals(species) || m.parent2.equals(species)) continue;
-            String missing = findMostBasicMissing(m.parent1, visited);
-            if (missing != null) return missing;
-            missing = findMostBasicMissing(m.parent2, visited);
-            if (missing != null) return missing;
+            if (!m.parent1.equals(species) && !m.parent2.equals(species)) {
+                filtered.add(m);
+            }
         }
+        if (filtered.isEmpty()) return species;
+
+        // 使用与 createBreedingChain() 相同的选择逻辑
+        BeeBreedingHelper.MutationData best = BeeBreedingHelper.selectBestMutation(species, filtered);
+
+        // 优先沿 parent1 路径向下查
+        String missing = findMostBasicMissing(best.parent1, visited);
+        if (missing != null) return missing;
+
+        // 再沿 parent2 路径向下查
+        String missing2 = findMostBasicMissing(best.parent2, visited);
+        if (missing2 != null) return missing2;
+
+        // 两个亲本都在池中，说明当前品种是"最基础缺少的"
         return species;
     }
 
@@ -772,7 +802,7 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
         for (String s : species) {
             if (dronePool.hasDrone(s)) {
                 if (sb.length() > 0) sb.append("|");
-                sb.append(s);
+                sb.append(BeeBreedingHelper.getSpeciesDisplayName(s));
             }
         }
         return sb.toString();
@@ -793,11 +823,11 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
             }
             sb.append(status)
                 .append(",")
-                .append(step.parent1)
+                .append(BeeBreedingHelper.getSpeciesDisplayName(step.parent1))
                 .append(",")
-                .append(step.parent2)
+                .append(BeeBreedingHelper.getSpeciesDisplayName(step.parent2))
                 .append(",")
-                .append(step.result)
+                .append(BeeBreedingHelper.getSpeciesDisplayName(step.result))
                 .append(",")
                 .append(
                     String.format("%.1f", step.chance + (hasStainlessSteelGear ? 10.0 : 0.0) + Math.max(0, glassTier)));
@@ -856,7 +886,17 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
     }
 
     public void setTargetBeeSpecies(String species) {
-        this.targetBeeSpecies = species;
+        // 尝试将显示名/用户输入转为内部标识名（unlocalizedName）
+        // 用户可能输入英文显示名（如 "Steel"）或中文名，或内部名
+        if (species != null && !species.isEmpty()) {
+            IAlleleBeeSpecies resolved = BeeBreedingHelper.getSpeciesByName(species);
+            if (resolved != null) {
+                // 用 getUnlocalizedName() 作为统一标识（客户端/服务端一致）
+                this.targetBeeSpecies = resolved.getUnlocalizedName();
+                return;
+            }
+        }
+        this.targetBeeSpecies = species != null ? species : "";
     }
 
     public DronePool getDronePool() {
@@ -893,6 +933,10 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
 
     public String getSyncedChainSummary() {
         return syncedChainSummary;
+    }
+
+    public String getSyncedMissingInfo() {
+        return syncedMissingInfo;
     }
 
     // ==================== Tooltip ====================

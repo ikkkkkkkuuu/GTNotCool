@@ -71,7 +71,7 @@ public class BeeBreedingHelper {
     }
 
     /**
-     * 获取蜜蜂的品种名称（活性等位基因）
+     * 获取蜜蜂的品种标识名（使用未本地化的内部名称，保证客户端/服务端一致）
      */
     public static String getBeeSpecies(ItemStack stack) {
         if (!isBee(stack)) return null;
@@ -79,7 +79,19 @@ public class BeeBreedingHelper {
         if (bee == null || bee.getGenome() == null) return null;
         IAlleleBeeSpecies species = bee.getGenome()
             .getPrimary();
-        return species != null ? species.getName() : null;
+        return species != null ? species.getUnlocalizedName() : null;
+    }
+
+    /**
+     * 从未本地化名称中提取可读的品种名（取最后一段并首字母大写）
+     * 例如 "for.bees.species.steel" → "Steel"
+     */
+    public static String getSpeciesDisplayName(String unlocalizedName) {
+        if (unlocalizedName == null || unlocalizedName.isEmpty()) return "";
+        int lastDot = unlocalizedName.lastIndexOf('.');
+        String name = lastDot >= 0 ? unlocalizedName.substring(lastDot + 1) : unlocalizedName;
+        if (name.isEmpty()) return unlocalizedName;
+        return Character.toUpperCase(name.charAt(0)) + name.substring(1);
     }
 
     /**
@@ -93,7 +105,7 @@ public class BeeBreedingHelper {
     }
 
     /**
-     * 根据品种名称获取品种等位基因
+     * 根据品种名称获取品种等位基因（大小写不敏感，同时匹配 getName() 和 getUnlocalizedName()）
      */
     public static IAlleleBeeSpecies getSpeciesByName(String speciesName) {
         IBeeRoot root = getBeeRoot();
@@ -104,8 +116,7 @@ public class BeeBreedingHelper {
             for (IAllele[] template : templates.values()) {
                 if (template != null && template.length > 0 && template[0] instanceof IAlleleBeeSpecies) {
                     IAlleleBeeSpecies species = (IAlleleBeeSpecies) template[0];
-                    if (species.getName()
-                        .equals(speciesName)) {
+                    if (matchSpeciesName(species, speciesName)) {
                         return species;
                     }
                 }
@@ -115,8 +126,7 @@ public class BeeBreedingHelper {
         for (IAllele allele : root.getDefaultTemplate()) {
             if (allele instanceof IAlleleBeeSpecies) {
                 IAlleleBeeSpecies species = (IAlleleBeeSpecies) allele;
-                if (species.getName()
-                    .equals(speciesName)) {
+                if (matchSpeciesName(species, speciesName)) {
                     return species;
                 }
             }
@@ -126,13 +136,30 @@ public class BeeBreedingHelper {
             IAllele[] template = mutation.getTemplate();
             if (template.length > 0 && template[0] instanceof IAlleleBeeSpecies) {
                 IAlleleBeeSpecies species = (IAlleleBeeSpecies) template[0];
-                if (species.getName()
-                    .equals(speciesName)) {
+                if (matchSpeciesName(species, speciesName)) {
                     return species;
                 }
             }
         }
         return null;
+    }
+
+    /**
+     * 匹配品种名称（大小写不敏感，同时匹配本地化名和未本地化名）
+     */
+    private static boolean matchSpeciesName(IAlleleBeeSpecies species, String speciesName) {
+        if (species == null || speciesName == null) return false;
+        // 匹配本地化名（用户手动输入的英文名）
+        if (species.getName() != null && species.getName()
+            .equalsIgnoreCase(speciesName)) {
+            return true;
+        }
+        // 匹配未本地化的内部名（NEI拖放获取的标识名）
+        if (species.getUnlocalizedName() != null && species.getUnlocalizedName()
+            .equalsIgnoreCase(speciesName)) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -176,7 +203,7 @@ public class BeeBreedingHelper {
     }
 
     /**
-     * 获取指定品种的所有杂交配方（作为结果）
+     * 获取指定品种的所有杂交配方（作为结果）（大小写不敏感匹配）
      */
     public static List<MutationData> getMutationsForSpecies(String speciesName) {
         List<MutationData> mutations = new ArrayList<>();
@@ -187,12 +214,11 @@ public class BeeBreedingHelper {
             IAllele[] resultTemplate = mutation.getTemplate();
             if (resultTemplate.length > 0 && resultTemplate[0] instanceof IAlleleBeeSpecies) {
                 IAlleleBeeSpecies resultSpecies = (IAlleleBeeSpecies) resultTemplate[0];
-                if (resultSpecies.getName()
-                    .equals(speciesName)) {
+                if (matchSpeciesName(resultSpecies, speciesName)) {
                     String parent1 = mutation.getAllele0()
-                        .getName();
+                        .getUnlocalizedName();
                     String parent2 = mutation.getAllele1()
-                        .getName();
+                        .getUnlocalizedName();
                     mutations.add(new MutationData(parent1, parent2, speciesName, mutation.getBaseChance()));
                 }
             }
@@ -225,45 +251,117 @@ public class BeeBreedingHelper {
 
     /**
      * 蜜蜂杂交路径优先配置（当有多条路径时优先选择）
+     * 键为 target 品种的内部标识名（unlocalizedName），值为优先选择的亲本对
      */
     private static final Map<String, String[]> BREEDING_PREFERENCES = new HashMap<>();
+
+    private static void putPref(String target, String parent1, String parent2) {
+        BREEDING_PREFERENCES.put(target, new String[] { parent1, parent2 });
+    }
+
     static {
-        BREEDING_PREFERENCES.put("Common", new String[] { "Forest", "Meadows" });
-        BREEDING_PREFERENCES.put("Cultivated", new String[] { "Common", "Forest" });
-        BREEDING_PREFERENCES.put("Sinister", new String[] { "Cultivated", "Modest" });
-        BREEDING_PREFERENCES.put("Fiendish", new String[] { "Sinister", "Cultivated" });
-        BREEDING_PREFERENCES.put("Frugal", new String[] { "Modest", "Sinister" });
-        BREEDING_PREFERENCES.put("Arid", new String[] { "Meadows", "Frugal" });
-        BREEDING_PREFERENCES.put("Diamond", new String[] { "Certus", "Coal" });
-        BREEDING_PREFERENCES.put("Ruby", new String[] { "Redstone", "Diamond" });
-        BREEDING_PREFERENCES.put("Sapphire", new String[] { "Certus", "Lapis" });
-        BREEDING_PREFERENCES.put("Emerald", new String[] { "Olivine", "Diamond" });
-        BREEDING_PREFERENCES.put("Rusty", new String[] { "Meadows", "Resilient" });
-        BREEDING_PREFERENCES.put("Corroded", new String[] { "Wintry", "Resilient" });
-        BREEDING_PREFERENCES.put("Leaden", new String[] { "Meadows", "Resilient" });
-        BREEDING_PREFERENCES.put("Tarnished", new String[] { "Marshy", "Resilient" });
-        BREEDING_PREFERENCES.put("Lustered", new String[] { "Forest", "Resilient" });
-        BREEDING_PREFERENCES.put("Galvanized", new String[] { "Wintry", "Resilient" });
-        BREEDING_PREFERENCES.put("Shining", new String[] { "Majestic", "Galvanized" });
-        BREEDING_PREFERENCES.put("Glittering", new String[] { "Majestic", "Rusty" });
-        BREEDING_PREFERENCES.put("Oily", new String[] { "Ocean", "Primeval" });
-        BREEDING_PREFERENCES.put("Fossilised", new String[] { "Primeval", "Growing" });
-        BREEDING_PREFERENCES.put("Fungal", new String[] { "Boggy", "Miry" });
-        BREEDING_PREFERENCES.put("Scummy", new String[] { "Agrarian", "Exotic" });
-        BREEDING_PREFERENCES.put("Spirit", new String[] { "Ethereal", "Aware" });
-        BREEDING_PREFERENCES.put("Nuclear", new String[] { "Unstable", "Rusty" });
-        BREEDING_PREFERENCES.put("Vengeful", new String[] { "Demonic", "Vindictive" });
-        BREEDING_PREFERENCES.put("Eldritch", new String[] { "Mystical", "Cultivated" });
-        BREEDING_PREFERENCES.put("Indium", new String[] { "Lead", "Osmium" });
+        // 初始化时用 English 名填入，运行时由 resolvePreferences() 转为 unlocalizedName
+        putPref("Common", "Forest", "Meadows");
+        putPref("Cultivated", "Common", "Forest");
+        putPref("Sinister", "Cultivated", "Modest");
+        putPref("Fiendish", "Sinister", "Cultivated");
+        putPref("Frugal", "Modest", "Sinister");
+        putPref("Arid", "Meadows", "Frugal");
+        putPref("Diamond", "Certus", "Coal");
+        putPref("Ruby", "Redstone", "Diamond");
+        putPref("Sapphire", "Certus", "Lapis");
+        putPref("Emerald", "Olivine", "Diamond");
+        putPref("Rusty", "Meadows", "Resilient");
+        putPref("Corroded", "Wintry", "Resilient");
+        putPref("Leaden", "Meadows", "Resilient");
+        putPref("Tarnished", "Marshy", "Resilient");
+        putPref("Lustered", "Forest", "Resilient");
+        putPref("Galvanized", "Wintry", "Resilient");
+        putPref("Shining", "Majestic", "Galvanized");
+        putPref("Glittering", "Majestic", "Rusty");
+        putPref("Oily", "Ocean", "Primeval");
+        putPref("Fossilised", "Primeval", "Growing");
+        putPref("Fungal", "Boggy", "Miry");
+        putPref("Scummy", "Agrarian", "Exotic");
+        putPref("Spirit", "Ethereal", "Aware");
+        putPref("Nuclear", "Unstable", "Rusty");
+        putPref("Vengeful", "Demonic", "Vindictive");
+        putPref("Eldritch", "Mystical", "Cultivated");
+        putPref("Indium", "Lead", "Osmium");
+    }
+
+    /**
+     * 将 BREEDING_PREFERENCES 中的 English 名称转为 unlocalizedName（在所有蜂种注册后调用）
+     */
+    private static boolean preferencesResolved = false;
+
+    private static void resolvePreferences() {
+        if (preferencesResolved) return;
+        preferencesResolved = true;
+
+        Map<String, String[]> resolved = new HashMap<>();
+        for (Map.Entry<String, String[]> entry : BREEDING_PREFERENCES.entrySet()) {
+            String targetEnglish = entry.getKey();
+            String[] parentsEnglish = entry.getValue();
+
+            // 解析 target 品种名
+            IAlleleBeeSpecies targetSpecies = findSpeciesByEnglishName(targetEnglish);
+            String targetKey = targetSpecies != null ? targetSpecies.getUnlocalizedName() : targetEnglish;
+
+            // 解析 parent 品种名
+            IAlleleBeeSpecies p1Species = findSpeciesByEnglishName(parentsEnglish[0]);
+            IAlleleBeeSpecies p2Species = findSpeciesByEnglishName(parentsEnglish[1]);
+            String p1Key = p1Species != null ? p1Species.getUnlocalizedName() : parentsEnglish[0];
+            String p2Key = p2Species != null ? p2Species.getUnlocalizedName() : parentsEnglish[1];
+
+            resolved.put(targetKey, new String[] { p1Key, p2Key });
+        }
+
+        BREEDING_PREFERENCES.clear();
+        BREEDING_PREFERENCES.putAll(resolved);
+    }
+
+    /**
+     * 通过 English 名（getName() 返回值）查找 IAlleleBeeSpecies
+     */
+    private static IAlleleBeeSpecies findSpeciesByEnglishName(String englishName) {
+        IBeeRoot root = getBeeRoot();
+        if (root == null) return null;
+
+        // 遍历 genome templates
+        Map<String, IAllele[]> templates = root.getGenomeTemplates();
+        if (templates != null) {
+            for (IAllele[] template : templates.values()) {
+                if (template != null && template.length > 0 && template[0] instanceof IAlleleBeeSpecies) {
+                    IAlleleBeeSpecies species = (IAlleleBeeSpecies) template[0];
+                    if (englishName.equalsIgnoreCase(species.getName())) {
+                        return species;
+                    }
+                }
+            }
+        }
+
+        // 遍历 mutations
+        for (IBeeMutation mutation : root.getMutations(false)) {
+            IAllele[] template = mutation.getTemplate();
+            if (template.length > 0 && template[0] instanceof IAlleleBeeSpecies) {
+                IAlleleBeeSpecies species = (IAlleleBeeSpecies) template[0];
+                if (englishName.equalsIgnoreCase(species.getName())) {
+                    return species;
+                }
+            }
+        }
+        return null;
     }
 
     /**
      * 选择最佳杂交配方
      */
-    private static MutationData selectBestMutation(String beeName, List<MutationData> mutations) {
+    public static MutationData selectBestMutation(String beeName, List<MutationData> mutations) {
         if (mutations.isEmpty()) return null;
         if (mutations.size() == 1) return mutations.get(0);
 
+        resolvePreferences();
         String[] preference = BREEDING_PREFERENCES.get(beeName);
         if (preference != null) {
             for (MutationData mutation : mutations) {

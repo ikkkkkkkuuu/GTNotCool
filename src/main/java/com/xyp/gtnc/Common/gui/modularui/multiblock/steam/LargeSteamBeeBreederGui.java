@@ -18,6 +18,7 @@ import com.cleanroommc.modularui.widgets.ListWidget;
 import com.cleanroommc.modularui.widgets.TextWidget;
 import com.cleanroommc.modularui.widgets.layout.Flow;
 import com.xyp.gtnc.Common.gui.modularui.widget.BeeSpeciesDropTextField;
+import com.xyp.gtnc.Common.machines.bee.BeeBreedingHelper;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamBeeBreeder;
 
 import gregtech.api.modularui2.GTGuiTextures;
@@ -52,13 +53,15 @@ public class LargeSteamBeeBreederGui extends MTEMultiBlockBaseGui<LargeSteamBeeB
         super.registerSyncValues(syncManager);
         syncManager.syncValue(
             "targetSpecies",
-            new StringSyncValue(breeder::getTargetBeeSpecies, breeder::setTargetBeeSpecies).allowC2S());
+            new StringSyncValue(
+                () -> BeeBreedingHelper.getSpeciesDisplayName(breeder.getTargetBeeSpecies()),
+                breeder::setTargetBeeSpecies).allowC2S());
         syncManager.syncValue("poolSize", new IntSyncValue(breeder::getSyncedPoolSize));
         syncManager.syncValue("chainTotal", new IntSyncValue(breeder::getChainTotalSteps));
         syncManager.syncValue("chainCompleted", new IntSyncValue(breeder::getChainCompletedSteps));
         syncManager.syncValue("pendingOutputs", new IntSyncValue(breeder::getPendingPrincessOutputs));
         syncManager.syncValue("allBlocked", new BooleanSyncValue(breeder::isAllTasksBlocked));
-        syncManager.syncValue("missingSpecies", new StringSyncValue(breeder::getMissingDroneSpecies, val -> {}));
+        syncManager.syncValue("missingSpecies", new StringSyncValue(breeder::getSyncedMissingInfo, val -> {}));
         syncManager.syncValue("poolSummary", new StringSyncValue(breeder::getSyncedPoolSummary, val -> {}));
         syncManager.syncValue("chainSummary", new StringSyncValue(breeder::getSyncedChainSummary, val -> {}));
     }
@@ -391,7 +394,7 @@ public class LargeSteamBeeBreederGui extends MTEMultiBlockBaseGui<LargeSteamBeeB
             return EnumChatFormatting.RED + translateToLocal("gt.blockmachines.multimachine.missing")
                 + ": "
                 + EnumChatFormatting.GOLD
-                + (missing != null ? missing : "?");
+                + (missing != null && !missing.isEmpty() ? missing : "?");
         })).height(DISPLAY_ROW_HEIGHT)
             .scale(0.75f)
             .widgetTheme(GTWidgetThemes.DISPLAY_TEXT_WHITE);
