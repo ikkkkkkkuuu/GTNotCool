@@ -4,9 +4,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -23,8 +23,7 @@ import gregtech.api.recipe.RecipeMaps;
 import gregtech.api.util.GTOreDictUnificator;
 import gregtech.api.util.GTRecipe;
 import gregtech.api.util.GTRecipeBuilder;
-import gregtech.common.items.CombType;
-import gregtech.loaders.misc.GTBees;
+import gregtech.common.items.ItemComb;
 
 public class CombProcessingRecipes {
 
@@ -47,9 +46,6 @@ public class CombProcessingRecipes {
     // 确保 GT5U、GT++、gtnhmod 等所有 mod 注册的蜂窝配方都能被同步到我们的 SteamCombProcessingRecipes。
 
     private static void importFromNativeMaps() {
-        Set<Item> combItems = buildCombItemSet();
-        if (combItems.isEmpty()) return;
-
         List<IRecipeMap> mapsToScan = new ArrayList<>();
         collectRecipeMaps(RecipeMaps.class, mapsToScan);
         try {
@@ -68,8 +64,9 @@ public class CombProcessingRecipes {
             ScienceNotCool.LOG.warn("IRecipeMap.getAllRecipes() not found, falling back to instanceof RecipeMap");
         }
 
-        Set<String> added = new HashSet<>();
-        int imported = 0;
+        // 第一遍：按输入分组收集候选配方，重复时保留最先遇到的
+        Map<String, GTRecipe> candidates = new LinkedHashMap<>();
+        int totalCandidates = 0;
         for (IRecipeMap nativeMap : mapsToScan) {
             if (nativeMap == null) continue;
             Collection<GTRecipe> recipes = null;
@@ -89,20 +86,32 @@ public class CombProcessingRecipes {
             }
             if (recipes == null) continue;
 
-            int mapImported = 0;
+            int mapFound = 0;
             for (GTRecipe recipe : recipes) {
                 if (recipe.mInputs == null || recipe.mInputs.length == 0) continue;
-                if (!hasCombInput(recipe.mInputs, combItems)) continue;
-                if (!added.add(recipeKey(recipe))) continue;
-                copyRecipe(recipe);
-                imported++;
-                mapImported++;
+                if (!hasCombInput(recipe.mInputs)) continue;
+                totalCandidates++;
+                String key = recipeKey(recipe);
+                GTRecipe existing = candidates.get(key);
+                if (existing == null) {
+                    candidates.put(key, recipe);
+                    mapFound++;
+                }
+                // 重复配方直接跳过，保留先遇到的
             }
-            if (mapImported > 0) {
-                ScienceNotCool.LOG.info("  {} -> {} recipes", nativeMap.toString(), mapImported);
+            if (mapFound > 0) {
+                ScienceNotCool.LOG.info("  {} -> {} candidates", nativeMap.toString(), mapFound);
             }
         }
-        ScienceNotCool.LOG.info("Imported {} native comb recipes into SteamCombProcessingRecipes", imported);
+
+        // 第二遍：写入目标 RecipeMap
+        for (Map.Entry<String, GTRecipe> entry : candidates.entrySet()) {
+            copyRecipe(entry.getValue());
+        }
+        ScienceNotCool.LOG.info(
+            "Imported {} comb recipes ({} total candidates) into SteamCombProcessingRecipes",
+            candidates.size(),
+            totalCandidates);
     }
 
     private static void collectRecipeMaps(Class<?> clazz, List<IRecipeMap> out) {
@@ -128,20 +137,10 @@ public class CombProcessingRecipes {
         return sb.toString();
     }
 
-    private static Set<Item> buildCombItemSet() {
-        Set<Item> items = new HashSet<>();
-        for (CombType t : CombType.values()) {
-            ItemStack stack = GTBees.combs.getStackForType(t);
-            if (stack != null && stack.getItem() != null) {
-                items.add(stack.getItem());
-            }
-        }
-        return items;
-    }
-
-    private static boolean hasCombInput(ItemStack[] inputs, Set<Item> combItems) {
+    /** 直接用 instanceof ItemComb 检测输入是否为蜂窝，不依赖 GTBees.combs */
+    private static boolean hasCombInput(ItemStack[] inputs) {
         for (ItemStack is : inputs) {
-            if (is != null && is.getItem() != null && combItems.contains(is.getItem())) {
+            if (is != null && is.getItem() instanceof ItemComb) {
                 return true;
             }
         }
