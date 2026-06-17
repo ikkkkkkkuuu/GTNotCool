@@ -83,22 +83,29 @@ public class BeeBreedingHelper {
     }
 
     /**
-     * 从未本地化名称中提取可读的品种名。
-     * 优先通过品种注册表查 Forestry 的真实显示名 getName()，
-     * 防止 GT++ 等模组的 unlocalizedName 缺少点分隔时回退到丑陋的内部标识。
-     * 例如 "SpeciesTENickel" 通过 getSpeciesByName 反查 → "Nickel"
+     * 从未本地化名称中提取可读的品种名（取最后一段并首字母大写）。
+     * 对于无点分隔的 GT++ 风格名（如 "SpeciesTENickel"），尝试剥离 "SpeciesTE" 前缀。
+     * 例如 "for.bees.species.steel" → "Steel"、"SpeciesTENickel" → "Nickel"
      */
     public static String getSpeciesDisplayName(String unlocalizedName) {
         if (unlocalizedName == null || unlocalizedName.isEmpty()) return "";
-        IAlleleBeeSpecies species = getSpeciesByName(unlocalizedName);
-        if (species != null) {
-            String name = species.getName();
-            if (name != null && !name.isEmpty()) return name;
-        }
-        int lastDot = unlocalizedName.lastIndexOf('.');
-        String name = lastDot >= 0 ? unlocalizedName.substring(lastDot + 1) : unlocalizedName;
+        String name = extractReadableName(unlocalizedName);
         if (name.isEmpty()) return unlocalizedName;
         return Character.toUpperCase(name.charAt(0)) + name.substring(1);
+    }
+
+    /**
+     * 从 unlocalizedName 中提取可读部分（不去首字母大写）。
+     * 先取最后一段（点分隔），若无点则尝试剥离 "SpeciesTE" 前缀（GT++ 命名风格）。
+     */
+    private static String extractReadableName(String uln) {
+        int lastDot = uln.lastIndexOf('.');
+        String name = lastDot >= 0 ? uln.substring(lastDot + 1) : uln;
+        // GT++ style: "SpeciesTENickel" → "Nickel"
+        if (name.startsWith("SpeciesTE") && name.length() > 9) {
+            name = name.substring(9);
+        }
+        return name;
     }
 
     /**
@@ -152,7 +159,7 @@ public class BeeBreedingHelper {
     }
 
     /**
-     * 匹配品种名称（大小写不敏感，同时匹配本地化名和未本地化名）
+     * 匹配品种名称（大小写不敏感，同时匹配本地化名、未本地化名、以及提取的可读名）
      */
     private static boolean matchSpeciesName(IAlleleBeeSpecies species, String speciesName) {
         if (species == null || speciesName == null) return false;
@@ -162,9 +169,16 @@ public class BeeBreedingHelper {
             return true;
         }
         // 匹配未本地化的内部名（NEI拖放获取的标识名）
-        if (species.getUnlocalizedName() != null && species.getUnlocalizedName()
-            .equalsIgnoreCase(speciesName)) {
-            return true;
+        if (species.getUnlocalizedName() != null) {
+            if (species.getUnlocalizedName()
+                .equalsIgnoreCase(speciesName)) {
+                return true;
+            }
+            // 匹配剥离前缀后的可读名（如 "SpeciesTENickel" → "Nickel"）
+            String readable = extractReadableName(species.getUnlocalizedName());
+            if (readable.equalsIgnoreCase(speciesName)) {
+                return true;
+            }
         }
         return false;
     }
