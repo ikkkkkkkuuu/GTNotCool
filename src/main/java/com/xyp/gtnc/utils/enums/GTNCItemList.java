@@ -60,6 +60,7 @@ public enum GTNCItemList implements IItemContainer {
     LargeSteamExtruder,
     LargeSteamDistillationTower,
     LargeSteamBeeBreeder,
+    LargeSteamCombProcessor,
 
     SteamTurbineLV,
     SteamTurbineMV,

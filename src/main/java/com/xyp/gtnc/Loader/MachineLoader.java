@@ -11,6 +11,7 @@ import com.xyp.gtnc.Common.machines.hatch.SuperMTEHatchCraftingInputME;
 import com.xyp.gtnc.Common.machines.hatch.SuperMTEHatchCraftingInputSlave;
 import com.xyp.gtnc.Common.machines.hatch.VaultPortHatch;
 import com.xyp.gtnc.Common.machines.multiblock.LargeOreProcessor;
+import com.xyp.gtnc.Common.machines.multiblock.LargeSteamCombProcessor;
 import com.xyp.gtnc.Common.machines.multiblock.SingularityDataHub;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeBoiler;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamAlloySmelter;
@@ -371,6 +372,17 @@ public class MachineLoader {
                 StatCollector.translateToLocal("NameLargeSteamBeeBreeder")));
         AnimatedTooltipHandler
             .addItemTooltip(GTNCItemList.LargeSteamBeeBreeder.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        // #tr NameLargeSteamCombProcessor
+        // # Large Steam Comb Processor
+        // # zh_CN 大型蒸汽蜂窝处理机
+        GTNCItemList.LargeSteamCombProcessor.set(
+            new LargeSteamCombProcessor(
+                GTNCMachineID.LARGE_STEAM_COMB_PROCESSOR.ID,
+                "LargeSteamCombProcessor",
+                StatCollector.translateToLocal("NameLargeSteamCombProcessor")));
+        AnimatedTooltipHandler
+            .addItemTooltip(GTNCItemList.LargeSteamCombProcessor.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
 
     }
 
