@@ -83,29 +83,89 @@ public class BeeBreedingHelper {
     }
 
     /**
-     * 从未本地化名称中提取可读的品种名（取最后一段并首字母大写）。
-     * 对于无点分隔的 GT++ 风格名（如 "SpeciesTENickel"），尝试剥离 "SpeciesTE" 前缀。
-     * 例如 "for.bees.species.steel" → "Steel"、"SpeciesTENickel" → "Nickel"
+     * 从未本地化名称中提取可读的品种名。
+     * 优先取点分隔的最后一段；无点时尝试通过 getName() 获取英文名（仅 ASCII）。
+     * 例如 "for.bees.species.Nickel" → "Nickel"、"SpeciesTENickel" → "Nickel"（若 getName() 为英文）
      */
     public static String getSpeciesDisplayName(String unlocalizedName) {
         if (unlocalizedName == null || unlocalizedName.isEmpty()) return "";
-        String name = extractReadableName(unlocalizedName);
-        if (name.isEmpty()) return unlocalizedName;
-        return Character.toUpperCase(name.charAt(0)) + name.substring(1);
+        int lastDot = unlocalizedName.lastIndexOf('.');
+        if (lastDot >= 0) {
+            String name = unlocalizedName.substring(lastDot + 1);
+            if (!name.isEmpty()) {
+                return Character.toUpperCase(name.charAt(0)) + name.substring(1);
+            }
+        }
+        // 无点分隔：尝试从物种注册表获取英文显示名
+        IAlleleBeeSpecies species = findSpeciesByUnlocalizedName(unlocalizedName);
+        if (species != null) {
+            String name = species.getName();
+            if (name != null && !name.isEmpty() && isAscii(name)) {
+                return name;
+            }
+        }
+        return Character.toUpperCase(unlocalizedName.charAt(0)) + unlocalizedName.substring(1);
     }
 
     /**
      * 从 unlocalizedName 中提取可读部分（不去首字母大写）。
-     * 先取最后一段（点分隔），若无点则尝试剥离 "SpeciesTE" 前缀（GT++ 命名风格）。
+     * 仅做点分隔提取，用于 matchSpeciesName 的快速匹配。
      */
     private static String extractReadableName(String uln) {
         int lastDot = uln.lastIndexOf('.');
-        String name = lastDot >= 0 ? uln.substring(lastDot + 1) : uln;
-        // GT++ style: "SpeciesTENickel" → "Nickel"
-        if (name.startsWith("SpeciesTE") && name.length() > 9) {
-            name = name.substring(9);
+        return lastDot >= 0 ? uln.substring(lastDot + 1) : uln;
+    }
+
+    /**
+     * 仅通过 unlocalizedName（大小写不敏感）查找物种，不触发 matchSpeciesName 避免循环。
+     */
+    private static IAlleleBeeSpecies findSpeciesByUnlocalizedName(String uln) {
+        IBeeRoot root = getBeeRoot();
+        if (root == null) return null;
+        Map<String, IAllele[]> templates = root.getGenomeTemplates();
+        if (templates != null) {
+            for (IAllele[] template : templates.values()) {
+                if (template != null && template.length > 0 && template[0] instanceof IAlleleBeeSpecies) {
+                    IAlleleBeeSpecies s = (IAlleleBeeSpecies) template[0];
+                    if (uln.equalsIgnoreCase(s.getUnlocalizedName())) return s;
+                }
+            }
         }
-        return name;
+        for (IBeeMutation mutation : root.getMutations(false)) {
+            IAllele[] template = mutation.getTemplate();
+            if (template.length > 0 && template[0] instanceof IAlleleBeeSpecies) {
+                IAlleleBeeSpecies s = (IAlleleBeeSpecies) template[0];
+                if (uln.equalsIgnoreCase(s.getUnlocalizedName())) return s;
+            }
+        }
+        return null;
+    }
+
+    private static boolean isAscii(String s) {
+        for (int i = 0; i < s.length(); i++) {
+            if (s.charAt(i) > 127) return false;
+        }
+        return true;
+    }
+
+    /**
+     * 直接从 IAlleleBeeSpecies 获取显示名（无额外查找），供 matchSpeciesName 使用。
+     */
+    private static String getDisplayNameForSpecies(IAlleleBeeSpecies species) {
+        String uln = species.getUnlocalizedName();
+        if (uln == null || uln.isEmpty()) return "";
+        int lastDot = uln.lastIndexOf('.');
+        if (lastDot >= 0) {
+            String name = uln.substring(lastDot + 1);
+            if (!name.isEmpty()) {
+                return Character.toUpperCase(name.charAt(0)) + name.substring(1);
+            }
+        }
+        String name = species.getName();
+        if (name != null && !name.isEmpty() && isAscii(name)) {
+            return name;
+        }
+        return Character.toUpperCase(uln.charAt(0)) + uln.substring(1);
     }
 
     /**
@@ -159,7 +219,7 @@ public class BeeBreedingHelper {
     }
 
     /**
-     * 匹配品种名称（大小写不敏感，同时匹配本地化名、未本地化名、以及提取的可读名）
+     * 匹配品种名称（大小写不敏感，同时匹配本地化名、未本地化名、提取的可读名、以及最终显示名）
      */
     private static boolean matchSpeciesName(IAlleleBeeSpecies species, String speciesName) {
         if (species == null || speciesName == null) return false;
@@ -174,9 +234,14 @@ public class BeeBreedingHelper {
                 .equalsIgnoreCase(speciesName)) {
                 return true;
             }
-            // 匹配剥离前缀后的可读名（如 "SpeciesTENickel" → "Nickel"）
+            // 匹配点分隔后的可读名（如 "for.bees.species.Nickel" → "Nickel"）
             String readable = extractReadableName(species.getUnlocalizedName());
             if (readable.equalsIgnoreCase(speciesName)) {
+                return true;
+            }
+            // 匹配最终显示名（无点分隔时 getSpeciesDisplayName 可能通过 getName() 解析出英文名）
+            String display = getDisplayNameForSpecies(species);
+            if (display.equalsIgnoreCase(speciesName)) {
                 return true;
             }
         }
