@@ -69,7 +69,7 @@ import mcp.mobius.waila.api.IWailaDataAccessor;
 
 // #tr Tooltip_LargeSteamAlloySmelter_00
 // # A large steam-powered alloy smelter
-// # zh_CN 大型蒸汽合金炉
+// # zh_CN 合金炉
 
 // #tr Tooltip_LargeSteamAlloySmelter_01
 // # Bronze machine recipe tier: MV, Steel machine recipe tier: HV
