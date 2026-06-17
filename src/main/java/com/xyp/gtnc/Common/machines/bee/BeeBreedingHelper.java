@@ -83,11 +83,18 @@ public class BeeBreedingHelper {
     }
 
     /**
-     * 从未本地化名称中提取可读的品种名（取最后一段并首字母大写）
-     * 例如 "for.bees.species.steel" → "Steel"
+     * 从未本地化名称中提取可读的品种名。
+     * 优先通过品种注册表查 Forestry 的真实显示名 getName()，
+     * 防止 GT++ 等模组的 unlocalizedName 缺少点分隔时回退到丑陋的内部标识。
+     * 例如 "SpeciesTENickel" 通过 getSpeciesByName 反查 → "Nickel"
      */
     public static String getSpeciesDisplayName(String unlocalizedName) {
         if (unlocalizedName == null || unlocalizedName.isEmpty()) return "";
+        IAlleleBeeSpecies species = getSpeciesByName(unlocalizedName);
+        if (species != null) {
+            String name = species.getName();
+            if (name != null && !name.isEmpty()) return name;
+        }
         int lastDot = unlocalizedName.lastIndexOf('.');
         String name = lastDot >= 0 ? unlocalizedName.substring(lastDot + 1) : unlocalizedName;
         if (name.isEmpty()) return unlocalizedName;
