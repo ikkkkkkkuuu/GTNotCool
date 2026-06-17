@@ -321,18 +321,56 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
         return list;
     }
 
+    /**
+     * Merges output ItemStacks from a recipe into the accumulator, combining stacks of the same item.
+     * This prevents unbounded array growth during cross-recipe processing, which would otherwise
+     * cause the tile entity NBT to exceed the 32KB network packet limit when synced to the client.
+     */
     private static void mergeItemStacks(ArrayList<ItemStack> acc, ItemStack[] items) {
-        if (items != null) {
-            for (ItemStack s : items) {
-                if (s != null) acc.add(s.copy());
+        if (items == null) return;
+        for (ItemStack toMerge : items) {
+            if (toMerge == null) continue;
+            boolean merged = false;
+            for (ItemStack existing : acc) {
+                if (GTUtility.areStacksEqual(toMerge, existing) && existing.stackSize < existing.getMaxStackSize()) {
+                    int space = existing.getMaxStackSize() - existing.stackSize;
+                    int add = Math.min(toMerge.stackSize, space);
+                    existing.stackSize += add;
+                    if (add >= toMerge.stackSize) {
+                        merged = true;
+                        break;
+                    }
+                    // Overflow: create a new stack for the remainder
+                    ItemStack remainder = toMerge.copy();
+                    remainder.stackSize = toMerge.stackSize - add;
+                    toMerge = remainder;
+                }
+            }
+            if (!merged) {
+                acc.add(toMerge.copy());
             }
         }
     }
 
+    /**
+     * Merges output FluidStacks from a recipe into the accumulator, combining stacks of the same fluid.
+     * This prevents unbounded array growth during cross-recipe processing, which would otherwise
+     * cause the tile entity NBT to exceed the 32KB network packet limit when synced to the client.
+     */
     private static void mergeFluidStacks(ArrayList<FluidStack> acc, FluidStack[] fluids) {
-        if (fluids != null) {
-            for (FluidStack f : fluids) {
-                if (f != null) acc.add(f.copy());
+        if (fluids == null) return;
+        for (FluidStack toMerge : fluids) {
+            if (toMerge == null) continue;
+            boolean merged = false;
+            for (FluidStack existing : acc) {
+                if (existing.isFluidEqual(toMerge)) {
+                    existing.amount += toMerge.amount;
+                    merged = true;
+                    break;
+                }
+            }
+            if (!merged) {
+                acc.add(toMerge.copy());
             }
         }
     }
