@@ -80,9 +80,22 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
             if (color.isPresent() && hatchColor != -1 && hatchColor != color.get()) continue;
             tHatch.mRecipeMap = getRecipeMap();
             if (tHatch instanceof MTEHatchInputME meHatch) {
-                for (FluidStack fluidStack : meHatch.getStoredFluids()) {
-                    if (fluidStack != null) {
-                        inputsFromME.put(fluidStack.getFluid(), fluidStack);
+                if (cachedMEInputFluids != null) {
+                    // Use cached FluidStack references so that ProcessingLogic
+                    // modifications persist across getStoredFluidsForColor() calls
+                    for (FluidStack fluidStack : meHatch.getStoredFluids()) {
+                        if (fluidStack != null) {
+                            FluidStack cached = cachedMEInputFluids.get(fluidStack.getFluid());
+                            if (cached != null) {
+                                inputsFromME.put(cached.getFluid(), cached);
+                            }
+                        }
+                    }
+                } else {
+                    for (FluidStack fluidStack : meHatch.getStoredFluids()) {
+                        if (fluidStack != null) {
+                            inputsFromME.put(fluidStack.getFluid(), fluidStack);
+                        }
                     }
                 }
             } else {
@@ -241,6 +254,21 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
 
     private boolean inCrossRecipeProcessing = false;
 
+    /**
+     * Cached FluidStack references from ME input hatches during cross-recipe processing.
+     * <p>
+     * The base ProcessingLogic modifies FluidStack amounts on local copies returned by
+     * {@link #getStoredFluidsForColor(Optional)}. For regular hatches, {@code getFillableStack()}
+     * returns references to the actual stored fluid, so modifications persist across calls.
+     * ME hatches return copies via {@code getStoredFluids()}, breaking the exit condition
+     * and causing inputs to never be consumed.
+     * <p>
+     * This cache ensures the same FluidStack references are returned throughout the recipe
+     * check cycle, and the consumed amounts are drained from ME hatches afterwards.
+     */
+    private Map<Fluid, FluidStack> cachedMEInputFluids = null;
+    private Map<Fluid, Integer> originalMEAmounts = null;
+
     @Override
     public CheckRecipeResult checkProcessing() {
         if (!crossRecipeParallelEnabled || inCrossRecipeProcessing) {
@@ -255,51 +283,88 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
     }
 
     private CheckRecipeResult checkProcessingCrossRecipe() {
-        CheckRecipeResult firstResult = super.checkProcessing();
-        if (!firstResult.wasSuccessful()) {
-            return firstResult;
-        }
-
-        long steamTicks = Math.abs(lEUt) * 10000L / Math.max(1000, mEfficiency);
-        long totalSteamMb = steamTicks * mMaxProgresstime;
-        int totalDuration = mMaxProgresstime;
-
-        ArrayList<ItemStack> accItems = cloneItemArray(mOutputItems);
-        ArrayList<FluidStack> accFluids = cloneFluidArray(mOutputFluids);
-
-        int maxIterations = 200;
-        for (int i = 0; i < maxIterations; i++) {
-            CheckRecipeResult result = super.checkProcessing();
-            if (!result.wasSuccessful()) {
-                break;
+        // Cache ME input fluids so that ProcessingLogic modifications to FluidStack
+        // amounts persist across multiple getStoredFluidsForColor() calls during
+        // the cross-recipe loop. Without this, ME hatches return new copies each
+        // time, causing inputs to never appear consumed.
+        cachedMEInputFluids = new HashMap<>();
+        originalMEAmounts = new HashMap<>();
+        try {
+            for (MTEHatchInput tHatch : GTUtility.validMTEList(mInputHatches)) {
+                if (tHatch instanceof MTEHatchInputME meHatch) {
+                    for (FluidStack fluid : meHatch.getStoredFluids()) {
+                        if (fluid != null) {
+                            FluidStack copy = fluid.copy();
+                            cachedMEInputFluids.put(copy.getFluid(), copy);
+                            originalMEAmounts.merge(copy.getFluid(), copy.amount, Integer::sum);
+                        }
+                    }
+                }
             }
 
-            steamTicks = Math.abs(lEUt) * 10000L / Math.max(1000, mEfficiency);
-            totalSteamMb += steamTicks * mMaxProgresstime;
-            totalDuration += mMaxProgresstime;
-
-            mergeItemStacks(accItems, mOutputItems);
-            mergeFluidStacks(accFluids, mOutputFluids);
-
-            if (getStoredInputsForColor(Optional.empty()).isEmpty()
-                && getStoredFluidsForColor(Optional.empty()).isEmpty()) {
-                break;
+            CheckRecipeResult firstResult = super.checkProcessing();
+            if (!firstResult.wasSuccessful()) {
+                return firstResult;
             }
+
+            long steamTicks = Math.abs(lEUt) * 10000L / Math.max(1000, mEfficiency);
+            long totalSteamMb = steamTicks * mMaxProgresstime;
+            int totalDuration = mMaxProgresstime;
+
+            ArrayList<ItemStack> accItems = cloneItemArray(mOutputItems);
+            ArrayList<FluidStack> accFluids = cloneFluidArray(mOutputFluids);
+
+            int maxIterations = 200;
+            for (int i = 0; i < maxIterations; i++) {
+                CheckRecipeResult result = super.checkProcessing();
+                if (!result.wasSuccessful()) {
+                    break;
+                }
+
+                steamTicks = Math.abs(lEUt) * 10000L / Math.max(1000, mEfficiency);
+                totalSteamMb += steamTicks * mMaxProgresstime;
+                totalDuration += mMaxProgresstime;
+
+                mergeItemStacks(accItems, mOutputItems);
+                mergeFluidStacks(accFluids, mOutputFluids);
+
+                if (getStoredInputsForColor(Optional.empty()).isEmpty()
+                    && getStoredFluidsForColor(Optional.empty()).isEmpty()) {
+                    break;
+                }
+            }
+
+            // Drain ME hatches for the amounts consumed during processing.
+            // The cached FluidStacks were modified in-place by ProcessingLogic;
+            // the difference from original amounts is what was consumed.
+            for (Map.Entry<Fluid, Integer> entry : originalMEAmounts.entrySet()) {
+                Fluid fluid = entry.getKey();
+                int originalAmount = entry.getValue();
+                FluidStack cached = cachedMEInputFluids.get(fluid);
+                if (cached == null) continue;
+                int consumed = originalAmount - cached.amount;
+                if (consumed > 0) {
+                    depleteInput(new FluidStack(fluid, consumed));
+                }
+            }
+
+            if (totalSteamMb > 0 && !tryConsumeSteam((int) totalSteamMb)) {
+                stopMachine(ShutDownReasonRegistry.POWER_LOSS);
+                return CheckRecipeResultRegistry.insufficientPower(totalSteamMb);
+            }
+
+            mOutputItems = accItems.toArray(new ItemStack[0]);
+            mOutputFluids = accFluids.toArray(new FluidStack[0]);
+            mMaxProgresstime = totalDuration;
+            lEUt = 0;
+            mEfficiency = 10000;
+            mEfficiencyIncrease = 10000;
+
+            return CheckRecipeResultRegistry.SUCCESSFUL;
+        } finally {
+            cachedMEInputFluids = null;
+            originalMEAmounts = null;
         }
-
-        if (totalSteamMb > 0 && !tryConsumeSteam((int) totalSteamMb)) {
-            stopMachine(ShutDownReasonRegistry.POWER_LOSS);
-            return CheckRecipeResultRegistry.insufficientPower(totalSteamMb);
-        }
-
-        mOutputItems = accItems.toArray(new ItemStack[0]);
-        mOutputFluids = accFluids.toArray(new FluidStack[0]);
-        mMaxProgresstime = totalDuration;
-        lEUt = 0;
-        mEfficiency = 10000;
-        mEfficiencyIncrease = 10000;
-
-        return CheckRecipeResultRegistry.SUCCESSFUL;
     }
 
     private static ArrayList<ItemStack> cloneItemArray(ItemStack[] items) {
