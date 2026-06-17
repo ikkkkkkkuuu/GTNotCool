@@ -103,8 +103,8 @@ import gregtech.common.gui.modularui.multiblock.base.MTEMultiBlockBaseGui;
 // # zh_CN 每次繁育尝试消耗 51200L 蒸汽
 
 // #tr Tooltip_LargeSteamBeeBreeder_06
-// # Insert Stainless Steel gear in controller slot for +10% mutation chance
-// # zh_CN 在主机内插入不锈钢齿轮 +10% 杂交成功率
+// # Insert Stainless Steel gear in controller slot for +2% mutation chance
+// # zh_CN 在主机内插入不锈钢齿轮 +2% 杂交成功率
 
 // #tr Tooltip_LargeSteamBeeBreeder_07
 // # Glass tier: +1% mutation chance & +51200L steam consumption per tier
@@ -150,7 +150,7 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
     private int mCountCasing = 0;
     private int tierMachine = 1;
 
-    /** 控制器槽是否有不锈钢齿轮（+10%成功率） */
+    /** 控制器槽是否有不锈钢齿轮（+2%成功率） */
     private boolean hasStainlessSteelGear = false;
 
     /** 玻璃等级（每级+1%成功率） */
@@ -633,7 +633,7 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
 
             processed++;
 
-            double effectiveChance = step.chance + (hasStainlessSteelGear ? 10.0 : 0.0) + Math.max(0, glassTier);
+            double effectiveChance = step.chance + (hasStainlessSteelGear ? 2.0 : 0.0) + Math.max(0, glassTier);
             if (BeeBreedingHelper.tryMutation(effectiveChance)) {
                 ItemStack newDrone = BeeBreedingHelper.createDrone(step.result);
                 if (newDrone != null) {
@@ -830,7 +830,7 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
                 .append(BeeBreedingHelper.getSpeciesDisplayName(step.result))
                 .append(",")
                 .append(
-                    String.format("%.1f", step.chance + (hasStainlessSteelGear ? 10.0 : 0.0) + Math.max(0, glassTier)));
+                    String.format("%.1f", step.chance + (hasStainlessSteelGear ? 2.0 : 0.0) + Math.max(0, glassTier)));
         }
         return sb.toString();
     }
@@ -969,6 +969,7 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamBeeBreeder_07"))
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeParallel"))
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeDuration"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_PerfectOverclock"))
             .beginStructureBlock(15, 17, 15, false)
             .addInputBus(StatCollector.translateToLocal("Tooltip_LargeSteamBeeBreeder_Casing"), 1)
             .addOutputBus(StatCollector.translateToLocal("Tooltip_LargeSteamBeeBreeder_Casing"), 1)

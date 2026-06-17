@@ -64,7 +64,6 @@ import gregtech.api.structure.error.StructureErrorRegistry;
 import gregtech.api.util.GTOreDictUnificator;
 import gregtech.api.util.GTRecipe;
 import gregtech.api.util.MultiblockTooltipBuilder;
-import gregtech.api.util.OverclockCalculator;
 import gregtech.common.tileentities.machines.IDualInputHatch;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
@@ -349,16 +348,8 @@ public class LargeSteamCompressor extends GTNCSteamMultiBlockBase<LargeSteamComp
                     return CheckRecipeResultRegistry.NO_RECIPE;
                 return CheckRecipeResultRegistry.SUCCESSFUL;
             }
-
-            @Override
-            @Nonnull
-            protected OverclockCalculator createOverclockCalculator(@Nonnull GTRecipe recipe) {
-                int effectiveTier = tierMachine + (enableHigherRecipe ? 1 : 0);
-                return OverclockCalculator.ofNoOverclock(recipe)
-                    .setEUtDiscount(0.8 * effectiveTier)
-                    .setDurationModifier(0.5 / effectiveTier);
-            }
-        }.setMaxParallelSupplier(this::getTrueParallel);
+        }.setMaxParallelSupplier(this::getTrueParallel)
+            .enablePerfectOverclock();
     }
 
     @Override
@@ -441,6 +432,7 @@ public class LargeSteamCompressor extends GTNCSteamMultiBlockBase<LargeSteamComp
             .addInfo(HIGH_PRESSURE_TOOLTIP_NOTICE)
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeParallel"))
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeDuration"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_PerfectOverclock"))
             .beginStructureBlock(7, 7, 7, false)
             .addController("Front center")
             .addSteamInputBus(StatCollector.translateToLocal("Tooltip_LargeSteamCompressor_Casing"), 1)

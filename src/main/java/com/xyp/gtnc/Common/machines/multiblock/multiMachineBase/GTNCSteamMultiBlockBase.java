@@ -13,6 +13,7 @@ import net.minecraftforge.fluids.FluidStack;
 
 import gregtech.api.enums.Materials;
 import gregtech.api.interfaces.IOutputBus;
+import gregtech.api.logic.ProcessingLogic;
 import gregtech.api.metatileentity.implementations.MTEHatchInput;
 import gregtech.api.metatileentity.implementations.MTEHatchInputBus;
 import gregtech.api.metatileentity.implementations.MTEHatchOutputBus;
@@ -375,7 +376,37 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
         }
     }
 
-    // endregion Output buses
+    // endregion
+
+    // region Batch Mode, Perfect Overclock & Input Separation
+
+    // #tr Tooltip_GTNC_PerfectOverclock
+    // # Perfect Overclock: Overclock beyond recipe voltage has no efficiency loss
+    // # 无损超频：超频时无效率损失
+
+    @Override
+    public boolean supportsBatchMode() {
+        return true;
+    }
+
+    @Override
+    public boolean supportsInputSeparation() {
+        return true;
+    }
+
+    /**
+     * Unified ProcessingLogic with Perfect Overclock (无损超频).
+     * Uses the ProcessingLogic default overclock calculator (no ofNoOverclock),
+     * same pattern as MTELargeChemicalReactor.
+     * Machines needing extra validation (e.g. CompressionTierKey) can override.
+     */
+    @Override
+    protected ProcessingLogic createProcessingLogic() {
+        return new ProcessingLogic().enablePerfectOverclock()
+            .setMaxParallelSupplier(this::getTrueParallel);
+    }
+
+    // endregion
 
     @Override
     public List<IOutputBus> getOutputBusses() {

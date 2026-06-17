@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import net.minecraft.block.Block;
@@ -48,7 +47,6 @@ import gregtech.api.enums.SoundResource;
 import gregtech.api.interfaces.IIconContainer;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
-import gregtech.api.logic.ProcessingLogic;
 import gregtech.api.metatileentity.implementations.MTEHatch;
 import gregtech.api.metatileentity.implementations.MTEHatchInputBus;
 import gregtech.api.metatileentity.implementations.MTEHatchOutput;
@@ -56,13 +54,10 @@ import gregtech.api.metatileentity.implementations.MTEHatchOutputBus;
 import gregtech.api.recipe.RecipeMap;
 import gregtech.api.recipe.RecipeMaps;
 import gregtech.api.recipe.check.CheckRecipeResult;
-import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.structure.error.StructureError;
 import gregtech.api.structure.error.StructureErrorRegistry;
 import gregtech.api.util.GTOreDictUnificator;
-import gregtech.api.util.GTRecipe;
 import gregtech.api.util.MultiblockTooltipBuilder;
-import gregtech.api.util.OverclockCalculator;
 import gregtech.common.tileentities.machines.IDualInputHatch;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
@@ -350,28 +345,6 @@ public class LargeSteamCutting extends GTNCSteamMultiBlockBase<LargeSteamCutting
     }
 
     @Override
-    protected ProcessingLogic createProcessingLogic() {
-        return new ProcessingLogic() {
-
-            @Nonnull
-            @Override
-            protected CheckRecipeResult validateRecipe(@Nonnull GTRecipe recipe) {
-                if (availableVoltage < recipe.mEUt) return CheckRecipeResultRegistry.insufficientPower(recipe.mEUt);
-                return CheckRecipeResultRegistry.SUCCESSFUL;
-            }
-
-            @Override
-            @Nonnull
-            protected OverclockCalculator createOverclockCalculator(@Nonnull GTRecipe recipe) {
-                int effectiveTier = tierMachine + (enableHigherRecipe ? 1 : 0);
-                return OverclockCalculator.ofNoOverclock(recipe)
-                    .setEUtDiscount(1.0 * effectiveTier)
-                    .setDurationModifier(0.9 / effectiveTier);
-            }
-        }.setMaxParallelSupplier(this::getTrueParallel);
-    }
-
-    @Override
     public int getTierRecipes() {
         return tierMachine + 1 + (enableHigherRecipe ? 1 : 0);
     }
@@ -453,6 +426,7 @@ public class LargeSteamCutting extends GTNCSteamMultiBlockBase<LargeSteamCutting
             .addInfo(HIGH_PRESSURE_TOOLTIP_NOTICE)
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeParallel"))
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeDuration"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_PerfectOverclock"))
             .beginStructureBlock(9, 4, 5, false)
             .addController("Front center")
             .addSteamInputBus(StatCollector.translateToLocal("Tooltip_LargeSteamCutting_Casing"), 1)
