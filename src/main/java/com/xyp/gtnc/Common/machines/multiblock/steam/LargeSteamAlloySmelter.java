@@ -86,12 +86,36 @@ import mcp.mobius.waila.api.IWailaDataAccessor;
 public class LargeSteamAlloySmelter extends GTNCSteamMultiBlockBase<LargeSteamAlloySmelter>
     implements ISurvivalConstructable {
 
+    private static final String STRUCTURE_PIECE_MAIN = "main";
+    private static final int HORIZONTAL_OFF_SET = 1;
+    private static final int VERTICAL_OFF_SET = 2;
+    private static final int DEPTH_OFF_SET = 0;
+    // 3 wide (x), 4 tall (y), 3 deep (z)
+    // 'B' = tiered casing + hatches, 'D' = frame
+    private final String[][] shape = new String[][] { { " B ", "BBB", " B " }, { "BBB", "BBB", "BBB" },
+        { "B~B", "B B", "BBB" }, { "DDD", "DDD", "DDD" } };
+    private int mCountCasing = 0;
+    private int tierMachine = 1;
+    private int tierMachineCasing = -1;
+    private int tierFrame = -1;
+    private boolean enableHigherRecipe = false;
+    private IStructureDefinition<LargeSteamAlloySmelter> STRUCTURE_DEFINITION = null;
+
     public LargeSteamAlloySmelter(String aName) {
         super(aName);
     }
 
     public LargeSteamAlloySmelter(int aID, String aName, String aNameRegional) {
         super(aID, aName, aNameRegional);
+    }
+
+    @Nullable
+    public static Integer getTierFrame(Block block, int meta) {
+        if (block == sBlockFrames) {
+            if (meta == Materials.Bronze.mMetaItemSubID) return 1;
+            if (meta == Materials.Steel.mMetaItemSubID) return 2;
+        }
+        return null;
     }
 
     @Override
@@ -103,24 +127,6 @@ public class LargeSteamAlloySmelter extends GTNCSteamMultiBlockBase<LargeSteamAl
     public String getMachineType() {
         return StatCollector.translateToLocal("LargeSteamAlloySmelterRecipeType");
     }
-
-    private static final String STRUCTURE_PIECE_MAIN = "main";
-    private static final int HORIZONTAL_OFF_SET = 1;
-    private static final int VERTICAL_OFF_SET = 2;
-    private static final int DEPTH_OFF_SET = 0;
-
-    private int mCountCasing = 0;
-    private int tierMachine = 1;
-    private int tierMachineCasing = -1;
-    private int tierFrame = -1;
-    private boolean enableHigherRecipe = false;
-
-    private IStructureDefinition<LargeSteamAlloySmelter> STRUCTURE_DEFINITION = null;
-
-    // 3 wide (x), 4 tall (y), 3 deep (z)
-    // 'B' = tiered casing + hatches, 'D' = frame
-    private final String[][] shape = new String[][] { { " B ", "BBB", " B " }, { "BBB", "BBB", "BBB" },
-        { "B~B", "B B", "BBB" }, { "DDD", "DDD", "DDD" } };
 
     @Override
     protected boolean isHighPressure() {
@@ -200,15 +206,6 @@ public class LargeSteamAlloySmelter extends GTNCSteamMultiBlockBase<LargeSteamAl
         if (block == sBlockCasings2 && 0 == meta) {
             mCountCasing++;
             return 2;
-        }
-        return null;
-    }
-
-    @Nullable
-    public static Integer getTierFrame(Block block, int meta) {
-        if (block == sBlockFrames) {
-            if (meta == Materials.Bronze.mMetaItemSubID) return 1;
-            if (meta == Materials.Steel.mMetaItemSubID) return 2;
         }
         return null;
     }

@@ -606,6 +606,13 @@ public class BeeBreedingHelper {
     }
 
     /**
+     * 选择最佳杂交配方
+     */
+    public static MutationData selectBestMutation(String species, List<MutationData> mutations) {
+        return selectBestMutationForUID(species, mutations);
+    }
+
+    /**
      * 选择最佳杂交配方（UID 版本）
      */
     public static MutationData selectBestMutationForUID(String uid, List<MutationData> mutations) {
