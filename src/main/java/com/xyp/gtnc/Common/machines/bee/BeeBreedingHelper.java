@@ -133,6 +133,27 @@ public class BeeBreedingHelper {
     }
 
     /**
+     * 将任意形式的品种名（显示名、基因组 unlocalizedName、物种模板 unlocalizedName 等）
+     * 规范化为物种注册表中的统一标识名。
+     * <p>
+     * 例如 "Nickel"、"SpeciesTENickel" 都会规范化为 "extrabees.species.nickel"。
+     * 这样雄蜂池和育种目标的品种名格式一致，避免匹配失败。
+     */
+    public static String getCanonicalSpeciesName(String rawName) {
+        if (rawName == null || rawName.isEmpty()) return rawName;
+        // 先尝试直接匹配
+        IAlleleBeeSpecies species = getSpeciesByName(rawName);
+        if (species != null) return species.getUnlocalizedName();
+        // 若失败，通过显示名作为桥接再查一次
+        String display = getSpeciesDisplayName(rawName);
+        if (!display.isEmpty() && !display.equals(rawName)) {
+            species = getSpeciesByName(display);
+            if (species != null) return species.getUnlocalizedName();
+        }
+        return rawName;
+    }
+
+    /**
      * 从 unlocalizedName 中提取可读部分（不去首字母大写）。
      * 用于 matchSpeciesName 快速匹配，统一走 stripBeePrefix。
      */

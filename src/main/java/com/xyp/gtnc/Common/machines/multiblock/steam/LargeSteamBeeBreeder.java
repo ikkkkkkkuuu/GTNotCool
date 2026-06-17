@@ -597,9 +597,10 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
                 toRemove.add(stack);
                 hasNew = true;
             } else if (BeeBreedingHelper.isPrincess(stack)) {
-                String species = BeeBreedingHelper.getBeeSpecies(stack);
-                if (species != null) {
-                    ItemStack virtualDrone = BeeBreedingHelper.createDrone(species);
+                String rawSpecies = BeeBreedingHelper.getBeeSpecies(stack);
+                if (rawSpecies != null) {
+                    String canonicalSpecies = BeeBreedingHelper.getCanonicalSpeciesName(rawSpecies);
+                    ItemStack virtualDrone = BeeBreedingHelper.createDrone(canonicalSpecies);
                     if (virtualDrone != null) {
                         virtualDrone.stackSize = 1;
                         dronePool.addDrone(virtualDrone);

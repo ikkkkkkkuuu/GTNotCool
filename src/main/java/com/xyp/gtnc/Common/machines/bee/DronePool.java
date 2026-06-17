@@ -37,8 +37,11 @@ public class DronePool {
     public void addDrone(ItemStack droneStack) {
         if (droneStack == null || !BeeBreedingHelper.isDrone(droneStack)) return;
 
-        String species = BeeBreedingHelper.getBeeSpecies(droneStack);
-        if (species == null) return;
+        String rawSpecies = BeeBreedingHelper.getBeeSpecies(droneStack);
+        if (rawSpecies == null) return;
+
+        // 规范化为统一标识名，确保与育种目标品种名一致
+        String species = BeeBreedingHelper.getCanonicalSpeciesName(rawSpecies);
 
         List<ItemStack> drones = droneInventory.computeIfAbsent(species, k -> new ArrayList<>());
 
