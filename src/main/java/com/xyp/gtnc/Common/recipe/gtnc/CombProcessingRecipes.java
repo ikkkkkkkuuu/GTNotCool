@@ -88,8 +88,6 @@ public class CombProcessingRecipes {
                 sb.append(Item.getIdFromItem(is.getItem()))
                     .append(':')
                     .append(is.getItemDamage())
-                    .append(':')
-                    .append(is.stackSize)
                     .append(';');
             }
         }
