@@ -879,6 +879,20 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
         breedingChain.clear();
     }
 
+    /**
+     * 写入物品 NBT（挖掉机器时保留数据到掉落物 ItemStack）
+     * <p>
+     * GT 在方块被破坏时调用此方法，将数据写入掉落物的 NBT，
+     * 重新放置时可从 loadNBTData 恢复。
+     */
+    @Override
+    public void setItemNBT(NBTTagCompound aNBT) {
+        aNBT.setString("targetBeeSpecies", targetBeeSpecies != null ? targetBeeSpecies : "");
+        aNBT.setInteger("pendingPrincessOutputs", pendingPrincessOutputs);
+        aNBT.setTag("dronePool", dronePool.toNBT());
+        super.setItemNBT(aNBT);
+    }
+
     // ==================== 访问器 ====================
 
     public String getTargetBeeSpecies() {
