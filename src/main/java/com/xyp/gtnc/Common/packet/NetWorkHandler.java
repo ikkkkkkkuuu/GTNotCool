@@ -23,9 +23,7 @@ public class NetWorkHandler {
         // 工具带相关网络包
         // Toolbelt related packets
         registerMessage(SwapItems.class, SwapItems.Handler.class, id++, Side.SERVER);
-        registerMessage(BeltContentsChange.class, BeltContentsChange.Handler.class, id++, Side.CLIENT);
-        registerMessage(SyncBeltSlotContents.class, SyncBeltSlotContents.Handler.class, id++, Side.CLIENT);
-        registerMessage(OpenBeltSlotInventory.class, OpenBeltSlotInventory.Handler.class, id++, Side.SERVER);
+        registerMessage(SyncToolBeltData.class, SyncToolBeltData.Handler.class, id++, Side.CLIENT);
 
         // 矿脉挖掘镐网络包
         // Vein Mining Pickaxe packets

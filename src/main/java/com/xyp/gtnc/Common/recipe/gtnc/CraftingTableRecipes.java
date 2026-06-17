@@ -1,9 +1,7 @@
 package com.xyp.gtnc.Common.recipe.gtnc;
 
-import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 
-import com.xyp.gtnc.Common.items.toolbelt.common.BeltUpgradeRecipe;
 import com.xyp.gtnc.Loader.ItemsLoader;
 import com.xyp.gtnc.utils.enums.GTNCItemList;
 
@@ -19,27 +17,6 @@ import gtPlusPlus.xmod.gregtech.api.enums.GregtechItemList;
 public class CraftingTableRecipes {
 
     public static void loadRecipes() {
-        // 合成工具腰带(Tool Belt)的配方
-        // 配方结构: LLL
-        // L L
-        // LIL
-        // 其中: L = 皮革, I = 铁锭
-        GameRegistry.addRecipe(
-            new ItemStack(ItemsLoader.toolBelt),
-            new Object[] { "LLL", "L L", "LIL", 'L', Items.leather, 'I', Items.iron_ingot });
-
-        // 合成小袋(Pouch)的配方
-        // 配方结构: LLL
-        // L L
-        // LLL
-        // 其中: L = 皮革
-        GameRegistry
-            .addRecipe(new ItemStack(ItemsLoader.pouch), new Object[] { "LLL", "L L", "LLL", 'L', Items.leather });
-
-        // 腰带升级配方（皮革环绕）
-        // 使用自定义配方类实现容量+1的效果
-        GameRegistry.addRecipe(new BeltUpgradeRecipe());
-
         // 通配样板符配方：空白样板 → 通配样板符
         GameRegistry.addRecipe(
             new ItemStack(ItemsLoader.wildcardPattern),
@@ -295,12 +272,6 @@ public class CraftingTableRecipes {
             new Object[] { "ABA", "BCB", "ABA", 'A',
                 GTOreDictUnificator.get(OrePrefixes.plateDouble, Materials.Bronze, 1), 'B',
                 OrePrefixes.circuit.get(Materials.LV), 'C', ItemList.Machine_LV_Distillery.get(1) });
-
-        GTModHandler.addCraftingRecipe(
-            GTNCItemList.LargeSteamPyrolyseOven.get(1),
-            new Object[] { "ABA", "BCB", "ABA", 'A',
-                GTOreDictUnificator.get(OrePrefixes.plateDouble, Materials.Bronze, 1), 'B',
-                OrePrefixes.circuit.get(Materials.LV), 'C', ItemList.PyrolyseOven.get(1) });
 
     }
 

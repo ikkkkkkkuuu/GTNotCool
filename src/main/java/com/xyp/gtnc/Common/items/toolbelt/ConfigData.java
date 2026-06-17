@@ -21,17 +21,12 @@ public class ConfigData {
     public static boolean allowAllNonStackableItems = true;
 
     // 从主 Config 类引用配置值（使用字段而非方法）
-    public static boolean showBeltOnPlayers = true;
-    public static float beltItemScale = 0.5f;
     public static boolean releaseToSwap = true;
     public static boolean clipMouseToCircle = true;
     public static boolean allowClickOutsideBounds = true;
     public static boolean displayEmptySlots = true;
     public static boolean minecraftHasNoCircles = false;
     public static float radialDeadzoneOffset = 8.0f;
-    public static boolean customBeltSlotEnabled = true;
-    public static boolean enableNormalCrafting = true;
-    public static boolean enableAnvilUpgrading = true;
 
     static {
         // 从主 Config 同步配置值
@@ -42,17 +37,12 @@ public class ConfigData {
      * 从主 Config 类同步配置值
      */
     public static void syncFromMainConfig() {
-        showBeltOnPlayers = Config.showBeltOnPlayers;
-        beltItemScale = Config.beltItemScale;
         releaseToSwap = Config.releaseToSwap;
         clipMouseToCircle = Config.clipMouseToCircle;
         allowClickOutsideBounds = Config.allowClickOutsideBounds;
         displayEmptySlots = Config.displayEmptySlots;
         minecraftHasNoCircles = Config.minecraftHasNoCircles;
         radialDeadzoneOffset = Config.radialDeadzoneOffset;
-        customBeltSlotEnabled = Config.customBeltSlotEnabled;
-        enableNormalCrafting = Config.enableNormalCrafting;
-        enableAnvilUpgrading = Config.enableAnvilUpgrading;
     }
 
     /**

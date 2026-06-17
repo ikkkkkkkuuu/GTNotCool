@@ -66,7 +66,7 @@ import gregtech.common.gui.modularui.multiblock.base.MTEMultiBlockBaseGui;
  * <li>机器根据雄蜂池中已有品种，自动计算并逐步走完繁育链到达目标</li>
  * <li>繁育产生的新品种永久加入雄蜂池，下次繁育无需重复</li>
  * <li>每输入一只公主蜂，最终输出一只目标品种的公主蜂</li>
- * <li>每次繁育尝试消耗 51200L 蒸汽，每周期 6.4 秒</li>
+ * <li>每次繁育尝试消耗 51200L 蒸汽，每周期 3.2 秒</li>
  * </ul>
  */
 // #tr NameLargeSteamBeeBreeder

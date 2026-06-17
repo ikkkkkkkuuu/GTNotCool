@@ -8,11 +8,9 @@ import net.minecraftforge.client.event.MouseEvent;
 
 import org.lwjgl.input.Mouse;
 
-import com.xyp.gtnc.Common.items.toolbelt.BeltFinder;
 import com.xyp.gtnc.Common.items.toolbelt.ConfigData;
 import com.xyp.gtnc.Common.items.toolbelt.client.RadialMenuScreen;
 import com.xyp.gtnc.Common.items.tools.VeinMiningPickaxe;
-import com.xyp.gtnc.Common.packet.OpenBeltSlotInventory;
 import com.xyp.gtnc.Common.packet.SyncVeinPickaxeNBT;
 import com.xyp.gtnc.Config.Config;
 import com.xyp.gtnc.ScienceNotCool;
@@ -41,25 +39,14 @@ public class SubscribeEventClientUtils {
         EntityPlayer player = mc.thePlayer;
         if (player == null || mc.currentScreen != null) return;
 
-        // 打开环形菜单
-        // Open radial menu
+        // 打开工具腰带径向菜单
+        // Open tool belt radial menu
         if (KeyBindManager.openToolMenuKeybind.isPressed()) {
             ItemStack inHand = player.getHeldItem();
             if (inHand == null || ConfigData.isItemStackAllowed(inHand)) {
-                BeltFinder.BeltGetter getter = BeltFinder.findBelt(player);
-                if (getter != null) {
-                    ScienceNotCool.LOG.info("Opening radial menu for belt: " + getter.getBelt());
-                    mc.displayGuiScreen(new RadialMenuScreen(getter));
-                } else {
-                    ScienceNotCool.LOG.info("No belt found! Make sure to press V key to equip belt first.");
-                }
+                ScienceNotCool.LOG.info("Opening tool belt radial menu");
+                mc.displayGuiScreen(new RadialMenuScreen(player));
             }
-        }
-
-        // 打开腰带槽位背包
-        // Open belt slot inventory
-        if (KeyBindManager.openBeltSlotKeybind.isPressed() && ConfigData.customBeltSlotEnabled) {
-            ScienceNotCool.channel.sendToServer(new OpenBeltSlotInventory());
         }
     }
 

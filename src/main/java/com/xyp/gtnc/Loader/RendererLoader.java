@@ -1,11 +1,7 @@
 package com.xyp.gtnc.Loader;
 
-import net.minecraftforge.client.MinecraftForgeClient;
-
-import com.xyp.gtnc.Client.render.EternityVialCosmicRenderer;
 import com.xyp.gtnc.Client.render.RenderTimeAccelerator;
 import com.xyp.gtnc.Common.entity.EntityTimeAccelerator;
-import com.xyp.gtnc.Config.Config;
 
 import cpw.mods.fml.client.registry.RenderingRegistry;
 
@@ -24,11 +20,5 @@ public class RendererLoader {
         // Register Time Accelerator entity renderer
         RenderingRegistry.registerEntityRenderingHandler(EntityTimeAccelerator.class, new RenderTimeAccelerator());
 
-        // 注册永恒之瓶的宇宙渲染器
-        // Register Eternity Vial cosmic renderer
-        if (Config.enableEternityVial && Config.enableEternityVialCosmicRender) {
-            EternityVialCosmicRenderer cosmicRenderer = new EternityVialCosmicRenderer();
-            MinecraftForgeClient.registerItemRenderer(ItemsLoader.eternityVial, cosmicRenderer);
-        }
     }
 }

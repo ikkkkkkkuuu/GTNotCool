@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
-import com.xyp.gtnc.Loader.ItemsLoader;
+import com.xyp.gtnc.utils.enums.GTNCItemList;
+import com.xyp.gtnc.utils.enums.GTNCMachineID;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -20,7 +20,12 @@ public class GTNCCreativeTabs {
 
         @Override
         public Item getTabIconItem() {
-            return ItemsLoader.eternityVial != null ? ItemsLoader.eternityVial : Items.apple;
+            return GTNCItemList.LargeOreProcessor.getItem();
+        }
+
+        @SideOnly(Side.CLIENT)
+        public int func_151243_f() {
+            return GTNCMachineID.LARGE_ORE_PROCESSOR.ID;
         }
     };
 
@@ -28,12 +33,12 @@ public class GTNCCreativeTabs {
 
         @Override
         public Item getTabIconItem() {
-            return ItemsLoader.eternityVial != null ? ItemsLoader.eternityVial : Items.apple;
+            return GTNCItemList.LargeOreProcessor.getItem();
         }
 
         @SideOnly(Side.CLIENT)
         public int func_151243_f() {
-            return 1;
+            return GTNCMachineID.LARGE_ORE_PROCESSOR.ID;
         }
 
     };
@@ -48,12 +53,12 @@ public class GTNCCreativeTabs {
 
         @Override
         public Item getTabIconItem() {
-            return ItemsLoader.eternityVial != null ? ItemsLoader.eternityVial : Items.apple;
+            return GTNCItemList.LargeOreProcessor.getItem();
         }
 
         @SideOnly(Side.CLIENT)
         public int func_151243_f() {
-            return 21006;
+            return GTNCMachineID.LARGE_ORE_PROCESSOR.ID;
         }
 
         @Override

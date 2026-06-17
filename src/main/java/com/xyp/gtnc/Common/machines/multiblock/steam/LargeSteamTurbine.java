@@ -159,21 +159,21 @@ public abstract class LargeSteamTurbine extends MTEEnhancedMultiBlockBase<LargeS
         if (side == aFacing) {
             if (aActive) return new ITexture[] { Textures.BlockIcons.getCasingTextureForId(getCasingTextureIndex()),
                 TextureFactory.builder()
-                    .addIcon(Textures.BlockIcons.OVERLAY_FRONT_STEAM_HAMMER_ACTIVE)
+                    .addIcon(Textures.BlockIcons.STEAM_TURBINE_FRONT_ACTIVE)
                     .extFacing()
                     .build(),
                 TextureFactory.builder()
-                    .addIcon(Textures.BlockIcons.OVERLAY_FRONT_STEAM_HAMMER_ACTIVE_GLOW)
+                    .addIcon(Textures.BlockIcons.STEAM_TURBINE_FRONT_ACTIVE_GLOW)
                     .extFacing()
                     .glow()
                     .build() };
             return new ITexture[] { Textures.BlockIcons.getCasingTextureForId(getCasingTextureIndex()),
                 TextureFactory.builder()
-                    .addIcon(Textures.BlockIcons.OVERLAY_FRONT_STEAM_HAMMER)
+                    .addIcon(Textures.BlockIcons.STEAM_TURBINE_FRONT)
                     .extFacing()
                     .build(),
                 TextureFactory.builder()
-                    .addIcon(Textures.BlockIcons.OVERLAY_FRONT_STEAM_HAMMER_GLOW)
+                    .addIcon(Textures.BlockIcons.STEAM_TURBINE_FRONT_GLOW)
                     .extFacing()
                     .glow()
                     .build() };

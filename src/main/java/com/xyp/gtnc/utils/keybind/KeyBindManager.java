@@ -22,12 +22,6 @@ public class KeyBindManager {
     public static KeyBinding openToolMenuKeybind;
 
     /**
-     * 打开腰带槽位背包
-     * Open belt slot inventory
-     */
-    public static KeyBinding openBeltSlotKeybind;
-
-    /**
      * 环形菜单向左切换
      * Cycle radial menu left
      */
@@ -55,11 +49,6 @@ public class KeyBindManager {
         // #tr key.toolbelt.open
         // # Open Tool Belt Menu
         // # zh_CN 打开工具腰带菜单
-        openBeltSlotKeybind = new KeyBinding("key.toolbelt.slot", Keyboard.KEY_V, "key.categories.sciencenotcool");
-
-        // #tr key.toolbelt.slot
-        // # Open Belt Slot
-        // # zh_CN 打开腰带槽
         cycleToolMenuLeft = new KeyBinding(
             "key.toolbelt.cycle.left",
             Keyboard.KEY_NONE,
@@ -80,7 +69,6 @@ public class KeyBindManager {
         // 注册到客户端
         // Register to client
         ClientRegistry.registerKeyBinding(openToolMenuKeybind);
-        ClientRegistry.registerKeyBinding(openBeltSlotKeybind);
         ClientRegistry.registerKeyBinding(cycleToolMenuLeft);
         ClientRegistry.registerKeyBinding(cycleToolMenuRight);
     }

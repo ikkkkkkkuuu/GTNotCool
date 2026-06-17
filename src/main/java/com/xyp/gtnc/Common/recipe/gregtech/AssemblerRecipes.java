@@ -30,7 +30,7 @@ public class AssemblerRecipes {
                 GTNCItemList.LargeSteamAssembler.get(1L),
                 GTOreDictUnificator.get(OrePrefixes.circuit, Materials.LV, 8),
                 GTOreDictUnificator.get(OrePrefixes.plate, Materials.Steel, 2),
-                GTUtility.getIntegratedCircuit(20))
+                GTUtility.getIntegratedCircuit(24))
             .itemOutputs(GTNCItemList.LargeSteamBeeBreeder.get(1))
             .duration(100)
             .eut(32)

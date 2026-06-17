@@ -31,7 +31,6 @@ import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamFormingPress;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamHammer;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamLaserEngraver;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamMixer;
-import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamPyrolyseOven;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamTurbine;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamWireMill;
 import com.xyp.gtnc.utils.enums.GTNCItemList;
@@ -361,17 +360,6 @@ public class MachineLoader {
                 StatCollector.translateToLocal("NameLargeSteamDistillationTower")));
         AnimatedTooltipHandler
             .addItemTooltip(GTNCItemList.LargeSteamDistillationTower.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
-
-        // #tr NameLargeSteamPyrolyseOven
-        // # Large Steam Pyrolyse Oven
-        // # zh_CN 大型蒸汽热解炉
-        GTNCItemList.LargeSteamPyrolyseOven.set(
-            new LargeSteamPyrolyseOven(
-                GTNCMachineID.LARGE_STEAM_PYROLYSE_OVEN.ID,
-                "LargeSteamPyrolyseOven",
-                StatCollector.translateToLocal("NameLargeSteamPyrolyseOven")));
-        AnimatedTooltipHandler
-            .addItemTooltip(GTNCItemList.LargeSteamPyrolyseOven.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
 
         // #tr NameLargeSteamBeeBreeder
         // # Large Steam Bee Breeder

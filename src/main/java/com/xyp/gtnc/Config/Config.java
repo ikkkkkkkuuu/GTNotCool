@@ -29,9 +29,6 @@ public class Config {
 
     // region TimeVial 配置
     public static boolean enableTimeVial = true;
-    public static boolean enableEternityVial = true;
-    public static boolean enableEternityVialCosmicRender = true;
-    public static boolean enableEternityVialCosmicRenderDeepening = true;
     public static boolean enableBlockMode = true;
     public static int accelerateBlockInterval = 2;
     public static boolean enableLogInfo = false;
@@ -57,17 +54,12 @@ public class Config {
     // endregion
 
     // region ToolBelt 配置
-    public static boolean showBeltOnPlayers = true;
-    public static float beltItemScale = 0.5f;
     public static boolean releaseToSwap = true;
     public static boolean clipMouseToCircle = true;
     public static boolean allowClickOutsideBounds = true;
     public static boolean displayEmptySlots = true;
     public static boolean minecraftHasNoCircles = false;
     public static float radialDeadzoneOffset = 8.0f;
-    public static boolean customBeltSlotEnabled = true;
-    public static boolean enableNormalCrafting = true;
-    public static boolean enableAnvilUpgrading = true;
     // endregion
 
     // region ME Output Hatch 配置
@@ -96,24 +88,6 @@ public class Config {
             // Time Vial 配置项
             enableTimeVial = configuration
                 .getBoolean("enableTimeVial", CATEGORY_TIME_VIAL, enableTimeVial, "Enable Time Vial item");
-
-            enableEternityVial = enableTimeVial && configuration.getBoolean(
-                "enableEternityVial",
-                CATEGORY_TIME_VIAL,
-                enableEternityVial,
-                "Enable Eternity Vial item (requires enableTimeVial to be true)");
-
-            enableEternityVialCosmicRender = configuration.getBoolean(
-                "enableEternityVialCosmicRender",
-                CATEGORY_TIME_VIAL,
-                enableEternityVialCosmicRender,
-                "Enable Eternity Vial Cosmic Render");
-
-            enableEternityVialCosmicRenderDeepening = configuration.getBoolean(
-                "enableEternityVialCosmicRenderDeepening",
-                CATEGORY_TIME_VIAL,
-                enableEternityVialCosmicRenderDeepening,
-                "Enable Eternity Vial Cosmic Render Deepening (uses alternative mask texture)");
 
             enableBlockMode = configuration.getBoolean(
                 "enableBlockMode",
@@ -228,26 +202,6 @@ public class Config {
                 "Set maximum block distance for Vein Mining Pickaxe");
 
             // Tool Belt 配置项
-            // #tr config.toolbelt.showBeltOnPlayers
-            // # Show Belt On Players
-            // # zh_CN 在玩家身上显示腰带
-            showBeltOnPlayers = configuration.getBoolean(
-                "showBeltOnPlayers",
-                CATEGORY_TOOL_BELT,
-                showBeltOnPlayers,
-                "If set to FALSE, the belts and tools will NOT draw on players.");
-
-            // #tr config.toolbelt.beltItemScale
-            // # Belt Item Scale
-            // # zh_CN 腰带物品缩放比例
-            beltItemScale = configuration.getFloat(
-                "beltItemScale",
-                CATEGORY_TOOL_BELT,
-                beltItemScale,
-                0.1f,
-                2.0f,
-                "Changes the scale of items on the belt.");
-
             // #tr config.toolbelt.releaseToSwap
             // # Release To Swap
             // # zh_CN 释放按键交换物品
@@ -303,33 +257,6 @@ public class Config {
                 0.0f,
                 30.0f,
                 "Extra deadzone pixels added to the center of the radial menu.");
-
-            // #tr config.toolbelt.customBeltSlotEnabled
-            // # Custom Belt Slot Enabled
-            // # zh_CN 启用自定义腰带槽
-            customBeltSlotEnabled = configuration.getBoolean(
-                "customBeltSlotEnabled",
-                CATEGORY_TOOL_BELT,
-                customBeltSlotEnabled,
-                "Enable the custom belt slot.");
-
-            // #tr config.toolbelt.enableNormalCrafting
-            // # Enable Normal Crafting
-            // # zh_CN 启用普通合成
-            enableNormalCrafting = configuration.getBoolean(
-                "enableNormalCrafting",
-                CATEGORY_TOOL_BELT,
-                enableNormalCrafting,
-                "Enable normal crafting recipes for belts.");
-
-            // #tr config.toolbelt.enableAnvilUpgrading
-            // # Enable Anvil Upgrading
-            // # zh_CN 启用铁砧升级
-            enableAnvilUpgrading = configuration.getBoolean(
-                "enableAnvilUpgrading",
-                CATEGORY_TOOL_BELT,
-                enableAnvilUpgrading,
-                "Enable anvil upgrading of belts with pouches.");
 
             // ME Output Hatch 配置项
             OutPutHatchMEEnable = configuration.getBoolean(

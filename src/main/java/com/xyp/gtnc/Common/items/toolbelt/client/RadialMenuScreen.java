@@ -5,12 +5,12 @@ import java.util.List;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.StatCollector;
 
-import com.xyp.gtnc.Common.items.toolbelt.BeltFinder;
 import com.xyp.gtnc.Common.items.toolbelt.ConfigData;
-import com.xyp.gtnc.Common.items.toolbelt.ToolBeltItem;
+import com.xyp.gtnc.Common.items.toolbelt.ToolBeltData;
 import com.xyp.gtnc.Common.items.toolbelt.client.radial.GenericRadialMenu;
 import com.xyp.gtnc.Common.items.toolbelt.client.radial.IRadialMenuHost;
 import com.xyp.gtnc.Common.items.toolbelt.client.radial.ItemStackRadialMenuItem;
@@ -21,8 +21,7 @@ import com.xyp.gtnc.utils.keybind.KeyBindManager;
 
 public class RadialMenuScreen extends GuiScreen {
 
-    private final BeltFinder.BeltGetter getter;
-    private ItemStack stackEquipped;
+    private final EntityPlayer player;
     private int inventorySize;
 
     private boolean keyCycleBeforeL = false;
@@ -33,10 +32,9 @@ public class RadialMenuScreen extends GuiScreen {
     private final TextRadialMenuItem insertMenuItem;
     private final GenericRadialMenu menu;
 
-    public RadialMenuScreen(BeltFinder.BeltGetter getter) {
-        this.getter = getter;
-        this.stackEquipped = getter.getBelt();
-        this.inventorySize = ToolBeltItem.getBeltSize(stackEquipped);
+    public RadialMenuScreen(EntityPlayer player) {
+        this.player = player;
+        this.inventorySize = ToolBeltData.SLOT_COUNT;
 
         this.menu = new GenericRadialMenu(Minecraft.getMinecraft(), new IRadialMenuHost() {
 
@@ -104,24 +102,8 @@ public class RadialMenuScreen extends GuiScreen {
             return;
         }
 
-        ItemStack inHand = mc.thePlayer.getHeldItem();
-        if (inHand != null && !ConfigData.isItemStackAllowed(inHand)) {
-            stackEquipped = null;
-        } else {
-            ItemStack stack = getter.getBelt();
-            if (stack == null) {
-                stackEquipped = null;
-            } else if (stackEquipped != stack) {
-                stackEquipped = stack;
-                inventorySize = ToolBeltItem.getBeltSize(stackEquipped);
-                needsRecheckStacks = true;
-            }
-        }
-
-        if (stackEquipped == null) {
-            menu.close();
-        } else if (!KeyBindManager.isKeyDown(KeyBindManager.openToolMenuKeybind)) {
-            // Key was released
+        // Check if key is still held, close if released
+        if (!KeyBindManager.isKeyDown(KeyBindManager.openToolMenuKeybind)) {
             if (ConfigData.releaseToSwap) {
                 processClick(false);
             }
@@ -156,19 +138,22 @@ public class RadialMenuScreen extends GuiScreen {
         if (needsRecheckStacks) {
             cachedMenuItems.clear();
 
-            for (int i = 0; i < inventorySize; i++) {
-                ItemStack inSlot = ToolBeltItem.getBeltSlot(stackEquipped, i);
-                if (inSlot != null) {
-                    final int slot = i;
-                    ItemStackRadialMenuItem item = new ItemStackRadialMenuItem(menu, inSlot) {
+            ToolBeltData data = ToolBeltData.get(player);
+            if (data != null) {
+                for (int i = 0; i < inventorySize; i++) {
+                    ItemStack inSlot = data.getStackInSlot(i);
+                    if (inSlot != null) {
+                        final int slot = i;
+                        ItemStackRadialMenuItem item = new ItemStackRadialMenuItem(menu, inSlot) {
 
-                        @Override
-                        public boolean onClick() {
-                            return RadialMenuScreen.this.trySwap(slot, null);
-                        }
-                    };
-                    item.setVisible(true);
-                    cachedMenuItems.add(item);
+                            @Override
+                            public boolean onClick() {
+                                return RadialMenuScreen.this.trySwap(slot, null);
+                            }
+                        };
+                        item.setVisible(true);
+                        cachedMenuItems.add(item);
+                    }
                 }
             }
 
@@ -188,22 +173,20 @@ public class RadialMenuScreen extends GuiScreen {
 
     /**
      * Check if the belt has space to insert the given item stack.
-     * Returns true if any belt slot is empty or contains a mergeable stack.
      */
     private boolean hasSpaceForItem(ItemStack stack) {
-        if (stack == null || stackEquipped == null) return false;
+        if (stack == null) return false;
+        ToolBeltData data = ToolBeltData.get(player);
+        if (data == null) return false;
         for (int i = 0; i < inventorySize; i++) {
-            ItemStack inSlot = ToolBeltItem.getBeltSlot(stackEquipped, i);
+            ItemStack inSlot = data.getStackInSlot(i);
             if (inSlot == null) {
-                return true; // Empty slot available
+                return true;
             }
             if (inSlot.isItemEqual(stack) && ItemStack.areItemStackTagsEqual(inSlot, stack)) {
                 int max = inSlot.getMaxStackSize();
-                if (inSlot.stackSize + stack.stackSize <= max) {
-                    return true; // Can fully merge
-                }
                 if (inSlot.stackSize < max) {
-                    return true; // Can partially merge (some items will go in)
+                    return true;
                 }
             }
         }

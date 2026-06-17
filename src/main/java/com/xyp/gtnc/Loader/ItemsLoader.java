@@ -6,11 +6,8 @@ import net.minecraft.util.StatCollector;
 import com.gtnewhorizon.gtnhlib.util.numberformatting.NumberFormatUtil;
 import com.xyp.gtnc.Client.GTNCCreativeTabs;
 import com.xyp.gtnc.Common.items.MetaItemAdder;
-import com.xyp.gtnc.Common.items.timeVial.EternityVial;
-import com.xyp.gtnc.Common.items.toolbelt.ToolBeltItem;
 import com.xyp.gtnc.Common.items.tools.VeinMiningPickaxe;
 import com.xyp.gtnc.Common.items.wildcard.WildcardPatternItem;
-import com.xyp.gtnc.Config.Config;
 import com.xyp.gtnc.utils.enums.GTNCItemList;
 
 import cpw.mods.fml.common.registry.GameRegistry;
@@ -22,12 +19,7 @@ import gregtech.api.enums.ItemList;
  */
 public class ItemsLoader {
 
-    public static Item eternityVial;
     public static VeinMiningPickaxe veinMiningPickaxe;
-
-    // 工具带物品
-    public static Item toolBelt;
-    public static Item pouch;
 
     // 通配样板符
     public static Item wildcardPattern;
@@ -39,23 +31,8 @@ public class ItemsLoader {
         // 注册 MetaItem
         metaItem = new MetaItemAdder("MetaItem", GTNCCreativeTabs.GTNCItem);
 
-        // 注册永恒之瓶
-        if (Config.enableEternityVial) {
-            eternityVial = new EternityVial();
-            GameRegistry.registerItem(eternityVial, "EternityVial");
-        }
-
         // 注册矿脉挖掘镐
         veinMiningPickaxe = new VeinMiningPickaxe();
-
-        // 注册工具带物品
-        toolBelt = new ToolBeltItem();
-        GameRegistry.registerItem(toolBelt, "toolbelt");
-
-        pouch = new Item().setUnlocalizedName("pouch")
-            .setTextureName("sciencenotcool:pouch")
-            .setCreativeTab(GTNCCreativeTabs.GTNCItem);
-        GameRegistry.registerItem(pouch, "pouch");
 
         // 注册通配样板符
         wildcardPattern = new WildcardPatternItem();

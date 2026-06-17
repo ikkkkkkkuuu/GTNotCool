@@ -4,9 +4,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 
-import com.xyp.gtnc.Common.items.toolbelt.BeltFinder;
 import com.xyp.gtnc.Common.items.toolbelt.ConfigData;
-import com.xyp.gtnc.Common.items.toolbelt.ToolBeltItem;
+import com.xyp.gtnc.Common.items.toolbelt.ToolBeltData;
 
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
@@ -44,14 +43,15 @@ public class SwapItems implements IMessage {
     }
 
     public static void swapItem(int swapWith, EntityPlayer player) {
-        BeltFinder.BeltGetter getter = BeltFinder.findBelt(player);
-        if (getter == null) return;
-
-        ItemStack beltStack = getter.getBelt();
-        if (beltStack == null || beltStack.stackSize <= 0) return;
+        ToolBeltData data = ToolBeltData.get(player);
+        if (data == null) {
+            ToolBeltData.register(player);
+            data = ToolBeltData.get(player);
+        }
+        if (data == null) return;
 
         ItemStack inHand = player.getHeldItem();
-        int size = ToolBeltItem.getBeltSize(beltStack);
+        int size = ToolBeltData.SLOT_COUNT;
 
         if (swapWith < 0) {
             // Insert mode: try to merge or find empty slot (requires inHand)
@@ -59,25 +59,25 @@ public class SwapItems implements IMessage {
             if (!ConfigData.isItemStackAllowed(inHand)) return;
 
             for (int i = 0; i < size; i++) {
-                ItemStack inSlot = ToolBeltItem.getBeltSlot(beltStack, i);
+                ItemStack inSlot = data.getStackInSlot(i);
                 if (inSlot != null && inSlot.isItemEqual(inHand) && ItemStack.areItemStackTagsEqual(inSlot, inHand)) {
                     int max = inSlot.getMaxStackSize();
                     int acc = inSlot.stackSize + inHand.stackSize;
                     if (acc <= max) {
                         inSlot.stackSize = acc;
-                        ToolBeltItem.setBeltSlot(beltStack, i, inSlot);
+                        data.setStackInSlot(i, inSlot);
                         player.inventory.setInventorySlotContents(player.inventory.currentItem, null);
                         break;
                     } else {
                         inSlot.stackSize = max;
-                        ToolBeltItem.setBeltSlot(beltStack, i, inSlot);
+                        data.setStackInSlot(i, inSlot);
                         inHand.stackSize = acc - max;
                         player.inventory.setInventorySlotContents(
                             player.inventory.currentItem,
                             inHand.stackSize > 0 ? inHand : null);
                     }
                 } else if (inSlot == null) {
-                    ToolBeltItem.setBeltSlot(beltStack, i, inHand.copy());
+                    data.setStackInSlot(i, inHand.copy());
                     player.inventory.setInventorySlotContents(player.inventory.currentItem, null);
                     break;
                 }
@@ -86,20 +86,20 @@ public class SwapItems implements IMessage {
             // Swap or pickup mode
             if (swapWith >= size) return;
 
-            ItemStack inSlot = ToolBeltItem.getBeltSlot(beltStack, swapWith);
+            ItemStack inSlot = data.getStackInSlot(swapWith);
 
             if (inHand != null) {
                 // Swap: inHand <-> belt slot
                 if (!ConfigData.isItemStackAllowed(inHand)) return;
-                ToolBeltItem.setBeltSlot(beltStack, swapWith, inHand.copy());
+                data.setStackInSlot(swapWith, inHand.copy());
             } else {
                 // Pickup: belt slot -> hand, belt slot becomes empty
                 if (inSlot == null) return; // Nothing to pick up
-                ToolBeltItem.setBeltSlot(beltStack, swapWith, null);
+                data.setStackInSlot(swapWith, null);
             }
             player.inventory.setInventorySlotContents(player.inventory.currentItem, inSlot);
         }
 
-        getter.syncToClients();
+        data.syncToTracking();
     }
 }
