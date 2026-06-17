@@ -1,7 +1,9 @@
 package com.xyp.gtnc.Common.recipe.gtnc;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -53,19 +55,51 @@ public class CombProcessingRecipes {
         try {
             collectRecipeMaps(Class.forName("gtPlusPlus.api.recipe.GTPPRecipeMaps"), mapsToScan);
         } catch (ClassNotFoundException ignored) {}
+        try {
+            collectRecipeMaps(Class.forName("gregtech.api.recipe.GTRecipeConstants"), mapsToScan);
+        } catch (ClassNotFoundException ignored) {}
         ScienceNotCool.LOG.info("Scanning {} recipe maps for comb recipes", mapsToScan.size());
 
-        // 去重：用输入物品的唯一标识做 key
+        // 用反射获取 getAllRecipes，兼容非 RecipeMap 的 IRecipeMap 实现（如 UniversalChemical）
+        Method getAllRecipesMethod = null;
+        try {
+            getAllRecipesMethod = IRecipeMap.class.getMethod("getAllRecipes");
+        } catch (NoSuchMethodException e) {
+            ScienceNotCool.LOG.warn("IRecipeMap.getAllRecipes() not found, falling back to instanceof RecipeMap");
+        }
+
         Set<String> added = new HashSet<>();
         int imported = 0;
         for (IRecipeMap nativeMap : mapsToScan) {
-            if (nativeMap == null || !(nativeMap instanceof RecipeMap)) continue;
-            for (GTRecipe recipe : ((RecipeMap<?>) nativeMap).getAllRecipes()) {
+            if (nativeMap == null) continue;
+            Collection<GTRecipe> recipes = null;
+            if (getAllRecipesMethod != null) {
+                try {
+                    Object result = getAllRecipesMethod.invoke(nativeMap);
+                    if (result instanceof Collection) {
+                        @SuppressWarnings("unchecked")
+                        Collection<GTRecipe> casted = (Collection<GTRecipe>) result;
+                        recipes = casted;
+                    }
+                } catch (Exception ignored) {}
+            }
+            // 反射失败则回退到 instanceof RecipeMap
+            if (recipes == null && nativeMap instanceof RecipeMap) {
+                recipes = ((RecipeMap<?>) nativeMap).getAllRecipes();
+            }
+            if (recipes == null) continue;
+
+            int mapImported = 0;
+            for (GTRecipe recipe : recipes) {
                 if (recipe.mInputs == null || recipe.mInputs.length == 0) continue;
                 if (!hasCombInput(recipe.mInputs, combItems)) continue;
                 if (!added.add(recipeKey(recipe))) continue;
                 copyRecipe(recipe);
                 imported++;
+                mapImported++;
+            }
+            if (mapImported > 0) {
+                ScienceNotCool.LOG.info("  {} -> {} recipes", nativeMap.toString(), mapImported);
             }
         }
         ScienceNotCool.LOG.info("Imported {} native comb recipes into SteamCombProcessingRecipes", imported);
