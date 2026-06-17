@@ -1,6 +1,6 @@
 Tooltip_NoMobsSpawnInThisBlock=Mobs cannot Spawn on this Block
 Tooltip_NoTileEntitySpawnInThisBlock=This is NOT a TileEntity!
-gt.blockmachines.multimachine.bee.species.tooltip=Input the target bee species name
+gt.blockmachines.multimachine.bee.species.tooltip=Input the target bee species name, or drag a bee from NEI
 gt.blockmachines.multimachine.notset=Not Set
 gt.blockmachines.multimachine.pending=Pending
 gt.blockmachines.multimachine.missing=Missing

@@ -98,6 +98,7 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
     @Override
     public boolean depleteInput(FluidStack aLiquid) {
         if (aLiquid == null) return false;
+        // First try ME input hatches (with proper recipe processing context)
         for (MTEHatchInput tHatch : GTUtility.validMTEList(mInputHatches)) {
             if (tHatch instanceof MTEHatchInputME meHatch) {
                 meHatch.startRecipeProcessing();
@@ -119,7 +120,8 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
                 }
             }
         }
-        return false;
+        // Fallback to regular steam hatches (mSteamInputFluids)
+        return super.depleteInput(aLiquid);
     }
 
     @Override
@@ -129,6 +131,20 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
             cap += tHatch.getCapacity();
         }
         return cap;
+    }
+
+    /**
+     * Overrides the base tryConsumeSteam to skip the {@code getTotalSteamStored()} pre-check.
+     * <p>
+     * The base implementation short-circuits when {@code getTotalSteamStored() <= 0},
+     * but {@code getAllSteamStacks()} calls {@code MTEHatchInputME.getStoredFluids()} without
+     * {@code startRecipeProcessing()}, so ME hatches may report zero fluid in the pre-check.
+     * The actual {@link #depleteInput(FluidStack)} method properly calls
+     * {@code startRecipeProcessing()} before draining, so we go straight to it.
+     */
+    @Override
+    public boolean tryConsumeSteam(int aAmount) {
+        return this.depleteInput(Materials.Steam.getGas(aAmount));
     }
 
     // endregion

@@ -17,7 +17,7 @@ import com.cleanroommc.modularui.widgets.ButtonWidget;
 import com.cleanroommc.modularui.widgets.ListWidget;
 import com.cleanroommc.modularui.widgets.TextWidget;
 import com.cleanroommc.modularui.widgets.layout.Flow;
-import com.cleanroommc.modularui.widgets.textfield.TextFieldWidget;
+import com.xyp.gtnc.Common.gui.modularui.widget.BeeSpeciesDropTextField;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamBeeBreeder;
 
 import gregtech.api.modularui2.GTGuiTextures;
@@ -84,16 +84,16 @@ public class LargeSteamBeeBreederGui extends MTEMultiBlockBaseGui<LargeSteamBeeB
         StringSyncValue chainSummarySync = syncManager.findSyncHandler("chainSummary", StringSyncValue.class);
         TextWidget label = new TextWidget(IKey.lang("Target: "));
         label.widgetTheme(GTWidgetThemes.DISPLAY_TEXT_WHITE);
-        TextFieldWidget input = new TextFieldWidget();
+        BeeSpeciesDropTextField input = new BeeSpeciesDropTextField();
         input.value(speciesSync);
         input.size(120, 14);
         // #tr gt.blockmachines.multimachine.bee.species.tooltip
-        // # Input the target bee species name
-        // # zh_CN 输入目标蜜蜂品种名称
+        // # Input the target bee species name, or drag a bee from NEI
+        // # zh_CN 输入目标蜜蜂品种名称，或从NEI拖入蜜蜂
         input.tooltipBuilder(t -> t.addLine(translateToLocal("gt.blockmachines.multimachine.bee.species.tooltip")));
         IPanelHandler chainPanel = syncManager
             .syncedPanel("chainPanel", false, (sm, sh) -> createChainPanel(syncManager, panel));
-        ButtonWidget chainBtn = new ButtonWidget<>().size(36, 14)
+        ButtonWidget chainBtn = new ButtonWidget<>().size(18, 18)
             .overlay(IKey.dynamic(() -> {
                 int total = chainTotalSync.getIntValue();
                 int completed = chainCompletedSync.getIntValue();

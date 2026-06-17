@@ -1,6 +1,6 @@
 Tooltip_NoMobsSpawnInThisBlock=生物不会在这个方块上生成
 Tooltip_NoTileEntitySpawnInThisBlock=这不是一个实体！
-gt.blockmachines.multimachine.bee.species.tooltip=输入目标蜜蜂品种名称
+gt.blockmachines.multimachine.bee.species.tooltip=输入目标蜜蜂品种名称，或从NEI拖入蜜蜂
 gt.blockmachines.multimachine.notset=未设置
 gt.blockmachines.multimachine.pending=待输出
 gt.blockmachines.multimachine.missing=缺少
