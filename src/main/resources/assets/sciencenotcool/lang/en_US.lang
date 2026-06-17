@@ -32,8 +32,6 @@ tooltip.wildcardpattern.item_syntax_oredict=OreDict mode: plate.*, ingot.*, dust
 Tooltip_DieselGenerator_00=Requires liquid fuel
 Tooltip_DieselGenerator_01=Fuel efficiency: %s%%
 Tooltip_DieselGenerator_02=Fluid capacity: %sL
-Tooltip_GTNC_CrossRecipeParallel=§bCross-Recipe Parallel:§r Can process multiple different recipes at once
-Tooltip_GTNC_CrossRecipeDuration=§eProcessing time = Sum of all recipes' overclocked durations
 Tooltip_SteamTurbine_00=Converts Steam to EU
 Tooltip_SteamTurbine_01=Basic Efficiency: 2L Steam/EU
 Tooltip_SteamTurbine_02=Fuel Efficiency: %s%%
@@ -44,6 +42,9 @@ Tooltip_LargeOreProcessor_01=Processes all types of ores from input bus simultan
 Tooltip_LargeOreProcessor_02=No energy or lubricant required!
 Tooltip_LargeOreProcessor_03=Supports unlimited parallel recipes
 Tooltip_LargeOreProcessor_04=Unprocessable items auto-transfer to output bus
+Tooltip_GTNC_CrossRecipeParallel=跨配方并行：可一次处理多个不同配方
+Tooltip_GTNC_CrossRecipeDuration=处理时长 = 所有配方超频后时长之和
+Tooltip_GTNC_PerfectOverclock=无损超频：超频时无效率损失
 Info_SingularityDataHub_AutoVoiding=Auto-voiding: %b
 structure_error.need_vault_port_hatch=Vault Port Hatch is required
 SingularityDataHubRecipeType=Vault
@@ -103,7 +104,7 @@ Tooltip_LargeSteamBeeBreeder_02=Auto-breeds up the chain using pool species, new
 Tooltip_LargeSteamBeeBreeder_03=6.4 seconds per breeding cycle, uses actual mutation chance from Forestry
 Tooltip_LargeSteamBeeBreeder_04=Each princess input → one target princess output when chain completes
 Tooltip_LargeSteamBeeBreeder_05=Consumes 51200L steam per breeding attempt
-Tooltip_LargeSteamBeeBreeder_06=Insert Stainless Steel gear in controller slot for +10% mutation chance
+Tooltip_LargeSteamBeeBreeder_06=Insert Stainless Steel gear in controller slot for +2% mutation chance
 Tooltip_LargeSteamBeeBreeder_07=Glass tier: +1% mutation chance & +51200L steam consumption per tier
 Tooltip_LargeSteamBeeBreeder_Casing=Machine casing
 BeeBreeder_missing_drone=Drone pool missing required species!

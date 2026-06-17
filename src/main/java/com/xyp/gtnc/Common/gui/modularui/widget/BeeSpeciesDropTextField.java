@@ -31,7 +31,7 @@ public class BeeSpeciesDropTextField extends TextFieldWidget implements RecipeVi
         if (uid == null || uid.isEmpty()) return false;
 
         // 直接用 UID 设置文本，StringSyncValue 会将其送到 setTargetBeeSpecies
-        // 服务端 getter 会通过 getSpeciesDisplayName(uid) 返回友好名称
+        // 文本框显示 UID，终端区域会显示 getSpeciesDisplayName 转换后的友好名称
         setText(uid);
         onTextChanged();
         return true;

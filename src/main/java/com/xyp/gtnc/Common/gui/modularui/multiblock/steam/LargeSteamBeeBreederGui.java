@@ -18,7 +18,6 @@ import com.cleanroommc.modularui.widgets.ListWidget;
 import com.cleanroommc.modularui.widgets.TextWidget;
 import com.cleanroommc.modularui.widgets.layout.Flow;
 import com.xyp.gtnc.Common.gui.modularui.widget.BeeSpeciesDropTextField;
-import com.xyp.gtnc.Common.machines.bee.BeeBreedingHelper;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamBeeBreeder;
 
 import gregtech.api.modularui2.GTGuiTextures;
@@ -53,9 +52,7 @@ public class LargeSteamBeeBreederGui extends MTEMultiBlockBaseGui<LargeSteamBeeB
         super.registerSyncValues(syncManager);
         syncManager.syncValue(
             "targetSpecies",
-            new StringSyncValue(
-                () -> BeeBreedingHelper.getSpeciesDisplayName(breeder.getTargetBeeSpecies()),
-                breeder::setTargetBeeSpecies).allowC2S());
+            new StringSyncValue(breeder::getTargetBeeSpecies, breeder::setTargetBeeSpecies).allowC2S());
         syncManager.syncValue("poolSize", new IntSyncValue(breeder::getSyncedPoolSize));
         syncManager.syncValue("chainTotal", new IntSyncValue(breeder::getChainTotalSteps));
         syncManager.syncValue("chainCompleted", new IntSyncValue(breeder::getChainCompletedSteps));
