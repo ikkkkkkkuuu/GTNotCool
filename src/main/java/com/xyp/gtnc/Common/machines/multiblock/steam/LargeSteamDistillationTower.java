@@ -343,7 +343,7 @@ public class LargeSteamDistillationTower extends GTNCSteamMultiBlockBase<LargeSt
 
     @Override
     public int getMaxParallelRecipes() {
-        return enableHigherRecipe ? 32 : 32;
+        return enableHigherRecipe ? 64 : 32;
     }
 
     @Override
