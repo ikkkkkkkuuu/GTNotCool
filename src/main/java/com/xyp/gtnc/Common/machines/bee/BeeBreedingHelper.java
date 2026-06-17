@@ -84,8 +84,9 @@ public class BeeBreedingHelper {
 
     /**
      * 从未本地化名称中提取可读的品种名。
-     * 优先取点分隔的最后一段；无点时尝试通过 getName() 获取英文名（仅 ASCII）。
-     * 例如 "for.bees.species.Nickel" → "Nickel"、"SpeciesTENickel" → "Nickel"（若 getName() 为英文）
+     * 优先取点分隔的最后一段；其次尝试剥离 "SpeciesTE" 前缀（如 "SpeciesTENickel" → "Nickel"）；
+     * 最后尝试通过 getName() 获取英文名（仅 ASCII）。
+     * 例如 "for.bees.species.Nickel" → "Nickel"、"SpeciesTENickel" → "Nickel"
      */
     public static String getSpeciesDisplayName(String unlocalizedName) {
         if (unlocalizedName == null || unlocalizedName.isEmpty()) return "";
@@ -94,6 +95,13 @@ public class BeeBreedingHelper {
             String name = unlocalizedName.substring(lastDot + 1);
             if (!name.isEmpty()) {
                 return Character.toUpperCase(name.charAt(0)) + name.substring(1);
+            }
+        }
+        // 剥离 "SpeciesTE" 前缀（Forestry/GTNH 模组蜜蜂常见前缀）
+        if (unlocalizedName.startsWith("SpeciesTE")) {
+            String stripped = unlocalizedName.substring("SpeciesTE".length());
+            if (!stripped.isEmpty()) {
+                return Character.toUpperCase(stripped.charAt(0)) + stripped.substring(1);
             }
         }
         // 无点分隔：尝试从物种注册表获取英文显示名
@@ -113,7 +121,10 @@ public class BeeBreedingHelper {
      */
     private static String extractReadableName(String uln) {
         int lastDot = uln.lastIndexOf('.');
-        return lastDot >= 0 ? uln.substring(lastDot + 1) : uln;
+        if (lastDot >= 0) return uln.substring(lastDot + 1);
+        // 剥离 "SpeciesTE" 前缀
+        if (uln.startsWith("SpeciesTE")) return uln.substring("SpeciesTE".length());
+        return uln;
     }
 
     /**
@@ -159,6 +170,13 @@ public class BeeBreedingHelper {
             String name = uln.substring(lastDot + 1);
             if (!name.isEmpty()) {
                 return Character.toUpperCase(name.charAt(0)) + name.substring(1);
+            }
+        }
+        // 剥离 "SpeciesTE" 前缀
+        if (uln.startsWith("SpeciesTE")) {
+            String stripped = uln.substring("SpeciesTE".length());
+            if (!stripped.isEmpty()) {
+                return Character.toUpperCase(stripped.charAt(0)) + stripped.substring(1);
             }
         }
         String name = species.getName();
