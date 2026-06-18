@@ -234,6 +234,31 @@ public class AssemblerRecipes {
             .eut(32)
             .addTo(As);
         loadcovers();
+        loadEnergyHatches();
+    }
+
+    public static void loadEnergyHatches() {
+
+        // 多A能源仓 LV/MV/HV: 4A, 16A, 64A
+        // 配方: 4个低安能源仓 + 线圈 + 线缆 → 1个高一级多安能源仓
+        ItemStack[] COIL = { ItemList.LV_Coil.get(2), ItemList.MV_Coil.get(3), ItemList.HV_Coil.get(4) };
+        Materials[] CABLE_MAT = { Materials.Tin, Materials.Copper, Materials.Gold };
+
+        for (int j = 0; j < 3; j++) {
+            for (int i = 1; i <= 3; i++) { // 0=1A(原版), 1=4A, 2=16A, 3=64A
+                int cableAmt = i * 2; // 4A→2, 16A→4, 64A→6
+                GTRecipeBuilder.builder()
+                    .itemInputs(
+                        GTNCItemList.ENERGY_HATCH[j][i - 1].get(4), // 4x低安能源仓
+                        GTOreDictUnificator.get(OrePrefixes.cableGt04, CABLE_MAT[j], cableAmt), // 4x线缆
+                        COIL[j]) // 线圈
+                    .itemOutputs(GTNCItemList.ENERGY_HATCH[j][i].get(1))
+                    .fluidInputs(Materials.Lubricant.getFluid(144))
+                    .duration(100 + 50 * i)
+                    .eut(GTValues.VP[j + 1])
+                    .addTo(RecipeMaps.assemblerRecipes);
+            }
+        }
     }
 
     public static void loadcovers() {
