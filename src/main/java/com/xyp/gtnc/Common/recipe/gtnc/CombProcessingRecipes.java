@@ -387,7 +387,7 @@ public class CombProcessingRecipes {
             .itemInputs(recipe.mInputs)
             .itemOutputs(outputs)
             .fluidOutputs(recipe.mFluidOutputs)
-            .eut(recipe.mEUt)
+            .eut(30)
             .duration(recipe.mDuration)
             .special(recipe.mSpecialValue);
         if (recipe.mOutputChances != null) b.outputChances(recipe.mOutputChances);
