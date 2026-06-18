@@ -529,8 +529,14 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
     }
 
     @Override
+    protected boolean isHighPressure() {
+        return tierMachine == 2;
+    }
+
+    @Override
     public void onValueUpdate(byte aValue) {
         syncTierValue = aValue;
+        tierMachine = aValue;
     }
 
     @Override
@@ -570,7 +576,7 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
         currenttip.add(
             StatCollector.translateToLocal("GT5U.multiblock.maxtier") + ": "
                 + EnumChatFormatting.YELLOW
-                + GTValues.VN[tag.getInteger("tierMachine") + 1 + (tag.getBoolean("enableHigherRecipe") ? 1 : 0)]
+                + GTValues.VN[tag.getInteger("tierMachine") + 2 + (tag.getBoolean("enableHigherRecipe") ? 1 : 0)]
                 + EnumChatFormatting.RESET);
     }
 

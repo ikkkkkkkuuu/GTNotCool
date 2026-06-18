@@ -117,11 +117,6 @@ public class LargeSteamCompressor extends GTNCSteamMultiBlockBase<LargeSteamComp
         { "  AAA  ", " AAAAA ", "AAAAAAA", "AAAAAAA", "AAAAAAA", " AAAAA ", "  AAA  " } };
 
     @Override
-    protected boolean isHighPressure() {
-        return tierMachineCasing == 2 || tierGearCasing == 2 || tierFrame == 2;
-    }
-
-    @Override
     protected IIconContainer getInactiveOverlay() {
         return oMCDIndustrialCuttingMachine;
     }

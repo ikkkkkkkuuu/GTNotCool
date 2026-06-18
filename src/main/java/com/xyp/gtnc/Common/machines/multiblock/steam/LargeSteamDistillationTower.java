@@ -115,11 +115,6 @@ public class LargeSteamDistillationTower extends GTNCSteamMultiBlockBase<LargeSt
     }
 
     @Override
-    protected boolean isHighPressure() {
-        return false;
-    }
-
-    @Override
     protected IIconContainer getInactiveOverlay() {
         return gregtech.api.enums.Textures.BlockIcons.OVERLAY_FRONT_DISTILLATION_TOWER;
     }

@@ -107,11 +107,6 @@ public class LargeSteamAssembler extends GTNCSteamMultiBlockBase<LargeSteamAssem
         { "D       D", "BAAAAAAAB", "B       B", "BAAAAAAAB", "D       D" },
         { "BBBB~BBBB", "BCCCCCCCB", "BCCCCCCCB", "BCCCCCCCB", "BBBBBBBBB" } };
 
-    @Override
-    protected boolean isHighPressure() {
-        return tierMachineCasing == 2 || tierPipeCasing == 2 || tierFrame == 2;
-    }
-
     // 每级省30%蒸汽 / 加速25%
     private static final double STEAM_SAVE_PER_TIER = 0.3;
     private static final double SPEED_PER_TIER = 0.25;

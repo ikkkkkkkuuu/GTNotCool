@@ -117,11 +117,6 @@ public class LargeSteamCentrifuge extends GTNCSteamMultiBlockBase<LargeSteamCent
         { "  B~B  ", " BBBBB ", "BBBBBBB", "BBBBBBB", "BBBBBBB", " BBBBB ", "  BBB  " } };
 
     @Override
-    protected boolean isHighPressure() {
-        return tierMachineCasing == 2 || tierGearCasing == 2 || tierPipeCasing == 2 || tierFrame == 2;
-    }
-
-    @Override
     protected IIconContainer getInactiveOverlay() {
         return oMCDIndustrialThermalCentrifuge;
     }

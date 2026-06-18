@@ -96,11 +96,6 @@ public class LargeSteamWireMill extends GTNCSteamMultiBlockBase<LargeSteamWireMi
         { "BBBBB", "BBBBB", "BBBBB" } };
 
     @Override
-    protected boolean isHighPressure() {
-        return tierMachineCasing == 2 || tierPipeCasing == 2;
-    }
-
-    @Override
     protected IIconContainer getInactiveOverlay() {
         return oMCDIndustrialCuttingMachine;
     }

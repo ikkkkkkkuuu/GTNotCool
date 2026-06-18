@@ -96,11 +96,6 @@ public class LargeSteamAlloySmelter extends GTNCSteamMultiBlockBase<LargeSteamAl
     }
 
     @Override
-    protected boolean isHighPressure() {
-        return tierMachineCasing == 2 || tierFrame == 2;
-    }
-
-    @Override
     protected IIconContainer getInactiveOverlay() {
         return oMCDIndustrialCuttingMachine;
     }

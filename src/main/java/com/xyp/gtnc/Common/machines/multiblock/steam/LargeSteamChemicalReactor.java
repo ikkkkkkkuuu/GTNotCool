@@ -111,11 +111,6 @@ public class LargeSteamChemicalReactor extends GTNCSteamMultiBlockBase<LargeStea
         { "BBBBB", "BCBCB", "BCBCB", "BCBCB", "BCBCB", "BCBCB", "BCBCB", "BCBCB", "BBBBB" } };
 
     @Override
-    protected boolean isHighPressure() {
-        return tierMachineCasing == 2 || tierPipeCasing == 2 || tierFrame == 2;
-    }
-
-    @Override
     protected IIconContainer getInactiveOverlay() {
         return oMCDIndustrialCuttingMachine;
     }

@@ -107,11 +107,6 @@ public class LargeSteamCutting extends GTNCSteamMultiBlockBase<LargeSteamCutting
         { " DAAAAAD ", "DDDDDDDDD", "DDDDDDDDD", "DDDDDDDDD", " DAAAAAD " } };
 
     @Override
-    protected boolean isHighPressure() {
-        return tierMachineCasing == 2 || tierGearCasing == 2 || tierPipeCasing == 2 || tierFrame == 2;
-    }
-
-    @Override
     protected IIconContainer getInactiveOverlay() {
         return oMCDIndustrialCuttingMachine;
     }

@@ -116,11 +116,6 @@ public class LargeSteamHammer extends GTNCSteamMultiBlockBase<LargeSteamHammer> 
         { "  AAA  ", " AAAAA ", "AAAAAAA", "AAAAAAA", "AAAAAAA", " AAAAA ", "  AAA  " } };
 
     @Override
-    protected boolean isHighPressure() {
-        return tierMachineCasing == 2 || tierGearCasing == 2 || tierFrame == 2;
-    }
-
-    @Override
     protected IIconContainer getInactiveOverlay() {
         return oMCAIndustrialForgeHammer;
     }

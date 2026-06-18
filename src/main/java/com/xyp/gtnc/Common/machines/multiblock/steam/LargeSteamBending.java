@@ -101,11 +101,6 @@ public class LargeSteamBending extends GTNCSteamMultiBlockBase<LargeSteamBending
         { "DBBBD", "DBBBD", "DBBBD", "DBBBD", "DBBBD" } };
 
     @Override
-    protected boolean isHighPressure() {
-        return tierMachineCasing == 2 || tierGearCasing == 2 || tierPipeCasing == 2 || tierFrame == 2;
-    }
-
-    @Override
     protected IIconContainer getInactiveOverlay() {
         return oMCDIndustrialPlatePress;
     }
@@ -242,11 +237,6 @@ public class LargeSteamBending extends GTNCSteamMultiBlockBase<LargeSteamBending
     @Override
     public RecipeMap<?> getRecipeMap() {
         return RecipeMaps.benderRecipes;
-    }
-
-    @Override
-    public int getTierRecipes() {
-        return tierMachine + 1 + (enableHigherRecipe ? 1 : 0);
     }
 
     @Override

@@ -305,11 +305,6 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
     }
 
     @Override
-    protected boolean isHighPressure() {
-        return false;
-    }
-
-    @Override
     public IStructureDefinition<LargeSteamBeeBreeder> getStructureDefinition() {
         if (STRUCTURE_DEFINITION == null) {
             STRUCTURE_DEFINITION = StructureDefinition.<LargeSteamBeeBreeder>builder()

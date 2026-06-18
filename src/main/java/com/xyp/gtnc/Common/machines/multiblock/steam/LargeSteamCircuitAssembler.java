@@ -103,11 +103,6 @@ public class LargeSteamCircuitAssembler extends GTNCSteamMultiBlockBase<LargeSte
         { "BBB", "BBB", "BBB", "BBB", "BBB", "BBB", "BBB", "BBB", "BBB", "BBB" } };
 
     @Override
-    protected boolean isHighPressure() {
-        return tierMachineCasing == 2 || tierPipeCasing == 2 || tierFrame == 2;
-    }
-
-    @Override
     protected IIconContainer getInactiveOverlay() {
         return oMCDIndustrialCuttingMachine;
     }

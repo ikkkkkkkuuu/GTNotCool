@@ -114,11 +114,6 @@ public class LargeSteamMixer extends GTNCSteamMultiBlockBase<LargeSteamMixer> im
         { "  DDD  ", " DAAAD ", "DAAAAAD", "DAAAAAD", "DAAAAAD", " DAAAD ", "  DDD  " } };
 
     @Override
-    protected boolean isHighPressure() {
-        return tierMachineCasing == 2 || tierGearCasing == 2 || tierPipeCasing == 2 || tierFrame == 2;
-    }
-
-    @Override
     protected IIconContainer getInactiveOverlay() {
         return oMCDIndustrialMixer;
     }

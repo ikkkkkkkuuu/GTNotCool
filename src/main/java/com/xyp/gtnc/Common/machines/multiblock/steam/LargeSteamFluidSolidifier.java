@@ -98,11 +98,6 @@ public class LargeSteamFluidSolidifier extends GTNCSteamMultiBlockBase<LargeStea
         { " BBB ", "BBBBB", "BBBBB", "BBBBB", " BBB " } };
 
     @Override
-    protected boolean isHighPressure() {
-        return tierMachineCasing == 2 || tierPipeCasing == 2;
-    }
-
-    @Override
     protected IIconContainer getInactiveOverlay() {
         return oMCDIndustrialCuttingMachine;
     }

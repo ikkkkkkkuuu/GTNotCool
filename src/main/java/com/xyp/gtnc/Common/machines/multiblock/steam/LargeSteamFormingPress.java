@@ -98,11 +98,6 @@ public class LargeSteamFormingPress extends GTNCSteamMultiBlockBase<LargeSteamFo
         { " A A ", "ABCBA", " C C ", "ABCBA", " A A " }, { " A~A ", "AAAAA", "AAAAA", "AAAAA", " AAA " } };
 
     @Override
-    protected boolean isHighPressure() {
-        return tierMachineCasing == 2 || tierGearCasing == 2 || tierPipeCasing == 2;
-    }
-
-    @Override
     protected IIconContainer getInactiveOverlay() {
         return oMCDIndustrialCuttingMachine;
     }
