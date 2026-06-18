@@ -35,6 +35,19 @@ public class AssemblerRecipes {
             .duration(100)
             .eut(32)
             .addTo(As);
+
+        // 养蜂机
+        GTRecipeBuilder.builder()
+            .itemInputs(
+                GTNCItemList.LargeSteamAssembler.get(1L),
+                GTOreDictUnificator.get(OrePrefixes.circuit, Materials.LV, 8),
+                GTOreDictUnificator.get(OrePrefixes.plate, Materials.Copper, 2),
+                GTUtility.getIntegratedCircuit(24))
+            .itemOutputs(GTNCItemList.MegaIndustrialApiary.get(1))
+            .duration(100)
+            .eut(32)
+            .addTo(As);
+
         // 蜂窝处理
         GTRecipeBuilder.builder()
             .itemInputs(

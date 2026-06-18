@@ -12,6 +12,7 @@ import com.xyp.gtnc.Common.machines.hatch.SuperMTEHatchCraftingInputSlave;
 import com.xyp.gtnc.Common.machines.hatch.VaultPortHatch;
 import com.xyp.gtnc.Common.machines.multiblock.LargeOreProcessor;
 import com.xyp.gtnc.Common.machines.multiblock.LargeSteamCombProcessor;
+import com.xyp.gtnc.Common.machines.multiblock.MTEMegaIndustrialApiary;
 import com.xyp.gtnc.Common.machines.multiblock.SingularityDataHub;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeBoiler;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamAlloySmelter;
@@ -83,6 +84,16 @@ public class MachineLoader {
                 "LargeOreProcessor",
                 StatCollector.translateToLocal("NameLargeOreProcessor")));
         addItemTooltip(GTNCItemList.LargeOreProcessor.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        // #tr NameMegaIndustrialApiary
+        // # Mega Industrial Apiary
+        // # zh_CN 巨型工业蜂箱
+        GTNCItemList.MegaIndustrialApiary.set(
+            new MTEMegaIndustrialApiary(
+                GTNCMachineID.MEGA_INDUSTRIAL_APIARY.ID,
+                "MegaIndustrialApiary",
+                StatCollector.translateToLocal("NameMegaIndustrialApiary")));
+        addItemTooltip(GTNCItemList.MegaIndustrialApiary.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
 
         // #tr NameLargeBoilerBronze
         // # Large Bronze Boiler

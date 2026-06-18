@@ -581,6 +581,7 @@ public enum GTNCItemList implements IItemContainer {
     VaultPortHatch,
     SingularityDataHub,
     LargeOreProcessor,
+    MegaIndustrialApiary,
     AssemblerMatrix,
     QuantumComputer,
     VeinMiningPickaxe,
