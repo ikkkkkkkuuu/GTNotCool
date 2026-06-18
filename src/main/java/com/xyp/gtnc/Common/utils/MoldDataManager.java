@@ -117,6 +117,12 @@ public class MoldDataManager {
             if (chromaticLens != null) items.add(chromaticLens);
         }
 
+        // AE2 压印模板 (Inscriber Presses)
+        items.add(GTModHandler.getModItem("appliedenergistics2", "item.ItemMultiMaterial", 1, 13)); // 运算压印模板
+        items.add(GTModHandler.getModItem("appliedenergistics2", "item.ItemMultiMaterial", 1, 14)); // 工程压印模板
+        items.add(GTModHandler.getModItem("appliedenergistics2", "item.ItemMultiMaterial", 1, 15)); // 逻辑压印模板
+        items.add(GTModHandler.getModItem("appliedenergistics2", "item.ItemMultiMaterial", 1, 19)); // 硅压印模板
+
         // 所有纳米蜂群 (OrePrefixes.nanite) - GT 原生材料
         // 纳米蜂群由纳米锻造机 (Nano Forge) 生产，用于 PCB 工厂、光学电路线、星门等
         for (Materials m : Materials.values()) {
@@ -155,7 +161,7 @@ public class MoldDataManager {
 
     /**
      * 获取模具列表
-     * 
+     *
      * @return 模具数组
      */
     public static ItemStack[] getMolds() {
@@ -164,7 +170,7 @@ public class MoldDataManager {
 
     /**
      * 获取模具数量
-     * 
+     *
      * @return 模具数量
      */
     public static int getMoldCount() {

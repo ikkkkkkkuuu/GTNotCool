@@ -41,6 +41,24 @@ public class BenderRecipes {
             .duration(100)
             .eut(30)
             .addTo(Br);
+
+        // 钻石 → 钻石板
+        GTRecipeBuilder.builder()
+            .itemInputs(new ItemStack(Items.diamond, 1))
+            .itemOutputs(GTOreDictUnificator.get(OrePrefixes.plate, Materials.Diamond, 1))
+            .circuit(1)
+            .duration(100)
+            .eut(30)
+            .addTo(Br);
+
+        // 赛特斯石英 → 赛特斯石英板
+        GTRecipeBuilder.builder()
+            .itemInputs(GTOreDictUnificator.get(OrePrefixes.gem, Materials.CertusQuartz, 1))
+            .itemOutputs(GTOreDictUnificator.get(OrePrefixes.plate, Materials.CertusQuartz, 1))
+            .circuit(1)
+            .duration(100)
+            .eut(30)
+            .addTo(Br);
     }
 
 }
