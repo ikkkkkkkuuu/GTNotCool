@@ -14,6 +14,7 @@ import static gregtech.api.GregTechAPI.sBlockCasings2;
 import static gregtech.api.enums.HatchElement.Energy;
 import static gregtech.api.enums.HatchElement.ExoticEnergy;
 import static gregtech.api.enums.HatchElement.InputBus;
+import static gregtech.api.enums.HatchElement.Maintenance;
 import static gregtech.api.enums.HatchElement.OutputBus;
 import static gregtech.api.util.GTStructureUtility.buildHatchAdder;
 import static gregtech.api.util.GTStructureUtility.chainAllGlasses;
@@ -142,7 +143,8 @@ public class MTEMegaIndustrialApiary extends KubaTechGTMultiBlockBase<MTEMegaInd
         .addElement('B', ofChain(ofBlockAnyMeta(Blocks.dirt, 0), ofBlock(Blocks.grass, 0)))
         .addElement(
             'G',
-            buildHatchAdder(MTEMegaIndustrialApiary.class).atLeast(InputBus, OutputBus, Energy.or(ExoticEnergy))
+            buildHatchAdder(MTEMegaIndustrialApiary.class)
+                .atLeast(InputBus, OutputBus, Energy.or(ExoticEnergy), Maintenance)
                 .casingIndex(CASING_INDEX)
                 .hint(1)
                 .buildAndChain(onElementPass(t -> t.mCasing++, ofBlock(sBlockCasings2, 0))))
@@ -748,6 +750,7 @@ public class MTEMegaIndustrialApiary extends KubaTechGTMultiBlockBase<MTEMegaInd
         checkHasAnyEnergy(errors);
         checkHasInputBus(errors);
         checkHasOutputBus(errors);
+        checkHasMaintenanceHatch(errors);
         checkCasingMin(errors, this.mCasing, 20);
         if (errors.isEmpty()) {
             updateMaxSlots();
