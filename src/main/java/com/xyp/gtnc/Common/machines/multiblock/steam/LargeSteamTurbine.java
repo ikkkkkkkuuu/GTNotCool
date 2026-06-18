@@ -160,7 +160,7 @@ public abstract class LargeSteamTurbine extends MTEEnhancedMultiBlockBase<LargeS
     public ITexture[] getTexture(IGregTechTileEntity aBaseMetaTileEntity, ForgeDirection side, ForgeDirection facing,
         int colorIndex, boolean aActive, boolean aRedstone) {
         if (side == facing) {
-            if (aActive) return new ITexture[] { Textures.BlockIcons.getCasingTextureForId(getCasingTextureID()),
+            if (aActive) return new ITexture[] { Textures.BlockIcons.getCasingTextureForId(getCasingTextureIndex()),
                 TextureFactory.builder()
                     .addIcon(OVERLAY_FRONT_SINGULARITY_DATA_HUB_ACTIVE)
                     .extFacing()
@@ -170,17 +170,13 @@ public abstract class LargeSteamTurbine extends MTEEnhancedMultiBlockBase<LargeS
                     .extFacing()
                     .glow()
                     .build() };
-            return new ITexture[] { Textures.BlockIcons.getCasingTextureForId(getCasingTextureID()),
+            return new ITexture[] { Textures.BlockIcons.getCasingTextureForId(getCasingTextureIndex()),
                 TextureFactory.builder()
                     .addIcon(OVERLAY_FRONT_SINGULARITY_DATA_HUB)
                     .extFacing()
                     .build() };
         }
-        return new ITexture[] { Textures.BlockIcons.getCasingTextureForId(getCasingTextureID()) };
-    }
-
-    public int getCasingTextureID() {
-        return 16; // Solid Steel Machine Casing texture ID (same as Large Steel Boiler)
+        return new ITexture[] { Textures.BlockIcons.getCasingTextureForId(getCasingTextureIndex()) };
     }
 
     @Override
@@ -387,7 +383,7 @@ public abstract class LargeSteamTurbine extends MTEEnhancedMultiBlockBase<LargeS
                 'c',
                 StructureUtility.lazy(
                     t -> buildHatchAdder(LargeSteamTurbine.class).atLeast(HatchElement.OutputHatch)
-                        .casingIndex(getCasingTextureID())
+                        .casingIndex(getCasingTextureIndex())
                         .hint(2)
                         .buildAndChain(
                             StructureUtility.onElementPass(
@@ -398,7 +394,7 @@ public abstract class LargeSteamTurbine extends MTEEnhancedMultiBlockBase<LargeS
                 StructureUtility.lazy(
                     t -> buildHatchAdder(LargeSteamTurbine.class)
                         .atLeast(HatchElement.Maintenance, HatchElement.InputHatch, HatchElement.Dynamo)
-                        .casingIndex(getCasingTextureID())
+                        .casingIndex(getCasingTextureIndex())
                         .hint(1)
                         .buildAndChain(
                             StructureUtility.onElementPass(

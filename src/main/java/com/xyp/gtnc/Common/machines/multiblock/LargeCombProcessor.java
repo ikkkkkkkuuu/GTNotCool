@@ -222,7 +222,7 @@ public class LargeCombProcessor extends MTEEnhancedMultiBlockBase<LargeCombProce
 
     @Override
     public int getMaxParallelRecipes() {
-        return 256;
+        return 2560;
     }
 
     @Override
@@ -233,7 +233,8 @@ public class LargeCombProcessor extends MTEEnhancedMultiBlockBase<LargeCombProce
     @Override
     protected ProcessingLogic createProcessingLogic() {
         return new ProcessingLogic().enablePerfectOverclock()
-            .setMaxParallel(256);
+            .setMaxParallel(2560)
+            .setSpeedBonus(0.1);
     }
 
     // ==================== 信息显示 ====================
