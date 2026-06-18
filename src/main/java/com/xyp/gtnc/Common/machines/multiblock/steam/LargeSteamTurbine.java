@@ -1,5 +1,8 @@
 package com.xyp.gtnc.Common.machines.multiblock.steam;
 
+import static com.xyp.gtnc.Client.utils.BlockIcons.OVERLAY_FRONT_SINGULARITY_DATA_HUB;
+import static com.xyp.gtnc.Client.utils.BlockIcons.OVERLAY_FRONT_SINGULARITY_DATA_HUB_ACTIVE;
+import static com.xyp.gtnc.Client.utils.BlockIcons.OVERLAY_FRONT_SINGULARITY_DATA_HUB_ACTIVE_GLOW;
 import static gregtech.api.util.GTStructureUtility.buildHatchAdder;
 import static gregtech.common.misc.WirelessNetworkManager.addEUToGlobalEnergyMap;
 
@@ -154,31 +157,30 @@ public abstract class LargeSteamTurbine extends MTEEnhancedMultiBlockBase<LargeS
     }
 
     @Override
-    public ITexture[] getTexture(IGregTechTileEntity aBaseMetaTileEntity, ForgeDirection side, ForgeDirection aFacing,
-        int colorIndex, boolean aActive, boolean redstoneLevel) {
-        if (side == aFacing) {
-            if (aActive) return new ITexture[] { Textures.BlockIcons.getCasingTextureForId(getCasingTextureIndex()),
+    public ITexture[] getTexture(IGregTechTileEntity aBaseMetaTileEntity, ForgeDirection side, ForgeDirection facing,
+        int colorIndex, boolean aActive, boolean aRedstone) {
+        if (side == facing) {
+            if (aActive) return new ITexture[] { Textures.BlockIcons.getCasingTextureForId(getCasingTextureID()),
                 TextureFactory.builder()
-                    .addIcon(Textures.BlockIcons.STEAM_TURBINE_FRONT_ACTIVE)
+                    .addIcon(OVERLAY_FRONT_SINGULARITY_DATA_HUB_ACTIVE)
                     .extFacing()
                     .build(),
                 TextureFactory.builder()
-                    .addIcon(Textures.BlockIcons.STEAM_TURBINE_FRONT_ACTIVE_GLOW)
+                    .addIcon(OVERLAY_FRONT_SINGULARITY_DATA_HUB_ACTIVE_GLOW)
                     .extFacing()
                     .glow()
                     .build() };
-            return new ITexture[] { Textures.BlockIcons.getCasingTextureForId(getCasingTextureIndex()),
+            return new ITexture[] { Textures.BlockIcons.getCasingTextureForId(getCasingTextureID()),
                 TextureFactory.builder()
-                    .addIcon(Textures.BlockIcons.STEAM_TURBINE_FRONT)
+                    .addIcon(OVERLAY_FRONT_SINGULARITY_DATA_HUB)
                     .extFacing()
-                    .build(),
-                TextureFactory.builder()
-                    .addIcon(Textures.BlockIcons.STEAM_TURBINE_FRONT_GLOW)
-                    .extFacing()
-                    .glow()
                     .build() };
         }
-        return new ITexture[] { Textures.BlockIcons.getCasingTextureForId(getCasingTextureIndex()) };
+        return new ITexture[] { Textures.BlockIcons.getCasingTextureForId(getCasingTextureID()) };
+    }
+
+    public int getCasingTextureID() {
+        return 16; // Solid Steel Machine Casing texture ID (same as Large Steel Boiler)
     }
 
     @Override
@@ -385,7 +387,7 @@ public abstract class LargeSteamTurbine extends MTEEnhancedMultiBlockBase<LargeS
                 'c',
                 StructureUtility.lazy(
                     t -> buildHatchAdder(LargeSteamTurbine.class).atLeast(HatchElement.OutputHatch)
-                        .casingIndex(t.getCasingTextureIndex())
+                        .casingIndex(getCasingTextureID())
                         .hint(2)
                         .buildAndChain(
                             StructureUtility.onElementPass(
@@ -396,7 +398,7 @@ public abstract class LargeSteamTurbine extends MTEEnhancedMultiBlockBase<LargeS
                 StructureUtility.lazy(
                     t -> buildHatchAdder(LargeSteamTurbine.class)
                         .atLeast(HatchElement.Maintenance, HatchElement.InputHatch, HatchElement.Dynamo)
-                        .casingIndex(t.getCasingTextureIndex())
+                        .casingIndex(getCasingTextureID())
                         .hint(1)
                         .buildAndChain(
                             StructureUtility.onElementPass(

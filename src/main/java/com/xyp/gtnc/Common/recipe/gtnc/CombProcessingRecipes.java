@@ -1,3 +1,4 @@
+
 package com.xyp.gtnc.Common.recipe.gtnc;
 
 import java.lang.reflect.Field;
@@ -23,6 +24,7 @@ import gregtech.api.recipe.RecipeMaps;
 import gregtech.api.util.GTOreDictUnificator;
 import gregtech.api.util.GTRecipe;
 import gregtech.api.util.GTRecipeBuilder;
+import gregtech.api.util.GTUtility;
 import gregtech.common.items.ItemComb;
 
 public class CombProcessingRecipes {
@@ -65,8 +67,15 @@ public class CombProcessingRecipes {
         }
 
         // 第一遍：按输入分组收集候选配方，重复时保留最先遇到的
+        // 同时拦截铂/超能/硅岩蜂窝配方（直接删除，由专用配方处理）
         Map<String, GTRecipe> candidates = new LinkedHashMap<>();
         int totalCandidates = 0;
+        int specialCount = 0;
+        List<ItemStack> platinumCombs = new ArrayList<>();
+        List<ItemStack> naquadriaCombs = new ArrayList<>();
+        List<ItemStack> naquadahCombs = new ArrayList<>();
+        List<ItemStack> iridiumCombs = new ArrayList<>();
+        List<ItemStack> osmiumCombs = new ArrayList<>();
         for (IRecipeMap nativeMap : mapsToScan) {
             if (nativeMap == null) continue;
             Collection<GTRecipe> recipes = null;
@@ -91,6 +100,32 @@ public class CombProcessingRecipes {
                 if (recipe.mInputs == null || recipe.mInputs.length == 0) continue;
                 if (!hasCombInput(recipe.mInputs)) continue;
                 totalCandidates++;
+                // 铂/超能/硅岩蜂窝配方直接删除，不进入 candidates
+                if (isPlatinumCombRecipe(recipe)) {
+                    collectCombItems(recipe, platinumCombs, "Platinum", "platinum", "铂");
+                    specialCount++;
+                    continue;
+                }
+                if (isNaquadriaCombRecipe(recipe)) {
+                    collectCombItems(recipe, naquadriaCombs, "Naquadria", "超能");
+                    specialCount++;
+                    continue;
+                }
+                if (isNaquadahCombRecipe(recipe)) {
+                    collectCombItems(recipe, naquadahCombs, "Naquadah", "硅岩");
+                    specialCount++;
+                    continue;
+                }
+                if (isIridiumCombRecipe(recipe)) {
+                    collectCombItems(recipe, iridiumCombs, "Iridium", "iridium", "铱");
+                    specialCount++;
+                    continue;
+                }
+                if (isOsmiumCombRecipe(recipe)) {
+                    collectCombItems(recipe, osmiumCombs, "Osmium", "osmium", "锇");
+                    specialCount++;
+                    continue;
+                }
                 String key = recipeKey(recipe);
                 GTRecipe existing = candidates.get(key);
                 if (existing == null) {
@@ -105,21 +140,24 @@ public class CombProcessingRecipes {
         }
 
         // 第二遍：写入目标 RecipeMap
-        int specialCount = 0;
         for (Map.Entry<String, GTRecipe> entry : candidates.entrySet()) {
-            GTRecipe recipe = entry.getValue();
-            if (isPlatinumCombRecipe(recipe)) {
-                copyPlatinumRecipe(recipe);
-                specialCount++;
-            } else if (isNaquadriaCombRecipe(recipe)) {
-                copyNaquadriaRecipe(recipe);
-                specialCount++;
-            } else if (isNaquadahCombRecipe(recipe)) {
-                copyNaquadahRecipe(recipe);
-                specialCount++;
-            } else {
-                copyRecipe(recipe);
-            }
+            copyRecipe(entry.getValue());
+        }
+        // 添加特殊配方（每种蜂窝类型合并为一条配方）
+        if (!platinumCombs.isEmpty()) {
+            addPlatinumRecipe(platinumCombs);
+        }
+        if (!naquadriaCombs.isEmpty()) {
+            addNaquadriaRecipe(naquadriaCombs);
+        }
+        if (!naquadahCombs.isEmpty()) {
+            addNaquadahRecipe(naquadahCombs);
+        }
+        if (!iridiumCombs.isEmpty()) {
+            addIridiumRecipe(iridiumCombs);
+        }
+        if (!osmiumCombs.isEmpty()) {
+            addOsmiumRecipe(osmiumCombs);
         }
         ScienceNotCool.LOG.info(
             "Imported {} comb recipes ({} total candidates, {} special) into SteamCombProcessingRecipes",
@@ -207,19 +245,7 @@ public class CombProcessingRecipes {
         return isForestryComb(item);
     }
 
-    /** 铂蜂窝特殊配方：输出4铂粉（匹配4个蜂窝） */
-    private static void copyPlatinumRecipe(GTRecipe recipe) {
-        GTRecipeBuilder.builder()
-            .itemInputs(recipe.mInputs)
-            .itemOutputs(d(Materials.Platinum, 4))
-            .eut(recipe.mEUt)
-            .duration(recipe.mDuration)
-            .special(recipe.mSpecialValue)
-            .addTo(RM);
-        ScienceNotCool.LOG.info("  Platinum comb special: comb -> 4x Platinum dust");
-    }
-
-    /** Naquadria 蜂窝：先于 Naquadah 检测（Naquadria 包含 Naquadah 子串） */
+    /** Naquadria 超能硅岩蜂窝检测（必须在 Naquadah 之前，因为 "Naquadria" 包含 "Naquadah" 子串） */
     private static boolean isNaquadriaCombRecipe(GTRecipe recipe) {
         for (ItemStack is : recipe.mInputs) {
             if (is == null || is.getItem() == null) continue;
@@ -232,41 +258,118 @@ public class CombProcessingRecipes {
         return false;
     }
 
-    /** Naquadah 蜂窝（普通硅岩） */
+    /** Naquadah 硅岩蜂窝检测（排除 Naquadria） */
     private static boolean isNaquadahCombRecipe(GTRecipe recipe) {
         for (ItemStack is : recipe.mInputs) {
             if (is == null || is.getItem() == null) continue;
             if (!isCombItem(is.getItem())) continue;
             String dn = is.getDisplayName();
-            if (dn != null && (dn.contains("Naquadah") || dn.contains("硅岩"))) {
+            if (dn != null && ((dn.contains("Naquadah") && !dn.contains("Naquadria")) || dn.contains("硅岩"))) {
                 return true;
             }
         }
         return false;
     }
 
-    /** 超能硅岩：1蜂窝 -> 576L molten.naquadria */
-    private static void copyNaquadriaRecipe(GTRecipe recipe) {
-        GTRecipeBuilder.builder()
-            .itemInputs(recipe.mInputs)
-            .fluidOutputs(Materials.Naquadria.getMolten(576))
-            .eut(recipe.mEUt)
-            .duration(recipe.mDuration)
-            .special(recipe.mSpecialValue)
-            .addTo(RM);
-        ScienceNotCool.LOG.info("  Naquadria comb special: comb -> 576L molten naquadria");
+    /** 检测配方输入中是否含铱蜂窝 */
+    private static boolean isIridiumCombRecipe(GTRecipe recipe) {
+        for (ItemStack is : recipe.mInputs) {
+            if (is == null || is.getItem() == null) continue;
+            if (!isCombItem(is.getItem())) continue;
+            String dn = is.getDisplayName();
+            if (dn != null && (dn.contains("Iridium") || dn.contains("iridium") || dn.contains("铱"))) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    /** 普通硅岩：1蜂窝 -> 576L molten.naquadah */
-    private static void copyNaquadahRecipe(GTRecipe recipe) {
+    /** 检测配方输入中是否含锇蜂窝 */
+    private static boolean isOsmiumCombRecipe(GTRecipe recipe) {
+        for (ItemStack is : recipe.mInputs) {
+            if (is == null || is.getItem() == null) continue;
+            if (!isCombItem(is.getItem())) continue;
+            String dn = is.getDisplayName();
+            if (dn != null && (dn.contains("Osmium") || dn.contains("osmium") || dn.contains("锇"))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** 从配方中收集指定名称的蜂窝物品 */
+    private static void collectCombItems(GTRecipe recipe, List<ItemStack> out, String... keywords) {
+        for (ItemStack is : recipe.mInputs) {
+            if (is == null || is.getItem() == null) continue;
+            if (!isCombItem(is.getItem())) continue;
+            String dn = is.getDisplayName();
+            if (dn != null) {
+                for (String kw : keywords) {
+                    if (dn.contains(kw)) {
+                        if (out.stream()
+                            .noneMatch(s -> GTUtility.areStacksEqual(s, is))) {
+                            out.add(is.copy());
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    /** 铂蜂窝特殊配方：所有铂蜂窝 -> 4铂粉 */
+    private static void addPlatinumRecipe(List<ItemStack> combs) {
         GTRecipeBuilder.builder()
-            .itemInputs(recipe.mInputs)
-            .fluidOutputs(Materials.Naquadah.getMolten(576))
-            .eut(recipe.mEUt)
-            .duration(recipe.mDuration)
-            .special(recipe.mSpecialValue)
+            .itemInputs(combs.toArray(new ItemStack[0]))
+            .itemOutputs(d(Materials.Platinum, 4))
+            .eut(30)
+            .duration(100)
             .addTo(RM);
-        ScienceNotCool.LOG.info("  Naquadah comb special: comb -> 576L molten naquadah");
+        ScienceNotCool.LOG.info("  Platinum comb special: {} comb types -> 4x Platinum dust", combs.size());
+    }
+
+    /** 超能硅岩配方 */
+    private static void addNaquadriaRecipe(List<ItemStack> combs) {
+        GTRecipeBuilder.builder()
+            .itemInputs(combs.toArray(new ItemStack[0]))
+            .fluidOutputs(Materials.Naquadria.getMolten(576))
+            .eut(30)
+            .duration(100)
+            .addTo(RM);
+        ScienceNotCool.LOG.info("  Naquadria comb special: {} comb types -> 576L molten naquadria", combs.size());
+    }
+
+    /** 普通硅岩配方 */
+    private static void addNaquadahRecipe(List<ItemStack> combs) {
+        GTRecipeBuilder.builder()
+            .itemInputs(combs.toArray(new ItemStack[0]))
+            .fluidOutputs(Materials.Naquadah.getMolten(576))
+            .eut(30)
+            .duration(100)
+            .addTo(RM);
+        ScienceNotCool.LOG.info("  Naquadah comb special: {} comb types -> 576L molten naquadah", combs.size());
+    }
+
+    /** 铱蜂窝特殊配方：所有铱蜂窝 -> 4铱粉 */
+    private static void addIridiumRecipe(List<ItemStack> combs) {
+        GTRecipeBuilder.builder()
+            .itemInputs(combs.toArray(new ItemStack[0]))
+            .itemOutputs(d(Materials.Iridium, 4))
+            .eut(30)
+            .duration(100)
+            .addTo(RM);
+        ScienceNotCool.LOG.info("  Iridium comb special: {} comb types -> 4x Iridium dust", combs.size());
+    }
+
+    /** 锇蜂窝特殊配方：所有锇蜂窝 -> 4锇粉 */
+    private static void addOsmiumRecipe(List<ItemStack> combs) {
+        GTRecipeBuilder.builder()
+            .itemInputs(combs.toArray(new ItemStack[0]))
+            .itemOutputs(d(Materials.Osmium, 4))
+            .eut(30)
+            .duration(100)
+            .addTo(RM);
+        ScienceNotCool.LOG.info("  Osmium comb special: {} comb types -> 4x Osmium dust", combs.size());
     }
 
     private static void copyRecipe(GTRecipe recipe) {
