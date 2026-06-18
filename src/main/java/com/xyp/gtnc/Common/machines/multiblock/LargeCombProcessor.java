@@ -73,20 +73,20 @@ import gregtech.api.util.MultiblockTooltipBuilder;
 // # Solid Steel Machine Casing
 // # zh_CN 固态钢机器外壳
 
-public class LargeSteamCombProcessor extends MTEEnhancedMultiBlockBase<LargeSteamCombProcessor>
+public class LargeCombProcessor extends MTEEnhancedMultiBlockBase<LargeCombProcessor>
     implements ISurvivalConstructable {
 
-    public LargeSteamCombProcessor(String aName) {
+    public LargeCombProcessor(String aName) {
         super(aName);
     }
 
-    public LargeSteamCombProcessor(int aID, String aName, String aNameRegional) {
+    public LargeCombProcessor(int aID, String aName, String aNameRegional) {
         super(aID, aName, aNameRegional);
     }
 
     @Override
     public IMetaTileEntity newMetaEntity(IGregTechTileEntity aTileEntity) {
-        return new LargeSteamCombProcessor(this.mName);
+        return new LargeCombProcessor(this.mName);
     }
 
     public String getMachineType() {
@@ -100,7 +100,7 @@ public class LargeSteamCombProcessor extends MTEEnhancedMultiBlockBase<LargeStea
 
     private int mCountCasing = 0;
 
-    private IStructureDefinition<LargeSteamCombProcessor> STRUCTURE_DEFINITION = null;
+    private IStructureDefinition<LargeCombProcessor> STRUCTURE_DEFINITION = null;
 
     // 15 wide (x), 17 tall (y), 15 deep (z)
     // A=glass, B=dirt/grass, G=casing+hatches, H=wood planks, I=wood slabs, J/K/L/N/O/P=bronze frame
@@ -159,16 +159,16 @@ public class LargeSteamCombProcessor extends MTEEnhancedMultiBlockBase<LargeStea
                 "               ", "               ", "               ", "               ", "               " } });
 
     @Override
-    public IStructureDefinition<LargeSteamCombProcessor> getStructureDefinition() {
+    public IStructureDefinition<LargeCombProcessor> getStructureDefinition() {
         if (STRUCTURE_DEFINITION == null) {
-            STRUCTURE_DEFINITION = StructureDefinition.<LargeSteamCombProcessor>builder()
+            STRUCTURE_DEFINITION = StructureDefinition.<LargeCombProcessor>builder()
                 .addShape(STRUCTURE_PIECE_MAIN, shape)
                 .addElement('A', chainAllGlasses())
                 .addElement('B', ofChain(ofBlockAnyMeta(Blocks.dirt, 0), ofBlock(Blocks.grass, 0)))
                 .addElement(
                     'G',
                     ofChain(
-                        buildHatchAdder(LargeSteamCombProcessor.class)
+                        buildHatchAdder(LargeCombProcessor.class)
                             .atLeast(InputBus, OutputBus, InputHatch, OutputHatch, Energy.or(ExoticEnergy), Maintenance)
                             .casingIndex(getCasingTextureID())
                             .hint(1)
@@ -232,7 +232,7 @@ public class LargeSteamCombProcessor extends MTEEnhancedMultiBlockBase<LargeStea
     @Override
     protected ProcessingLogic createProcessingLogic() {
         return new ProcessingLogic().enablePerfectOverclock()
-            .setMaxParallelSupplier(this::getTrueParallel);
+            .setMaxParallel(256);
     }
 
     // ==================== 信息显示 ====================

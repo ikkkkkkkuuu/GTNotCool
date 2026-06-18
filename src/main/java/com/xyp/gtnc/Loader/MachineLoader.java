@@ -10,8 +10,8 @@ import com.xyp.gtnc.Common.machines.cover.WirelessMultiEnergyCover;
 import com.xyp.gtnc.Common.machines.hatch.SuperMTEHatchCraftingInputME;
 import com.xyp.gtnc.Common.machines.hatch.SuperMTEHatchCraftingInputSlave;
 import com.xyp.gtnc.Common.machines.hatch.VaultPortHatch;
+import com.xyp.gtnc.Common.machines.multiblock.LargeCombProcessor;
 import com.xyp.gtnc.Common.machines.multiblock.LargeOreProcessor;
-import com.xyp.gtnc.Common.machines.multiblock.LargeSteamCombProcessor;
 import com.xyp.gtnc.Common.machines.multiblock.MTEMegaIndustrialApiary;
 import com.xyp.gtnc.Common.machines.multiblock.SingularityDataHub;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeBoiler;
@@ -388,7 +388,7 @@ public class MachineLoader {
         // # Large Steam Comb Processor
         // # zh_CN 大型蒸汽蜂窝处理机
         GTNCItemList.LargeSteamCombProcessor.set(
-            new LargeSteamCombProcessor(
+            new LargeCombProcessor(
                 GTNCMachineID.LARGE_STEAM_COMB_PROCESSOR.ID,
                 "LargeSteamCombProcessor",
                 StatCollector.translateToLocal("NameLargeSteamCombProcessor")));
