@@ -1,31 +1,48 @@
 package com.xyp.gtnc.Common.machines.multiblock.multiMachineBase;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.annotation.Nullable;
+
+import net.minecraft.block.Block;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.StatCollector;
+import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 
+import gregtech.api.enums.GTValues;
 import gregtech.api.enums.Materials;
+import gregtech.api.enums.OrePrefixes;
 import gregtech.api.interfaces.IOutputBus;
 import gregtech.api.logic.ProcessingLogic;
+import gregtech.api.metatileentity.implementations.MTEHatch;
 import gregtech.api.metatileentity.implementations.MTEHatchInput;
 import gregtech.api.metatileentity.implementations.MTEHatchInputBus;
 import gregtech.api.metatileentity.implementations.MTEHatchOutputBus;
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
+import gregtech.api.util.GTOreDictUnificator;
 import gregtech.api.util.GTUtility;
 import gregtech.api.util.shutdown.ShutDownReasonRegistry;
+import gregtech.common.tileentities.machines.IDualInputHatch;
 import gregtech.common.tileentities.machines.MTEHatchCraftingInputME;
 import gregtech.common.tileentities.machines.MTEHatchInputME;
 import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.MTEHatchSteamBusInput;
 import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.base.MTEHatchCustomFluidBase;
 import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.base.MTESteamMultiBlockBase;
+import mcp.mobius.waila.api.IWailaConfigHandler;
+import mcp.mobius.waila.api.IWailaDataAccessor;
 
 /**
  * Intermediate base class for all GT-Not-Cool Large Steam multiblock machines.
@@ -271,6 +288,7 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
 
     @Override
     public CheckRecipeResult checkProcessing() {
+        enableHigherRecipe = getUpgradeTier(getControllerSlot());
         if (!crossRecipeParallelEnabled || inCrossRecipeProcessing) {
             return super.checkProcessing();
         }
@@ -449,6 +467,14 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
     // # Perfect Overclock: Overclock beyond recipe voltage has no efficiency loss
     // # 无损超频：超频时无效率损失
 
+    // #tr Tooltip_GTNC_SteamTierInfo
+    // # Bronze machine recipe tier: HV, Steel machine recipe tier: EV
+    // # zh_CN 青铜机器配方等级:HV 钢机器配方等级:EV
+
+    // #tr Tooltip_GTNC_SteamGearInfo
+    // # Insert Stainless Steel gear into controller for recipe tier +1
+    // # zh_CN 在主机里插入不锈钢齿轮配方等级+1
+
     @Override
     public boolean supportsBatchMode() {
         return true;
@@ -469,6 +495,140 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
     protected ProcessingLogic createProcessingLogic() {
         return new ProcessingLogic().enablePerfectOverclock()
             .setMaxParallelSupplier(this::getTrueParallel);
+    }
+
+    // endregion
+
+    // region Recipe Tier, Stainless Steel Gear & WAILA
+    // ============================================================
+    // Common fields and methods extracted from all GTNC steam multis:
+    // - tierMachine, enableHigherRecipe, syncTierValue
+    // - getUpgradeTier (stainless steel gear check)
+    // - getTierRecipes, checkProcessing, getInfoData
+    // - WAILA tier/parallel/maxtier display
+    // - updateHatchTexture (extended with I/O buses)
+    // - Static utility: getTierFrame, getTierGearCasing, getTierPipeCasing
+    // - NBT save/load for tier fields
+    // ============================================================
+
+    protected int tierMachine = 1;
+    protected boolean enableHigherRecipe = false;
+    protected int syncTierValue = -1;
+
+    /**
+     * Check if the controller slot contains a Stainless Steel gear for recipe tier +1.
+     */
+    public boolean getUpgradeTier(ItemStack inventory) {
+        if (inventory == null) return false;
+        return inventory.isItemEqual(GTOreDictUnificator.get(OrePrefixes.gearGt, Materials.StainlessSteel, 1L));
+    }
+
+    @Override
+    public int getTierRecipes() {
+        return tierMachine + 2 + (enableHigherRecipe ? 1 : 0);
+    }
+
+    @Override
+    public void onValueUpdate(byte aValue) {
+        syncTierValue = aValue;
+    }
+
+    @Override
+    public byte getUpdateData() {
+        return (byte) syncTierValue;
+    }
+
+    @Override
+    public String[] getInfoData() {
+        ArrayList<String> info = new ArrayList<>(Arrays.asList(super.getInfoData()));
+        info.add(
+            StatCollector.translateToLocalFormatted(
+                "gtpp.infodata.multi.steam.tier",
+                "" + EnumChatFormatting.YELLOW + tierMachine));
+        info.add(
+            StatCollector.translateToLocalFormatted(
+                "gtpp.infodata.multi.steam.parallel",
+                "" + EnumChatFormatting.YELLOW + getMaxParallelRecipes()));
+        return info.toArray(new String[0]);
+    }
+
+    @Override
+    public void getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor,
+        IWailaConfigHandler config) {
+        super.getWailaBody(itemStack, currenttip, accessor, config);
+        NBTTagCompound tag = accessor.getNBTData();
+        currenttip.add(
+            StatCollector.translateToLocal("GTPP.machines.tier") + ": "
+                + EnumChatFormatting.YELLOW
+                + getSteamTierTextForWaila(tag)
+                + EnumChatFormatting.RESET);
+        currenttip.add(
+            StatCollector.translateToLocal("GT5U.multiblock.curparallelism") + ": "
+                + EnumChatFormatting.BLUE
+                + tag.getInteger("parallel")
+                + EnumChatFormatting.RESET);
+        currenttip.add(
+            StatCollector.translateToLocal("GT5U.multiblock.maxtier") + ": "
+                + EnumChatFormatting.YELLOW
+                + GTValues.VN[tag.getInteger("tierMachine") + 1 + (tag.getBoolean("enableHigherRecipe") ? 1 : 0)]
+                + EnumChatFormatting.RESET);
+    }
+
+    @Override
+    public void getWailaNBTData(EntityPlayerMP player, TileEntity tile, NBTTagCompound tag, World world, int x, int y,
+        int z) {
+        super.getWailaNBTData(player, tile, tag, world, x, y, z);
+        tag.setInteger("tierMachine", tierMachine);
+        tag.setInteger("parallel", getTrueParallel());
+        tag.setBoolean("enableHigherRecipe", getUpgradeTier(getControllerSlot()));
+    }
+
+    @Override
+    protected void updateHatchTexture() {
+        super.updateHatchTexture();
+        int id = getCasingTextureId();
+        for (MTEHatch h : mInputBusses) h.updateTexture(id);
+        for (MTEHatch h : mOutputBusses) h.updateTexture(id);
+        for (IDualInputHatch h : mDualInputHatches) h.updateTexture(id);
+    }
+
+    @Override
+    public void saveNBTData(NBTTagCompound aNBT) {
+        super.saveNBTData(aNBT);
+        aNBT.setInteger("tierMachine", tierMachine);
+        aNBT.setBoolean("enableHigherRecipe", enableHigherRecipe);
+    }
+
+    @Override
+    public void loadNBTData(final NBTTagCompound aNBT) {
+        super.loadNBTData(aNBT);
+        tierMachine = aNBT.getInteger("tierMachine");
+        enableHigherRecipe = aNBT.getBoolean("enableHigherRecipe");
+    }
+
+    // ---- Static tier resolution helpers used by structure definitions ----
+
+    @Nullable
+    public static Integer getTierFrame(Block block, int meta) {
+        if (block == gregtech.api.GregTechAPI.sBlockFrames) {
+            if (meta == Materials.Bronze.mMetaItemSubID) return 1;
+            if (meta == Materials.Steel.mMetaItemSubID) return 2;
+        }
+        return null;
+    }
+
+    @Nullable
+    public static Integer getTierGearCasing(Block block, int meta) {
+        if (block == gregtech.api.GregTechAPI.sBlockCasings2 && 2 == meta) return 1;
+        if (block == gregtech.api.GregTechAPI.sBlockCasings2 && 3 == meta) return 2;
+        return null;
+    }
+
+    @Nullable
+    public static Integer getTierPipeCasing(Block block, int meta) {
+        if (block == gregtech.api.GregTechAPI.sBlockCasings2 && 12 == meta) return 1;
+        if (block == gregtech.api.GregTechAPI.sBlockCasings2 && 13 == meta) return 2;
+        return null;
     }
 
     // endregion

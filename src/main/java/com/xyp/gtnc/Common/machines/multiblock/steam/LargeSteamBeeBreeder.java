@@ -148,7 +148,6 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
     private static final int DEPTH_OFF_SET = 0;
 
     private int mCountCasing = 0;
-    private int tierMachine = 1;
 
     /** 控制器槽是否有不锈钢齿轮（+2%成功率） */
     private boolean hasStainlessSteelGear = false;

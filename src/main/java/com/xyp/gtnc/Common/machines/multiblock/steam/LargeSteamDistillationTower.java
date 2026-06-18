@@ -36,8 +36,6 @@ import com.xyp.gtnc.Common.machines.multiblock.multiMachineBase.GTNCSteamMultiBl
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import gregtech.api.enums.Materials;
-import gregtech.api.enums.OrePrefixes;
 import gregtech.api.enums.SoundResource;
 import gregtech.api.interfaces.IIconContainer;
 import gregtech.api.interfaces.fluid.IFluidStore;
@@ -52,7 +50,6 @@ import gregtech.api.recipe.RecipeMaps;
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.structure.error.StructureError;
 import gregtech.api.structure.error.StructureErrorRegistry;
-import gregtech.api.util.GTOreDictUnificator;
 import gregtech.api.util.MultiblockTooltipBuilder;
 import gregtech.common.misc.GTStructureChannels;
 import gregtech.common.tileentities.machines.IDualInputHatch;
@@ -79,10 +76,6 @@ import mcp.mobius.waila.api.IWailaDataAccessor;
 // # The correct height equals the slot number in the NEI recipe
 // # zh_CN 正确高度对应NEI配方中的槽位编号
 
-// #tr Tooltip_LargeSteamDistillationTower_04
-// # Insert Stainless Steel gear into controller for recipe tier +1
-// # zh_CN 在主机里插入不锈钢齿轮配方等级+1
-
 // #tr Tooltip_LargeSteamDistillationTower_Casing
 // # Machine casing
 // # zh_CN 机器外壳
@@ -96,8 +89,6 @@ public class LargeSteamDistillationTower extends GTNCSteamMultiBlockBase<LargeSt
     private static final String STRUCTURE_PIECE_TOP_HINT = "topHint";
 
     private int mCountCasing = 0;
-    private int tierMachine = 1;
-    private boolean enableHigherRecipe = false;
 
     private int mHeight;
     private boolean mTopLayerFound;
@@ -319,14 +310,7 @@ public class LargeSteamDistillationTower extends GTNCSteamMultiBlockBase<LargeSt
 
     @Override
     public CheckRecipeResult checkProcessing() {
-        ItemStack controllerItem = getControllerSlot();
-        enableHigherRecipe = getUpgradeTier(controllerItem);
         return super.checkProcessing();
-    }
-
-    private boolean getUpgradeTier(ItemStack inventory) {
-        if (inventory == null) return false;
-        return inventory.isItemEqual(GTOreDictUnificator.get(OrePrefixes.gearGt, Materials.StainlessSteel, 1L));
     }
 
     @Override
@@ -389,15 +373,11 @@ public class LargeSteamDistillationTower extends GTNCSteamMultiBlockBase<LargeSt
     @Override
     public void saveNBTData(NBTTagCompound aNBT) {
         super.saveNBTData(aNBT);
-        aNBT.setInteger("tierMachine", tierMachine);
-        aNBT.setBoolean("enableHigherRecipe", enableHigherRecipe);
     }
 
     @Override
     public void loadNBTData(final NBTTagCompound aNBT) {
         super.loadNBTData(aNBT);
-        tierMachine = aNBT.getInteger("tierMachine");
-        enableHigherRecipe = aNBT.getBoolean("enableHigherRecipe");
     }
 
     @Override
@@ -418,7 +398,7 @@ public class LargeSteamDistillationTower extends GTNCSteamMultiBlockBase<LargeSt
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamDistillationTower_00"))
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamDistillationTower_02"))
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamDistillationTower_03"))
-            .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamDistillationTower_04"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_SteamGearInfo"))
             .addSteamBulkMachineInfo(4, 2f, 0.35f)
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeParallel"))
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeDuration"))

@@ -13,20 +13,14 @@ import static gregtech.api.util.GTStructureUtility.buildHatchAdder;
 import static gtPlusPlus.xmod.gregtech.common.blocks.textures.TexturesGtBlock.oMCDIndustrialCuttingMachine;
 import static gtPlusPlus.xmod.gregtech.common.blocks.textures.TexturesGtBlock.oMCDIndustrialCuttingMachineActive;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.Nullable;
 
 import net.minecraft.block.Block;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
-import net.minecraft.world.World;
 
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -39,24 +33,15 @@ import com.xyp.gtnc.Common.machines.multiblock.multiMachineBase.GTNCSteamMultiBl
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import gregtech.api.enums.GTValues;
-import gregtech.api.enums.Materials;
-import gregtech.api.enums.OrePrefixes;
 import gregtech.api.enums.SoundResource;
 import gregtech.api.interfaces.IIconContainer;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
-import gregtech.api.metatileentity.implementations.MTEHatch;
 import gregtech.api.recipe.RecipeMap;
 import gregtech.api.recipe.RecipeMaps;
-import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.structure.error.StructureError;
 import gregtech.api.structure.error.StructureErrorRegistry;
-import gregtech.api.util.GTOreDictUnificator;
 import gregtech.api.util.MultiblockTooltipBuilder;
-import gregtech.common.tileentities.machines.IDualInputHatch;
-import mcp.mobius.waila.api.IWailaConfigHandler;
-import mcp.mobius.waila.api.IWailaDataAccessor;
 
 // #tr NameLargeSteamFormingPress
 // # Large Steam Forming Press
@@ -69,14 +54,6 @@ import mcp.mobius.waila.api.IWailaDataAccessor;
 // #tr Tooltip_LargeSteamFormingPress_00
 // # A large steam-powered forming press
 // # zh_CN 大型蒸汽冲压机床
-
-// #tr Tooltip_LargeSteamFormingPress_01
-// # Bronze machine recipe tier: MV, Steel machine recipe tier: HV
-// # zh_CN 青铜机器配方等级:MV 钢机器配方等级:HV
-
-// #tr Tooltip_LargeSteamFormingPress_02
-// # Insert Stainless Steel gear into controller for recipe tier +1
-// # zh_CN 在主机里插入不锈钢齿轮配方等级+1
 
 // #tr Tooltip_LargeSteamFormingPress_Casing
 // # Machine casing
@@ -109,11 +86,9 @@ public class LargeSteamFormingPress extends GTNCSteamMultiBlockBase<LargeSteamFo
     private static final int DEPTH_OFF_SET = 0;
 
     private int mCountCasing = 0;
-    private int tierMachine = 1;
     private int tierMachineCasing = -1;
     private int tierGearCasing = -1;
     private int tierPipeCasing = -1;
-    private boolean enableHigherRecipe = false;
 
     private IStructureDefinition<LargeSteamFormingPress> STRUCTURE_DEFINITION = null;
 
@@ -125,16 +100,6 @@ public class LargeSteamFormingPress extends GTNCSteamMultiBlockBase<LargeSteamFo
     @Override
     protected boolean isHighPressure() {
         return tierMachineCasing == 2 || tierGearCasing == 2 || tierPipeCasing == 2;
-    }
-
-    @Override
-    public void onValueUpdate(byte aValue) {
-        tierMachineCasing = aValue;
-    }
-
-    @Override
-    public byte getUpdateData() {
-        return (byte) tierMachineCasing;
     }
 
     @Override
@@ -210,20 +175,6 @@ public class LargeSteamFormingPress extends GTNCSteamMultiBlockBase<LargeSteamFo
         return null;
     }
 
-    @Nullable
-    public static Integer getTierGearCasing(Block block, int meta) {
-        if (block == sBlockCasings2 && 2 == meta) return 1;
-        if (block == sBlockCasings2 && 3 == meta) return 2;
-        return null;
-    }
-
-    @Nullable
-    public static Integer getTierPipeCasing(Block block, int meta) {
-        if (block == sBlockCasings2 && 12 == meta) return 1;
-        if (block == sBlockCasings2 && 13 == meta) return 2;
-        return null;
-    }
-
     @Override
     public void construct(ItemStack stackSize, boolean hintsOnly) {
         buildPiece(STRUCTURE_PIECE_MAIN, stackSize, hintsOnly, HORIZONTAL_OFF_SET, VERTICAL_OFF_SET, DEPTH_OFF_SET);
@@ -253,6 +204,7 @@ public class LargeSteamFormingPress extends GTNCSteamMultiBlockBase<LargeSteamFo
         if (!checkPiece(STRUCTURE_PIECE_MAIN, HORIZONTAL_OFF_SET, VERTICAL_OFF_SET, DEPTH_OFF_SET, errors)) return;
         if (tierMachineCasing >= 1 && tierMachineCasing == tierGearCasing && tierMachineCasing == tierPipeCasing) {
             tierMachine = tierMachineCasing;
+            syncTierValue = tierMachineCasing;
             updateHatchTexture();
         } else {
             errors.add(StructureErrorRegistry.UNKNOWN_TIER);
@@ -263,26 +215,6 @@ public class LargeSteamFormingPress extends GTNCSteamMultiBlockBase<LargeSteamFo
         checkHasOutputBus(errors);
         checkHasOutputBus(errors);
         enableHigherRecipe = getUpgradeTier(getControllerSlot());
-    }
-
-    public boolean getUpgradeTier(ItemStack inventory) {
-        if (inventory == null) return false;
-        return inventory.isItemEqual(GTOreDictUnificator.get(OrePrefixes.gearGt, Materials.StainlessSteel, 1L));
-    }
-
-    @Override
-    public CheckRecipeResult checkProcessing() {
-        enableHigherRecipe = getUpgradeTier(getControllerSlot());
-        return super.checkProcessing();
-    }
-
-    @Override
-    protected void updateHatchTexture() {
-        super.updateHatchTexture();
-        int id = getCasingTextureId();
-        for (MTEHatch h : mInputBusses) h.updateTexture(id);
-        for (MTEHatch h : mOutputBusses) h.updateTexture(id);
-        for (IDualInputHatch h : mDualInputHatches) h.updateTexture(id);
     }
 
     @Override
@@ -297,73 +229,19 @@ public class LargeSteamFormingPress extends GTNCSteamMultiBlockBase<LargeSteamFo
     }
 
     @Override
-    public int getTierRecipes() {
-        return tierMachine + 1 + (enableHigherRecipe ? 1 : 0);
-    }
-
-    @Override
-    public String[] getInfoData() {
-        ArrayList<String> info = new ArrayList<>(Arrays.asList(super.getInfoData()));
-        info.add(
-            StatCollector.translateToLocalFormatted(
-                "gtpp.infodata.multi.steam.tier",
-                "" + EnumChatFormatting.YELLOW + tierMachine));
-        info.add(
-            StatCollector.translateToLocalFormatted(
-                "gtpp.infodata.multi.steam.parallel",
-                "" + EnumChatFormatting.YELLOW + getMaxParallelRecipes()));
-        return info.toArray(new String[0]);
-    }
-
-    @Override
-    public void getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor,
-        IWailaConfigHandler config) {
-        super.getWailaBody(itemStack, currenttip, accessor, config);
-        NBTTagCompound tag = accessor.getNBTData();
-        currenttip.add(
-            StatCollector.translateToLocal("GTPP.machines.tier") + ": "
-                + EnumChatFormatting.YELLOW
-                + getSteamTierTextForWaila(tag)
-                + EnumChatFormatting.RESET);
-        currenttip.add(
-            StatCollector.translateToLocal("GT5U.multiblock.curparallelism") + ": "
-                + EnumChatFormatting.BLUE
-                + tag.getInteger("parallel")
-                + EnumChatFormatting.RESET);
-        currenttip.add(
-            StatCollector.translateToLocal("GT5U.multiblock.maxtier") + ": "
-                + EnumChatFormatting.YELLOW
-                + GTValues.VN[tag.getInteger("tierMachine") + 1 + (tag.getBoolean("enableHigherRecipe") ? 1 : 0)]
-                + EnumChatFormatting.RESET);
-    }
-
-    @Override
-    public void getWailaNBTData(EntityPlayerMP player, TileEntity tile, NBTTagCompound tag, World world, int x, int y,
-        int z) {
-        super.getWailaNBTData(player, tile, tag, world, x, y, z);
-        tag.setInteger("tierMachine", tierMachine);
-        tag.setInteger("parallel", getTrueParallel());
-        tag.setBoolean("enableHigherRecipe", getUpgradeTier(getControllerSlot()));
-    }
-
-    @Override
     public void saveNBTData(NBTTagCompound aNBT) {
         super.saveNBTData(aNBT);
-        aNBT.setInteger("tierMachine", tierMachine);
         aNBT.setInteger("tierMachineCasing", tierMachineCasing);
         aNBT.setInteger("tierGearCasing", tierGearCasing);
         aNBT.setInteger("tierPipeCasing", tierPipeCasing);
-        aNBT.setBoolean("enableHigherRecipe", enableHigherRecipe);
     }
 
     @Override
     public void loadNBTData(final NBTTagCompound aNBT) {
         super.loadNBTData(aNBT);
-        tierMachine = aNBT.getInteger("tierMachine");
         tierMachineCasing = aNBT.getInteger("tierMachineCasing");
         tierGearCasing = aNBT.getInteger("tierGearCasing");
         tierPipeCasing = aNBT.getInteger("tierPipeCasing");
-        enableHigherRecipe = aNBT.getBoolean("enableHigherRecipe");
     }
 
     @Override
@@ -371,8 +249,8 @@ public class LargeSteamFormingPress extends GTNCSteamMultiBlockBase<LargeSteamFo
         MultiblockTooltipBuilder tt = new MultiblockTooltipBuilder();
         tt.addMachineType(StatCollector.translateToLocal("LargeSteamFormingPressRecipeType"))
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamFormingPress_00"))
-            .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamFormingPress_01"))
-            .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamFormingPress_02"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_SteamTierInfo"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_SteamGearInfo"))
             .addInfo(HIGH_PRESSURE_TOOLTIP_NOTICE)
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeParallel"))
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeDuration"))
