@@ -243,7 +243,8 @@ public class LargeCombProcessor extends MTEEnhancedMultiBlockBase<LargeCombProce
     protected ProcessingLogic createProcessingLogic() {
         return new ProcessingLogic().enablePerfectOverclock()
             .setMaxParallel(2560)
-            .setSpeedBonus(0.1);
+            .setSpeedBonus(0.1)
+            .setEuModifier(0.1);
     }
 
     // ==================== 跨配方并行 ====================
