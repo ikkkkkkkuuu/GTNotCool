@@ -21,13 +21,18 @@ import static gregtech.api.util.GTStructureUtility.ofOreDictBlockMap;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidStack;
 
 import com.gtnewhorizon.structurelib.alignment.constructable.ISurvivalConstructable;
 import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
@@ -47,11 +52,15 @@ import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.logic.ProcessingLogic;
 import gregtech.api.metatileentity.implementations.MTEEnhancedMultiBlockBase;
+import gregtech.api.metatileentity.implementations.MTEHatchInput;
 import gregtech.api.recipe.RecipeMap;
+import gregtech.api.recipe.check.CheckRecipeResult;
+import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.render.TextureFactory;
 import gregtech.api.structure.error.StructureError;
 import gregtech.api.util.GTUtility;
 import gregtech.api.util.MultiblockTooltipBuilder;
+import gregtech.common.tileentities.machines.MTEHatchInputME;
 
 // #tr NameLargeSteamCombProcessor
 // # Comb Processor
@@ -237,6 +246,166 @@ public class LargeCombProcessor extends MTEEnhancedMultiBlockBase<LargeCombProce
             .setSpeedBonus(0.1);
     }
 
+    // ==================== 跨配方并行 ====================
+
+    private boolean inCrossRecipeProcessing = false;
+
+    @Override
+    public CheckRecipeResult checkProcessing() {
+        if (inCrossRecipeProcessing) {
+            return super.checkProcessing();
+        }
+        inCrossRecipeProcessing = true;
+        try {
+            return checkProcessingCrossRecipe();
+        } finally {
+            inCrossRecipeProcessing = false;
+        }
+    }
+
+    private CheckRecipeResult checkProcessingCrossRecipe() {
+        // Cache ME input fluids so that ProcessingLogic modifications persist
+        Map<Fluid, FluidStack> cachedMEInputFluids = new HashMap<>();
+        Map<Fluid, Integer> originalMEAmounts = new HashMap<>();
+        for (MTEHatchInput tHatch : GTUtility.validMTEList(mInputHatches)) {
+            if (tHatch instanceof MTEHatchInputME meHatch) {
+                for (FluidStack fluid : meHatch.getStoredFluids()) {
+                    if (fluid != null) {
+                        FluidStack copy = fluid.copy();
+                        cachedMEInputFluids.put(copy.getFluid(), copy);
+                        originalMEAmounts.merge(copy.getFluid(), copy.amount, Integer::sum);
+                    }
+                }
+            }
+        }
+
+        try {
+            CheckRecipeResult firstResult = super.checkProcessing();
+            if (!firstResult.wasSuccessful()) {
+                return firstResult;
+            }
+
+            long totalEUt = Math.abs(mEUt);
+            long eutPerRecipe = totalEUt;
+            int totalDuration = mMaxProgresstime;
+            ArrayList<ItemStack> accItems = cloneItemArray(mOutputItems);
+            ArrayList<FluidStack> accFluids = cloneFluidArray(mOutputFluids);
+
+            long availablePower = getMaxInputEu();
+
+            int maxIterations = 200;
+            for (int i = 0; i < maxIterations; i++) {
+                // Power limit: stop if adding another recipe exceeds available EU/t
+                if (totalEUt + eutPerRecipe > availablePower) {
+                    break;
+                }
+
+                if (getStoredInputsForColor(Optional.empty()).isEmpty()
+                    && getStoredFluidsForColor(Optional.empty()).isEmpty()) {
+                    break;
+                }
+
+                CheckRecipeResult result = super.checkProcessing();
+                if (!result.wasSuccessful()) {
+                    break;
+                }
+
+                totalEUt += Math.abs(mEUt);
+                eutPerRecipe = Math.abs(mEUt);
+                totalDuration += mMaxProgresstime;
+
+                mergeItemStacks(accItems, mOutputItems);
+                mergeFluidStacks(accFluids, mOutputFluids);
+            }
+
+            // Drain ME hatches for consumed amounts
+            for (Map.Entry<Fluid, Integer> entry : originalMEAmounts.entrySet()) {
+                Fluid fluid = entry.getKey();
+                int originalAmount = entry.getValue();
+                FluidStack cached = cachedMEInputFluids.get(fluid);
+                if (cached == null) continue;
+                int consumed = originalAmount - cached.amount;
+                if (consumed > 0) {
+                    depleteInput(new FluidStack(fluid, consumed));
+                }
+            }
+
+            mOutputItems = accItems.toArray(new ItemStack[0]);
+            mOutputFluids = accFluids.toArray(new FluidStack[0]);
+            mMaxProgresstime = totalDuration;
+            mEUt = -(int) Math.min(totalEUt, Integer.MAX_VALUE);
+            mEfficiency = 10000;
+            mEfficiencyIncrease = 10000;
+
+            return CheckRecipeResultRegistry.SUCCESSFUL;
+        } finally {
+            // cachedMEInputFluids and originalMEAmounts are local, no cleanup needed
+        }
+    }
+
+    private static ArrayList<ItemStack> cloneItemArray(ItemStack[] items) {
+        ArrayList<ItemStack> list = new ArrayList<>();
+        if (items != null) {
+            for (ItemStack s : items) {
+                if (s != null) list.add(s.copy());
+            }
+        }
+        return list;
+    }
+
+    private static ArrayList<FluidStack> cloneFluidArray(FluidStack[] fluids) {
+        ArrayList<FluidStack> list = new ArrayList<>();
+        if (fluids != null) {
+            for (FluidStack f : fluids) {
+                if (f != null) list.add(f.copy());
+            }
+        }
+        return list;
+    }
+
+    private static void mergeItemStacks(ArrayList<ItemStack> acc, ItemStack[] items) {
+        if (items == null) return;
+        for (ItemStack toMerge : items) {
+            if (toMerge == null) continue;
+            boolean merged = false;
+            for (ItemStack existing : acc) {
+                if (GTUtility.areStacksEqual(toMerge, existing) && existing.stackSize < existing.getMaxStackSize()) {
+                    int space = existing.getMaxStackSize() - existing.stackSize;
+                    int add = Math.min(toMerge.stackSize, space);
+                    existing.stackSize += add;
+                    if (add >= toMerge.stackSize) {
+                        merged = true;
+                        break;
+                    }
+                    ItemStack remainder = toMerge.copy();
+                    remainder.stackSize = toMerge.stackSize - add;
+                    toMerge = remainder;
+                }
+            }
+            if (!merged) {
+                acc.add(toMerge.copy());
+            }
+        }
+    }
+
+    private static void mergeFluidStacks(ArrayList<FluidStack> acc, FluidStack[] fluids) {
+        if (fluids == null) return;
+        for (FluidStack toMerge : fluids) {
+            if (toMerge == null) continue;
+            boolean merged = false;
+            for (FluidStack existing : acc) {
+                if (existing.isFluidEqual(toMerge)) {
+                    existing.amount += toMerge.amount;
+                    merged = true;
+                    break;
+                }
+            }
+            if (!merged) {
+                acc.add(toMerge.copy());
+            }
+        }
+    }
+
     // ==================== 信息显示 ====================
 
     @Override
@@ -279,6 +448,8 @@ public class LargeCombProcessor extends MTEEnhancedMultiBlockBase<LargeCombProce
         tt.addMachineType(StatCollector.translateToLocal("LargeSteamCombProcessorRecipeType"))
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamCombProcessor_00"))
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamCombProcessor_01"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeParallel"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeDuration"))
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_PerfectOverclock"))
             .beginStructureBlock(15, 17, 15, false)
             .addController("Front center")
