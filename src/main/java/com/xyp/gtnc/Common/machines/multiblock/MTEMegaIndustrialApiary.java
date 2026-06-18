@@ -10,6 +10,7 @@ import static com.xyp.gtnc.Client.utils.BlockIcons.OVERLAY_FRONT_SINGULARITY_DAT
 import static com.xyp.gtnc.Client.utils.BlockIcons.OVERLAY_FRONT_SINGULARITY_DATA_HUB_ACTIVE;
 import static com.xyp.gtnc.Client.utils.BlockIcons.OVERLAY_FRONT_SINGULARITY_DATA_HUB_ACTIVE_GLOW;
 import static forestry.api.apiculture.BeeManager.beeRoot;
+import static gregtech.api.GregTechAPI.sBlockCasings2;
 import static gregtech.api.enums.HatchElement.Energy;
 import static gregtech.api.enums.HatchElement.ExoticEnergy;
 import static gregtech.api.enums.HatchElement.InputBus;
@@ -62,7 +63,6 @@ import forestry.apiculture.blocks.BlockAlveary;
 import forestry.apiculture.blocks.BlockApicultureType;
 import forestry.apiculture.genetics.Bee;
 import forestry.plugins.PluginApiculture;
-import gregtech.api.GregTechAPI;
 import gregtech.api.enums.GTValues;
 import gregtech.api.enums.SoundResource;
 import gregtech.api.enums.Textures;
@@ -145,7 +145,7 @@ public class MTEMegaIndustrialApiary extends KubaTechGTMultiBlockBase<MTEMegaInd
             buildHatchAdder(MTEMegaIndustrialApiary.class).atLeast(InputBus, OutputBus, Energy.or(ExoticEnergy))
                 .casingIndex(CASING_INDEX)
                 .hint(1)
-                .buildAndChain(onElementPass(t -> t.mCasing++, ofBlock(GregTechAPI.sBlockCasings1, 16))))
+                .buildAndChain(onElementPass(t -> t.mCasing++, ofBlock(sBlockCasings2, 0))))
         .addElement('H', ofBlocksMap(ofOreDictBlockMap("plankWood"), Blocks.planks, 0))
         .addElement('I', ofBlocksMap(ofOreDictBlockMap("slabWood"), Blocks.wooden_slab, 0))
         .addElement('J', ofBlock(PluginApiculture.blocks.apiculture, BlockApicultureType.APIARY.getMeta()))
