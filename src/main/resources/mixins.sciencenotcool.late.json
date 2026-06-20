@@ -2,7 +2,7 @@
   "required": true,
   "minVersion": "0.8.5-GTNH",
   "package": "com.xyp.gtnc.mixins.late",
-  "refmap": "mixins.sciencenocool.refmap.json",
+  "refmap": "mixins.sciencenotcool.refmap.json",
   "target": "@env(DEFAULT)",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
