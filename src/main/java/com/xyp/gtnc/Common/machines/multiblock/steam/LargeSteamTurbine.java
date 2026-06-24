@@ -6,16 +6,20 @@ import static com.xyp.gtnc.Client.utils.BlockIcons.OVERLAY_FRONT_SINGULARITY_DAT
 import static gregtech.api.util.GTStructureUtility.buildHatchAdder;
 import static gregtech.common.misc.WirelessNetworkManager.addEUToGlobalEnergyMap;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
+import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
 
@@ -26,6 +30,7 @@ import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
 import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
 import com.gtnewhorizon.structurelib.structure.StructureUtility;
+import com.xyp.gtnc.utils.world.steam.SteamWirelessNetworkManager;
 
 import gregtech.GTMod;
 import gregtech.api.GregTechAPI;
@@ -45,6 +50,8 @@ import gregtech.api.structure.error.StructureError;
 import gregtech.api.util.GTModHandler;
 import gregtech.api.util.GTUtility;
 import gregtech.api.util.MultiblockTooltipBuilder;
+import mcp.mobius.waila.api.IWailaConfigHandler;
+import mcp.mobius.waila.api.IWailaDataAccessor;
 
 // #tr NameLargeSteamTurbineBronze
 // # Large Bronze Steam Turbine
@@ -67,20 +74,20 @@ import gregtech.api.util.MultiblockTooltipBuilder;
 // # zh_CN 蒸汽涡轮
 
 // #tr Tooltip_LargeSteamTurbineBronze_00
-// # Consumes 800L/s Steam, produces 400EU/t at 85%% efficiency.
-// # zh_CN 消耗800升/秒蒸汽，以85%效率产出400EU/t
+// # Consumes 4000L/s Steam, produces 400EU/t at 85% efficiency.
+// # zh_CN 消耗4000升/秒蒸汽，以85%效率产出400EU/t
 
 // #tr Tooltip_LargeSteamTurbineSteel_00
-// # Consumes 1600L/s Steam, produces 800EU/t at 90%% efficiency.
-// # zh_CN 消耗1600升/秒蒸汽，以90%效率产出800EU/t
+// # Consumes 8000L/s Steam, produces 800EU/t at 90% efficiency.
+// # zh_CN 消耗8000升/秒蒸汽，以90%效率产出800EU/t
 
 // #tr Tooltip_LargeSteamTurbineTitanium_00
-// # Consumes 3200L/s Steam, produces 1600EU/t at 95%% efficiency.
-// # zh_CN 消耗3200升/秒蒸汽，以95%效率产出1600EU/t
+// # Consumes 16000L/s Steam, produces 1600EU/t at 95% efficiency.
+// # zh_CN 消耗16000升/秒蒸汽，以95%效率产出1600EU/t
 
 // #tr Tooltip_LargeSteamTurbineTungstenSteel_00
-// # Consumes 6400L/s Steam, produces 3200EU/t at 100%% efficiency.
-// # zh_CN 消耗6400升/秒蒸汽，以100%效率产出3200EU/t
+// # Consumes 32000L/s Steam, produces 3200EU/t at 100% efficiency.
+// # zh_CN 消耗32000升/秒蒸汽，以100%效率产出3200EU/t
 
 // #tr Tooltip_LargeSteamTurbine_00
 // # Outputs Distilled Water as byproduct.
@@ -98,6 +105,10 @@ import gregtech.api.util.MultiblockTooltipBuilder;
 // # Any Pipe Machine Block
 // # zh_CN 任意管道机械方块
 
+// #tr GTNC.info.wireless_steam
+// # Network Steam
+// # zh_CN 网络蒸汽
+
 public abstract class LargeSteamTurbine extends MTEEnhancedMultiBlockBase<LargeSteamTurbine>
     implements ISurvivalConstructable {
 
@@ -107,6 +118,7 @@ public abstract class LargeSteamTurbine extends MTEEnhancedMultiBlockBase<LargeS
     public int mCountCasing;
     public int mPipeCasing;
     public int steamConsumed = 0;
+    private static final int BATCH_DURATION_TICKS = 20 * 128;
     private static final String STRUCTURE_PIECE_MAIN = "main";
 
     public LargeSteamTurbine(int aID, String aName, String aNameRegional) {
@@ -205,50 +217,66 @@ public abstract class LargeSteamTurbine extends MTEEnhancedMultiBlockBase<LargeS
     @Override
     @NotNull
     public CheckRecipeResult checkProcessing() {
-        ArrayList<FluidStack> tFluids = getStoredFluids();
-        int totalSteamConsumed = 0;
-        int maxSteam = getOptimalSteamFlow();
+        int totalSteamNeeded = getOptimalSteamFlow() * BATCH_DURATION_TICKS;
 
-        for (FluidStack tFluid : tFluids) {
-            if (GTModHandler.isAnySteam(tFluid)) {
-                int consume = Math.min(tFluid.amount, maxSteam - totalSteamConsumed);
-                if (consume > 0) {
-                    depleteInput(new FluidStack(tFluid, consume));
-                    totalSteamConsumed += consume;
-                }
-                if (totalSteamConsumed >= maxSteam) break;
+        if (wirelessMode && ownerUUID != null) {
+            // Wireless mode: consume entire batch upfront from global steam network
+            BigInteger networkSteam = SteamWirelessNetworkManager.getUserSteam(ownerUUID);
+            if (networkSteam.compareTo(BigInteger.valueOf(totalSteamNeeded)) < 0) {
+                this.steamConsumed = 0;
+                this.mEUt = 0;
+                this.mMaxProgresstime = 0;
+                return CheckRecipeResultRegistry.NO_FUEL_FOUND;
             }
+            if (!SteamWirelessNetworkManager.addSteamToGlobalSteamMap(ownerUUID, -totalSteamNeeded)) {
+                this.steamConsumed = 0;
+                this.mEUt = 0;
+                this.mMaxProgresstime = 0;
+                return CheckRecipeResultRegistry.NO_FUEL_FOUND;
+            }
+            this.steamConsumed = totalSteamNeeded;
+        } else {
+            // Normal mode: consume entire batch upfront from local input hatches
+            ArrayList<FluidStack> tFluids = getStoredFluids();
+            int steamFound = 0;
+            for (FluidStack tFluid : tFluids) {
+                if (GTModHandler.isAnySteam(tFluid)) {
+                    steamFound += tFluid.amount;
+                }
+            }
+            if (steamFound < totalSteamNeeded) {
+                this.steamConsumed = 0;
+                this.mEUt = 0;
+                this.mMaxProgresstime = 0;
+                return CheckRecipeResultRegistry.NO_FUEL_FOUND;
+            }
+            int remaining = totalSteamNeeded;
+            for (FluidStack tFluid : tFluids) {
+                if (GTModHandler.isAnySteam(tFluid)) {
+                    int consume = Math.min(tFluid.amount, remaining);
+                    if (consume > 0) {
+                        depleteInput(new FluidStack(tFluid, consume));
+                        remaining -= consume;
+                    }
+                    if (remaining <= 0) break;
+                }
+            }
+            this.steamConsumed = totalSteamNeeded;
         }
 
-        if (totalSteamConsumed <= 0) {
-            this.steamConsumed = 0;
-            this.mEUt = 0;
-            this.mMaxProgresstime = 0;
-            return CheckRecipeResultRegistry.NO_FUEL_FOUND;
-        }
-
-        this.steamConsumed = totalSteamConsumed;
-
-        // Efficiency: scales down if we don't reach optimal flow
-        float efficiency = getEfficiencyPercent() / 100.0f;
-        if (totalSteamConsumed < maxSteam) {
-            efficiency *= (float) totalSteamConsumed / maxSteam;
-        }
-
-        // EU/t = steam * efficiency * 0.5 (2L steam = 1 EU at 100% efficiency)
-        this.mEUt = Math.max(1, (int) (totalSteamConsumed * efficiency * 0.5f));
-        this.mMaxProgresstime = 1;
+        this.mEUt = getEUt();
+        this.mMaxProgresstime = BATCH_DURATION_TICKS;
         this.mEfficiencyIncrease = 10000;
-        this.mEfficiency = (int) (efficiency * 10000);
+        this.mEfficiency = getEfficiencyPercent() * 100;
 
         return CheckRecipeResultRegistry.SUCCESSFUL;
     }
 
     @Override
     public boolean onRunningTick(ItemStack aStack) {
-        if (this.mEUt > 0 && this.steamConsumed > 0) {
-            // Output distilled water (condensed steam)
-            addOutput(GTModHandler.getDistilledWater(this.steamConsumed));
+        if (this.mEUt > 0) {
+            // Output distilled water per tick (condensed steam)
+            addOutput(GTModHandler.getDistilledWater(getOptimalSteamFlow()));
 
             if (wirelessMode) {
                 // Wireless mode: send EU to global energy map
@@ -260,7 +288,6 @@ public abstract class LargeSteamTurbine extends MTEEnhancedMultiBlockBase<LargeS
                 addEnergyOutput(this.mEUt);
             }
 
-            this.steamConsumed = 0;
             return true;
         }
         return true;
@@ -321,6 +348,41 @@ public abstract class LargeSteamTurbine extends MTEEnhancedMultiBlockBase<LargeS
                 "muchsteam");
         }
         super.onPostTick(aBaseMetaTileEntity, aTick);
+    }
+
+    @Override
+    public void getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor,
+        IWailaConfigHandler config) {
+        super.getWailaBody(itemStack, currenttip, accessor, config);
+        NBTTagCompound tag = accessor.getNBTData();
+        if (tag.getBoolean("wirelessMode")) {
+            currenttip.add(
+                StatCollector.translateToLocal("GT5U.turbine.wireless_mode") + ": "
+                    + EnumChatFormatting.GREEN
+                    + "ON"
+                    + EnumChatFormatting.RESET);
+            if (tag.hasKey("networkSteam")) {
+                currenttip.add(
+                    StatCollector.translateToLocal("GTNC.info.wireless_steam") + ": "
+                        + EnumChatFormatting.GOLD
+                        + tag.getString("networkSteam")
+                        + EnumChatFormatting.RESET
+                        + " L");
+            }
+        }
+    }
+
+    @Override
+    public void getWailaNBTData(EntityPlayerMP player, TileEntity tile, NBTTagCompound tag, World world, int x, int y,
+        int z) {
+        super.getWailaNBTData(player, tile, tag, world, x, y, z);
+        tag.setBoolean("wirelessMode", wirelessMode);
+        if (wirelessMode && ownerUUID != null) {
+            tag.setString(
+                "networkSteam",
+                SteamWirelessNetworkManager.getUserSteam(ownerUUID)
+                    .toString());
+        }
     }
 
     @Override
@@ -409,7 +471,7 @@ public abstract class LargeSteamTurbine extends MTEEnhancedMultiBlockBase<LargeS
         mPipeCasing = 0;
 
         if (!checkPiece(STRUCTURE_PIECE_MAIN, 1, 3, 0, errors)) return;
-        checkCasingMin(errors, mCountCasing, 16);
+        checkCasingMin(errors, mCountCasing, 3);
         checkCasingMin(errors, mPipeCasing, 3);
     }
 
@@ -498,7 +560,7 @@ public abstract class LargeSteamTurbine extends MTEEnhancedMultiBlockBase<LargeS
 
         @Override
         public int getOptimalSteamFlow() {
-            return 800;
+            return 4000;
         }
 
         @Override
@@ -569,7 +631,7 @@ public abstract class LargeSteamTurbine extends MTEEnhancedMultiBlockBase<LargeS
 
         @Override
         public int getOptimalSteamFlow() {
-            return 1600;
+            return 8000;
         }
 
         @Override
@@ -640,7 +702,7 @@ public abstract class LargeSteamTurbine extends MTEEnhancedMultiBlockBase<LargeS
 
         @Override
         public int getOptimalSteamFlow() {
-            return 3200;
+            return 16000;
         }
 
         @Override
@@ -711,7 +773,7 @@ public abstract class LargeSteamTurbine extends MTEEnhancedMultiBlockBase<LargeS
 
         @Override
         public int getOptimalSteamFlow() {
-            return 6400;
+            return 32000;
         }
 
         @Override

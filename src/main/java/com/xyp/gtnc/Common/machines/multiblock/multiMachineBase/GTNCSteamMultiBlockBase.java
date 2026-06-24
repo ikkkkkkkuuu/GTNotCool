@@ -517,10 +517,6 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
 
     // region Batch Mode, Perfect Overclock & Input Separation
 
-    // #tr Tooltip_GTNC_PerfectOverclock
-    // # Perfect Overclock: Overclock beyond recipe voltage has no efficiency loss
-    // # 无损超频：超频时无效率损失
-
     // #tr Tooltip_GTNC_SteamTierInfo
     // # Bronze machine recipe tier: HV, Steel machine recipe tier: EV
     // # zh_CN 青铜机器配方等级:HV 钢机器配方等级:EV

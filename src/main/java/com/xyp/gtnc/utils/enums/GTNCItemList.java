@@ -31,6 +31,14 @@ public enum GTNCItemList implements IItemContainer {
 
     BiowareSMDInductor,
 
+    ChipTier1,
+    ChipTier2,
+    ChipTier3,
+    ChipTier4,
+    ChipTier5,
+    ChipTier6,
+    ChipTier7,
+
     LargeBoilerBronze,
     LargeBoilerSteel,
     LargeBoilerTitanium,
@@ -61,6 +69,14 @@ public enum GTNCItemList implements IItemContainer {
     LargeSteamDistillationTower,
     LargeSteamBeeBreeder,
     LargeSteamCombProcessor,
+
+    LargeSteamCrucibleSteel,
+    LargeSteamCrucibleInvar,
+    LargeSteamCrucibleStainless,
+    LargeSteamCrucibleTitanium,
+    LargeSteamCrucibleTungstenSteel,
+
+    GeneralChemicalFactory,
 
     SteamTurbineLV,
     SteamTurbineMV,

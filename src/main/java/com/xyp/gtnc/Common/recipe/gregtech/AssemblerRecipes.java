@@ -1,5 +1,12 @@
 package com.xyp.gtnc.Common.recipe.gregtech;
 
+import static gregtech.api.enums.TierEU.RECIPE_EV;
+import static gregtech.api.enums.TierEU.RECIPE_HV;
+import static gregtech.api.enums.TierEU.RECIPE_IV;
+import static gregtech.api.enums.TierEU.RECIPE_LV;
+import static gregtech.api.enums.TierEU.RECIPE_LuV;
+import static gregtech.api.enums.TierEU.RECIPE_MV;
+import static gregtech.api.enums.TierEU.RECIPE_ZPM;
 import static gregtech.api.util.GTRecipeBuilder.INGOTS;
 import static gregtech.api.util.GTRecipeBuilder.SECONDS;
 
@@ -23,6 +30,186 @@ public class AssemblerRecipes {
 
     public static void loadRecipes() {
         RecipeMap<?> As = RecipeMaps.assemblerRecipes;
+
+        // 通用化工厂
+        GTValues.RA.stdBuilder()
+            .itemInputs(
+                ItemList.Tool_DataStick.get(4),
+                GTOreDictUnificator.get(OrePrefixes.circuit, Materials.HV, 8),
+                GTOreDictUnificator.get(OrePrefixes.plate, Materials.Polytetrafluoroethylene, 6),
+                ItemList.Hull_EV.get(1),
+                ItemList.Electric_Piston_HV.get(2))
+            .itemOutputs(GTNCItemList.GeneralChemicalFactory.get(1))
+            .fluidInputs(Materials.Polytetrafluoroethylene.getMolten(2304))
+            .eut(RECIPE_EV)
+            .duration(20 * 15)
+            .addTo(As);
+
+        // chipTier1
+        GTValues.RA.stdBuilder()
+            .itemInputs(
+                GTOreDictUnificator.get(OrePrefixes.circuit, Materials.LV, 8),
+                GTOreDictUnificator.get(OrePrefixes.plate, Materials.Polytetrafluoroethylene, 2),
+                ItemList.Tool_DataStick.get(2))
+            .itemOutputs(GTNCItemList.ChipTier1.get(1))
+            .fluidInputs(Materials.Polyethylene.getMolten(9216))
+            .circuit(24)
+            .eut(RECIPE_EV)
+            .duration(20 * 15)
+            .addTo(As);
+
+        // chipTier2
+        GTValues.RA.stdBuilder()
+            .itemInputs(
+                GTOreDictUnificator.get(OrePrefixes.circuit, Materials.MV, 8),
+                GTOreDictUnificator.get(OrePrefixes.plate, Materials.Polytetrafluoroethylene, 2),
+                ItemList.Tool_DataStick.get(8))
+            .itemOutputs(GTNCItemList.ChipTier2.get(1))
+            .fluidInputs(Materials.Polyethylene.getMolten(9216))
+            .circuit(24)
+            .eut(RECIPE_IV)
+            .duration(20 * 20)
+            .addTo(As);
+
+        // chipTier3
+        GTValues.RA.stdBuilder()
+            .itemInputs(
+                GTOreDictUnificator.get(OrePrefixes.circuit, Materials.HV, 8),
+                GTOreDictUnificator.get(OrePrefixes.plate, Materials.Polytetrafluoroethylene, 2),
+                ItemList.Tool_DataStick.get(16))
+            .itemOutputs(GTNCItemList.ChipTier3.get(1))
+            .fluidInputs(Materials.Polyethylene.getMolten(9216))
+            .circuit(24)
+            .eut(RECIPE_LuV)
+            .duration(20 * 20)
+            .addTo(As);
+
+        // chipTier4
+        GTValues.RA.stdBuilder()
+            .itemInputs(
+                GTOreDictUnificator.get(OrePrefixes.circuit, Materials.EV, 8),
+                GTOreDictUnificator.get(OrePrefixes.plate, Materials.Polytetrafluoroethylene, 2),
+                ItemList.Tool_DataStick.get(32))
+            .itemOutputs(GTNCItemList.ChipTier4.get(1))
+            .fluidInputs(Materials.Polyethylene.getMolten(9216))
+            .circuit(24)
+            .eut(RECIPE_ZPM)
+            .duration(20 * 20)
+            .addTo(As);
+
+        // chipTier5
+        GTValues.RA.stdBuilder()
+            .itemInputs(
+                GTOreDictUnificator.get(OrePrefixes.circuit, Materials.IV, 8),
+                GTOreDictUnificator.get(OrePrefixes.plate, Materials.Polytetrafluoroethylene, 2),
+                ItemList.Tool_DataStick.get(42))
+            .itemOutputs(GTNCItemList.ChipTier5.get(1))
+            .fluidInputs(Materials.Polyethylene.getMolten(9216))
+            .circuit(24)
+            .eut(RECIPE_ZPM)
+            .duration(20 * 20)
+            .addTo(As);
+
+        // chipTier6
+        GTValues.RA.stdBuilder()
+            .itemInputs(
+                GTOreDictUnificator.get(OrePrefixes.circuit, Materials.LuV, 8),
+                GTOreDictUnificator.get(OrePrefixes.plate, Materials.Polytetrafluoroethylene, 2),
+                ItemList.Tool_DataStick.get(48))
+            .itemOutputs(GTNCItemList.ChipTier6.get(1))
+            .fluidInputs(Materials.Polyethylene.getMolten(9216))
+            .circuit(24)
+            .eut(RECIPE_ZPM)
+            .duration(20 * 20)
+            .addTo(As);
+
+        // chipTier7
+        GTValues.RA.stdBuilder()
+            .itemInputs(
+                GTOreDictUnificator.get(OrePrefixes.circuit, Materials.ZPM, 8),
+                GTOreDictUnificator.get(OrePrefixes.plate, Materials.Polytetrafluoroethylene, 2),
+                ItemList.Tool_DataStick.get(42))
+            .itemOutputs(GTNCItemList.ChipTier7.get(1))
+            .fluidInputs(Materials.Polyethylene.getMolten(9216))
+            .circuit(24)
+            .eut(RECIPE_ZPM)
+            .duration(20 * 20)
+            .addTo(As);
+
+        // 坩埚
+        GTValues.RA.stdBuilder()
+            .itemInputs(
+                ItemList.Casing_Firebricks.get(16),
+                ItemList.Hull_LV.get(1),
+                GTOreDictUnificator.get(OrePrefixes.plate, Materials.Steel, 8),
+                ItemList.Electric_Piston_LV.get(4),
+                GTOreDictUnificator.get(OrePrefixes.gearGt, Materials.Steel, 4),
+                GTOreDictUnificator.get(OrePrefixes.frameGt, Materials.Steel, 1))
+            .fluidInputs(Materials.Steel.getMolten(1152))
+            .itemOutputs(GTNCItemList.LargeSteamCrucibleSteel.get(1))
+            .eut(RECIPE_LV)
+            .duration(20 * 20)
+            .addTo(As);
+
+        // 殷钢坩埚（MV级）
+        GTValues.RA.stdBuilder()
+            .itemInputs(
+                ItemList.Casing_Firebricks.get(16),
+                ItemList.Hull_MV.get(1),
+                GTOreDictUnificator.get(OrePrefixes.plate, Materials.Invar, 8),
+                ItemList.Electric_Piston_MV.get(4),
+                GTOreDictUnificator.get(OrePrefixes.gearGt, Materials.Invar, 4),
+                GTOreDictUnificator.get(OrePrefixes.frameGt, Materials.Invar, 1))
+            .fluidInputs(Materials.Invar.getMolten(576))
+            .itemOutputs(GTNCItemList.LargeSteamCrucibleInvar.get(1))
+            .eut(RECIPE_MV)
+            .duration(20 * 20)
+            .addTo(As);
+
+        // 不锈钢坩埚（HV级）
+        GTValues.RA.stdBuilder()
+            .itemInputs(
+                ItemList.Casing_Firebricks.get(16),
+                ItemList.Hull_HV.get(1),
+                GTOreDictUnificator.get(OrePrefixes.plate, Materials.StainlessSteel, 8),
+                ItemList.Electric_Piston_HV.get(4),
+                GTOreDictUnificator.get(OrePrefixes.gearGt, Materials.StainlessSteel, 4),
+                GTOreDictUnificator.get(OrePrefixes.frameGt, Materials.StainlessSteel, 1))
+            .fluidInputs(Materials.StainlessSteel.getMolten(576))
+            .itemOutputs(GTNCItemList.LargeSteamCrucibleStainless.get(1))
+            .eut(RECIPE_HV)
+            .duration(20 * 20)
+            .addTo(As);
+
+        // 钛坩埚（EV级）
+        GTValues.RA.stdBuilder()
+            .itemInputs(
+                ItemList.Casing_Firebricks.get(16),
+                ItemList.Hull_EV.get(1),
+                GTOreDictUnificator.get(OrePrefixes.plate, Materials.Titanium, 8),
+                ItemList.Electric_Piston_EV.get(4),
+                GTOreDictUnificator.get(OrePrefixes.gearGt, Materials.Titanium, 4),
+                GTOreDictUnificator.get(OrePrefixes.frameGt, Materials.Titanium, 1))
+            .fluidInputs(Materials.Titanium.getMolten(576))
+            .itemOutputs(GTNCItemList.LargeSteamCrucibleTitanium.get(1))
+            .eut(RECIPE_EV)
+            .duration(20 * 20)
+            .addTo(As);
+
+        // 钨钢坩埚（IV级）
+        GTValues.RA.stdBuilder()
+            .itemInputs(
+                ItemList.Casing_Firebricks.get(16),
+                ItemList.Hull_IV.get(1),
+                GTOreDictUnificator.get(OrePrefixes.plate, Materials.TungstenSteel, 8),
+                ItemList.Electric_Piston_IV.get(4),
+                GTOreDictUnificator.get(OrePrefixes.gearGt, Materials.TungstenSteel, 4),
+                GTOreDictUnificator.get(OrePrefixes.frameGt, Materials.TungstenSteel, 1))
+            .fluidInputs(Materials.TungstenSteel.getMolten(576))
+            .itemOutputs(GTNCItemList.LargeSteamCrucibleTungstenSteel.get(1))
+            .eut(RECIPE_IV)
+            .duration(20 * 20)
+            .addTo(As);
 
         // 蒸汽蜜蜂
         GTRecipeBuilder.builder()

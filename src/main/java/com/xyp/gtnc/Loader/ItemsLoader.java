@@ -42,6 +42,41 @@ public class ItemsLoader {
 
     public static void registryMetaItems() {
 
+        // #tr item.MetaItem.1.name
+        // # High Computing Power Chip Tier I
+        // # zh_CN 高算力芯片 I
+        GTNCItemList.ChipTier1.set(MetaItemAdder.initItem(1));
+
+        // #tr item.MetaItem.2.name
+        // # High Computing Power Chip Tier II
+        // # zh_CN 高算力芯片 II
+        GTNCItemList.ChipTier2.set(MetaItemAdder.initItem(2));
+
+        // #tr item.MetaItem.3.name
+        // # High Computing Power Chip Tier III
+        // # zh_CN 高算力芯片 III
+        GTNCItemList.ChipTier3.set(MetaItemAdder.initItem(3));
+
+        // #tr item.MetaItem.4.name
+        // # High Computing Power Chip Tier IV
+        // # zh_CN 高算力芯片 IV
+        GTNCItemList.ChipTier4.set(MetaItemAdder.initItem(4));
+
+        // #tr item.MetaItem.5.name
+        // # High Computing Power Chip Tier V
+        // # zh_CN 高算力芯片 V
+        GTNCItemList.ChipTier5.set(MetaItemAdder.initItem(5));
+
+        // #tr item.MetaItem.6.name
+        // # High Computing Power Chip Tier VI
+        // # zh_CN 高算力芯片 VI
+        GTNCItemList.ChipTier6.set(MetaItemAdder.initItem(6));
+
+        // #tr item.MetaItem.7.name
+        // # High Computing Power Chip Tier VII
+        // # zh_CN 高算力芯片 VII
+        GTNCItemList.ChipTier7.set(MetaItemAdder.initItem(7));
+
         // #tr item.MetaItem.30.name
         // # Bioware SMD Inductor
         // # zh_CN 生物贴片电感

@@ -10,6 +10,7 @@ import com.xyp.gtnc.Common.machines.cover.WirelessMultiEnergyCover;
 import com.xyp.gtnc.Common.machines.hatch.SuperMTEHatchCraftingInputME;
 import com.xyp.gtnc.Common.machines.hatch.SuperMTEHatchCraftingInputSlave;
 import com.xyp.gtnc.Common.machines.hatch.VaultPortHatch;
+import com.xyp.gtnc.Common.machines.multiblock.GTNCGeneralChemicalFactory;
 import com.xyp.gtnc.Common.machines.multiblock.LargeCombProcessor;
 import com.xyp.gtnc.Common.machines.multiblock.LargeOreProcessor;
 import com.xyp.gtnc.Common.machines.multiblock.MTEMegaIndustrialApiary;
@@ -23,6 +24,7 @@ import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamCentrifuge;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamChemicalReactor;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamCircuitAssembler;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamCompressor;
+import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamCrucible;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamCutting;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamDistillationTower;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamElectrolyzer;
@@ -394,6 +396,72 @@ public class MachineLoader {
                 StatCollector.translateToLocal("NameLargeSteamCombProcessor")));
         AnimatedTooltipHandler
             .addItemTooltip(GTNCItemList.LargeSteamCombProcessor.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        // #tr NameLargeSteamCrucibleSteel
+        // # Large Steam Steel Crucible
+        // # zh_CN 大型蒸汽钢坩埚
+        GTNCItemList.LargeSteamCrucibleSteel.set(
+            new LargeSteamCrucible.LargeSteamCrucibleSteel(
+                GTNCMachineID.LARGE_STEAM_CRUCIBLE_STEEL.ID,
+                "LargeSteamCrucibleSteel",
+                StatCollector.translateToLocal("NameLargeSteamCrucibleSteel")));
+        AnimatedTooltipHandler
+            .addItemTooltip(GTNCItemList.LargeSteamCrucibleSteel.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        // #tr NameLargeSteamCrucibleInvar
+        // # Large Steam Invar Crucible
+        // # zh_CN 大型蒸汽殷钢坩埚
+        GTNCItemList.LargeSteamCrucibleInvar.set(
+            new LargeSteamCrucible.LargeSteamCrucibleInvar(
+                GTNCMachineID.LARGE_STEAM_CRUCIBLE_INVAR.ID,
+                "LargeSteamCrucibleInvar",
+                StatCollector.translateToLocal("NameLargeSteamCrucibleInvar")));
+        AnimatedTooltipHandler
+            .addItemTooltip(GTNCItemList.LargeSteamCrucibleInvar.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        // #tr NameLargeSteamCrucibleStainless
+        // # Large Steam Stainless Steel Crucible
+        // # zh_CN 大型蒸汽不锈钢坩埚
+        GTNCItemList.LargeSteamCrucibleStainless.set(
+            new LargeSteamCrucible.LargeSteamCrucibleStainless(
+                GTNCMachineID.LARGE_STEAM_CRUCIBLE_STAINLESS.ID,
+                "LargeSteamCrucibleStainless",
+                StatCollector.translateToLocal("NameLargeSteamCrucibleStainless")));
+        AnimatedTooltipHandler
+            .addItemTooltip(GTNCItemList.LargeSteamCrucibleStainless.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        // #tr NameLargeSteamCrucibleTitanium
+        // # Large Steam Titanium Crucible
+        // # zh_CN 大型蒸汽钛坩埚
+        GTNCItemList.LargeSteamCrucibleTitanium.set(
+            new LargeSteamCrucible.LargeSteamCrucibleTitanium(
+                GTNCMachineID.LARGE_STEAM_CRUCIBLE_TITANIUM.ID,
+                "LargeSteamCrucibleTitanium",
+                StatCollector.translateToLocal("NameLargeSteamCrucibleTitanium")));
+        AnimatedTooltipHandler
+            .addItemTooltip(GTNCItemList.LargeSteamCrucibleTitanium.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        // #tr NameLargeSteamCrucibleTungstenSteel
+        // # Large Steam Tungstensteel Crucible
+        // # zh_CN 大型蒸汽钨钢坩埚
+        GTNCItemList.LargeSteamCrucibleTungstenSteel.set(
+            new LargeSteamCrucible.LargeSteamCrucibleTungstenSteel(
+                GTNCMachineID.LARGE_STEAM_CRUCIBLE_TUNGSTENSTEEL.ID,
+                "LargeSteamCrucibleTungstenSteel",
+                StatCollector.translateToLocal("NameLargeSteamCrucibleTungstenSteel")));
+        AnimatedTooltipHandler
+            .addItemTooltip(GTNCItemList.LargeSteamCrucibleTungstenSteel.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        // #tr NameGTNCGeneralChemicalFactory
+        // # General Chemical Factory
+        // # zh_CN 通用化工厂
+        GTNCItemList.GeneralChemicalFactory.set(
+            new GTNCGeneralChemicalFactory(
+                GTNCMachineID.GENERAL_CHEMICAL_FACTORY.ID,
+                "GeneralChemicalFactory",
+                StatCollector.translateToLocal("NameGTNCGeneralChemicalFactory")));
+        AnimatedTooltipHandler
+            .addItemTooltip(GTNCItemList.GeneralChemicalFactory.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
 
     }
 
@@ -4109,8 +4177,7 @@ public class MachineLoader {
                 TextureFactory.of(
                     Textures.BlockIcons.MACHINE_CASINGS[1][0],
                     TextureFactory.of(Textures.BlockIcons.OVERLAYS_ENERGY_ON_WIRELESS_4A[0])),
-                context -> new WirelessMultiEnergyCover(context, (int) GTValues.V[tier], 4),
-                CoverRegistry.INTERCEPTS_RIGHT_CLICK_COVER_PLACER);
+                context -> new WirelessMultiEnergyCover(context, (int) GTValues.V[tier], 4));
         }
 
     }

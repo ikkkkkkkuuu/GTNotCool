@@ -6,12 +6,16 @@ import com.xyp.gtnc.Common.recipe.gregtech.FurnaceRecipes;
 import com.xyp.gtnc.Common.recipe.gregtech.LaserEngraverRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.CombProcessingRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.CraftingTableRecipes;
+import com.xyp.gtnc.Common.recipe.gtnc.CrucibleRecipes;
+import com.xyp.gtnc.Common.recipe.gtnc.GeneralChemicalFactoryRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.OreProcessingRecipes;
 
 public class RecipeLoader {
 
     public static void loadRecipes() {
 
+        GeneralChemicalFactoryRecipes.loadRecipes();
+        CrucibleRecipes.loadRecipes();
         BenderRecipes.loadRecipes();
         CraftingTableRecipes.loadRecipes();
         AssemblerRecipes.loadRecipes();

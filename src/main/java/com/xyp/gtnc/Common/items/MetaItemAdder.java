@@ -2,6 +2,7 @@ package com.xyp.gtnc.Common.items;
 
 import static com.xyp.gtnc.ScienceNotCool.RESOURCE_ROOT_ID;
 
+import java.util.Arrays;
 import java.util.List;
 
 import net.minecraft.client.renderer.texture.IIconRegister;
@@ -109,7 +110,9 @@ public class MetaItemAdder extends ItemAdder_Basic implements IHaloRenderItem {
     @Override
     @SideOnly(Side.CLIENT)
     public void getSubItems(Item aItem, CreativeTabs aCreativeTabs, List<ItemStack> aList) {
-        for (int meta : META_SET) {
+        int[] metas = META_SET.toIntArray();
+        Arrays.sort(metas);
+        for (int meta : metas) {
             aList.add(new ItemStack(ItemsLoader.metaItem, 1, meta));
         }
     }

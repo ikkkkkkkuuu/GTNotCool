@@ -6,6 +6,8 @@ import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.recipe.RecipeMap;
 import gregtech.api.recipe.RecipeMapBackend;
 import gregtech.api.recipe.RecipeMapBuilder;
+import gregtech.api.recipe.maps.LargeNEIFrontend;
+import gregtech.nei.formatter.SimpleSpecialValueFormatter;
 import gtPlusPlus.api.recipe.QuantumForceTransformerFrontend;
 
 public class GTNCRecipeMaps {
@@ -29,6 +31,30 @@ public class GTNCRecipeMaps {
         .progressBar(GTUITextures.PROGRESSBAR_ARROW_MULTIPLE)
         .neiHandlerInfo(builder -> builder.setDisplayStack(GTNCItemList.LargeSteamCombProcessor.get(1)))
         .frontend(QuantumForceTransformerFrontend::new)
+        .build();
+
+    // #tr gtnc.recipe.SteamCrucibleRecipes
+    // # Crucible
+    // # zh_CN 坩埚
+    public static RecipeMap<RecipeMapBackend> SteamCrucibleRecipes = RecipeMapBuilder
+        .of("gtnc.recipe.SteamCrucibleRecipes")
+        .maxIO(6, 1, 6, 6)
+        // #tr value.crucible_tier
+        // # Requires Crucible Tier: %s
+        // # zh_CN 需要坩埚等级：%s
+        .neiSpecialInfoFormatter(new SimpleSpecialValueFormatter("value.crucible_tier"))
+        .progressBar(GTUITextures.PROGRESSBAR_ARROW_MULTIPLE)
+        .frontend(LargeNEIFrontend::new)
+        .build();
+
+    // #tr gtnc.recipe.GeneralChemicalFactory
+    // # General Chemical Factory
+    // # zh_CN 通用化工厂
+    public static RecipeMap<RecipeMapBackend> GeneralChemicalFactoryRecipes = RecipeMapBuilder
+        .of("gtnc.recipe.GeneralChemicalFactory")
+        .maxIO(12, 12, 9, 9)
+        .progressBar(GTUITextures.PROGRESSBAR_ARROW_MULTIPLE)
+        .frontend(LargeNEIFrontend::new)
         .build();
 
 }
