@@ -221,8 +221,6 @@ public class LargeSteamElectrolyzer extends GTNCSteamMultiBlockBase<LargeSteamEl
             return;
         }
         checkCasingMin(errors, mCountCasing, 3);
-        checkHasOutputBus(errors);
-        checkHasOutputHatch(errors);
         enableHigherRecipe = getUpgradeTier(getControllerSlot());
     }
 

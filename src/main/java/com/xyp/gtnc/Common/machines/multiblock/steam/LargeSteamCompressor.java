@@ -247,9 +247,6 @@ public class LargeSteamCompressor extends GTNCSteamMultiBlockBase<LargeSteamComp
             return;
         }
         checkCasingMin(errors, mCountCasing, 3);
-        checkHasInputBus(errors);
-        checkHasInputHatch(errors);
-        checkHasOutputBus(errors);
         enableHigherRecipe = getUpgradeTier(getControllerSlot());
     }
 

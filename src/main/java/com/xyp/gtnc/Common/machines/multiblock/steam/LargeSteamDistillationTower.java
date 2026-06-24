@@ -298,8 +298,6 @@ public class LargeSteamDistillationTower extends GTNCSteamMultiBlockBase<LargeSt
         updateHatchTexture();
 
         checkCasingMin(errors, mCountCasing, 7 * (mHeight + 1) - 5);
-        checkHasInputHatch(errors);
-        checkHasOutputHatch(errors);
         enableHigherRecipe = getUpgradeTier(getControllerSlot());
     }
 

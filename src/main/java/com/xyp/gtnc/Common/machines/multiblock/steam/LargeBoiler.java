@@ -4,11 +4,17 @@ import static gregtech.api.util.GTStructureUtility.buildHatchAdder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import net.minecraft.block.Block;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
+import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
 
@@ -19,6 +25,7 @@ import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
 import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
 import com.gtnewhorizon.structurelib.structure.StructureUtility;
+import com.xyp.gtnc.utils.world.steam.SteamWirelessNetworkManager;
 
 import gregtech.GTMod;
 import gregtech.api.GregTechAPI;
@@ -43,6 +50,8 @@ import gregtech.api.util.GTOreDictUnificator;
 import gregtech.api.util.GTRecipe;
 import gregtech.api.util.GTUtility;
 import gregtech.api.util.MultiblockTooltipBuilder;
+import mcp.mobius.waila.api.IWailaConfigHandler;
+import mcp.mobius.waila.api.IWailaDataAccessor;
 
 // #tr NameLargeBoilerBronze
 // # Large Bronze Boiler
@@ -84,6 +93,10 @@ import gregtech.api.util.MultiblockTooltipBuilder;
 // # No preheating required.
 // # zh_CN 无需预热
 
+// #tr Tooltip_LargeBoiler_01
+// # Use Screwdriver to toggle Wireless Steam Mode.
+// # zh_CN §d使用螺丝刀切换无线蒸汽模式
+
 // #tr Tooltip_LargeBoiler_Casing_00
 // # Any Machine Block
 // # zh_CN 任意机械方块
@@ -95,6 +108,8 @@ import gregtech.api.util.MultiblockTooltipBuilder;
 public abstract class LargeBoiler extends MTEEnhancedMultiBlockBase<LargeBoiler> implements ISurvivalConstructable {
 
     public boolean firstRun = true;
+    public boolean wirelessMode = false;
+    public UUID ownerUUID;
     public int integratedCircuitConfig = 0;
     public long excessWater = 0;
     public int excessFuel = 0;
@@ -277,7 +292,11 @@ public abstract class LargeBoiler extends MTEEnhancedMultiBlockBase<LargeBoiler>
 
                 if (depleteInput(Materials.Water.getFluid(amount))
                     || depleteInput(GTModHandler.getDistilledWater(amount))) {
-                    addOutput(Materials.Steam.getGas(tGeneratedEU));
+                    if (wirelessMode && ownerUUID != null) {
+                        SteamWirelessNetworkManager.addSteamToGlobalSteamMap(ownerUUID, tGeneratedEU);
+                    } else {
+                        addOutput(Materials.Steam.getGas(tGeneratedEU));
+                    }
                 } else {
                     explodeMultiblock();
                 }
@@ -295,6 +314,10 @@ public abstract class LargeBoiler extends MTEEnhancedMultiBlockBase<LargeBoiler>
         aNBT.setInteger("excessFuel", excessFuel);
         aNBT.setLong("excessWater", excessWater);
         aNBT.setInteger("excessProjectedEU", excessProjectedEU);
+        aNBT.setBoolean("wirelessMode", wirelessMode);
+        if (ownerUUID != null) {
+            aNBT.setString("ownerUUID", ownerUUID.toString());
+        }
     }
 
     @Override
@@ -303,6 +326,67 @@ public abstract class LargeBoiler extends MTEEnhancedMultiBlockBase<LargeBoiler>
         excessFuel = aNBT.getInteger("excessFuel");
         excessWater = aNBT.getLong("excessWater");
         excessProjectedEU = aNBT.getInteger("excessProjectedEU");
+        wirelessMode = aNBT.getBoolean("wirelessMode");
+        if (aNBT.hasKey("ownerUUID")) {
+            try {
+                ownerUUID = UUID.fromString(aNBT.getString("ownerUUID"));
+            } catch (IllegalArgumentException ignored) {}
+        }
+    }
+
+    @Override
+    public void onFirstTick(IGregTechTileEntity aBaseMetaTileEntity) {
+        super.onFirstTick(aBaseMetaTileEntity);
+        if (ownerUUID == null) {
+            ownerUUID = aBaseMetaTileEntity.getOwnerUuid();
+        }
+    }
+
+    @Override
+    public void onScrewdriverRightClick(ForgeDirection side, EntityPlayer aPlayer, float aX, float aY, float aZ,
+        ItemStack aTool) {
+        if (side == getBaseMetaTileEntity().getFrontFacing()) {
+            wirelessMode = !wirelessMode;
+            GTUtility.sendChatToPlayer(
+                aPlayer,
+                wirelessMode ? StatCollector.translateToLocal("GT5U.chat.wireless_mode.enabled")
+                    : StatCollector.translateToLocal("GT5U.chat.wireless_mode.disabled"));
+        }
+    }
+
+    @Override
+    public void getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor,
+        IWailaConfigHandler config) {
+        super.getWailaBody(itemStack, currenttip, accessor, config);
+        NBTTagCompound tag = accessor.getNBTData();
+        if (tag.getBoolean("wirelessMode")) {
+            currenttip.add(
+                StatCollector.translateToLocal("GT5U.turbine.wireless_mode") + ": "
+                    + EnumChatFormatting.GREEN
+                    + "ON"
+                    + EnumChatFormatting.RESET);
+            if (tag.hasKey("networkSteam")) {
+                currenttip.add(
+                    StatCollector.translateToLocal("GTNC.info.wireless_steam") + ": "
+                        + EnumChatFormatting.GOLD
+                        + tag.getString("networkSteam")
+                        + EnumChatFormatting.RESET
+                        + " L");
+            }
+        }
+    }
+
+    @Override
+    public void getWailaNBTData(EntityPlayerMP player, TileEntity tile, NBTTagCompound tag, World world, int x, int y,
+        int z) {
+        super.getWailaNBTData(player, tile, tag, world, x, y, z);
+        tag.setBoolean("wirelessMode", wirelessMode);
+        if (wirelessMode && ownerUUID != null) {
+            tag.setString(
+                "networkSteam",
+                SteamWirelessNetworkManager.getUserSteam(ownerUUID)
+                    .toString());
+        }
     }
 
     @Override
@@ -426,6 +510,7 @@ public abstract class LargeBoiler extends MTEEnhancedMultiBlockBase<LargeBoiler>
             tt.addMachineType(StatCollector.translateToLocal("LargeBoilerRecipeType"))
                 .addInfo(StatCollector.translateToLocal("Tooltip_LargeBoilerBronze_00"))
                 .addInfo(StatCollector.translateToLocal("Tooltip_LargeBoiler_00"))
+                .addInfo(StatCollector.translateToLocal("Tooltip_LargeBoiler_01"))
                 .beginStructureBlock(3, 5, 3, false)
                 .addOutputHatch(StatCollector.translateToLocal("Tooltip_LargeBoiler_Casing_00"), 1)
                 .addInputBus(StatCollector.translateToLocal("Tooltip_LargeBoiler_Casing_01"), 1)
@@ -507,6 +592,7 @@ public abstract class LargeBoiler extends MTEEnhancedMultiBlockBase<LargeBoiler>
             tt.addMachineType(StatCollector.translateToLocal("LargeBoilerRecipeType"))
                 .addInfo(StatCollector.translateToLocal("Tooltip_LargeBoilerSteel_00"))
                 .addInfo(StatCollector.translateToLocal("Tooltip_LargeBoiler_00"))
+                .addInfo(StatCollector.translateToLocal("Tooltip_LargeBoiler_01"))
                 .beginStructureBlock(3, 5, 3, false)
                 .addOutputHatch(StatCollector.translateToLocal("Tooltip_LargeBoiler_Casing_00"), 1)
                 .addInputBus(StatCollector.translateToLocal("Tooltip_LargeBoiler_Casing_01"), 1)
@@ -588,6 +674,7 @@ public abstract class LargeBoiler extends MTEEnhancedMultiBlockBase<LargeBoiler>
             tt.addMachineType(StatCollector.translateToLocal("LargeBoilerRecipeType"))
                 .addInfo(StatCollector.translateToLocal("Tooltip_LargeBoilerTitanium_00"))
                 .addInfo(StatCollector.translateToLocal("Tooltip_LargeBoiler_00"))
+                .addInfo(StatCollector.translateToLocal("Tooltip_LargeBoiler_01"))
                 .beginStructureBlock(3, 5, 3, false)
                 .addOutputHatch(StatCollector.translateToLocal("Tooltip_LargeBoiler_Casing_00"), 1)
                 .addInputBus(StatCollector.translateToLocal("Tooltip_LargeBoiler_Casing_01"), 1)
@@ -669,6 +756,7 @@ public abstract class LargeBoiler extends MTEEnhancedMultiBlockBase<LargeBoiler>
             tt.addMachineType(StatCollector.translateToLocal("LargeBoilerRecipeType"))
                 .addInfo(StatCollector.translateToLocal("Tooltip_LargeBoilerTungstenSteel_00"))
                 .addInfo(StatCollector.translateToLocal("Tooltip_LargeBoiler_00"))
+                .addInfo(StatCollector.translateToLocal("Tooltip_LargeBoiler_01"))
                 .beginStructureBlock(3, 5, 3, false)
                 .addOutputHatch(StatCollector.translateToLocal("Tooltip_LargeBoiler_Casing_00"), 1)
                 .addInputBus(StatCollector.translateToLocal("Tooltip_LargeBoiler_Casing_01"), 1)

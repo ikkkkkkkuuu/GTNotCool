@@ -245,9 +245,6 @@ public class LargeSteamAssembler extends GTNCSteamMultiBlockBase<LargeSteamAssem
             return;
         }
         checkCasingMin(errors, mCountCasing, 3);
-        checkHasInputBus(errors);
-        checkHasInputHatch(errors);
-        checkHasOutputBus(errors);
         enableHigherRecipe = getUpgradeTier(getControllerSlot());
     }
 

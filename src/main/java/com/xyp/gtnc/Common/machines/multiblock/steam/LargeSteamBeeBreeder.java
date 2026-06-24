@@ -374,9 +374,6 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
         if (!checkPiece(STRUCTURE_PIECE_MAIN, HORIZONTAL_OFF_SET, VERTICAL_OFF_SET, DEPTH_OFF_SET, errors)) return;
         tierMachine = 1;
         updateHatchTexture();
-        checkHasInputBus(errors);
-        checkHasInputHatch(errors);
-        checkHasOutputBus(errors);
         hasStainlessSteelGear = checkStainlessSteelGear(getControllerSlot());
     }
 

@@ -250,9 +250,6 @@ public class LargeSteamExtruder extends GTNCSteamMultiBlockBase<LargeSteamExtrud
             return;
         }
         checkCasingMin(errors, mCountCasing, 20);
-        checkHasInputBus(errors);
-        checkHasInputHatch(errors);
-        checkHasOutputBus(errors);
         enableHigherRecipe = getUpgradeTier(getControllerSlot());
     }
 

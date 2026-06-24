@@ -195,9 +195,6 @@ public class LargeSteamWireMill extends GTNCSteamMultiBlockBase<LargeSteamWireMi
             return;
         }
         checkCasingMin(errors, mCountCasing, 3);
-        checkHasInputBus(errors);
-        checkHasInputHatch(errors);
-        checkHasOutputBus(errors);
         enableHigherRecipe = getUpgradeTier(getControllerSlot());
     }
 

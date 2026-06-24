@@ -211,8 +211,6 @@ public class LargeSteamLaserEngraver extends GTNCSteamMultiBlockBase<LargeSteamL
             return;
         }
         checkCasingMin(errors, mCountCasing, 3);
-        checkHasAnyInput(errors);
-        checkHasOutputBus(errors);
         enableHigherRecipe = getUpgradeTier(getControllerSlot());
     }
 

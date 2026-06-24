@@ -247,9 +247,6 @@ public class LargeSteamCutting extends GTNCSteamMultiBlockBase<LargeSteamCutting
             return;
         }
         checkCasingMin(errors, mCountCasing, 5);
-        checkHasInputBus(errors);
-        checkHasInputHatch(errors);
-        checkHasOutputBus(errors);
         enableHigherRecipe = getUpgradeTier(getControllerSlot());
     }
 

@@ -197,9 +197,6 @@ public class LargeSteamFluidSolidifier extends GTNCSteamMultiBlockBase<LargeStea
             return;
         }
         checkCasingMin(errors, mCountCasing, 3);
-        checkHasInputBus(errors);
-        checkHasInputHatch(errors);
-        checkHasOutputBus(errors);
         enableHigherRecipe = getUpgradeTier(getControllerSlot());
     }
 

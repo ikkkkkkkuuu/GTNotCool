@@ -6,10 +6,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import javax.annotation.Nullable;
 
 import net.minecraft.block.Block;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -21,10 +23,13 @@ import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 
+import com.xyp.gtnc.utils.world.steam.SteamWirelessNetworkManager;
+
 import gregtech.api.enums.GTValues;
 import gregtech.api.enums.Materials;
 import gregtech.api.enums.OrePrefixes;
 import gregtech.api.interfaces.IOutputBus;
+import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.logic.ProcessingLogic;
 import gregtech.api.metatileentity.implementations.MTEHatch;
 import gregtech.api.metatileentity.implementations.MTEHatchInput;
@@ -51,12 +56,56 @@ import mcp.mobius.waila.api.IWailaDataAccessor;
  */
 public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<T>> extends MTESteamMultiBlockBase<T> {
 
+    // #tr GT5U.chat.wireless_mode.enabled
+    // # Wireless Mode: Enabled
+    // # zh_CN §d无线模式：已启用
+
+    // #tr GT5U.chat.wireless_mode.disabled
+    // # Wireless Mode: Disabled
+    // # zh_CN §7无线模式：已禁用
+
+    // #tr GT5U.turbine.wireless_mode
+    // # Wireless Mode
+    // # zh_CN 无线模式
+
+    // #tr GTNC.info.wireless_steam
+    // # Network Steam
+    // # zh_CN 网络蒸汽
+
+    // #tr GTNC.info.steam_consumed
+    // # Steam Used：
+    // # zh_CN 本次蒸汽消耗
+
+    protected boolean wirelessMode = false;
+    protected UUID ownerUUID;
+    protected long totalSteamConsumed = 0;
+
     public GTNCSteamMultiBlockBase(String aName) {
         super(aName);
     }
 
     public GTNCSteamMultiBlockBase(int aID, String aName, String aNameRegional) {
         super(aID, aName, aNameRegional);
+    }
+
+    @Override
+    public void onFirstTick(IGregTechTileEntity aBaseMetaTileEntity) {
+        super.onFirstTick(aBaseMetaTileEntity);
+        if (ownerUUID == null) {
+            ownerUUID = aBaseMetaTileEntity.getOwnerUuid();
+        }
+    }
+
+    @Override
+    public void onScrewdriverRightClick(ForgeDirection side, EntityPlayer aPlayer, float aX, float aY, float aZ,
+        ItemStack aTool) {
+        if (side == getBaseMetaTileEntity().getFrontFacing()) {
+            wirelessMode = !wirelessMode;
+            GTUtility.sendChatToPlayer(
+                aPlayer,
+                wirelessMode ? StatCollector.translateToLocal("GT5U.chat.wireless_mode.enabled")
+                    : StatCollector.translateToLocal("GT5U.chat.wireless_mode.disabled"));
+        }
     }
 
     // region Fluid I/O
@@ -178,6 +227,9 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
      */
     @Override
     public boolean tryConsumeSteam(int aAmount) {
+        if (wirelessMode && ownerUUID != null) {
+            return SteamWirelessNetworkManager.addSteamToGlobalSteamMap(ownerUUID, -aAmount);
+        }
         return this.depleteInput(Materials.Steam.getGas(aAmount));
     }
 
@@ -366,7 +418,9 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
                 }
             }
 
+            totalSteamConsumed = totalSteamMb;
             if (totalSteamMb > 0 && !tryConsumeSteam((int) totalSteamMb)) {
+                totalSteamConsumed = 0;
                 stopMachine(ShutDownReasonRegistry.POWER_LOSS);
                 return CheckRecipeResultRegistry.insufficientPower(totalSteamMb);
             }
@@ -555,6 +609,24 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
             StatCollector.translateToLocalFormatted(
                 "gtpp.infodata.multi.steam.parallel",
                 "" + EnumChatFormatting.YELLOW + getMaxParallelRecipes()));
+        info.add(
+            StatCollector.translateToLocal("GT5U.turbine.wireless_mode") + ": "
+                + (wirelessMode ? EnumChatFormatting.GREEN + "ON" : EnumChatFormatting.RED + "OFF")
+                + EnumChatFormatting.RESET);
+        if (wirelessMode && ownerUUID != null) {
+            info.add(
+                StatCollector.translateToLocal("GTNC.info.wireless_steam") + ": "
+                    + EnumChatFormatting.GOLD
+                    + SteamWirelessNetworkManager.getUserSteam(ownerUUID)
+                    + EnumChatFormatting.RESET
+                    + " L");
+        }
+        info.add(
+            StatCollector.translateToLocal("GTNC.info.steam_consumed") + ": "
+                + EnumChatFormatting.AQUA
+                + totalSteamConsumed
+                + EnumChatFormatting.RESET
+                + " L");
         return info.toArray(new String[0]);
     }
 
@@ -578,6 +650,25 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
                 + EnumChatFormatting.YELLOW
                 + GTValues.VN[tag.getInteger("tierMachine") + 2 + (tag.getBoolean("enableHigherRecipe") ? 1 : 0)]
                 + EnumChatFormatting.RESET);
+        if (tag.getBoolean("wirelessMode")) {
+            currenttip.add(
+                StatCollector.translateToLocal("GT5U.turbine.wireless_mode") + ": "
+                    + EnumChatFormatting.GREEN
+                    + "ON"
+                    + EnumChatFormatting.RESET);
+            currenttip.add(
+                StatCollector.translateToLocal("GTNC.info.wireless_steam") + ": "
+                    + EnumChatFormatting.GOLD
+                    + tag.getString("networkSteam")
+                    + EnumChatFormatting.RESET
+                    + " L");
+        }
+        currenttip.add(
+            StatCollector.translateToLocal("GTNC.info.steam_consumed") + ": "
+                + EnumChatFormatting.AQUA
+                + tag.getLong("steamConsumed")
+                + EnumChatFormatting.RESET
+                + " L");
     }
 
     @Override
@@ -587,6 +678,14 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
         tag.setInteger("tierMachine", tierMachine);
         tag.setInteger("parallel", getTrueParallel());
         tag.setBoolean("enableHigherRecipe", getUpgradeTier(getControllerSlot()));
+        tag.setBoolean("wirelessMode", wirelessMode);
+        if (wirelessMode && ownerUUID != null) {
+            tag.setString(
+                "networkSteam",
+                SteamWirelessNetworkManager.getUserSteam(ownerUUID)
+                    .toString());
+        }
+        tag.setLong("steamConsumed", totalSteamConsumed);
     }
 
     @Override
@@ -603,6 +702,10 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
         super.saveNBTData(aNBT);
         aNBT.setInteger("tierMachine", tierMachine);
         aNBT.setBoolean("enableHigherRecipe", enableHigherRecipe);
+        aNBT.setBoolean("wirelessMode", wirelessMode);
+        if (ownerUUID != null) {
+            aNBT.setString("ownerUUID", ownerUUID.toString());
+        }
     }
 
     @Override
@@ -610,6 +713,12 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
         super.loadNBTData(aNBT);
         tierMachine = aNBT.getInteger("tierMachine");
         enableHigherRecipe = aNBT.getBoolean("enableHigherRecipe");
+        wirelessMode = aNBT.getBoolean("wirelessMode");
+        if (aNBT.hasKey("ownerUUID")) {
+            try {
+                ownerUUID = UUID.fromString(aNBT.getString("ownerUUID"));
+            } catch (IllegalArgumentException ignored) {}
+        }
     }
 
     // ---- Static tier resolution helpers used by structure definitions ----

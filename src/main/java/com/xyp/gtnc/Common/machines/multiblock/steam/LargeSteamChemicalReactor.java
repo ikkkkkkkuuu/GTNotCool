@@ -242,10 +242,6 @@ public class LargeSteamChemicalReactor extends GTNCSteamMultiBlockBase<LargeStea
             return;
         }
         checkCasingMin(errors, mCountCasing, 3);
-        checkHasInputBus(errors);
-        checkHasInputHatch(errors);
-        checkHasOutputBus(errors);
-        checkHasOutputHatch(errors);
         enableHigherRecipe = getUpgradeTier(getControllerSlot());
     }
 

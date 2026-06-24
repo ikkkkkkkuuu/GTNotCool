@@ -256,10 +256,6 @@ public class LargeSteamMixer extends GTNCSteamMultiBlockBase<LargeSteamMixer> im
             return;
         }
         checkCasingMin(errors, mCountCasing, 30);
-        checkHasInputBus(errors);
-        checkHasInputHatch(errors);
-        checkHasOutputBus(errors);
-        checkHasOutputHatch(errors);
         enableHigherRecipe = getUpgradeTier(getControllerSlot());
     }
 

@@ -213,9 +213,6 @@ public class LargeSteamCircuitAssembler extends GTNCSteamMultiBlockBase<LargeSte
             return;
         }
         checkCasingMin(errors, mCountCasing, 40);
-        checkHasInputBus(errors);
-        checkHasInputHatch(errors);
-        checkHasOutputBus(errors);
         enableHigherRecipe = getUpgradeTier(getControllerSlot());
     }
 

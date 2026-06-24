@@ -2,6 +2,7 @@ package com.xyp.gtnc;
 
 import net.minecraftforge.common.MinecraftForge;
 
+import com.xyp.gtnc.Common.command.CommandSteamNetwork;
 import com.xyp.gtnc.Common.items.toolbelt.common.BeltEvents;
 import com.xyp.gtnc.Common.items.toolbelt.common.BeltGuiHandler;
 import com.xyp.gtnc.Common.machines.hatch.SuperMTEHatchCraftingInputME;
@@ -11,6 +12,7 @@ import com.xyp.gtnc.Loader.EntityLoader;
 import com.xyp.gtnc.Loader.ItemsLoader;
 import com.xyp.gtnc.Loader.MachineLoader;
 import com.xyp.gtnc.Loader.RecipeLoader;
+import com.xyp.gtnc.utils.event.SteamNetworkEventHandler;
 
 import appeng.api.AEApi;
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -59,6 +61,9 @@ public class CommonProxy {
         FMLCommonHandler.instance()
             .bus()
             .register(beltEvents);
+
+        // 注册无线蒸汽网络事件处理器
+        MinecraftForge.EVENT_BUS.register(new SteamNetworkEventHandler());
     }
 
     // load "Do your mod setup. Build whatever data structures you care about. Register recipes." (Remove if not needed)
@@ -80,7 +85,9 @@ public class CommonProxy {
     }
 
     // register server commands in this event handler (Remove if not needed)
-    public void serverStarting(FMLServerStartingEvent event) {}
+    public void serverStarting(FMLServerStartingEvent event) {
+        event.registerServerCommand(new CommandSteamNetwork());
+    }
 
     public void complete(FMLLoadCompleteEvent event) {
         // 加载配方

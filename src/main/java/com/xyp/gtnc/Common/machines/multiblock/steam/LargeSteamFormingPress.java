@@ -206,9 +206,6 @@ public class LargeSteamFormingPress extends GTNCSteamMultiBlockBase<LargeSteamFo
             return;
         }
         checkCasingMin(errors, mCountCasing, 15);
-        checkHasInputBus(errors);
-        checkHasOutputBus(errors);
-        checkHasOutputBus(errors);
         enableHigherRecipe = getUpgradeTier(getControllerSlot());
     }
 

@@ -68,19 +68,19 @@ import gregtech.api.util.MultiblockTooltipBuilder;
 
 // #tr Tooltip_LargeSteamTurbineBronze_00
 // # Consumes 800L/s Steam, produces 400EU/t at 85%% efficiency.
-// # zh_CN 消耗800升/秒蒸汽，以85%%效率产出400EU/t
+// # zh_CN 消耗800升/秒蒸汽，以85%效率产出400EU/t
 
 // #tr Tooltip_LargeSteamTurbineSteel_00
 // # Consumes 1600L/s Steam, produces 800EU/t at 90%% efficiency.
-// # zh_CN 消耗1600升/秒蒸汽，以90%%效率产出800EU/t
+// # zh_CN 消耗1600升/秒蒸汽，以90%效率产出800EU/t
 
 // #tr Tooltip_LargeSteamTurbineTitanium_00
 // # Consumes 3200L/s Steam, produces 1600EU/t at 95%% efficiency.
-// # zh_CN 消耗3200升/秒蒸汽，以95%%效率产出1600EU/t
+// # zh_CN 消耗3200升/秒蒸汽，以95%效率产出1600EU/t
 
 // #tr Tooltip_LargeSteamTurbineTungstenSteel_00
 // # Consumes 6400L/s Steam, produces 3200EU/t at 100%% efficiency.
-// # zh_CN 消耗6400升/秒蒸汽，以100%%效率产出3200EU/t
+// # zh_CN 消耗6400升/秒蒸汽，以100%效率产出3200EU/t
 
 // #tr Tooltip_LargeSteamTurbine_00
 // # Outputs Distilled Water as byproduct.

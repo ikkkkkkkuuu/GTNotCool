@@ -246,9 +246,6 @@ public class LargeSteamHammer extends GTNCSteamMultiBlockBase<LargeSteamHammer> 
             return;
         }
         checkCasingMin(errors, mCountCasing, 100);
-        checkHasInputBus(errors);
-        checkHasInputHatch(errors);
-        checkHasOutputBus(errors);
         enableHigherRecipe = getUpgradeTier(getControllerSlot());
     }
 

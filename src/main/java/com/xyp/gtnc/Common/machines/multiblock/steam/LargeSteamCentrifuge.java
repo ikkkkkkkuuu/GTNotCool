@@ -259,10 +259,6 @@ public class LargeSteamCentrifuge extends GTNCSteamMultiBlockBase<LargeSteamCent
             return;
         }
         checkCasingMin(errors, mCountCasing, 3);
-        checkHasInputBus(errors);
-        checkHasInputHatch(errors);
-        checkHasOutputBus(errors);
-        checkHasOutputHatch(errors);
         enableHigherRecipe = getUpgradeTier(getControllerSlot());
     }
 
