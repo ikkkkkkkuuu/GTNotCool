@@ -44,8 +44,8 @@ public class DrillingRigRecipes {
             Materials.CarbonMonoxide.getGas(50000000), Materials.Oxygen.getGas(50000000), };
 
         for (int i = 0; i < tier1Out.length; i++) {
-            addDR(DRR, fuel1a, tier1Out[i], 512, 600, 1, i);
-            addDR(DRR, fuel1b, tier1Out[i], 512, 300, 1, i);
+            addDR(DRR, fuel1a, tier1Out[i], 512, 600, 1, i + 1);
+            addDR(DRR, fuel1b, tier1Out[i], 512, 300, 1, i + 1);
         }
 
         // ============ Tier 2 fuels: 高密度肼燃料 / CN3H7O3火箭燃料 ============
@@ -56,8 +56,8 @@ public class DrillingRigRecipes {
             Materials.Radon.getGas(500000), Materials.Helium3.getGas(50000000), };
 
         for (int i = 0; i < tier2Out.length; i++) {
-            addDR(DRR, fuel2a, tier2Out[i], 2048, 300, 2, i);
-            addDR(DRR, fuel2b, tier2Out[i], 2048, 150, 2, i);
+            addDR(DRR, fuel2a, tier2Out[i], 2048, 300, 2, i + 1);
+            addDR(DRR, fuel2b, tier2Out[i], 2048, 150, 2, i + 1);
         }
 
         // ============ Tier 3 fuels: H8N4C2O4火箭燃料 / 钍基液态燃料 ============
@@ -72,11 +72,11 @@ public class DrillingRigRecipes {
             Materials.SaltWater.getFluid(50000000), };
 
         for (int i = 0; i < tier3Out.length; i++) {
-            addDR(DRR, fuel3a, tier3Out[i], 8192, 150, 3, i);
-            addDR(DRR, fuel3b, tier3Out[i], 8192, 75, 3, i);
+            addDR(DRR, fuel3a, tier3Out[i], 8192, 150, 3, i + 1);
+            addDR(DRR, fuel3b, tier3Out[i], 8192, 75, 3, i + 1);
         }
 
-        // ============ Tier 4 fuels: H8N4C2O4 + 钍基替代 ============
+        // ============ Tier 4 ============
         FluidStack[] tier4Out = { Materials.HydrochloricAcid.getFluid(5000000),
             Materials.SulfuricAcid.getFluid(5000000), Materials.NitricAcid.getFluid(5000000),
             Materials.HydrofluoricAcid.getFluid(5000000), Materials.PhosphoricAcid.getFluid(5000000),
@@ -84,8 +84,8 @@ public class DrillingRigRecipes {
             WerkstoffLoader.Oganesson.getFluidOrGas(64000), };
 
         for (int i = 0; i < tier4Out.length; i++) {
-            addDR(DRR, fuel3a, tier4Out[i], 8192, 150, 4, i);
-            addDR(DRR, fuel3b, tier4Out[i], 8192, 75, 4, i);
+            addDR(DRR, fuel3a, tier4Out[i], 8192, 150, 4, i + 1);
+            addDR(DRR, fuel3b, tier4Out[i], 8192, 75, 4, i + 1);
         }
 
         // ============ Tier 5 ============
@@ -93,14 +93,14 @@ public class DrillingRigRecipes {
             Materials.Copper.getMolten(10000), Materials.Gold.getMolten(8000), };
 
         for (int i = 0; i < tier5Out.length; i++) {
-            addDR(DRR, fuel3a, tier5Out[i], 32768, 150, 5, i);
-            addDR(DRR, fuel3b, tier5Out[i], 32768, 75, 5, i);
+            addDR(DRR, fuel3a, tier5Out[i], 32768, 150, 5, i + 1);
+            addDR(DRR, fuel3b, tier5Out[i], 32768, 75, 5, i + 1);
         }
 
         // ============ Tier 6: 五级硅岩基燃料 → 矮星物质 ============
         FluidStack fuel6 = GGMaterial.naquadahBasedFuelMkV.getFluidOrGas(10000);
-        addDR(DRR, fuel6, Materials.WhiteDwarfMatter.getMolten(50000), 131072, 750, 6, 0);
-        addDR(DRR, fuel6, Materials.BlackDwarfMatter.getMolten(50000), 131072, 750, 6, 1);
+        addDR(DRR, fuel6, Materials.WhiteDwarfMatter.getMolten(50000), 131072, 750, 6, 1);
+        addDR(DRR, fuel6, Materials.BlackDwarfMatter.getMolten(50000), 131072, 750, 6, 2);
 
     }
 }
