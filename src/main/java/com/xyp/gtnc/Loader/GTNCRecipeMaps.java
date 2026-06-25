@@ -57,4 +57,17 @@ public class GTNCRecipeMaps {
         .frontend(LargeNEIFrontend::new)
         .build();
 
+    // #tr gtnc.recipe.DrillingRigRecipes
+    // # Drilling Rig
+    // # zh_CN 钻井平台
+    public static RecipeMap<RecipeMapBackend> DrillingRigRecipes = RecipeMapBuilder.of("gtnc.recipe.DrillingRigRecipes")
+        .maxIO(6, 6, 6, 6)
+        // #tr value.drilling_tier
+        // # Requires Drilling Tier: %s
+        // # zh_CN 需要管道等级：%s
+        .neiSpecialInfoFormatter(new SimpleSpecialValueFormatter("value.drilling_tier"))
+        .progressBar(GTUITextures.PROGRESSBAR_ARROW_MULTIPLE)
+        .frontend(LargeNEIFrontend::new)
+        .build();
+
 }

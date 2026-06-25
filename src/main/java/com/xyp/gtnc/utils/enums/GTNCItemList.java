@@ -78,6 +78,8 @@ public enum GTNCItemList implements IItemContainer {
 
     GeneralChemicalFactory,
 
+    DrillingRig,
+
     SteamTurbineLV,
     SteamTurbineMV,
     SteamTurbineHV,

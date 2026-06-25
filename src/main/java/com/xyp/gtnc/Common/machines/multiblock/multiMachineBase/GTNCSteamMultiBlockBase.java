@@ -23,11 +23,13 @@ import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 
+import org.jetbrains.annotations.NotNull;
+
+import com.xyp.gtnc.utils.enums.GTNCItemList;
 import com.xyp.gtnc.utils.world.steam.SteamWirelessNetworkManager;
 
 import gregtech.api.enums.GTValues;
 import gregtech.api.enums.Materials;
-import gregtech.api.enums.OrePrefixes;
 import gregtech.api.interfaces.IOutputBus;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.logic.ProcessingLogic;
@@ -37,7 +39,6 @@ import gregtech.api.metatileentity.implementations.MTEHatchInputBus;
 import gregtech.api.metatileentity.implementations.MTEHatchOutputBus;
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
-import gregtech.api.util.GTOreDictUnificator;
 import gregtech.api.util.GTUtility;
 import gregtech.api.util.shutdown.ShutDownReasonRegistry;
 import gregtech.common.tileentities.machines.IDualInputHatch;
@@ -79,6 +80,8 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
     protected boolean wirelessMode = false;
     protected UUID ownerUUID;
     protected long totalSteamConsumed = 0;
+    protected int mUpgradeTier = 0;
+    protected boolean mUpgraded = false;
 
     public GTNCSteamMultiBlockBase(String aName) {
         super(aName);
@@ -106,6 +109,48 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
                 wirelessMode ? StatCollector.translateToLocal("GT5U.chat.wireless_mode.enabled")
                     : StatCollector.translateToLocal("GT5U.chat.wireless_mode.disabled"));
         }
+    }
+
+    @Override
+    public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
+        super.onPostTick(aBaseMetaTileEntity, aTick);
+        if (aTick % 20 == 0) {
+            checkUpgrade(aBaseMetaTileEntity);
+        }
+    }
+
+    /**
+     * Check controller slot for upgrade chip and apply upgrade.
+     * Upward compatible only: higher tier chip is consumed, lower tier is rejected.
+     */
+    protected void checkUpgrade(IGregTechTileEntity aBaseMetaTileEntity) {
+        ItemStack aGuiStack = this.getControllerSlot();
+        if (aGuiStack == null) return;
+        for (int i = 7; i >= 1; i--) {
+            GTNCItemList chip = GTNCItemList.valueOf("ChipTier" + i);
+            if (chip.hasBeenSet() && GTUtility.areStacksEqual(aGuiStack, chip.get(1))) {
+                if (i > mUpgradeTier) {
+                    this.mUpgraded = true;
+                    this.mUpgradeTier = i;
+                    this.enableHigherRecipe = true;
+                    aGuiStack.stackSize--;
+                    if (aGuiStack.stackSize <= 0) {
+                        this.mInventory[1] = null;
+                    }
+                }
+                return;
+            }
+        }
+    }
+
+    protected float getUpgradeSpeedBonus() {
+        if (!mUpgraded || mUpgradeTier <= 0) return 1.0f;
+        return (float) Math.max(0.01, 1.0 / (1.0 + mUpgradeTier * 0.2));
+    }
+
+    protected int getUpgradeParallelBonus() {
+        if (!mUpgraded) return 0;
+        return mUpgradeTier * 16;
     }
 
     // region Fluid I/O
@@ -340,7 +385,6 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
 
     @Override
     public CheckRecipeResult checkProcessing() {
-        enableHigherRecipe = getUpgradeTier(getControllerSlot());
         if (!crossRecipeParallelEnabled || inCrossRecipeProcessing) {
             return super.checkProcessing();
         }
@@ -518,12 +562,12 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
     // region Batch Mode, Perfect Overclock & Input Separation
 
     // #tr Tooltip_GTNC_SteamTierInfo
-    // # Bronze machine recipe tier: HV, Steel machine recipe tier: EV
-    // # zh_CN 青铜机器配方等级:HV 钢机器配方等级:EV
+    // # Bronze machine recipe tier: LV, Steel machine recipe tier: V
+    // # zh_CN 青铜机器配方等级:LV 钢机器配方等级:MV
 
     // #tr Tooltip_GTNC_SteamGearInfo
     // # Insert Stainless Steel gear into controller for recipe tier +1
-    // # zh_CN 在主机里插入不锈钢齿轮配方等级+1
+    // # zh_CN 在主机里插入算力芯片配方等级+1 越高等级加的越高
 
     @Override
     public boolean supportsBatchMode() {
@@ -543,8 +587,16 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
      */
     @Override
     protected ProcessingLogic createProcessingLogic() {
-        return new ProcessingLogic().enablePerfectOverclock()
-            .setMaxParallelSupplier(this::getTrueParallel);
+        return new ProcessingLogic() {
+
+            @NotNull
+            @Override
+            public gregtech.api.recipe.check.CheckRecipeResult process() {
+                setSpeedBonus(getUpgradeSpeedBonus());
+                return super.process();
+            }
+        }.enablePerfectOverclock()
+            .setMaxParallelSupplier(() -> getTrueParallel() + getUpgradeParallelBonus());
     }
 
     // endregion
@@ -565,17 +617,15 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
     protected boolean enableHigherRecipe = false;
     protected int syncTierValue = -1;
 
-    /**
-     * Check if the controller slot contains a Stainless Steel gear for recipe tier +1.
-     */
+    /** @deprecated Use mUpgradeTier instead */
+    @Deprecated
     public boolean getUpgradeTier(ItemStack inventory) {
-        if (inventory == null) return false;
-        return inventory.isItemEqual(GTOreDictUnificator.get(OrePrefixes.gearGt, Materials.StainlessSteel, 1L));
+        return mUpgradeTier > 0;
     }
 
     @Override
     public int getTierRecipes() {
-        return tierMachine + 2 + (enableHigherRecipe ? 1 : 0);
+        return tierMachine + mUpgradeTier;
     }
 
     @Override
@@ -605,6 +655,12 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
             StatCollector.translateToLocalFormatted(
                 "gtpp.infodata.multi.steam.parallel",
                 "" + EnumChatFormatting.YELLOW + getMaxParallelRecipes()));
+        if (mUpgraded && mUpgradeTier > 0) {
+            info.add(
+                StatCollector.translateToLocal("GTNC.info.upgradeTier") + ": "
+                    + EnumChatFormatting.GOLD
+                    + mUpgradeTier);
+        }
         info.add(
             StatCollector.translateToLocal("GT5U.turbine.wireless_mode") + ": "
                 + (wirelessMode ? EnumChatFormatting.GREEN + "ON" : EnumChatFormatting.RED + "OFF")
@@ -644,8 +700,23 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
         currenttip.add(
             StatCollector.translateToLocal("GT5U.multiblock.maxtier") + ": "
                 + EnumChatFormatting.YELLOW
-                + GTValues.VN[tag.getInteger("tierMachine") + 2 + (tag.getBoolean("enableHigherRecipe") ? 1 : 0)]
+                + GTValues.VN[tag.getInteger("tierMachine") + tag.getInteger("upgradeTier")]
                 + EnumChatFormatting.RESET);
+        if (tag.getInteger("upgradeTier") > 0) {
+            currenttip.add(
+                StatCollector.translateToLocal("GTNC.info.upgradeTier") + ": "
+                    + EnumChatFormatting.GOLD
+                    + tag.getInteger("upgradeTier"));
+            currenttip.add(
+                StatCollector.translateToLocal("GTNC.info.upgradeSpeed") + ": "
+                    + EnumChatFormatting.GREEN
+                    + String.format("%.2fx", 1.0f / tag.getFloat("upgradeSpeed")));
+            currenttip.add(
+                StatCollector.translateToLocal("GTNC.info.upgradeParallel") + ": "
+                    + EnumChatFormatting.AQUA
+                    + "+"
+                    + tag.getInteger("upgradeParallel"));
+        }
         if (tag.getBoolean("wirelessMode")) {
             currenttip.add(
                 StatCollector.translateToLocal("GT5U.turbine.wireless_mode") + ": "
@@ -673,7 +744,9 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
         super.getWailaNBTData(player, tile, tag, world, x, y, z);
         tag.setInteger("tierMachine", tierMachine);
         tag.setInteger("parallel", getTrueParallel());
-        tag.setBoolean("enableHigherRecipe", getUpgradeTier(getControllerSlot()));
+        tag.setInteger("upgradeTier", mUpgradeTier);
+        tag.setFloat("upgradeSpeed", getUpgradeSpeedBonus());
+        tag.setInteger("upgradeParallel", getUpgradeParallelBonus());
         tag.setBoolean("wirelessMode", wirelessMode);
         if (wirelessMode && ownerUUID != null) {
             tag.setString(
@@ -697,7 +770,8 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
     public void saveNBTData(NBTTagCompound aNBT) {
         super.saveNBTData(aNBT);
         aNBT.setInteger("tierMachine", tierMachine);
-        aNBT.setBoolean("enableHigherRecipe", enableHigherRecipe);
+        aNBT.setInteger("mUpgradeTier", mUpgradeTier);
+        aNBT.setBoolean("mUpgraded", mUpgraded);
         aNBT.setBoolean("wirelessMode", wirelessMode);
         if (ownerUUID != null) {
             aNBT.setString("ownerUUID", ownerUUID.toString());
@@ -708,7 +782,8 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
     public void loadNBTData(final NBTTagCompound aNBT) {
         super.loadNBTData(aNBT);
         tierMachine = aNBT.getInteger("tierMachine");
-        enableHigherRecipe = aNBT.getBoolean("enableHigherRecipe");
+        mUpgradeTier = aNBT.getInteger("mUpgradeTier");
+        mUpgraded = aNBT.getBoolean("mUpgraded");
         wirelessMode = aNBT.getBoolean("wirelessMode");
         if (aNBT.hasKey("ownerUUID")) {
             try {

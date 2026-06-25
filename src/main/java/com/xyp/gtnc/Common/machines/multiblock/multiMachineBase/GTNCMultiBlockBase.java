@@ -19,7 +19,7 @@ import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 
 /**
- * Base class for electric multi-block machines with upgrade support.
+ * Base class for electric multi-block machines with chip upgrade support.
  * Insert a High Computing Power Chip into the controller slot to boost speed and parallel.
  * <ul>
  * <li>Each chip tier: +20% speed, +16 parallel recipes</li>
@@ -62,17 +62,22 @@ public abstract class GTNCMultiBlockBase<T extends GTNCMultiBlockBase<T>> extend
 
     /**
      * Check controller slot for upgrade item and apply upgrade.
-     * Call this from subclass onPostTick if subclass overrides it.
+     * Upward compatible only: higher tier chip is consumed, lower tier is rejected.
      */
     protected void checkUpgrade(IGregTechTileEntity aBaseMetaTileEntity) {
-        if (mUpgraded) return;
         ItemStack aGuiStack = this.getControllerSlot();
         if (aGuiStack == null) return;
         for (int i = 7; i >= 1; i--) {
             GTNCItemList chip = GTNCItemList.valueOf("ChipTier" + i);
             if (chip.hasBeenSet() && GTUtility.areStacksEqual(aGuiStack, chip.get(1))) {
-                this.mUpgraded = true;
-                this.mUpgradeTier = i;
+                if (i > mUpgradeTier) {
+                    this.mUpgraded = true;
+                    this.mUpgradeTier = i;
+                    aGuiStack.stackSize--;
+                    if (aGuiStack.stackSize <= 0) {
+                        this.mInventory[1] = null;
+                    }
+                }
                 return;
             }
         }

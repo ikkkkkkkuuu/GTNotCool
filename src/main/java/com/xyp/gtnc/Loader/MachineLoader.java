@@ -10,6 +10,7 @@ import com.xyp.gtnc.Common.machines.cover.WirelessMultiEnergyCover;
 import com.xyp.gtnc.Common.machines.hatch.SuperMTEHatchCraftingInputME;
 import com.xyp.gtnc.Common.machines.hatch.SuperMTEHatchCraftingInputSlave;
 import com.xyp.gtnc.Common.machines.hatch.VaultPortHatch;
+import com.xyp.gtnc.Common.machines.multiblock.GTNCDrillingRig;
 import com.xyp.gtnc.Common.machines.multiblock.GTNCGeneralChemicalFactory;
 import com.xyp.gtnc.Common.machines.multiblock.LargeCombProcessor;
 import com.xyp.gtnc.Common.machines.multiblock.LargeOreProcessor;
@@ -462,6 +463,16 @@ public class MachineLoader {
                 StatCollector.translateToLocal("NameGTNCGeneralChemicalFactory")));
         AnimatedTooltipHandler
             .addItemTooltip(GTNCItemList.GeneralChemicalFactory.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        // #tr NameGTNCDrillingRig
+        // # Drilling Rig
+        // # zh_CN 钻井平台
+        GTNCItemList.DrillingRig.set(
+            new GTNCDrillingRig(
+                GTNCMachineID.DRILLING_RIG.ID,
+                "DrillingRig",
+                StatCollector.translateToLocal("NameGTNCDrillingRig")));
+        AnimatedTooltipHandler.addItemTooltip(GTNCItemList.DrillingRig.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
 
     }
 

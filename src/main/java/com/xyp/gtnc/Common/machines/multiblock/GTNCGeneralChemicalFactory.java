@@ -31,7 +31,7 @@ import com.gtnewhorizon.structurelib.alignment.constructable.ISurvivalConstructa
 import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
 import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
-import com.xyp.gtnc.Common.machines.multiblock.multiMachineBase.GTNCMultiBlockBase;
+import com.xyp.gtnc.Common.machines.multiblock.multiMachineBase.GTNCWirelessEnergyMultiMachineBase;
 import com.xyp.gtnc.Loader.GTNCRecipeMaps;
 
 import gregtech.api.GregTechAPI;
@@ -60,7 +60,7 @@ import gtPlusPlus.api.recipe.GTPPRecipeMaps;
 // # General Chemical Factory
 // # zh_CN 通用化工厂
 
-public class GTNCGeneralChemicalFactory extends GTNCMultiBlockBase<GTNCGeneralChemicalFactory>
+public class GTNCGeneralChemicalFactory extends GTNCWirelessEnergyMultiMachineBase<GTNCGeneralChemicalFactory>
     implements ISurvivalConstructable {
 
     private static final String STRUCTURE_PIECE_MAIN = "main";
@@ -430,6 +430,7 @@ public class GTNCGeneralChemicalFactory extends GTNCMultiBlockBase<GTNCGeneralCh
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_Upgrade_00"))
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_Upgrade_01"))
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_Upgrade_02"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_Upgrade_03"))
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_PerfectOverclock"))
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_SupportsTecTechMultiAmp"))
             .beginStructureBlock(11, 13, 20, false)
