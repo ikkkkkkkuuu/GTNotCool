@@ -31,6 +31,24 @@ public class AssemblerRecipes {
     public static void loadRecipes() {
         RecipeMap<?> As = RecipeMaps.assemblerRecipes;
 
+        // 矿机平台
+        GTValues.RA.stdBuilder()
+            .itemInputs(
+                GTOreDictUnificator.get(OrePrefixes.frameGt, Materials.VibrantAlloy, 16),
+                GTOreDictUnificator.get(OrePrefixes.circuit, Materials.HV, 8),
+                ItemList.Casing_HV.get(4),
+                ItemList.Electric_Pump_HV.get(16),
+                GTOreDictUnificator.get(OrePrefixes.gearGt, Materials.StainlessSteel, 8),
+                ItemList.Electric_Piston_HV.get(16),
+                GTOreDictUnificator.get(OrePrefixes.gearGtSmall, Materials.StainlessSteel, 16),
+                GTModHandler.getIC2Item("miningPipe", 64))
+            .fluidInputs(Materials.StainlessSteel.getMolten(9216))
+            .itemOutputs(GTNCItemList.MiningRig.get(1))
+            .circuit(2)
+            .eut(RECIPE_HV)
+            .duration(20 * 60 * 5)
+            .addTo(As);
+
         // 钻井平台
         GTValues.RA.stdBuilder()
             .itemInputs(
@@ -39,12 +57,12 @@ public class AssemblerRecipes {
                 ItemList.Casing_HV.get(4),
                 ItemList.Electric_Pump_HV.get(16),
                 GTOreDictUnificator.get(OrePrefixes.gearGt, Materials.StainlessSteel, 8),
-                ItemList.Electric_Motor_HV.get(8),
                 ItemList.Electric_Piston_HV.get(16),
                 GTOreDictUnificator.get(OrePrefixes.gearGtSmall, Materials.StainlessSteel, 16),
                 GTModHandler.getIC2Item("miningPipe", 64))
             .fluidInputs(Materials.StainlessSteel.getMolten(9216))
             .itemOutputs(GTNCItemList.DrillingRig.get(1))
+            .circuit(1)
             .eut(RECIPE_HV)
             .duration(20 * 60 * 5)
             .addTo(As);

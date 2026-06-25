@@ -70,4 +70,14 @@ public class GTNCRecipeMaps {
         .frontend(LargeNEIFrontend::new)
         .build();
 
+    // #tr gtnc.recipe.MiningRigRecipes
+    // # Mining Rig
+    // # zh_CN 矿机平台
+    public static RecipeMap<RecipeMapBackend> MiningRigRecipes = RecipeMapBuilder.of("gtnc.recipe.MiningRigRecipes")
+        .maxIO(1, 9, 1, 0)
+        .neiSpecialInfoFormatter(new SimpleSpecialValueFormatter("value.drilling_tier"))
+        .progressBar(GTUITextures.PROGRESSBAR_ARROW_MULTIPLE)
+        .frontend(LargeNEIFrontend::new)
+        .build();
+
 }

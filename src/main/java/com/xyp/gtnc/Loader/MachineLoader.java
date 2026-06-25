@@ -12,6 +12,7 @@ import com.xyp.gtnc.Common.machines.hatch.SuperMTEHatchCraftingInputSlave;
 import com.xyp.gtnc.Common.machines.hatch.VaultPortHatch;
 import com.xyp.gtnc.Common.machines.multiblock.GTNCDrillingRig;
 import com.xyp.gtnc.Common.machines.multiblock.GTNCGeneralChemicalFactory;
+import com.xyp.gtnc.Common.machines.multiblock.GTNCMiningRig;
 import com.xyp.gtnc.Common.machines.multiblock.LargeCombProcessor;
 import com.xyp.gtnc.Common.machines.multiblock.LargeOreProcessor;
 import com.xyp.gtnc.Common.machines.multiblock.MTEMegaIndustrialApiary;
@@ -473,6 +474,16 @@ public class MachineLoader {
                 "DrillingRig",
                 StatCollector.translateToLocal("NameGTNCDrillingRig")));
         AnimatedTooltipHandler.addItemTooltip(GTNCItemList.DrillingRig.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        // #tr NameGTNCMiningRig
+        // # Mining Rig
+        // # zh_CN 矿机平台
+        GTNCItemList.MiningRig.set(
+            new GTNCMiningRig(
+                GTNCMachineID.MINING_RIG.ID,
+                "MiningRig",
+                StatCollector.translateToLocal("NameGTNCMiningRig")));
+        AnimatedTooltipHandler.addItemTooltip(GTNCItemList.MiningRig.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
 
     }
 

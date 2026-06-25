@@ -9,6 +9,7 @@ import com.xyp.gtnc.Common.recipe.gtnc.CraftingTableRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.CrucibleRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.DrillingRigRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.GeneralChemicalFactoryRecipes;
+import com.xyp.gtnc.Common.recipe.gtnc.MiningRigRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.OreProcessingRecipes;
 
 public class RecipeLoader {
@@ -16,6 +17,7 @@ public class RecipeLoader {
     public static void loadRecipes() {
 
         DrillingRigRecipes.loadRecipes();
+        MiningRigRecipes.loadRecipes();
         GeneralChemicalFactoryRecipes.loadRecipes();
         CrucibleRecipes.loadRecipes();
         BenderRecipes.loadRecipes();
