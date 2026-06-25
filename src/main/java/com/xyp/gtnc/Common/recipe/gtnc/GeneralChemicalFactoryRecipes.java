@@ -836,26 +836,5 @@ public class GeneralChemicalFactoryRecipes {
             .duration(2 * 100)
             .addTo(GCFR);
 
-        // endregion
-
-        // region Prismarion PrismaticAcid
-        GTValues.RA.stdBuilder()
-            .itemInputs(
-                GTUtility.copyAmountUnsafe(0, Materials.Strontium.getDust(1)),
-                GTModHandler.getModItem("dreamcraft", "item.PrismaticShard", 8),
-                Materials.Carbon.getDust(24),
-                Materials.CrystallineAlloy.getDust(4))
-            .fluidInputs(
-                Materials.Hydrogen.getGas(36000),
-                Materials.Oxygen.getGas(24000),
-                Materials.Boron.getPlasma(800),
-                Materials.Nitrogen.getGas(28000))
-            .fluidOutputs(Materials.PrismaticAcid.getFluid(32000))
-            .specialValue(11700)
-            .eut(RECIPE_UHV)
-            .duration(20 * 120)
-            .addTo(GCFR);
-        // endregion
-
     }
 }
