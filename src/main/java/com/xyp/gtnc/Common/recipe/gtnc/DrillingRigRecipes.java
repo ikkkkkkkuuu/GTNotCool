@@ -99,7 +99,7 @@ public class DrillingRigRecipes {
         }
 
         // ============ Tier 6: 五级硅岩基燃料 → 矮星物质 ============
-        FluidStack fuel6 = Materials.HeavyFuel.getFluid(20000);
+        FluidStack fuel6 = GGMaterial.naquadahBasedFuelMkV.getFluidOrGas(10000);
         addDR(DRR, fuel6, Materials.WhiteDwarfMatter.getMolten(50000), 131072, 750, 6, 0);
         addDR(DRR, fuel6, Materials.BlackDwarfMatter.getMolten(50000), 131072, 750, 6, 1);
     }
