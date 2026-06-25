@@ -4,18 +4,19 @@ import net.minecraftforge.fluids.FluidStack;
 
 import com.xyp.gtnc.Loader.GTNCRecipeMaps;
 
+import goodgenerator.items.GGMaterial;
+import bartworks.system.material.WerkstoffLoader;
 import gregtech.api.enums.GTValues;
 import gregtech.api.enums.Materials;
 import gregtech.api.recipe.RecipeMap;
 import gregtech.api.util.GTModHandler;
-import goodgenerator.items.GGMaterial;
 import gtPlusPlus.core.fluids.GTPPFluids;
 
 public class DrillingRigRecipes {
 
     /** Helper: add fuel→output recipe */
-    private static void addDR(RecipeMap<?> map, FluidStack fuel, FluidStack output, long eut, int duration,
-        int tier, int circuit) {
+    private static void addDR(RecipeMap<?> map, FluidStack fuel, FluidStack output, long eut, int duration, int tier,
+        int circuit) {
         if (fuel == null || output == null) return;
         GTValues.RA.stdBuilder()
             .fluidInputs(fuel)
@@ -35,8 +36,7 @@ public class DrillingRigRecipes {
         FluidStack fuel1a = Materials.GasolinePremium.getFluid(10000);
         FluidStack fuel1b = new FluidStack(GTPPFluids.RP1RocketFuel, 6000);
 
-        FluidStack[] tier1Out = {
-            Materials.Hydrogen.getGas(50000000), Materials.Helium.getGas(50000000),
+        FluidStack[] tier1Out = { Materials.Hydrogen.getGas(50000000), Materials.Helium.getGas(50000000),
             Materials.Nitrogen.getGas(50000000), Materials.Methane.getGas(5000000),
             Materials.SulfurDioxide.getGas(5000000), Materials.CarbonDioxide.getGas(5000000),
             Materials.NitrogenDioxide.getGas(5000000), Materials.Ammonia.getGas(5000000),
@@ -52,8 +52,7 @@ public class DrillingRigRecipes {
         FluidStack fuel2a = new FluidStack(GTPPFluids.DenseHydrazineFuelMixture, 10000);
         FluidStack fuel2b = new FluidStack(GTPPFluids.CN3H7O3RocketFuel, 6000);
 
-        FluidStack[] tier2Out = {
-            GTModHandler.getDistilledWater(500000), Materials.Argon.getGas(500000),
+        FluidStack[] tier2Out = { GTModHandler.getDistilledWater(500000), Materials.Argon.getGas(500000),
             Materials.Radon.getGas(500000), Materials.Helium3.getGas(50000000), };
 
         for (int i = 0; i < tier2Out.length; i++) {
@@ -66,12 +65,11 @@ public class DrillingRigRecipes {
         // thoriumBasedLiquidFuel from GoodGenerator, fallback to HeavyFuel
         FluidStack fuel3b = GGMaterial.thoriumBasedLiquidFuel.getFluidOrGas(6000);
 
-        FluidStack[] tier3Out = {
-            Materials.Deuterium.getGas(5000000), Materials.Tritium.getGas(5000000),
+        FluidStack[] tier3Out = { Materials.Deuterium.getGas(5000000), Materials.Tritium.getGas(5000000),
             Materials.HeavyFuel.getFluid(5000000), Materials.LightFuel.getFluid(5000000),
-            Materials.Naphtha.getFluid(5000000), Materials.Gas.getGas(50000000),
-            Materials.Oil.getFluid(5000000), Materials.OilHeavy.getFluid(500000),
-            Materials.Lava.getFluid(50000000), Materials.SaltWater.getFluid(50000000), };
+            Materials.Naphtha.getFluid(5000000), Materials.Gas.getGas(50000000), Materials.Oil.getFluid(5000000),
+            Materials.OilHeavy.getFluid(500000), Materials.Lava.getFluid(50000000),
+            Materials.SaltWater.getFluid(50000000), };
 
         for (int i = 0; i < tier3Out.length; i++) {
             addDR(DRR, fuel3a, tier3Out[i], 8192, 150, 3, i);
@@ -82,7 +80,8 @@ public class DrillingRigRecipes {
         FluidStack[] tier4Out = { Materials.HydrochloricAcid.getFluid(5000000),
             Materials.SulfuricAcid.getFluid(5000000), Materials.NitricAcid.getFluid(5000000),
             Materials.HydrofluoricAcid.getFluid(5000000), Materials.PhosphoricAcid.getFluid(5000000),
-            Materials.PhthalicAcid.getFluid(5000000), };
+            Materials.PhthalicAcid.getFluid(5000000),
+            WerkstoffLoader.Oganesson.getFluidOrGas(64000), };
 
         for (int i = 0; i < tier4Out.length; i++) {
             addDR(DRR, fuel3a, tier4Out[i], 8192, 150, 4, i);
@@ -102,5 +101,6 @@ public class DrillingRigRecipes {
         FluidStack fuel6 = GGMaterial.naquadahBasedFuelMkV.getFluidOrGas(10000);
         addDR(DRR, fuel6, Materials.WhiteDwarfMatter.getMolten(50000), 131072, 750, 6, 0);
         addDR(DRR, fuel6, Materials.BlackDwarfMatter.getMolten(50000), 131072, 750, 6, 1);
+
     }
 }
