@@ -8,6 +8,7 @@ import gregtech.api.enums.GTValues;
 import gregtech.api.enums.Materials;
 import gregtech.api.recipe.RecipeMap;
 import gregtech.api.util.GTModHandler;
+import goodgenerator.items.GGMaterial;
 import gtPlusPlus.core.fluids.GTPPFluids;
 
 public class DrillingRigRecipes {
@@ -63,7 +64,7 @@ public class DrillingRigRecipes {
         // ============ Tier 3 fuels: H8N4C2O4火箭燃料 / 钍基液态燃料 ============
         FluidStack fuel3a = new FluidStack(GTPPFluids.H8N4C2O4RocketFuel, 10000);
         // thoriumBasedLiquidFuel from GoodGenerator, fallback to HeavyFuel
-        FluidStack fuel3b = Materials.HeavyFuel.getFluid(6000);
+        FluidStack fuel3b = GGMaterial.thoriumBasedLiquidFuel.getFluidOrGas(6000);
 
         FluidStack[] tier3Out = {
             Materials.Deuterium.getGas(5000000), Materials.Tritium.getGas(5000000),
