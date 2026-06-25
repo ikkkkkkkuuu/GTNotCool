@@ -120,7 +120,7 @@ GTNC.info.steam_consumed=本次蒸汽消耗
 Tooltip_GTNC_CrossRecipeParallel=跨配方并行：可一次处理多个不同配方
 Tooltip_GTNC_CrossRecipeDuration=处理时长 = 所有配方超频后时长之和
 Tooltip_GTNC_SteamTierInfo=青铜机器配方等级:LV 钢机器配方等级:MV
-Tooltip_GTNC_SteamGearInfo=在主机里插入不锈钢齿轮配方等级+1
+Tooltip_GTNC_SteamGearInfo=在主机里插入算力芯片配方等级+1 越高等级加的越高
 Waila_WirelessMode=无线模式
 Waila_CurrentEuCost=EU消耗
 Info_SingularityDataHub_AutoVoiding=自动销毁溢出: %b

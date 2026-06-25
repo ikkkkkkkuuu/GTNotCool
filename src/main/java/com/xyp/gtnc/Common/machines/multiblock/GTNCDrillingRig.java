@@ -125,6 +125,7 @@ public class GTNCDrillingRig extends GTNCWirelessEnergyMultiMachineBase<GTNCDril
         if (block == GregTechAPI.sBlockCasings2 && meta == 14) return 3;
         if (block == GregTechAPI.sBlockCasings2 && meta == 15) return 4;
         if (block == GregTechAPI.sBlockCasings9 && meta == 0) return 5;
+        if (block == GregTechAPI.sBlockCasings9 && meta == 14) return 6;
         return -1;
     }
 
@@ -155,7 +156,8 @@ public class GTNCDrillingRig extends GTNCWirelessEnergyMultiMachineBase<GTNCDril
                                 Pair.of(GregTechAPI.sBlockCasings2, 13),
                                 Pair.of(GregTechAPI.sBlockCasings2, 14),
                                 Pair.of(GregTechAPI.sBlockCasings2, 15),
-                                Pair.of(GregTechAPI.sBlockCasings9, 0)),
+                                Pair.of(GregTechAPI.sBlockCasings9, 0),
+                                Pair.of(GregTechAPI.sBlockCasings9, 14)),
                             -1,
                             (m, t) -> m.mMachineLevel = t,
                             m -> m.mMachineLevel)))
@@ -363,7 +365,7 @@ public class GTNCDrillingRig extends GTNCWirelessEnergyMultiMachineBase<GTNCDril
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNCDrillingRig_01"))
             // #tr Tooltip_GTNCDrillingRig_02
             // # §bPipe blocks determine machine level (1~5)
-            // # zh_CN §b管道方块决定机器等级(1~5)
+            // # zh_CN §b管道方块决定机器等级(1~6)
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNCDrillingRig_02"))
             // #tr Tooltip_GTNCDrillingRig_03
             // # §bEach level provides 15% speed bonus and allows higher tier recipes
