@@ -841,7 +841,7 @@ public class GeneralChemicalFactoryRecipes {
         // region Prismarion PrismaticAcid
         GTValues.RA.stdBuilder()
             .itemInputs(
-                GTUtility.copyAmountUnsafe(0, GTOreDictUnificator.get(OrePrefixes.frameGt, Materials.Strontium, 1)),
+                GTUtility.copyAmountUnsafe(0, Materials.Strontium.getDust(1)),
                 GTModHandler.getModItem("dreamcraft", "item.PrismaticShard", 8),
                 Materials.Carbon.getDust(24),
                 Materials.CrystallineAlloy.getDust(4))
