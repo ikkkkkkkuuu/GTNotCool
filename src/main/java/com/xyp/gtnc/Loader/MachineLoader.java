@@ -5,6 +5,7 @@ import static com.xyp.gtnc.utils.text.AnimatedTooltipHandler.addItemTooltip;
 import net.minecraft.util.StatCollector;
 
 import com.xyp.gtnc.Common.machines.basicMachine.DieselGenerator;
+import com.xyp.gtnc.Common.machines.basicMachine.MTETimeAccelerator;
 import com.xyp.gtnc.Common.machines.basicMachine.SteamTurbine;
 import com.xyp.gtnc.Common.machines.cover.WirelessMultiEnergyCover;
 import com.xyp.gtnc.Common.machines.hatch.SuperMTEHatchCraftingInputME;
@@ -4315,6 +4316,32 @@ public class MachineLoader {
                 StatCollector.translateToLocal("SteamTurbineLuV"),
                 6));
         addItemTooltip(GTNCItemList.SteamTurbineLuV.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        // Time Accelerator LV~UHV
+        GTNCMachineID[] timeAccelIds = { GTNCMachineID.TIME_ACCELERATOR_LV, GTNCMachineID.TIME_ACCELERATOR_MV,
+            GTNCMachineID.TIME_ACCELERATOR_HV, GTNCMachineID.TIME_ACCELERATOR_EV, GTNCMachineID.TIME_ACCELERATOR_IV,
+            GTNCMachineID.TIME_ACCELERATOR_LUV, GTNCMachineID.TIME_ACCELERATOR_ZPM, GTNCMachineID.TIME_ACCELERATOR_UV,
+            GTNCMachineID.TIME_ACCELERATOR_UHV };
+        GTNCItemList[] timeAccelItems = { GTNCItemList.TimeAcceleratorLV, GTNCItemList.TimeAcceleratorMV,
+            GTNCItemList.TimeAcceleratorHV, GTNCItemList.TimeAcceleratorEV, GTNCItemList.TimeAcceleratorIV,
+            GTNCItemList.TimeAcceleratorLuV, GTNCItemList.TimeAcceleratorZPM, GTNCItemList.TimeAcceleratorUV,
+            GTNCItemList.TimeAcceleratorUHV };
+        String[] timeAccelNames = { "TimeAcceleratorLV", "TimeAcceleratorMV", "TimeAcceleratorHV", "TimeAcceleratorEV",
+            "TimeAcceleratorIV", "TimeAcceleratorLuV", "TimeAcceleratorZPM", "TimeAcceleratorUV",
+            "TimeAcceleratorUHV" };
+        for (int i = 0; i < 9; i++) {
+            int tier = i + 1; // LV=1 ... UHV=9
+            // #tr NameTimeAccelerator
+            // # Time Accelerator
+            // # zh_CN 世界加速器
+            timeAccelItems[i].set(
+                new MTETimeAccelerator(
+                    timeAccelIds[i].ID,
+                    timeAccelNames[i],
+                    StatCollector.translateToLocal("NameTimeAccelerator") + " " + GTValues.VN[tier],
+                    tier));
+            addItemTooltip(timeAccelItems[i].get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+        }
 
     }
 

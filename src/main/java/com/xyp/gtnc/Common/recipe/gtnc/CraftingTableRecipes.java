@@ -273,6 +273,60 @@ public class CraftingTableRecipes {
                 GTOreDictUnificator.get(OrePrefixes.plateDouble, Materials.Bronze, 1), 'B',
                 OrePrefixes.circuit.get(Materials.LV), 'C', ItemList.Machine_LV_Distillery.get(1) });
 
+        GTModHandler.addCraftingRecipe(
+            GTNCItemList.TimeAcceleratorLV.get(1),
+            new Object[] { "ABA", "CDC", "ABA", 'A', ItemList.Electric_Motor_LV.get(1), 'B',
+                ItemList.Conveyor_Module_LV.get(1), 'C', ItemList.Electric_Piston_LV.get(1), 'D',
+                ItemList.Casing_LV.get(1) });
+
+        GTModHandler.addCraftingRecipe(
+            GTNCItemList.TimeAcceleratorMV.get(1),
+            new Object[] { "ABA", "CDC", "ABA", 'A', ItemList.Electric_Motor_MV.get(1), 'B',
+                ItemList.Conveyor_Module_MV.get(1), 'C', ItemList.Electric_Piston_MV.get(1), 'D',
+                ItemList.Casing_MV.get(1) });
+
+        GTModHandler.addCraftingRecipe(
+            GTNCItemList.TimeAcceleratorHV.get(1),
+            new Object[] { "ABA", "CDC", "ABA", 'A', ItemList.Electric_Motor_HV.get(1), 'B',
+                ItemList.Conveyor_Module_HV.get(1), 'C', ItemList.Electric_Piston_HV.get(1), 'D',
+                ItemList.Casing_HV.get(1) });
+
+        GTModHandler.addCraftingRecipe(
+            GTNCItemList.TimeAcceleratorEV.get(1),
+            new Object[] { "ABA", "CDC", "ABA", 'A', ItemList.Electric_Motor_EV.get(1), 'B',
+                ItemList.Conveyor_Module_EV.get(1), 'C', ItemList.Electric_Piston_EV.get(1), 'D',
+                ItemList.Casing_EV.get(1) });
+
+        GTModHandler.addCraftingRecipe(
+            GTNCItemList.TimeAcceleratorIV.get(1),
+            new Object[] { "ABA", "CDC", "ABA", 'A', ItemList.Electric_Motor_IV.get(1), 'B',
+                ItemList.Conveyor_Module_IV.get(1), 'C', ItemList.Electric_Piston_IV.get(1), 'D',
+                ItemList.Casing_IV.get(1) });
+
+        GTModHandler.addCraftingRecipe(
+            GTNCItemList.TimeAcceleratorLuV.get(1),
+            new Object[] { "ABA", "CDC", "ABA", 'A', ItemList.Electric_Motor_LuV.get(1), 'B',
+                ItemList.Conveyor_Module_LuV.get(1), 'C', ItemList.Electric_Piston_LuV.get(1), 'D',
+                ItemList.Casing_LuV.get(1) });
+
+        GTModHandler.addCraftingRecipe(
+            GTNCItemList.TimeAcceleratorZPM.get(1),
+            new Object[] { "ABA", "CDC", "ABA", 'A', ItemList.Electric_Motor_ZPM.get(1), 'B',
+                ItemList.Conveyor_Module_ZPM.get(1), 'C', ItemList.Electric_Piston_ZPM.get(1), 'D',
+                ItemList.Casing_ZPM.get(1) });
+
+        GTModHandler.addCraftingRecipe(
+            GTNCItemList.TimeAcceleratorUV.get(1),
+            new Object[] { "ABA", "CDC", "ABA", 'A', ItemList.Electric_Motor_UV.get(1), 'B',
+                ItemList.Conveyor_Module_UV.get(1), 'C', ItemList.Electric_Piston_UV.get(1), 'D',
+                ItemList.Casing_UV.get(1) });
+
+        GTModHandler.addCraftingRecipe(
+            GTNCItemList.TimeAcceleratorUHV.get(1),
+            new Object[] { "ABA", "CDC", "ABA", 'A', ItemList.Electric_Motor_UHV.get(1), 'B',
+                ItemList.Conveyor_Module_UHV.get(1), 'C', ItemList.Electric_Piston_UHV.get(1), 'D',
+                ItemList.Casing_UV.get(1) });
+
     }
 
 }

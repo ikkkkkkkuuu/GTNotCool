@@ -620,7 +620,17 @@ public enum GTNCItemList implements IItemContainer {
     QuantumComputerAccelerator,
     QuantumComputerMultiThreader,
     QuantumComputerCore,
-    QuantumComputerSingularityCore;
+    QuantumComputerSingularityCore,
+
+    TimeAcceleratorLV,
+    TimeAcceleratorMV,
+    TimeAcceleratorHV,
+    TimeAcceleratorEV,
+    TimeAcceleratorIV,
+    TimeAcceleratorLuV,
+    TimeAcceleratorZPM,
+    TimeAcceleratorUV,
+    TimeAcceleratorUHV;
 
     public static final GTNCItemList[] ENERGY_HATCH_LV = { EnergyHatchLV, EnergyHatchLV4A, EnergyHatchLV16A,
         EnergyHatchLV64A };

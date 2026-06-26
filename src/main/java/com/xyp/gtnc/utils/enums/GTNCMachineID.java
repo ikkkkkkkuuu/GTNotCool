@@ -18,6 +18,16 @@ public enum GTNCMachineID {
     STEAM_TURBINE_IV(basicMachine, 8),
     STEAM_TURBINE_LUV(basicMachine, 9),
 
+    TIME_ACCELERATOR_LV(basicMachine, 10),
+    TIME_ACCELERATOR_MV(basicMachine, 11),
+    TIME_ACCELERATOR_HV(basicMachine, 12),
+    TIME_ACCELERATOR_EV(basicMachine, 13),
+    TIME_ACCELERATOR_IV(basicMachine, 14),
+    TIME_ACCELERATOR_LUV(basicMachine, 15),
+    TIME_ACCELERATOR_ZPM(basicMachine, 16),
+    TIME_ACCELERATOR_UV(basicMachine, 17),
+    TIME_ACCELERATOR_UHV(basicMachine, 18),
+
     SUPER_CRAFTING_INPUT_BUS_ME(HATCH, 0),
     SUPER_CRAFTING_INPUT_ME(HATCH, 1),
     SUPERMTEHATCHCRAFTINGINPUTSLAVE(HATCH, 2),
