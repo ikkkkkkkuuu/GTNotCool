@@ -319,6 +319,9 @@ public class MTETimeAccelerator extends MTETieredMachineBlock {
                     if (xi == tX && yi == tY && zi == tZ) continue; // skip self
                     TileEntity tTile = pWorld.getTileEntity(xi, yi, zi);
                     if (tTile == null || tTile.isInvalid() || !tTile.canUpdate()) continue;
+                    // Skip other time accelerators to prevent mutual recursive acceleration
+                    if (tTile instanceof IGregTechTileEntity
+                        && ((IGregTechTileEntity) tTile).getMetaTileEntity() instanceof MTETimeAccelerator) continue;
 
                     // Refund EU for all accelerated ticks except the last,
                     // so each machine only pays normal energy cost.
