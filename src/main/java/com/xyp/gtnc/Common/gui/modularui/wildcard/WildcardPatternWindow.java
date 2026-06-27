@@ -79,6 +79,18 @@ public final class WildcardPatternWindow {
     }
 
     private static void addHeader(ModularWindow.Builder builder, WindowState state) {
+        // #tr gui.wildcardpattern.title
+        // # Wildcard Pattern Configuration
+        // # zh_CN 通配符模板配置
+        // #tr gui.wildcardpattern.dedupe_page
+        // # Deduplication Selection
+        // # zh_CN 去重选择
+        // #tr gui.wildcardpattern.exclude_page
+        // # Exclude Editor
+        // # zh_CN 排除编辑器
+        // #tr gui.wildcardpattern.preview_page
+        // # Recipe Preview
+        // # zh_CN 配方预览
         TextWidget title = new TextWidget("");
         title.setPos(10, 9);
         title.setScale(0.95f);
@@ -91,6 +103,18 @@ public final class WildcardPatternWindow {
                             : state.previewPage ? "gui.wildcardpattern.preview_page" : "gui.wildcardpattern.title"));
         builder.widget(title);
 
+        // #tr gui.wildcardpattern.drag_hint
+        // # Drag items from NEI or enter manually
+        // # zh_CN 从NEI拖入物品或手动输入
+        // #tr gui.wildcardpattern.dedupe_hint
+        // # Choose which mod's items to keep
+        // # zh_CN 选择保留哪个模组的物品
+        // #tr gui.wildcardpattern.exclude_hint
+        // # Edit exclusion list
+        // # zh_CN 编辑排除列表
+        // #tr gui.wildcardpattern.preview_hint
+        // # Preview recipes that will be expanded
+        // # zh_CN 预览将要展开的配方
         TextWidget hint = new TextWidget("");
         hint.setPos(132, 11);
         hint.setSize(280, 10);
@@ -116,6 +140,9 @@ public final class WildcardPatternWindow {
         addGlobalExclude(builder, state, 8, 248);
         addRuleExcludeEditor(builder, state, 164, 248);
 
+        // #tr gui.wildcardpattern.clear
+        // # Clear All
+        // # zh_CN 清空全部
         ButtonWidget clearAll = button("gui.wildcardpattern.clear");
         clearAll.setPos(306, 248);
         clearAll.setSize(68, 18);
@@ -132,6 +159,9 @@ public final class WildcardPatternWindow {
         });
         addMainWidget(builder, state, clearAll);
 
+        // #tr gui.wildcardpattern.dedupe
+        // # Deduplicate
+        // # zh_CN 去重
         ButtonWidget dedupe = button("gui.wildcardpattern.dedupe");
         dedupe.setPos(382, 248);
         dedupe.setSize(68, 18);
@@ -144,6 +174,9 @@ public final class WildcardPatternWindow {
         previewAll.setOnClick((clickData, widget) -> state.openPreview(-1));
         addMainWidget(builder, state, previewAll);
 
+        // #tr gui.wildcardpattern.save
+        // # Save
+        // # zh_CN 保存
         ButtonWidget save = button("gui.wildcardpattern.save");
         save.setPos(382, 270);
         save.setSize(68, 18);
@@ -156,6 +189,21 @@ public final class WildcardPatternWindow {
     }
 
     private static void addRulesHeader(ModularWindow.Builder builder, WindowState state, int x, int y) {
+        // #tr gui.wildcardpattern.col_input
+        // # Input
+        // # zh_CN 输入
+        // #tr gui.wildcardpattern.col_mode
+        // # Mode
+        // # zh_CN 模式
+        // #tr gui.wildcardpattern.col_amount
+        // # Amount
+        // # zh_CN 数量
+        // #tr gui.wildcardpattern.col_output
+        // # Output
+        // # zh_CN 输出
+        // #tr gui.wildcardpattern.actions
+        // # Actions
+        // # zh_CN 操作
         addMainText(builder, state, EnumChatFormatting.DARK_GRAY + "#", x + 4, y);
         addMainText(builder, state, EnumChatFormatting.DARK_GRAY + tr("gui.wildcardpattern.col_input"), x + 26, y);
         addMainText(builder, state, EnumChatFormatting.DARK_GRAY + tr("gui.wildcardpattern.col_mode"), x + 82, y);
@@ -179,12 +227,18 @@ public final class WildcardPatternWindow {
         arrow.setPos(x + 146, y + 4);
         addMainWidget(builder, state, arrow);
 
+        // #tr gui.wildcardpattern.preview_short
+        // # Preview
+        // # zh_CN 预览
         ButtonWidget preview = button("gui.wildcardpattern.preview_short");
         preview.setPos(x + 292, y);
         preview.setSize(22, 15);
         preview.setOnClick((clickData, widget) -> state.openPreview(row));
         addMainWidget(builder, state, preview);
 
+        // #tr gui.wildcardpattern.filter_short
+        // # Filter
+        // # zh_CN 筛选
         ButtonWidget filter = button(
             () -> buttonBackground(
                 state.selectedRule == row,
@@ -198,6 +252,9 @@ public final class WildcardPatternWindow {
         });
         addMainWidget(builder, state, filter);
 
+        // #tr gui.wildcardpattern.multiply_short
+        // # x2/x½
+        // # zh_CN 翻倍/减半
         ButtonWidget multiply = button("gui.wildcardpattern.multiply_short");
         multiply.setPos(x + 344, y);
         multiply.setSize(28, 15);
@@ -212,6 +269,9 @@ public final class WildcardPatternWindow {
         });
         addMainWidget(builder, state, multiply);
 
+        // #tr gui.wildcardpattern.clear_short
+        // # Clear
+        // # zh_CN 清空
         ButtonWidget clear = button("gui.wildcardpattern.clear_short");
         clear.setPos(x + 376, y);
         clear.setSize(28, 15);
@@ -285,6 +345,12 @@ public final class WildcardPatternWindow {
         text.setSize(ENTRY_TEXT_WIDTH, 16);
         addMainWidget(builder, state, text);
 
+        // #tr gui.wildcardpattern.mode_name
+        // # Name
+        // # zh_CN 名称
+        // #tr gui.wildcardpattern.mode_oredict
+        // # OreDict
+        // # zh_CN 矿辞
         ButtonWidget mode = button(
             () -> buttonBackground(
                 entries.get(index)
@@ -345,6 +411,9 @@ public final class WildcardPatternWindow {
 
     private static void addGlobalExclude(ModularWindow.Builder builder, WindowState state, int x, int y) {
         addPanel(builder, state, x, y, 148, 40, false);
+        // #tr gui.wildcardpattern.global_exclude
+        // # Global Exclude
+        // # zh_CN 全局排除
         addMainText(
             builder,
             state,
@@ -357,6 +426,9 @@ public final class WildcardPatternWindow {
         summary.setStringSupplier(() -> EnumChatFormatting.DARK_GRAY + trim(state.getExcludeSummary(-1), 24));
         addMainWidget(builder, state, summary);
 
+        // #tr gui.wildcardpattern.exclude_short
+        // # Exclude
+        // # zh_CN 排除
         ButtonWidget edit = button("gui.wildcardpattern.exclude_short");
         edit.setPos(x + 96, y + 8);
         edit.setSize(42, 18);
@@ -368,6 +440,9 @@ public final class WildcardPatternWindow {
         addPanel(builder, state, x, y, 138, 40, false);
         TextWidget label = new TextWidget("");
         label.setPos(x + 8, y + 10);
+        // #tr gui.wildcardpattern.rule_exclude
+        // # Rule %d Exclude
+        // # zh_CN 规则 %d 排除项
         label.setStringSupplier(
             () -> EnumChatFormatting.BLACK
                 + StatCollector.translateToLocalFormatted("gui.wildcardpattern.rule_exclude", state.selectedRule + 1));
@@ -395,6 +470,9 @@ public final class WildcardPatternWindow {
         source.setStringSupplier(() -> EnumChatFormatting.BLACK + state.getPreviewTitle());
         addPreviewWidget(builder, state, source);
 
+        // #tr gui.wildcardpattern.search
+        // # Search:
+        // # zh_CN 搜索:
         addPreviewTextField(
             builder,
             state,
@@ -411,6 +489,9 @@ public final class WildcardPatternWindow {
             true);
 
         if (state.previewRule >= 0) {
+            // #tr gui.wildcardpattern.include_short
+            // # Include:
+            // # zh_CN 包含:
             addPreviewTextField(
                 builder,
                 state,
@@ -459,6 +540,9 @@ public final class WildcardPatternWindow {
             addPreviewWidget(builder, state, exclude);
         }
 
+        // #tr gui.wildcardpattern.back
+        // # Back
+        // # zh_CN 返回
         ButtonWidget back = button("gui.wildcardpattern.back");
         back.setPos(18, 264);
         back.setSize(64, 17);
@@ -475,6 +559,9 @@ public final class WildcardPatternWindow {
         });
         addPreviewWidget(builder, state, prev);
 
+        // #tr gui.wildcardpattern.page
+        // # Page %d / %d
+        // # zh_CN 第 %d 页 / 共 %d 页
         TextWidget page = new TextWidget("");
         page.setPos(228, 268);
         page.setStringSupplier(
@@ -504,11 +591,17 @@ public final class WildcardPatternWindow {
         title.setStringSupplier(() -> EnumChatFormatting.BLACK + state.getExcludeTitle());
         addExcludeWidget(builder, state, title);
 
+        // #tr gui.wildcardpattern.exclude_tip1
+        // # One exclusion per line, supports wildcard *
+        // # zh_CN 每行一个排除项，支持*通配符
         TextWidget tip1 = new TextWidget("");
         tip1.setPos(18, 68);
         tip1.setStringSupplier(() -> EnumChatFormatting.DARK_GRAY + tr("gui.wildcardpattern.exclude_tip1"));
         addExcludeWidget(builder, state, tip1);
 
+        // #tr gui.wildcardpattern.exclude_tip2
+        // # Example: *Dust* excludes all dusts
+        // # zh_CN 例如：*Dust* 排除所有粉
         TextWidget tip2 = new TextWidget("");
         tip2.setPos(18, 81);
         tip2.setStringSupplier(() -> EnumChatFormatting.DARK_GRAY + tr("gui.wildcardpattern.exclude_tip2"));
@@ -534,6 +627,9 @@ public final class WildcardPatternWindow {
         add.setOnClick((clickData, widget) -> state.addCurrentExcludeDraft());
         addExcludeWidget(builder, state, add);
 
+        // #tr gui.wildcardpattern.exclude_current
+        // # Current Exclusions:
+        // # zh_CN 当前排除项:
         TextWidget current = new TextWidget("");
         current.setPos(18, 132);
         current.setScale(0.78f);
@@ -726,6 +822,9 @@ public final class WildcardPatternWindow {
             });
             addDedupeWidget(builder, state, outputChoice);
 
+            // #tr gui.wildcardpattern.dedupe_input
+            // # Cycle Input
+            // # zh_CN 切换输入
             ButtonWidget cycleInput = button("gui.wildcardpattern.dedupe_input");
             cycleInput.setPos(322, rowY + 3);
             cycleInput.setSize(50, 18);
@@ -740,6 +839,9 @@ public final class WildcardPatternWindow {
                     && state.getDedupeRow(lineIndex).inputDuplicate);
             addDedupeWidget(builder, state, cycleInput);
 
+            // #tr gui.wildcardpattern.dedupe_output
+            // # Cycle Output
+            // # zh_CN 切换输出
             ButtonWidget cycleOutput = button("gui.wildcardpattern.dedupe_output");
             cycleOutput.setPos(378, rowY + 3);
             cycleOutput.setSize(50, 18);
@@ -1429,6 +1531,9 @@ public final class WildcardPatternWindow {
             String value = rule >= 0 ? this.ruleExcludes.get(rule) : this.globalExclude;
             if (value == null || value.trim()
                 .isEmpty()) {
+                // #tr gui.wildcardpattern.exclude_empty
+                // # (empty)
+                // # zh_CN (空)
                 return tr("gui.wildcardpattern.exclude_empty");
             }
             return value;
@@ -1746,6 +1851,9 @@ public final class WildcardPatternWindow {
             }
             java.util.List<ItemStack> options = OreDictionary.getOres(oreName);
             if (options == null || options.isEmpty()) {
+                // #tr gui.wildcardpattern.preview_empty
+                // # (empty)
+                // # zh_CN (空)
                 return tr("gui.wildcardpattern.preview_empty");
             }
             ItemStack current = this.preferredOreStacks.get(oreName);
