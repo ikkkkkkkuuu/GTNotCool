@@ -255,6 +255,36 @@ public class CrucibleRecipes {
 
         // ==================== 合金配方 ====================
 
+        // 铜+锌 → 黄铜
+        GTValues.RA.stdBuilder()
+            .itemInputs(Materials.Copper.getDust(3), Materials.Zinc.getDust(1))
+            .fluidOutputs(Materials.Brass.getMolten(576))
+            .eut(30)
+            .duration(100)
+            .circuit(1)
+            .specialValue(1)
+            .addTo(SCR);
+
+        // 硼+玻璃 → 硼玻璃
+        GTValues.RA.stdBuilder()
+            .itemInputs(Materials.Boron.getDust(1), Materials.Glass.getDust(7))
+            .fluidOutputs(Materials.BorosilicateGlass.getMolten(1152))
+            .eut(30)
+            .duration(100)
+            .circuit(2)
+            .specialValue(1)
+            .addTo(SCR);
+
+        // 硫 + 生橡胶 → 橡胶
+        GTValues.RA.stdBuilder()
+            .itemInputs(Materials.Sulfur.getDust(1), Materials.RubberRaw.getDust(9))
+            .fluidOutputs(Materials.Rubber.getMolten(1296))
+            .eut(30)
+            .duration(100)
+            .circuit(2)
+            .specialValue(1)
+            .addTo(SCR);
+
         // 红色合金 RedAlloy
         GTValues.RA.stdBuilder()
             .itemInputs(Materials.Copper.getDust(1), Materials.Redstone.getDust(4))
@@ -564,7 +594,7 @@ public class CrucibleRecipes {
 
         // 铂金属粉 → 熔融铂
         GTValues.RA.stdBuilder()
-            .itemInputs(Materials.Platinum.getDust(9))
+            .itemInputs(Materials.Platinum.getDust(1))
             .fluidOutputs(Materials.Platinum.getMolten(144))
             .eut(30)
             .duration(400)
