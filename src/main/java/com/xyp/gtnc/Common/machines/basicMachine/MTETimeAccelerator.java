@@ -310,7 +310,7 @@ public class MTETimeAccelerator extends MTETieredMachineBlock {
         int tZ = pBaseMetaTileEntity.getZCoord();
         int radius = mMode == 1 ? getRadiusTierOverride() : 1;
 
-        final long tMaxTime = System.nanoTime() + 1_000_000;
+        final long tMaxTime = System.nanoTime() + 25_000_000;
         final int iterations = mAccelerateStatic[getSpeedTierOverride()];
 
         for (int xi = tX - radius; xi <= tX + radius; xi++) {
