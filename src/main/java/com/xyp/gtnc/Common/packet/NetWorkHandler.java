@@ -36,6 +36,7 @@ public class NetWorkHandler {
             MessageUpdateWildcardConfig.Handler.class,
             id++,
             Side.SERVER);
+
     }
 
     /**

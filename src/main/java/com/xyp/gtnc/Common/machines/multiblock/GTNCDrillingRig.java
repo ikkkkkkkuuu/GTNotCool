@@ -53,7 +53,6 @@ import gregtech.api.structure.error.StructureError;
 import gregtech.api.util.GTRecipe;
 import gregtech.api.util.GTUtility;
 import gregtech.api.util.MultiblockTooltipBuilder;
-import gregtech.common.gui.modularui.multiblock.base.MTEMultiBlockBaseGui;
 
 // #tr NameGTNCDrillingRig
 // # Drilling Rig
@@ -222,12 +221,6 @@ public class GTNCDrillingRig extends GTNCWirelessEnergyMultiMachineBase<GTNCDril
         return GTNCRecipeMaps.DrillingRigRecipes;
     }
 
-    // ==================== GUI ====================
-    @Override
-    protected @NotNull MTEMultiBlockBaseGui<?> getGui() {
-        return new MTEMultiBlockBaseGui<>(this);
-    }
-
     @Override
     public void setMachineModeIcons() {
         machineModeIcons.clear();
@@ -374,7 +367,7 @@ public class GTNCDrillingRig extends GTNCWirelessEnergyMultiMachineBase<GTNCDril
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_Upgrade_00"))
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_Upgrade_01"))
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_Upgrade_02"))
-            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_Upgrade_03"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_Wireless_00"))
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_PerfectOverclock"))
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_SupportsTecTechMultiAmp"))
             .beginStructureBlock(9, 12, 7, false)

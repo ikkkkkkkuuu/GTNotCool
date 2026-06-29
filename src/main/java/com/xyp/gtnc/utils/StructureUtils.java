@@ -1,15 +1,13 @@
 package com.xyp.gtnc.utils;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.minecraft.block.Block;
+
+import com.xyp.gtnc.ScienceNotCool;
 
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.common.blocks.BlockCasingsAbstract;
@@ -21,29 +19,30 @@ public class StructureUtils {
     public static ConcurrentHashMap<String, String[][]> MULTIBLOCK_CACHE = new ConcurrentHashMap<>();
 
     /**
-     * 从文件读取多方块结构
-     *
-     * @param fileName 文件名
-     * @return 多方块结构的二维字符串数组
+     * 从文件读取多方块结构 (优先 .mbs 二进制, 回退 .mb 文本)
      */
     public static String[][] readStructureFromFile(String fileName) {
         return MULTIBLOCK_CACHE.computeIfAbsent(fileName, name -> {
-            List<String[]> structureList = new ArrayList<>();
-            String filePath = BASE_PATH + name.replace(':', '/') + ".mb";
-            try (InputStream is = StructureUtils.class.getResourceAsStream(filePath)) {
-                if (is == null) {
-                    throw new IllegalArgumentException("无法读取文件: " + name + "，请检查文件是否存在。");
-                }
-                try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
-                    String line;
-                    while ((line = br.readLine()) != null) {
-                        structureList.add(line.split(","));
+            String pathMbs = BASE_PATH + name.replace(':', '/') + ".mbs";
+            String pathMb = BASE_PATH + name.replace(':', '/') + ".mb";
+            try {
+                InputStream mbsStream = StructureUtils.class.getResourceAsStream(pathMbs);
+                if (mbsStream != null) {
+                    try (mbsStream) {
+                        return StructureFileCodec.readBinary(mbsStream);
                     }
                 }
+                InputStream mbStream = StructureUtils.class.getResourceAsStream(pathMb);
+                if (mbStream != null) {
+                    try (mbStream) {
+                        return StructureFileCodec.readText(mbStream);
+                    }
+                }
+                throw new IllegalArgumentException("无法读取文件: " + name + " (.mbs 或 .mb)，请检查文件是否存在。");
             } catch (IOException e) {
-                e.printStackTrace();
+                ScienceNotCool.LOG.error("Failed to load structure file: {}", name, e);
+                throw new IllegalStateException("Failed to load multiblock structure: " + name, e);
             }
-            return structureList.toArray(new String[0][]);
         });
     }
 

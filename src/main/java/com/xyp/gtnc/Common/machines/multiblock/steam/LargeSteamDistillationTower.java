@@ -392,6 +392,8 @@ public class LargeSteamDistillationTower extends GTNCSteamMultiBlockBase<LargeSt
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamDistillationTower_02"))
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamDistillationTower_03"))
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_SteamGearInfo"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_SteamGearInfo_02"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_SteamWirelessMode"))
             .addSteamBulkMachineInfo(4, 2f, 0.35f)
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeParallel"))
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeDuration"))

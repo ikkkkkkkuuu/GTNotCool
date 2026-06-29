@@ -229,6 +229,8 @@ public class LargeSteamWireMill extends GTNCSteamMultiBlockBase<LargeSteamWireMi
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamWireMill_00"))
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_SteamTierInfo"))
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_SteamGearInfo"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_SteamGearInfo_02"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_SteamWirelessMode"))
             .addSteamBulkMachineInfo(256, 2f, 0.45f)
             .addInfo(HIGH_PRESSURE_TOOLTIP_NOTICE)
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeParallel"))

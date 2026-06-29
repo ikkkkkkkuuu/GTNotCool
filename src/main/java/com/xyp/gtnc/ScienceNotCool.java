@@ -49,6 +49,7 @@ public class ScienceNotCool {
     @SidedProxy(clientSide = "com.xyp.gtnc.ClientProxy", serverSide = "com.xyp.gtnc.CommonProxy")
     public static CommonProxy proxy;
     public static SimpleNetworkWrapper channel;
+    public static SimpleNetworkWrapper network;
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {

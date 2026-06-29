@@ -289,6 +289,8 @@ public class LargeSteamExtruder extends GTNCSteamMultiBlockBase<LargeSteamExtrud
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamExtruder_00"))
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_SteamTierInfo"))
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_SteamGearInfo"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_SteamGearInfo_02"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_SteamWirelessMode"))
             .addInfo(HIGH_PRESSURE_TOOLTIP_NOTICE)
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeParallel"))
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeDuration"))

@@ -51,6 +51,7 @@ import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
 import com.xyp.gtnc.Common.machines.hatch.VaultPortHatch;
 import com.xyp.gtnc.api.IItemVault;
+import com.xyp.gtnc.utils.ItemId;
 import com.xyp.gtnc.utils.StructureUtils;
 import com.xyp.gtnc.utils.Utils;
 
@@ -200,7 +201,7 @@ public class SingularityDataHub extends MTEEnhancedMultiBlockBase<SingularityDat
     @Override
     public ArrayList<ItemStack> getStoredInputsForColor(Optional<Byte> color) {
         ArrayList<ItemStack> rList = new ArrayList<>();
-        Map<GTUtility.ItemId, ItemStack> inputsFromME = new HashMap<>();
+        Map<ItemId, ItemStack> inputsFromME = new HashMap<>();
         for (MTEHatchInputBus tHatch : GTUtility.validMTEList(mInputBusses)) {
             if (tHatch instanceof MTEHatchCraftingInputME) {
                 continue;
@@ -215,7 +216,7 @@ public class SingularityDataHub extends MTEEnhancedMultiBlockBase<SingularityDat
                 if (itemStack != null) {
                     if (isMEBus) {
                         // Prevent the same item from different ME buses from being recognized
-                        inputsFromME.put(GTUtility.ItemId.createNoCopy(itemStack), itemStack);
+                        inputsFromME.put(ItemId.createNoCopy(itemStack), itemStack);
                     } else {
                         rList.add(itemStack);
                     }

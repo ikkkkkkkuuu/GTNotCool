@@ -18,7 +18,6 @@ import net.minecraftforge.fluids.FluidStack;
 import org.jetbrains.annotations.NotNull;
 
 import com.gtnewhorizon.gtnhlib.util.numberformatting.NumberFormatUtil;
-import com.xyp.gtnc.utils.enums.GTNCItemList;
 
 import gregtech.api.enums.GTValues;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
@@ -40,6 +39,14 @@ public abstract class GTNCWirelessEnergyMultiMachineBase<T extends GTNCWirelessE
     // #tr Waila_CurrentEuCost
     // # EU Cost
     // # zh_CN EU消耗
+
+    // #tr Tooltip_GTNC_Wireless_00
+    // # Submit ChipTier7 without Energy Hatch to enable Wireless Mode
+    // # zh_CN §d天途提交7级芯片+无能源仓可启用无线模式
+
+    // #tr Tooltip_GTNC_Wireless_01
+    // # Wireless Mode: draws EU from global wireless energy network
+    // # zh_CN §d无线模式:从无线网络中获取EU
 
     protected UUID ownerUUID;
     protected boolean wirelessMode = false;
@@ -76,25 +83,10 @@ public abstract class GTNCWirelessEnergyMultiMachineBase<T extends GTNCWirelessE
     }
 
     @Override
-    protected void checkUpgrade(IGregTechTileEntity aBaseMetaTileEntity) {
-        ItemStack aGuiStack = this.getControllerSlot();
-        if (aGuiStack == null) return;
-        for (int i = 7; i >= 1; i--) {
-            GTNCItemList chip = GTNCItemList.valueOf("ChipTier" + i);
-            if (chip.hasBeenSet() && GTUtility.areStacksEqual(aGuiStack, chip.get(1))) {
-                if (i > mUpgradeTier) {
-                    mUpgraded = true;
-                    mUpgradeTier = i;
-                    aGuiStack.stackSize--;
-                    if (aGuiStack.stackSize <= 0) {
-                        this.mInventory[1] = null;
-                    }
-                    if (i == 7 && mEnergyHatches.isEmpty() && mExoticEnergyHatches.isEmpty()) {
-                        this.wirelessMode = true;
-                    }
-                }
-                return;
-            }
+    public void onUpgradeComplete() {
+        super.onUpgradeComplete();
+        if (mUpgradeTier >= 7 && mEnergyHatches.isEmpty() && mExoticEnergyHatches.isEmpty()) {
+            wirelessMode = true;
         }
     }
 

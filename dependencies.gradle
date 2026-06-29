@@ -14,8 +14,9 @@ dependencies {
     }
     implementation("com.github.GTNewHorizons:NotEnoughItems:2.8.101-GTNH:dev")
     implementation("thaumcraft:Thaumcraft:1.7.10-4.2.3.5:dev")
-    implementation("com.github.GTNewHorizons:GTNHLib:0.11.9:dev")
+    implementation("com.github.GTNewHorizons:GTNHLib:0.11.15:dev")
     implementation("io.github.legacymoddingmc:unimixins:0.3.1:dev")
+    implementation("com.github.GTNewHorizons:CropsNH:2.0.70:dev")
 
     compileOnlyApi("com.github.GTNewHorizons:NewHorizonsCoreMod:2.8.279:dev")
     implementation("com.github.GTNewHorizons:Avaritia:1.97:dev")
@@ -44,6 +45,7 @@ dependencies {
 
 
 
+
     compileOnly("javax.xml.bind:jaxb-api:2.3.1")
     compileOnly("org.jetbrains:annotations:26.0.1")
     compileOnly("org.projectlombok:lombok:1.18.42") { transitive = false }
@@ -63,7 +65,7 @@ configurations.configureEach {
         force "com.github.GTNewHorizons:AE2FluidCraft-Rework:1.5.88-gtnh"
         force "com.github.GTNewHorizons:Baubles-Expanded:2.2.21-GTNH"
         force "com.github.GTNewHorizons:CodeChickenCore:1.4.15"
-        force "com.github.GTNewHorizons:GTNHLib:0.11.9"
+        force "com.github.GTNewHorizons:GTNHLib:0.11.15"
         force "com.github.GTNewHorizons:GT5-Unofficial:5.09.52.594"
         force "com.github.GTNewHorizons:NotEnoughItems:2.8.101-GTNH"
         force "com.github.GTNewHorizons:ThaumicEnergistics:1.7.53-GTNH"

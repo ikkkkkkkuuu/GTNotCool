@@ -50,6 +50,7 @@ import com.gtnewhorizon.structurelib.structure.IStructureElementNoPlacement;
 import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
 import com.xyp.gtnc.Common.gui.modularui.multiblock.MTEMegaIndustrialApiaryGui;
+import com.xyp.gtnc.utils.ItemId;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -173,7 +174,7 @@ public class MTEMegaIndustrialApiary extends KubaTechGTMultiBlockBase<MTEMegaInd
         })
         .build();
     public final ArrayList<BeeSimulator> mStorage = new ArrayList<>();
-    public final HashMap<GTUtility.ItemId, Double> dropProgress = new HashMap<>();
+    public final HashMap<ItemId, Double> dropProgress = new HashMap<>();
     public int mMaxSlots = 0;
     public int mPrimaryMode = MODE_PRIMARY_INPUT;
     public int mSecondaryMode = MODE_SECONDARY_NORMAL;
@@ -219,16 +220,16 @@ public class MTEMegaIndustrialApiary extends KubaTechGTMultiBlockBase<MTEMegaInd
     }
 
     private static ItemStack[] mergeOutputStacks(List<ItemStack> stacks) {
-        HashMap<GTUtility.ItemId, Integer> countMap = new HashMap<>();
-        HashMap<GTUtility.ItemId, ItemStack> stackMap = new HashMap<>();
+        HashMap<ItemId, Integer> countMap = new HashMap<>();
+        HashMap<ItemId, ItemStack> stackMap = new HashMap<>();
         for (ItemStack stack : stacks) {
-            GTUtility.ItemId id = GTUtility.ItemId.createNoCopyWithStackSize(stack);
+            ItemId id = ItemId.createNoCopyWithStackSize(stack);
             countMap.merge(id, stack.stackSize, Integer::sum);
             stackMap.putIfAbsent(id, stack);
         }
         ItemStack[] result = new ItemStack[countMap.size()];
         int i = 0;
-        for (Map.Entry<GTUtility.ItemId, Integer> entry : countMap.entrySet()) {
+        for (Map.Entry<ItemId, Integer> entry : countMap.entrySet()) {
             ItemStack merged = stackMap.get(entry.getKey())
                 .copy();
             merged.stackSize = entry.getValue();
@@ -823,7 +824,7 @@ public class MTEMegaIndustrialApiary extends KubaTechGTMultiBlockBase<MTEMegaInd
 
     public static class BeeSimulator {
 
-        static final Map<GTUtility.ItemId, ItemStack> dropstacks = new HashMap<>();
+        static final Map<ItemId, ItemStack> dropstacks = new HashMap<>();
         private static IBeekeepingMode mode;
         public final ItemStack queenStack;
         public boolean isValid;
@@ -978,7 +979,7 @@ public class MTEMegaIndustrialApiary extends KubaTechGTMultiBlockBase<MTEMegaInd
 
             private static final float MAX_PRODUCTION_MODIFIER_FROM_UPGRADES = 1367.2876f; // 4*1.2^32
             final ItemStack stack;
-            final GTUtility.ItemId id;
+            final ItemId id;
             final float chance;
             final float beeSpeed;
             double amount;
@@ -989,7 +990,7 @@ public class MTEMegaIndustrialApiary extends KubaTechGTMultiBlockBase<MTEMegaInd
                 this.chance = chance;
                 this.beeSpeed = beeSpeed;
                 this.t = t;
-                id = GTUtility.ItemId.createNoCopy(this.stack);
+                id = ItemId.createNoCopy(this.stack);
                 evaluate();
             }
 
@@ -999,7 +1000,7 @@ public class MTEMegaIndustrialApiary extends KubaTechGTMultiBlockBase<MTEMegaInd
                 beeSpeed = tag.getFloat("beeSpeed");
                 t = tag.getFloat("t");
                 amount = tag.getDouble("amount");
-                id = GTUtility.ItemId.createNoCopy(stack);
+                id = ItemId.createNoCopy(stack);
             }
 
             public void updateTVar(float t) {

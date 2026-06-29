@@ -1,10 +1,13 @@
 package com.xyp.gtnc.utils;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import net.minecraft.block.Block;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -13,6 +16,8 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import cpw.mods.fml.common.FMLCommonHandler;
+import gregtech.api.enums.OutputBusType;
+import gregtech.api.interfaces.IOutputBus;
 
 @SuppressWarnings("unused")
 public class Utils {
@@ -32,6 +37,20 @@ public class Utils {
             }
         }
         return newItemStacks;
+    }
+
+    public static void placeItemBackInInventory(EntityPlayer player, ItemStack stack) {
+        if (stack == null || stack.stackSize == 0) return;
+
+        if (!player.inventory.addItemStackToInventory(stack)) {
+            player.func_146097_a(stack, false, false);
+        } else if (stack.stackSize > 0) {
+            player.func_146097_a(stack, false, false);
+        }
+
+        if (player instanceof EntityPlayerMP) {
+            ((EntityPlayerMP) player).sendContainerToPlayer(player.inventoryContainer);
+        }
     }
 
     public static ArrayList<ItemStack> multiplyItemStacksSize(List<ItemStack> itemStacks, float mult) {
@@ -83,6 +102,25 @@ public class Utils {
     }
 
     public static final String ZERO_STRING = "0";
+
+    /**
+     * 判断输出总线是否为 ME 类型
+     */
+    public static boolean isMEOutputBus(IOutputBus outputBus) {
+        OutputBusType type = outputBus.getBusType();
+        return type == OutputBusType.MECacheFiltered || type == OutputBusType.MEFiltered
+            || type == OutputBusType.MECacheUnfiltered
+            || type == OutputBusType.MEUnfiltered;
+    }
+
+    public static long toLongSafe(BigInteger value) {
+        if (value == null) return 0L;
+        BigInteger longMax = BigInteger.valueOf(Long.MAX_VALUE);
+        if (value.compareTo(longMax) > 0) return Long.MAX_VALUE;
+        BigInteger longMin = BigInteger.valueOf(Long.MIN_VALUE);
+        if (value.compareTo(longMin) < 0) return Long.MIN_VALUE;
+        return value.longValue();
+    }
 
     public static long toLongSafe(double value) {
         if (Double.isNaN(value) || Double.isInfinite(value)) return 0L;

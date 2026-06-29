@@ -298,6 +298,8 @@ public class LargeSteamCentrifuge extends GTNCSteamMultiBlockBase<LargeSteamCent
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamCentrifuge_00"))
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_SteamTierInfo"))
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_SteamGearInfo"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_SteamGearInfo_02"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_SteamWirelessMode"))
             .addSteamBulkMachineInfo(16, 2f, 0.35f)
             .addInfo(HIGH_PRESSURE_TOOLTIP_NOTICE)
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_CrossRecipeParallel"))

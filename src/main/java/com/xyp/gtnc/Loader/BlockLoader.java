@@ -125,7 +125,13 @@ public class BlockLoader {
         // # zh_CN 矿物处理外壳
         GTNCItemList.MineralprocessingFrame.set(MetaItemBlockCasing.initMetaBlockCasing(4, metaCasing02));
 
+        // #tr tile.MetaCasing02.5.name
+        // # Assembler Matrix Wall
+        // # zh_CN 装配矩阵墙壁
         GTNCItemList.AssemblerMatrixWall.set(MetaItemBlockCasing.initMetaBlockCasing(5, metaCasing02));
+        // #tr tile.MetaCasing02.6.name
+        // # Assembler Matrix Pattern Core
+        // # zh_CN 装配矩阵样板核心
         // #tr Tooltip_AssemblerMatrixPatternCore_00
         // # Each provides 72 pattern slot processes
         // # zh_CN 每个提供72样板槽
@@ -134,14 +140,20 @@ public class BlockLoader {
                 6,
                 metaCasing02,
                 new String[] { StatCollector.translateToLocal("Tooltip_AssemblerMatrixPatternCore_00") }));
+        // #tr tile.MetaCasing02.7.name
+        // # Assembler Matrix Crafter Core
+        // # zh_CN 装配矩阵合成核心
         // #tr Tooltip_AssemblerMatrixCrafterCore_00
-        // # Each provides 2,048 parallel processes
-        // # zh_CN 每个提供2,048并行
+        // # Each provides 2,0480 parallel processes
+        // # zh_CN 每个提供2,0480并行
         GTNCItemList.AssemblerMatrixCrafterCore.set(
             MetaItemBlockCasing.initMetaBlockCasing(
                 7,
                 metaCasing02,
                 new String[] { StatCollector.translateToLocal("Tooltip_AssemblerMatrixCrafterCore_00") }));
+        // #tr tile.MetaCasing02.8.name
+        // # Assembler Matrix Singularity Crafter Core
+        // # zh_CN 装配矩阵奇点合成核心
         // #tr Tooltip_AssemblerMatrixSingularityCrafterCore_00
         // # Each provides 2,147,483,647 parallel processes
         // # zh_CN 每个提供2,147,483,647并行
@@ -150,6 +162,9 @@ public class BlockLoader {
                 8,
                 metaCasing02,
                 new String[] { StatCollector.translateToLocal("Tooltip_AssemblerMatrixSingularityCrafterCore_00") }));
+        // #tr tile.MetaCasing02.9.name
+        // # Assembler Matrix Speed Core
+        // # zh_CN 装配矩阵速度核心
         // #tr Tooltip_AssemblerMatrixSpeedCore_00
         // # Each installed core halves the operation time
         // # zh_CN 每安装一个时间减半
@@ -163,6 +178,9 @@ public class BlockLoader {
         // MetaCasing02: 量子计算机 (QuantumComputer) meta 10~19
         // ══════════════════════════════════════════════════════════════
 
+        // #tr tile.MetaCasing02.10.name
+        // # Quantum Computer Casing
+        // # zh_CN 量子计算机外壳
         // #tr Tooltip_QuantumComputerCasing_00
         // # Used in the outside layer of the Quantum Computer Multiblock. Maximum multiblock size is %sx%sx%s.
         // # zh_CN 用于搭建量子计算机的最外层。最大尺寸为 %sx%sx%s。
@@ -171,9 +189,21 @@ public class BlockLoader {
                 10,
                 metaCasing02,
                 new String[] { StatCollector.translateToLocalFormatted("Tooltip_QuantumComputerCasing_00", 7, 7, 7) }));
+        // #tr tile.MetaCasing02.11.name
+        // # Quantum Crafting Unit
+        // # zh_CN 量子合成单元
         GTNCItemList.QuantumComputerUnit.set(MetaItemBlockCasing.initMetaBlockCasing(11, metaCasing02));
+        // #tr tile.MetaCasing02.12.name
+        // # Quantum Computer Crafting Storage 128M
+        // # zh_CN 量子计算机 128M 合成存储
         GTNCItemList.QuantumComputerCraftingStorage128M.set(MetaItemBlockCasing.initMetaBlockCasing(12, metaCasing02));
+        // #tr tile.MetaCasing02.13.name
+        // # Quantum Computer Crafting Storage 256M
+        // # zh_CN 量子计算机 256M 合成存储
         GTNCItemList.QuantumComputerCraftingStorage256M.set(MetaItemBlockCasing.initMetaBlockCasing(13, metaCasing02));
+        // #tr tile.MetaCasing02.14.name
+        // # Quantum Data Entangler
+        // # zh_CN 量子数据纠缠器
         // #tr Tooltip_QuantumComputerDataEntangler_00
         // # Multiplies the total storage in the Quantum Computer Multiblock by 4. Limited to %d per multiblock
         // # zh_CN 量子计算机的合成存储容量变为 4 倍。每个量子计算机中最多放置 %s 个。
@@ -183,6 +213,9 @@ public class BlockLoader {
                 metaCasing02,
                 new String[] {
                     StatCollector.translateToLocalFormatted("Tooltip_QuantumComputerDataEntangler_00", 1) }));
+        // #tr tile.MetaCasing02.15.name
+        // # Quantum Computer Accelerator
+        // # zh_CN 量子计算机加速器
         // #tr Tooltip_QuantumComputerAccelerator_00
         // # Provides 16384 co-processing threads per block.
         // # zh_CN 每个加速器提供 16384 个并行处理线程。
@@ -191,6 +224,9 @@ public class BlockLoader {
                 15,
                 metaCasing02,
                 new String[] { StatCollector.translateToLocal("Tooltip_QuantumComputerAccelerator_00") }));
+        // #tr tile.MetaCasing02.16.name
+        // # Quantum Computer Multi-Threader
+        // # zh_CN 量子计算机多线程处理器
         // #tr Tooltip_QuantumComputerMultiThreader_00
         // # Multiplies the amount of co-processors in the Quantum Computer Multiblock by 4. Limited to %s per
         // multiblock
@@ -201,6 +237,9 @@ public class BlockLoader {
                 metaCasing02,
                 new String[] {
                     StatCollector.translateToLocalFormatted("Tooltip_QuantumComputerMultiThreader_00", 1) }));
+        // #tr tile.MetaCasing02.17.name
+        // # Quantum Computer Core
+        // # zh_CN 量子计算机核心
         // #tr Tooltip_QuantumComputerCore_00
         // # Provides 256M crafting storage and 16384 co-processing threads.
         // # zh_CN 提供 256M 合成存储空间和 16384 并行处理线程。
@@ -209,6 +248,9 @@ public class BlockLoader {
                 17,
                 metaCasing02,
                 new String[] { StatCollector.translateToLocal("Tooltip_QuantumComputerCore_00") }));
+        // #tr tile.MetaCasing02.18.name
+        // # Assembler Matrix Debug Crafter Core
+        // # zh_CN 装配矩阵Debug合成核心
         // #tr Tooltip_AssemblerMatrixDebugCrafterCore_00
         // # Each provides 9,223,372,036,854,775,807 parallel processes
         // # zh_CN 每个提供9,223,372,036,854,775,807并行
@@ -217,6 +259,9 @@ public class BlockLoader {
                 18,
                 metaCasing02,
                 new String[] { StatCollector.translateToLocal("Tooltip_AssemblerMatrixDebugCrafterCore_00") }));
+        // #tr tile.MetaCasing02.19.name
+        // # Quantum Computer Singularity Core
+        // # zh_CN 量子计算机奇点核心
         // #tr Tooltip_QuantumComputerSingularityCore_00
         // # Locks the total storage of the Quantum Computer Multiblock at 9.22E
         // # zh_CN 将量子计算机的合成存储容量锁定为9.22E

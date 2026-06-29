@@ -3,9 +3,11 @@ package com.xyp.gtnc.Common.machines.multiblock.multiMachineBase;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
@@ -23,8 +25,7 @@ import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 
-import org.jetbrains.annotations.NotNull;
-
+import com.xyp.gtnc.Common.gui.modularui.multiblock.GTNCSteamMultiBlockBaseGui;
 import com.xyp.gtnc.utils.enums.GTNCItemList;
 import com.xyp.gtnc.utils.world.steam.SteamWirelessNetworkManager;
 
@@ -41,6 +42,7 @@ import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.util.GTUtility;
 import gregtech.api.util.shutdown.ShutDownReasonRegistry;
+import gregtech.common.gui.modularui.multiblock.base.MTEMultiBlockBaseGui;
 import gregtech.common.tileentities.machines.IDualInputHatch;
 import gregtech.common.tileentities.machines.MTEHatchCraftingInputME;
 import gregtech.common.tileentities.machines.MTEHatchInputME;
@@ -67,7 +69,7 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
 
     // #tr GT5U.turbine.wireless_mode
     // # Wireless Mode
-    // # zh_CN 无线模式
+    // # zh_CN §d无线模式
 
     // #tr GTNC.info.wireless_steam
     // # Network Steam
@@ -77,11 +79,13 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
     // # Steam Used：
     // # zh_CN 本次蒸汽消耗
 
-    protected boolean wirelessMode = false;
+    public boolean wirelessMode = false;
     protected UUID ownerUUID;
     protected long totalSteamConsumed = 0;
     protected int mUpgradeTier = 0;
     protected boolean mUpgraded = false;
+    /** Paid cost indices for the upgrade tree. Persisted across chunk reloads. */
+    public Set<Integer> paidUpgradeCostIndices = new HashSet<>();
 
     public GTNCSteamMultiBlockBase(String aName) {
         super(aName);
@@ -111,35 +115,49 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
         }
     }
 
+    /**
+     * Override in subclass to define required items for upgrade.
+     * Default: all registered ChipTiers.
+     */
+    public List<ItemStack> getUpgradeCosts() {
+        List<ItemStack> costs = new ArrayList<>();
+        for (int i = 1; i <= 7; i++) {
+            GTNCItemList chip = GTNCItemList.valueOf("ChipTier" + i);
+            if (chip.hasBeenSet()) {
+                costs.add(chip.get(1));
+            }
+        }
+        return costs;
+    }
+
     @Override
     public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
         super.onPostTick(aBaseMetaTileEntity, aTick);
-        if (aTick % 20 == 0) {
-            checkUpgrade(aBaseMetaTileEntity);
-        }
     }
 
     /**
-     * Check controller slot for upgrade chip and apply upgrade.
-     * Upward compatible only: higher tier chip is consumed, lower tier is rejected.
+     * Called by the upgrade tree GUI after materials are consumed.
+     * Finds the highest chip tier among paid costs and applies the upgrade.
+     * Override in subclass for additional behavior.
      */
-    protected void checkUpgrade(IGregTechTileEntity aBaseMetaTileEntity) {
-        ItemStack aGuiStack = this.getControllerSlot();
-        if (aGuiStack == null) return;
-        for (int i = 7; i >= 1; i--) {
-            GTNCItemList chip = GTNCItemList.valueOf("ChipTier" + i);
-            if (chip.hasBeenSet() && GTUtility.areStacksEqual(aGuiStack, chip.get(1))) {
-                if (i > mUpgradeTier) {
-                    this.mUpgraded = true;
-                    this.mUpgradeTier = i;
-                    this.enableHigherRecipe = true;
-                    aGuiStack.stackSize--;
-                    if (aGuiStack.stackSize <= 0) {
-                        this.mInventory[1] = null;
-                    }
+    public void onUpgradeComplete() {
+        int highestTier = 0;
+        List<ItemStack> costs = getUpgradeCosts();
+        for (int idx : paidUpgradeCostIndices) {
+            if (idx >= costs.size()) continue;
+            ItemStack cost = costs.get(idx);
+            for (int i = 7; i >= 1; i--) {
+                GTNCItemList chip = GTNCItemList.valueOf("ChipTier" + i);
+                if (chip.hasBeenSet() && GTUtility.areStacksEqual(cost, chip.get(1))) {
+                    if (i > highestTier) highestTier = i;
+                    break;
                 }
-                return;
             }
+        }
+        if (highestTier > mUpgradeTier) {
+            mUpgradeTier = highestTier;
+            mUpgraded = true;
+            this.enableHigherRecipe = true;
         }
     }
 
@@ -475,6 +493,8 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
             lEUt = 0;
             mEfficiency = 10000;
             mEfficiencyIncrease = 10000;
+            // Apply chip speed bonus at final settlement (wireless steam mode)
+            mMaxProgresstime = Math.max(1, (int) (mMaxProgresstime * getUpgradeSpeedBonus()));
 
             return CheckRecipeResultRegistry.SUCCESSFUL;
         } finally {
@@ -562,12 +582,20 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
     // region Batch Mode, Perfect Overclock & Input Separation
 
     // #tr Tooltip_GTNC_SteamTierInfo
-    // # Bronze machine recipe tier: LV, Steel machine recipe tier: V
+    // # Bronze machine recipe tier: LV, Steel machine recipe tier: MV
     // # zh_CN 青铜机器配方等级:LV 钢机器配方等级:MV
 
     // #tr Tooltip_GTNC_SteamGearInfo
-    // # Insert Stainless Steel gear into controller for recipe tier +1
-    // # zh_CN 在主机里插入算力芯片配方等级+1 越高等级加的越高
+    // # §bSubmit High Computing Power Chips through the Upgrade Tree to boost speed and parallel
+    // # zh_CN §b通过天途提交高算力芯片以提升速度和并行和配方等级
+
+    // #tr Tooltip_GTNC_SteamGearInfo_02
+    // # §bEach tier provides 20% speed boost and 16 parallel
+    // # zh_CN §b芯片等级每提升一级,提供20%的运行速度加成和16的并行
+
+    // #tr Tooltip_GTNC_SteamWirelessMode
+    // # §dRight-click front face with Screwdriver to toggle Wireless Steam Mode
+    // # zh_CN §d螺丝刀右键或gui里点击按钮切换无线蒸汽模式
 
     @Override
     public boolean supportsBatchMode() {
@@ -587,15 +615,7 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
      */
     @Override
     protected ProcessingLogic createProcessingLogic() {
-        return new ProcessingLogic() {
-
-            @NotNull
-            @Override
-            public gregtech.api.recipe.check.CheckRecipeResult process() {
-                setSpeedBonus(getUpgradeSpeedBonus());
-                return super.process();
-            }
-        }.enablePerfectOverclock()
+        return new ProcessingLogic() {}.enablePerfectOverclock()
             .setMaxParallelSupplier(() -> getTrueParallel() + getUpgradeParallelBonus());
     }
 
@@ -773,6 +793,14 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
         aNBT.setInteger("mUpgradeTier", mUpgradeTier);
         aNBT.setBoolean("mUpgraded", mUpgraded);
         aNBT.setBoolean("wirelessMode", wirelessMode);
+        if (!paidUpgradeCostIndices.isEmpty()) {
+            int[] arr = new int[paidUpgradeCostIndices.size()];
+            int i = 0;
+            for (int idx : paidUpgradeCostIndices) {
+                arr[i++] = idx;
+            }
+            aNBT.setIntArray("paidUpgradeCostIndices", arr);
+        }
         if (ownerUUID != null) {
             aNBT.setString("ownerUUID", ownerUUID.toString());
         }
@@ -785,6 +813,12 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
         mUpgradeTier = aNBT.getInteger("mUpgradeTier");
         mUpgraded = aNBT.getBoolean("mUpgraded");
         wirelessMode = aNBT.getBoolean("wirelessMode");
+        paidUpgradeCostIndices.clear();
+        if (aNBT.hasKey("paidUpgradeCostIndices")) {
+            for (int idx : aNBT.getIntArray("paidUpgradeCostIndices")) {
+                paidUpgradeCostIndices.add(idx);
+            }
+        }
         if (aNBT.hasKey("ownerUUID")) {
             try {
                 ownerUUID = UUID.fromString(aNBT.getString("ownerUUID"));
@@ -829,5 +863,10 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
             if (bus.isValid()) output.add(bus);
         }
         return output;
+    }
+
+    @Override
+    protected MTEMultiBlockBaseGui<?> getGui() {
+        return new GTNCSteamMultiBlockBaseGui(this);
     }
 }

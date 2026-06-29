@@ -31,6 +31,7 @@ import com.gtnewhorizon.structurelib.alignment.constructable.ISurvivalConstructa
 import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
 import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
+import com.xyp.gtnc.Common.gui.modularui.multiblock.GTNCMultiBlockBaseGui;
 import com.xyp.gtnc.Common.machines.multiblock.multiMachineBase.GTNCWirelessEnergyMultiMachineBase;
 import com.xyp.gtnc.Loader.GTNCRecipeMaps;
 
@@ -186,7 +187,7 @@ public class GTNCGeneralChemicalFactory extends GTNCWirelessEnergyMultiMachineBa
 
     @Override
     protected @NotNull MTEMultiBlockBaseGui<?> getGui() {
-        return new MTEMultiBlockBaseGui<>(this).withMachineModeIcons(
+        return new GTNCMultiBlockBaseGui<>(this).withMachineModeIcons(
             GTGuiTextures.OVERLAY_BUTTON_MACHINEMODE_CHEMBATH,
             GTGuiTextures.OVERLAY_BUTTON_MACHINEMODE_CHEMBATH,
             GTGuiTextures.OVERLAY_BUTTON_MACHINEMODE_CHEMBATH);
@@ -430,7 +431,7 @@ public class GTNCGeneralChemicalFactory extends GTNCWirelessEnergyMultiMachineBa
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_Upgrade_00"))
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_Upgrade_01"))
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_Upgrade_02"))
-            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_Upgrade_03"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_Wireless_00"))
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_PerfectOverclock"))
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNC_SupportsTecTechMultiAmp"))
             .beginStructureBlock(11, 13, 20, false)
