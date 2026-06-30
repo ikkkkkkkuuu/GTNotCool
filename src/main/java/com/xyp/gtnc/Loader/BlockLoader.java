@@ -270,6 +270,11 @@ public class BlockLoader {
                 19,
                 metaCasing02,
                 new String[] { StatCollector.translateToLocal("Tooltip_QuantumComputerSingularityCore_00") }));
+
+        // #tr tile.MetaBlockGlow.31.name
+        // # Super Space Elevator Glow Block
+        // # zh_CN 超级太空电梯发光方块
+        GTNCItemList.WhiteLamp.set(ItemBlockGlow.initMetaBlockGlow(31));
     }
 
     /**

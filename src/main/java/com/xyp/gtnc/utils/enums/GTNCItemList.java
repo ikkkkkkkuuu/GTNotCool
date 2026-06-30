@@ -601,6 +601,7 @@ public enum GTNCItemList implements IItemContainer {
     SingularityDataHub,
     LargeOreProcessor,
     MegaIndustrialApiary,
+    SuperSpaceElevator,
     QuantumComputer,
     VeinMiningPickaxe,
     // ---- 外壳方块 (MetaCasing02) ----
@@ -620,6 +621,8 @@ public enum GTNCItemList implements IItemContainer {
     QuantumComputerMultiThreader,
     QuantumComputerCore,
     QuantumComputerSingularityCore,
+
+    WhiteLamp,
 
     TimeAcceleratorLV,
     TimeAcceleratorMV,

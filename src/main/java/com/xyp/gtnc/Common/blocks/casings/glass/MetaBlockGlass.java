@@ -52,7 +52,7 @@ public class MetaBlockGlass extends Block {
     @Override
     @SideOnly(Side.CLIENT)
     public IIcon getIcon(int side, int meta) {
-        return meta < BlockStaticDataClientOnly.GLASS_ICONS.size() ? BlockStaticDataClientOnly.GLASS_ICONS.get(meta)
+        return BlockStaticDataClientOnly.GLASS_ICONS.containsKey(meta) ? BlockStaticDataClientOnly.GLASS_ICONS.get(meta)
             : BlockStaticDataClientOnly.GLASS_ICONS.get(0);
     }
 

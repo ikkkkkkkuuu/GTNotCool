@@ -48,7 +48,7 @@ public class MetaBlockBase extends Block {
     @Override
     @SideOnly(Side.CLIENT)
     public IIcon getIcon(int side, int meta) {
-        return meta < BlockStaticDataClientOnly.BASE_ICONS.size() ? BlockStaticDataClientOnly.BASE_ICONS.get(meta)
+        return BlockStaticDataClientOnly.BASE_ICONS.containsKey(meta) ? BlockStaticDataClientOnly.BASE_ICONS.get(meta)
             : BlockStaticDataClientOnly.BASE_ICONS.get(0);
     }
 

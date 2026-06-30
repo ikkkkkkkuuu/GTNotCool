@@ -18,6 +18,7 @@ import com.xyp.gtnc.Common.machines.multiblock.LargeCombProcessor;
 import com.xyp.gtnc.Common.machines.multiblock.LargeOreProcessor;
 import com.xyp.gtnc.Common.machines.multiblock.MTEMegaIndustrialApiary;
 import com.xyp.gtnc.Common.machines.multiblock.SingularityDataHub;
+import com.xyp.gtnc.Common.machines.multiblock.SuperSpaceElevator;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeBoiler;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamAlloySmelter;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamAssembler;
@@ -485,6 +486,16 @@ public class MachineLoader {
                 "MiningRig",
                 StatCollector.translateToLocal("NameGTNCMiningRig")));
         AnimatedTooltipHandler.addItemTooltip(GTNCItemList.MiningRig.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        // #tr NameSuperSpaceElevator
+        // # Super Space Elevator
+        // # zh_CN 超级太空电梯
+        GTNCItemList.SuperSpaceElevator.set(
+            new SuperSpaceElevator(
+                GTNCMachineID.SUPER_SPACE_ELEVATOR.ID,
+                "SuperSpaceElevator",
+                StatCollector.translateToLocal("NameSuperSpaceElevator")));
+        AnimatedTooltipHandler.addItemTooltip(GTNCItemList.SuperSpaceElevator.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
 
     }
 

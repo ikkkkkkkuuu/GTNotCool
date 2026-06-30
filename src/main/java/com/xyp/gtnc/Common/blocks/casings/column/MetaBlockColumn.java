@@ -47,6 +47,9 @@ public class MetaBlockColumn extends Block {
         if (textures == null) {
             textures = this.textureMap.get(0);
         }
+        if (textures == null) {
+            return null;
+        }
         return side == 1 ? textures[1] : (side == 0 ? textures[2] : textures[0]);
     }
 

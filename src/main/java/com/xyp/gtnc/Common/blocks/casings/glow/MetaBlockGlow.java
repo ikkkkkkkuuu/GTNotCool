@@ -51,7 +51,7 @@ public class MetaBlockGlow extends Block {
     @Override
     @SideOnly(Side.CLIENT)
     public IIcon getIcon(int side, int meta) {
-        return meta < BlockStaticDataClientOnly.GLOW_ICONS.size() ? BlockStaticDataClientOnly.GLOW_ICONS.get(meta)
+        return BlockStaticDataClientOnly.GLOW_ICONS.containsKey(meta) ? BlockStaticDataClientOnly.GLOW_ICONS.get(meta)
             : BlockStaticDataClientOnly.GLOW_ICONS.get(0);
     }
 

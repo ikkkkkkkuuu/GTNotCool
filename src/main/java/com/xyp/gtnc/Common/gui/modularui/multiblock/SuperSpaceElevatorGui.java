@@ -1,0 +1,124 @@
+package com.xyp.gtnc.Common.gui.modularui.multiblock;
+
+import static gregtech.api.metatileentity.BaseTileEntity.TOOLTIP_DELAY;
+
+import net.minecraft.util.StatCollector;
+
+import com.cleanroommc.modularui.api.drawable.IDrawable;
+import com.cleanroommc.modularui.api.drawable.IKey;
+import com.cleanroommc.modularui.api.widget.IWidget;
+import com.cleanroommc.modularui.drawable.DrawableStack;
+import com.cleanroommc.modularui.drawable.UITexture;
+import com.cleanroommc.modularui.screen.ModularPanel;
+import com.cleanroommc.modularui.utils.Alignment;
+import com.cleanroommc.modularui.utils.Color;
+import com.cleanroommc.modularui.value.sync.BooleanSyncValue;
+import com.cleanroommc.modularui.value.sync.IntSyncValue;
+import com.cleanroommc.modularui.value.sync.InteractionSyncHandler;
+import com.cleanroommc.modularui.value.sync.PanelSyncManager;
+import com.cleanroommc.modularui.widget.Widget;
+import com.cleanroommc.modularui.widgets.ButtonWidget;
+import com.cleanroommc.modularui.widgets.ListWidget;
+import com.cleanroommc.modularui.widgets.layout.Flow;
+import com.xyp.gtnc.Common.gui.modularui.GTNCGuiTextures;
+import com.xyp.gtnc.Common.machines.multiblock.SuperSpaceElevator;
+
+import gregtech.api.modularui2.GTGuiTextures;
+import gregtech.common.gui.modularui.multiblock.base.TTMultiblockBaseGui;
+
+public class SuperSpaceElevatorGui extends TTMultiblockBaseGui<SuperSpaceElevator> {
+
+    private static final String MACHINE_SYNC_KEY = "superSpaceElevatorMachine";
+    private static final String ALLOWED_TO_WORK_SYNC_KEY = "superSpaceElevatorAllowedToWork";
+    private static final String MODULE_COUNT_SYNC_KEY = "superSpaceElevatorModuleCount";
+    private static final String TIER_SYNC_KEY = "superSpaceElevatorTier";
+    private static final String TELEPORT_SYNC_KEY = "superSpaceElevatorTeleport";
+
+    public SuperSpaceElevatorGui(SuperSpaceElevator multiblock) {
+        super(multiblock);
+    }
+
+    @Override
+    protected void registerSyncValues(PanelSyncManager syncManager) {
+        super.registerSyncValues(syncManager);
+        syncManager.syncValue(MACHINE_SYNC_KEY, new BooleanSyncValue(multiblock::isMachineForGui));
+        syncManager.syncValue(ALLOWED_TO_WORK_SYNC_KEY, new BooleanSyncValue(multiblock::isAllowedToWorkForGui));
+        syncManager.syncValue(MODULE_COUNT_SYNC_KEY, new IntSyncValue(multiblock::getNumberOfModulesForGui));
+        syncManager.syncValue(TIER_SYNC_KEY, new IntSyncValue(multiblock::getTierForGui));
+        syncManager.syncValue(TELEPORT_SYNC_KEY, new InteractionSyncHandler().setOnMousePressed(mouseData -> {
+            if (!mouseData.isClient() && mouseData.mouseButton == 0) {
+                multiblock.openCelestialSelection(syncManager.getPlayer());
+            }
+        }));
+    }
+
+    @Override
+    protected ListWidget<IWidget, ?> createTerminalTextWidget(PanelSyncManager syncManager, ModularPanel parent) {
+        BooleanSyncValue machineSyncer = syncManager.findSyncHandler(MACHINE_SYNC_KEY, BooleanSyncValue.class);
+        BooleanSyncValue allowedToWorkSyncer = syncManager
+            .findSyncHandler(ALLOWED_TO_WORK_SYNC_KEY, BooleanSyncValue.class);
+        IntSyncValue moduleCountSyncer = syncManager.findSyncHandler(MODULE_COUNT_SYNC_KEY, IntSyncValue.class);
+        IntSyncValue tierSyncer = syncManager.findSyncHandler(TIER_SYNC_KEY, IntSyncValue.class);
+
+        return super.createTerminalTextWidget(syncManager, parent).child(
+            IKey.lang("gt.interact.desc.mb.incomplete")
+                .color(Color.WHITE.main)
+                .asWidget()
+                .textAlign(Alignment.CenterLeft)
+                .setEnabledIf(widget -> !machineSyncer.getBoolValue())
+                .fullWidth())
+            .child(
+                IKey.lang("gt.blockmachines.multimachine.ig.elevator.gui.ready")
+                    .color(Color.WHITE.main)
+                    .asWidget()
+                    .textAlign(Alignment.CenterLeft)
+                    .setEnabledIf(widget -> machineSyncer.getBoolValue())
+                    .fullWidth())
+            .child(
+                IKey.dynamic(
+                    () -> StatCollector.translateToLocal("gt.blockmachines.multimachine.ig.elevator.gui.numOfModules")
+                        + ": "
+                        + moduleCountSyncer.getIntValue())
+                    .color(Color.WHITE.main)
+                    .asWidget()
+                    .textAlign(Alignment.CenterLeft)
+                    .setEnabledIf(widget -> allowedToWorkSyncer.getBoolValue())
+                    .fullWidth())
+            // #tr Info_SuperSpaceElevator_00
+            // # Cable Tier
+            // # zh_CN 线缆等级
+            .child(
+                IKey.dynamic(
+                    () -> StatCollector.translateToLocal("Info_SuperSpaceElevator_00") + tierSyncer.getIntValue())
+                    .color(Color.WHITE.main)
+                    .asWidget()
+                    .textAlign(Alignment.CenterLeft)
+                    .setEnabledIf(widget -> allowedToWorkSyncer.getBoolValue())
+                    .fullWidth());
+    }
+
+    @Override
+    protected Flow createRightPanelGapRow(ModularPanel parent, PanelSyncManager syncManager) {
+        return super.createRightPanelGapRow(parent, syncManager).child(createTeleportButton(syncManager));
+    }
+
+    private static final UITexture OVERLAY_BUTTON_PLANET_TELEPORT = UITexture
+        .fullImage("gtnhintergalactic", "gui/overlay_button/planet_teleport.png");
+
+    private IWidget createTeleportButton(PanelSyncManager syncManager) {
+        InteractionSyncHandler teleportSyncer = syncManager
+            .findSyncHandler(TELEPORT_SYNC_KEY, InteractionSyncHandler.class);
+        return new ButtonWidget<>().size(16, 16)
+            .playClickSound(false)
+            .background(new DrawableStack(GTGuiTextures.BUTTON_STANDARD, OVERLAY_BUTTON_PLANET_TELEPORT))
+            .syncHandler(teleportSyncer)
+            .tooltipBuilder(tooltip -> tooltip.addLine(IKey.lang("ig.button.travel")))
+            .tooltipShowUpTimer(TOOLTIP_DELAY);
+    }
+
+    @Override
+    protected Widget<? extends Widget<?>> makeLogoWidget(PanelSyncManager syncManager, ModularPanel parent) {
+        return new IDrawable.DrawableWidget(GTNCGuiTextures.PICTURE_GODFORGE_LOGO).size(18)
+            .marginTop(4);
+    }
+}
