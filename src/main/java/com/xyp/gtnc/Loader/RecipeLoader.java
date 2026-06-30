@@ -1,6 +1,7 @@
 package com.xyp.gtnc.Loader;
 
 import com.xyp.gtnc.Common.recipe.gregtech.AssemblerRecipes;
+import com.xyp.gtnc.Common.recipe.gregtech.AssemblingLineRecipes;
 import com.xyp.gtnc.Common.recipe.gregtech.BenderRecipes;
 import com.xyp.gtnc.Common.recipe.gregtech.FurnaceRecipes;
 import com.xyp.gtnc.Common.recipe.gregtech.LaserEngraverRecipes;
@@ -16,6 +17,7 @@ public class RecipeLoader {
 
     public static void loadRecipes() {
 
+        AssemblingLineRecipes.loadrecipes();
         DrillingRigRecipes.loadRecipes();
         MiningRigRecipes.loadRecipes();
         GeneralChemicalFactoryRecipes.loadRecipes();

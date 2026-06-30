@@ -129,7 +129,6 @@ public class SuperSpaceElevator extends TTMultiblockBase
     @Getter
     @Setter
     public int motorTier = 0;
-    public int mTier = 0;
     public int mCountCasing = 0;
     public boolean wirelessMode = false;
     public UUID ownerUUID;
@@ -252,6 +251,10 @@ public class SuperSpaceElevator extends TTMultiblockBase
             // # Turn off the controller to pause all modules
             // # zh_CN 关闭控制器即可暂停所有模块
             .addInfo(StatCollector.translateToLocal("Tooltip_SuperSpaceElevator_07"))
+            // #tr Tooltip_SuperSpaceElevator_08
+            // # §dExtension layers need to be set up in the projector
+            // # zh_CN §d扩展层数需要在投影仪里设置信道等级才可以拓展
+            .addInfo(StatCollector.translateToLocal("Tooltip_SuperSpaceElevator_08"))
             .addTecTechHatchInfo()
             .beginStructureBlock(65, 53, 65, true)
             // #tr Tooltip_SuperSpaceElevator_Casing
@@ -259,8 +262,7 @@ public class SuperSpaceElevator extends TTMultiblockBase
             // # zh_CN 任意太空电梯基座机械方块
             .addEnergyHatch(StatCollector.translateToLocal("Tooltip_SuperSpaceElevator_Casing"))
             .addDynamoHatch(StatCollector.translateToLocal("Tooltip_SuperSpaceElevator_Casing"))
-            .addSubChannelUsage(GTStructureChannels.TIER_MACHINE_CASING)
-            .addSubChannelUsage(GTStructureChannels.STRUCTURE_HEIGHT)
+            .addSubChannelUsage(GTStructureChannels.SE_MOTOR)
             .toolTipFinisher();
         return tt;
     }
@@ -292,7 +294,7 @@ public class SuperSpaceElevator extends TTMultiblockBase
     }
 
     public int getTierForGui() {
-        return mTier;
+        return motorTier;
     }
 
     public void openCelestialSelection(EntityPlayer player) {
@@ -328,7 +330,7 @@ public class SuperSpaceElevator extends TTMultiblockBase
             .addElement('C', ofBlock(sBlockCasingsTT, 0))
             .addElement(
                 'D',
-                GTStructureChannels.TIER_MACHINE_CASING.use(
+                GTStructureChannels.SE_MOTOR.use(
                     StructureUtility.ofBlocksTiered(
                         ElevatorUtil.motorTierConverter(),
                         ElevatorUtil.getMotorTiers(),
@@ -400,8 +402,8 @@ public class SuperSpaceElevator extends TTMultiblockBase
             STRUCTURE_PIECE_MAIN_VERT_OFFSET,
             STRUCTURE_PIECE_MAIN_DEPTH_OFFSET);
 
-        if (!GTStructureChannels.STRUCTURE_HEIGHT.hasValue(stackSize)) return;
-        int tTier = GTStructureChannels.STRUCTURE_HEIGHT.getValueClamped(stackSize, 1, 5);
+        if (!GTStructureChannels.SE_MOTOR.hasValue(stackSize)) return;
+        int tTier = GTStructureChannels.SE_MOTOR.getValueClamped(stackSize, 1, 5) - 1;
         for (int i = 0; i < tTier; i++) {
             this.buildPiece(
                 STRUCTURE_PIECE_EXTENDED,
@@ -430,10 +432,10 @@ public class SuperSpaceElevator extends TTMultiblockBase
 
         if (built >= 0) return built;
 
-        if (!GTStructureChannels.STRUCTURE_HEIGHT.hasValue(stackSize)) return built;
-        int tTier = GTStructureChannels.STRUCTURE_HEIGHT.getValueClamped(stackSize, 1, 5);
+        if (!GTStructureChannels.SE_MOTOR.hasValue(stackSize)) return built;
+        int tTier2 = GTStructureChannels.SE_MOTOR.getValueClamped(stackSize, 1, 5) - 1;
 
-        for (int i = 0; i < tTier; i++) {
+        for (int i = 0; i < tTier2; i++) {
             built = this.survivalBuildPiece(
                 STRUCTURE_PIECE_EXTENDED,
                 stackSize,
@@ -453,9 +455,10 @@ public class SuperSpaceElevator extends TTMultiblockBase
 
     @Override
     public void checkMachine(IGregTechTileEntity aBaseMetaTileEntity, ItemStack aStack, List<StructureError> errors) {
+        mProjectModuleHatches.clear();
+        elevatorCable = null;
         motorTier = 0;
         wirelessMode = false;
-        mTier = 0;
         mCountCasing = 0;
 
         if (!checkPiece(
@@ -470,17 +473,17 @@ public class SuperSpaceElevator extends TTMultiblockBase
             return;
         }
 
-        if (motorTier > 1) {
-            while (mTier < motorTier) {
-                if (checkPiece(
-                    STRUCTURE_PIECE_EXTENDED,
-                    STRUCTURE_PIECE_EXTENDED_HOR_OFFSET,
-                    STRUCTURE_PIECE_EXTENDED_VERT_OFFSET - mTier * 6,
-                    STRUCTURE_PIECE_EXTENDED_DEPTH_OFFSET,
-                    null)) {
-                    mTier++;
-                }
+        int checkedLayers = 0;
+        while (checkedLayers < motorTier - 1) {
+            if (!checkPiece(
+                STRUCTURE_PIECE_EXTENDED,
+                STRUCTURE_PIECE_EXTENDED_HOR_OFFSET,
+                STRUCTURE_PIECE_EXTENDED_VERT_OFFSET - checkedLayers * 6,
+                STRUCTURE_PIECE_EXTENDED_DEPTH_OFFSET,
+                null)) {
+                break;
             }
+            checkedLayers++;
         }
 
         if (elevatorCable != null) {
@@ -561,7 +564,7 @@ public class SuperSpaceElevator extends TTMultiblockBase
                         }
                         BigInteger totalUsedEU = BigInteger.ZERO;
                         for (TileEntityModuleBase projectModule : mProjectModuleHatches) {
-                            if (projectModule.getNeededMotorTier() <= motorTier) {
+                            if (projectModule.getNeededMotorTier() - 1 <= motorTier) {
                                 projectModule.connect();
 
                                 if (wirelessMode && getUserEU(ownerUUID).compareTo(BigInteger.ZERO) > 0) {
@@ -654,7 +657,8 @@ public class SuperSpaceElevator extends TTMultiblockBase
                 .setDefaultColor(COLOR_TEXT_WHITE.get())
                 .setEnabled(widget -> getBaseMetaTileEntity().isAllowedToWork()));
         screenElements.widget(
-            TextWidget.dynamicText(() -> new Text(StatCollector.translateToLocal("Info_SuperSpaceElevator_00") + mTier))
+            TextWidget
+                .dynamicText(() -> new Text(StatCollector.translateToLocal("Info_SuperSpaceElevator_00") + motorTier))
                 .setDefaultColor(COLOR_TEXT_WHITE.get())
                 .setEnabled(widget -> getBaseMetaTileEntity().isAllowedToWork()));
     }

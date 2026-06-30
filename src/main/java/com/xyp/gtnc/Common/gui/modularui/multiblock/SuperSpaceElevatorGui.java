@@ -4,7 +4,6 @@ import static gregtech.api.metatileentity.BaseTileEntity.TOOLTIP_DELAY;
 
 import net.minecraft.util.StatCollector;
 
-import com.cleanroommc.modularui.api.drawable.IDrawable;
 import com.cleanroommc.modularui.api.drawable.IKey;
 import com.cleanroommc.modularui.api.widget.IWidget;
 import com.cleanroommc.modularui.drawable.DrawableStack;
@@ -16,11 +15,9 @@ import com.cleanroommc.modularui.value.sync.BooleanSyncValue;
 import com.cleanroommc.modularui.value.sync.IntSyncValue;
 import com.cleanroommc.modularui.value.sync.InteractionSyncHandler;
 import com.cleanroommc.modularui.value.sync.PanelSyncManager;
-import com.cleanroommc.modularui.widget.Widget;
 import com.cleanroommc.modularui.widgets.ButtonWidget;
 import com.cleanroommc.modularui.widgets.ListWidget;
 import com.cleanroommc.modularui.widgets.layout.Flow;
-import com.xyp.gtnc.Common.gui.modularui.GTNCGuiTextures;
 import com.xyp.gtnc.Common.machines.multiblock.SuperSpaceElevator;
 
 import gregtech.api.modularui2.GTGuiTextures;
@@ -86,7 +83,7 @@ public class SuperSpaceElevatorGui extends TTMultiblockBaseGui<SuperSpaceElevato
                     .fullWidth())
             // #tr Info_SuperSpaceElevator_00
             // # Cable Tier
-            // # zh_CN 线缆等级
+            // # zh_CN 加速轨道等级 :
             .child(
                 IKey.dynamic(
                     () -> StatCollector.translateToLocal("Info_SuperSpaceElevator_00") + tierSyncer.getIntValue())
@@ -114,11 +111,5 @@ public class SuperSpaceElevatorGui extends TTMultiblockBaseGui<SuperSpaceElevato
             .syncHandler(teleportSyncer)
             .tooltipBuilder(tooltip -> tooltip.addLine(IKey.lang("ig.button.travel")))
             .tooltipShowUpTimer(TOOLTIP_DELAY);
-    }
-
-    @Override
-    protected Widget<? extends Widget<?>> makeLogoWidget(PanelSyncManager syncManager, ModularPanel parent) {
-        return new IDrawable.DrawableWidget(GTNCGuiTextures.PICTURE_GODFORGE_LOGO).size(18)
-            .marginTop(4);
     }
 }

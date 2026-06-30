@@ -40,6 +40,7 @@ import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamHammer;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamLaserEngraver;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamMixer;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamTurbine;
+import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamVoidMiner;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamWireMill;
 import com.xyp.gtnc.utils.enums.GTNCItemList;
 import com.xyp.gtnc.utils.enums.GTNCMachineID;
@@ -496,6 +497,17 @@ public class MachineLoader {
                 "SuperSpaceElevator",
                 StatCollector.translateToLocal("NameSuperSpaceElevator")));
         AnimatedTooltipHandler.addItemTooltip(GTNCItemList.SuperSpaceElevator.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        // #tr NameLargeSteamVoidMiner
+        // # Large Steam Void Miner
+        // # zh_CN 大型蒸汽虚空采矿场
+        GTNCItemList.LargeSteamVoidMiner.set(
+            new LargeSteamVoidMiner(
+                GTNCMachineID.LARGE_STEAM_VOID_MINER.ID,
+                "LargeSteamVoidMiner",
+                StatCollector.translateToLocal("NameLargeSteamVoidMiner")));
+        AnimatedTooltipHandler
+            .addItemTooltip(GTNCItemList.LargeSteamVoidMiner.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
 
     }
 
