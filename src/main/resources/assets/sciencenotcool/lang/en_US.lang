@@ -6,6 +6,7 @@ gt.blockmachines.multimachine.bee.species.tooltip=Input the target bee species n
 gt.blockmachines.multimachine.notset=Not Set
 gt.blockmachines.multimachine.pending=Pending
 gt.blockmachines.multimachine.missing=Missing
+Info_SuperSpaceElevator_00=Cable Tier
 GT5U.machines.select_mold.tooltip=Ghost Mold Slot
 GT5U.machines.select_mold.tooltip.1=Shift+Click to select mold
 GT5U.machines.select_mold.tooltip.2=Scroll to change mold

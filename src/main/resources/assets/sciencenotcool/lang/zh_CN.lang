@@ -6,6 +6,7 @@ gt.blockmachines.multimachine.bee.species.tooltip=输入目标蜜蜂品种名称
 gt.blockmachines.multimachine.notset=未设置
 gt.blockmachines.multimachine.pending=待输出
 gt.blockmachines.multimachine.missing=缺少
+Info_SuperSpaceElevator_00=线缆等级
 GT5U.machines.select_mold.tooltip=虚拟模具槽
 GT5U.machines.select_mold.tooltip.1=Shift+点击以选择模具
 GT5U.machines.select_mold.tooltip.2=滚动鼠标滚轮切换模具
