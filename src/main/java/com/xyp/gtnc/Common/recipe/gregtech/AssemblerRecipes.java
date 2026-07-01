@@ -31,6 +31,23 @@ public class AssemblerRecipes {
     public static void loadRecipes() {
         RecipeMap<?> As = RecipeMaps.assemblerRecipes;
 
+        // 虚空蒸汽采矿场
+        GTValues.RA.stdBuilder()
+            .itemInputs(
+                GTOreDictUnificator.get(OrePrefixes.frameGt, Materials.VibrantAlloy, 16),
+                GTOreDictUnificator.get(OrePrefixes.circuit, Materials.MV, 8),
+                ItemList.Casing_MV.get(4),
+                ItemList.Electric_Pump_MV.get(16),
+                GTOreDictUnificator.get(OrePrefixes.gearGt, Materials.StainlessSteel, 8),
+                ItemList.Electric_Piston_MV.get(16),
+                GTOreDictUnificator.get(OrePrefixes.gearGtSmall, Materials.StainlessSteel, 16))
+            .fluidInputs(Materials.StainlessSteel.getMolten(9216))
+            .itemOutputs(GTNCItemList.LargeSteamVoidMiner.get(1))
+            .circuit(1)
+            .eut(RECIPE_MV)
+            .duration(20 * 60)
+            .addTo(As);
+
         // 矿机平台
         GTValues.RA.stdBuilder()
             .itemInputs(

@@ -45,6 +45,7 @@ import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
 import com.xyp.gtnc.Common.gui.modularui.multiblock.steam.LargeSteamVoidMinerGui;
 import com.xyp.gtnc.Common.machines.multiblock.multiMachineBase.GTNCSteamMultiBlockBase;
+import com.xyp.gtnc.utils.world.steam.SteamWirelessNetworkManager;
 
 import bwcrossmod.galacticgreg.VoidMinerUtility;
 import cpw.mods.fml.relauncher.Side;
@@ -66,8 +67,6 @@ import gregtech.api.util.GTUtility;
 import gregtech.api.util.MultiblockTooltipBuilder;
 import gregtech.api.util.shutdown.ShutDownReasonRegistry;
 import gregtech.common.gui.modularui.multiblock.base.MTEMultiBlockBaseGui;
-import mcp.mobius.waila.api.IWailaConfigHandler;
-import mcp.mobius.waila.api.IWailaDataAccessor;
 
 // #tr NameLargeSteamVoidMiner
 // # Large Steam Void Miner
@@ -574,8 +573,7 @@ public class LargeSteamVoidMiner extends GTNCSteamMultiBlockBase<LargeSteamVoidM
     }
 
     // ============================================================
-    // WAILA - override base class to avoid GTValues.VN bounds crash
-    // since void miner uses steam tier (1/2) not voltage tier
+    // WAILA
     // ============================================================
 
     // #tr GT5U.tooltip.tier.steel
@@ -585,36 +583,9 @@ public class LargeSteamVoidMiner extends GTNCSteamMultiBlockBase<LargeSteamVoidM
     // #tr GT5U.tooltip.tier.bronze
     // # Bronze
     // # zh_CN 青铜
-
     @Override
-    public void getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor,
-        IWailaConfigHandler config) {
-        NBTTagCompound tag = accessor.getNBTData();
-        currenttip.add(
-            StatCollector.translateToLocal("GTPP.machines.tier") + ": "
-                + EnumChatFormatting.YELLOW
-                + (tierMachine == 2 ? StatCollector.translateToLocal("GT5U.tooltip.tier.steel")
-                    : StatCollector.translateToLocal("GT5U.tooltip.tier.bronze"))
-                + EnumChatFormatting.RESET);
-        if (tag.getBoolean("wirelessMode")) {
-            currenttip.add(
-                StatCollector.translateToLocal("GT5U.turbine.wireless_mode") + ": "
-                    + EnumChatFormatting.GREEN
-                    + "ON"
-                    + EnumChatFormatting.RESET);
-            currenttip.add(
-                StatCollector.translateToLocal("GTNC.info.wireless_steam") + ": "
-                    + EnumChatFormatting.GOLD
-                    + tag.getString("networkSteam")
-                    + EnumChatFormatting.RESET
-                    + " L");
-        }
-        currenttip.add(
-            StatCollector.translateToLocal("GTNC.info.steam_consumed") + ": "
-                + EnumChatFormatting.AQUA
-                + tag.getLong("steamConsumed")
-                + EnumChatFormatting.RESET
-                + " L");
+    protected boolean showWailaExtraInfo() {
+        return false;
     }
 
     @Override
@@ -625,7 +596,7 @@ public class LargeSteamVoidMiner extends GTNCSteamMultiBlockBase<LargeSteamVoidM
         if (wirelessMode && ownerUUID != null) {
             tag.setString(
                 "networkSteam",
-                com.xyp.gtnc.utils.world.steam.SteamWirelessNetworkManager.getUserSteam(ownerUUID)
+                SteamWirelessNetworkManager.getUserSteam(ownerUUID)
                     .toString());
         }
         tag.setLong("steamConsumed", totalSteamConsumed);

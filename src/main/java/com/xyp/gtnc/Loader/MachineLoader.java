@@ -42,6 +42,7 @@ import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamMixer;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamTurbine;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamVoidMiner;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamWireMill;
+import com.xyp.gtnc.Common.machines.multiblock.steam.SteamEyeOfHarmony;
 import com.xyp.gtnc.utils.enums.GTNCItemList;
 import com.xyp.gtnc.utils.enums.GTNCMachineID;
 import com.xyp.gtnc.utils.text.AnimatedText;
@@ -508,6 +509,16 @@ public class MachineLoader {
                 StatCollector.translateToLocal("NameLargeSteamVoidMiner")));
         AnimatedTooltipHandler
             .addItemTooltip(GTNCItemList.LargeSteamVoidMiner.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        // #tr NameSteamEyeOfHarmony
+        // # Steam Eye of Harmony
+        // # zh_CN 蒸汽鸿蒙之眼
+        GTNCItemList.SteamEyeOfHarmony.set(
+            new SteamEyeOfHarmony(
+                GTNCMachineID.STEAM_EYE_OF_HARMONY.ID,
+                "SteamEyeOfHarmony",
+                StatCollector.translateToLocal("NameSteamEyeOfHarmony")));
+        AnimatedTooltipHandler.addItemTooltip(GTNCItemList.SteamEyeOfHarmony.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
 
     }
 

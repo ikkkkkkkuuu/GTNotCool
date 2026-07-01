@@ -707,35 +707,37 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
         IWailaConfigHandler config) {
         super.getWailaBody(itemStack, currenttip, accessor, config);
         NBTTagCompound tag = accessor.getNBTData();
-        currenttip.add(
-            StatCollector.translateToLocal("GTPP.machines.tier") + ": "
-                + EnumChatFormatting.YELLOW
-                + getSteamTierTextForWaila(tag)
-                + EnumChatFormatting.RESET);
-        currenttip.add(
-            StatCollector.translateToLocal("GT5U.multiblock.curparallelism") + ": "
-                + EnumChatFormatting.BLUE
-                + tag.getInteger("parallel")
-                + EnumChatFormatting.RESET);
-        currenttip.add(
-            StatCollector.translateToLocal("GT5U.multiblock.maxtier") + ": "
-                + EnumChatFormatting.YELLOW
-                + GTValues.VN[tag.getInteger("tierMachine") + tag.getInteger("upgradeTier")]
-                + EnumChatFormatting.RESET);
-        if (tag.getInteger("upgradeTier") > 0) {
+        if (showWailaExtraInfo()) {
             currenttip.add(
-                StatCollector.translateToLocal("GTNC.info.upgradeTier") + ": "
-                    + EnumChatFormatting.GOLD
-                    + tag.getInteger("upgradeTier"));
+                StatCollector.translateToLocal("GTPP.machines.tier") + ": "
+                    + EnumChatFormatting.YELLOW
+                    + getSteamTierTextForWaila(tag)
+                    + EnumChatFormatting.RESET);
             currenttip.add(
-                StatCollector.translateToLocal("GTNC.info.upgradeSpeed") + ": "
-                    + EnumChatFormatting.GREEN
-                    + String.format("%.2fx", 1.0f / tag.getFloat("upgradeSpeed")));
+                StatCollector.translateToLocal("GT5U.multiblock.curparallelism") + ": "
+                    + EnumChatFormatting.BLUE
+                    + tag.getInteger("parallel")
+                    + EnumChatFormatting.RESET);
             currenttip.add(
-                StatCollector.translateToLocal("GTNC.info.upgradeParallel") + ": "
-                    + EnumChatFormatting.AQUA
-                    + "+"
-                    + tag.getInteger("upgradeParallel"));
+                StatCollector.translateToLocal("GT5U.multiblock.maxtier") + ": "
+                    + EnumChatFormatting.YELLOW
+                    + GTValues.VN[tag.getInteger("tierMachine") + tag.getInteger("upgradeTier")]
+                    + EnumChatFormatting.RESET);
+            if (tag.getInteger("upgradeTier") > 0) {
+                currenttip.add(
+                    StatCollector.translateToLocal("GTNC.info.upgradeTier") + ": "
+                        + EnumChatFormatting.GOLD
+                        + tag.getInteger("upgradeTier"));
+                currenttip.add(
+                    StatCollector.translateToLocal("GTNC.info.upgradeSpeed") + ": "
+                        + EnumChatFormatting.GREEN
+                        + String.format("%.2fx", 1.0f / tag.getFloat("upgradeSpeed")));
+                currenttip.add(
+                    StatCollector.translateToLocal("GTNC.info.upgradeParallel") + ": "
+                        + EnumChatFormatting.AQUA
+                        + "+"
+                        + tag.getInteger("upgradeParallel"));
+            }
         }
         if (tag.getBoolean("wirelessMode")) {
             currenttip.add(
@@ -775,6 +777,10 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
                     .toString());
         }
         tag.setLong("steamConsumed", totalSteamConsumed);
+    }
+
+    protected boolean showWailaExtraInfo() {
+        return true;
     }
 
     @Override

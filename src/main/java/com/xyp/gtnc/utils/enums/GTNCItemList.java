@@ -71,6 +71,8 @@ public enum GTNCItemList implements IItemContainer {
     LargeSteamCombProcessor,
     LargeSteamVoidMiner,
 
+    SteamEyeOfHarmony,
+
     LargeSteamCrucibleSteel,
     LargeSteamCrucibleInvar,
     LargeSteamCrucibleStainless,

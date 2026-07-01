@@ -24,6 +24,6 @@ public abstract class MixinElectricBlastFurnace {
 
     @Inject(method = "checkMachine", at = @At("TAIL"))
     private void gtnc$increaseHeat(CallbackInfo ci) {
-        mHeatingCapacity += 2300;
+        mHeatingCapacity += 23000;
     }
 }
