@@ -133,6 +133,15 @@ public class LargeSteamVoidMinerGui extends GTNCSteamMultiBlockBaseGui {
 
     @Override
     protected Flow createButtonColumn(ModularPanel panel, PanelSyncManager syncManager) {
+        // Sync the dimension override name to the client so the ore filter list is built for the correct dimension
+        // right after a world reload (previously targetDimName was server-only, so the client showed the current
+        // world's ores until the dimension button was clicked).
+        syncManager.syncValue(
+            "targetDimName",
+            new StringSyncValue(() -> vm().targetDimName == null ? "" : vm().targetDimName, str -> {
+                vm().targetDimName = (str == null || str.isEmpty()) ? null : str;
+                vm().refreshDropMap();
+            }));
         IPanelHandler filterPopup = syncManager.syncedPanel("filter", true, this::createFilterPopup);
         this.filterPanel = filterPopup;
         IPanelHandler dimPanel = syncManager.syncedPanel("dimPanel", true, this::createDimSlotPanel);
