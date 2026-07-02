@@ -72,11 +72,7 @@ public class ItemBiggerAppEngInventory extends AppEngInternalInventory {
     public void markDirty() {
         this.writeToNBT(Platform.openNbtData(is), this.name);
         if (Platform.isServer()) {
-            if (slot != -1) {
-                this.player.inventory.setInventorySlotContents(slot, this.is);
-            } else {
-                this.player.inventory.setItemStack(this.is);
-            }
+            com.xyp.gtnc.ae2thing.util.Util.writeBackTerminal(this.player, this.slot, this.is);
         }
     }
 

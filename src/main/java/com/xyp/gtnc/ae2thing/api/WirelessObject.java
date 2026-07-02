@@ -170,7 +170,7 @@ public class WirelessObject implements IActionHost {
         if (this.energySource == null) closeGui();
         double result = energySource.extractAEPower(amt, mode, usePowerMultiplier);
         if (result == 0) closeGui();
-        this.player.inventory.setInventorySlotContents(getSlot(), getItemStack());
+        com.xyp.gtnc.ae2thing.util.Util.writeBackTerminal(this.player, getSlot(), getItemStack());
         ticks = 0;
         return ticks;
     }

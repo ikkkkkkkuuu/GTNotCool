@@ -154,6 +154,29 @@ public class Util {
         return -1;
     }
 
+    /**
+     * Writes a terminal ItemStack back into the slot it lives in. Handles both a normal main-inventory slot and a
+     * Baubles slot encoded with {@link com.xyp.gtnc.ae2thing.api.Constants#BAUBLE_SLOT_OFFSET}. Guards against
+     * out-of-range indices so a stale/encoded slot can never crash the server.
+     */
+    public static void writeBackTerminal(EntityPlayer player, int slot, ItemStack stack) {
+        if (slot == -1) {
+            player.inventory.setItemStack(stack);
+            return;
+        }
+        if (slot >= com.xyp.gtnc.ae2thing.api.Constants.BAUBLE_SLOT_OFFSET) {
+            net.minecraft.inventory.IInventory baublesInv = baubles.api.BaublesApi.getBaubles(player);
+            int bSlot = slot - com.xyp.gtnc.ae2thing.api.Constants.BAUBLE_SLOT_OFFSET;
+            if (baublesInv != null && bSlot >= 0 && bSlot < baublesInv.getSizeInventory()) {
+                baublesInv.setInventorySlotContents(bSlot, stack);
+            }
+            return;
+        }
+        if (slot >= 0 && slot < player.inventory.getSizeInventory()) {
+            player.inventory.setInventorySlotContents(slot, stack);
+        }
+    }
+
     public static int findDualInterfaceTerminal(EntityPlayer player) {
         for (int x = 0; x < player.inventory.mainInventory.length; x++) {
             ItemStack item = player.inventory.mainInventory[x];

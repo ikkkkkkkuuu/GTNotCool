@@ -29,7 +29,7 @@ public class ItemPatternsInventory extends AppEngInternalInventory {
     @Override
     public void markDirty() {
         this.writeToNBT(Platform.openNbtData(is), Constants.PATTERN);
-        if (Platform.isServer()) this.player.inventory.setInventorySlotContents(slot, this.is);
+        if (Platform.isServer()) com.xyp.gtnc.ae2thing.util.Util.writeBackTerminal(this.player, slot, this.is);
     }
 
     @Override
