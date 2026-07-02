@@ -1,9 +1,8 @@
 package com.xyp.gtnc.ae2thing;
 
-import com.xyp.gtnc.Tags;
-import com.xyp.gtnc.utils.enums.ModList;
 import net.minecraft.util.ResourceLocation;
 
+import com.xyp.gtnc.Tags;
 import com.xyp.gtnc.ae2thing.common.Config;
 import com.xyp.gtnc.ae2thing.inventory.InventoryHandler;
 import com.xyp.gtnc.ae2thing.loader.ChannelLoader;
@@ -11,6 +10,7 @@ import com.xyp.gtnc.ae2thing.loader.ItemAndBlockHolder;
 import com.xyp.gtnc.ae2thing.loader.RecipeLoader;
 import com.xyp.gtnc.ae2thing.proxy.ClientProxy;
 import com.xyp.gtnc.ae2thing.proxy.CommonProxy;
+import com.xyp.gtnc.utils.enums.ModList;
 
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLLoadCompleteEvent;

@@ -30,27 +30,15 @@ import cpw.mods.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class KeybindLoader implements Runnable {
 
-    public static KeyBinding openBackpackTerminal;
     public static KeyBinding openDualInterfaceTerminal;
-    public static KeyBinding openTerminalMenu;
 
     @Override
     public void run() {
-        openBackpackTerminal = new KeyBinding(
-            AE2Thing.MODID + ".key.open_backpack_terminal",
-            Keyboard.CHAR_NONE,
-            "itemGroup." + AE2Thing.MODID);
-        ClientRegistry.registerKeyBinding(openBackpackTerminal);
         openDualInterfaceTerminal = new KeyBinding(
             AE2Thing.MODID + ".key.open_dual_interface_terminal",
             Keyboard.CHAR_NONE,
-            "itemGroup." + AE2Thing.MODID);
+            "key.categories.sciencenotcool");
         ClientRegistry.registerKeyBinding(openDualInterfaceTerminal);
-        openTerminalMenu = new KeyBinding(
-            AE2Thing.MODID + ".key.open_terminal",
-            Keyboard.CHAR_NONE,
-            "itemGroup." + AE2Thing.MODID);
-        ClientRegistry.registerKeyBinding(openTerminalMenu);
         FMLCommonHandler.instance()
             .bus()
             .register(this);
@@ -80,14 +68,6 @@ public class KeybindLoader implements Runnable {
         if (!(event instanceof InputEvent.KeyInputEvent) && !(event instanceof InputEvent.MouseInputEvent)) return;
         if (p.openContainer == null) {
             return;
-        }
-        if (openTerminalMenu.isPressed()) {
-            AE2ThingAPI.instance()
-                .openTerminalMenu();
-        }
-        if (openBackpackTerminal.isPressed()) {
-            AE2ThingAPI.instance()
-                .openBackpackTerminal();
         }
         if (openDualInterfaceTerminal.isPressed()) {
             AE2ThingAPI.instance()

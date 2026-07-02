@@ -38,8 +38,6 @@ public interface IAE2ThingAPI {
 
     Pinned getPinned();
 
-    void openBackpackTerminal();
-
     @SideOnly(Side.CLIENT)
     void openDualinterfaceTerminal();
 
@@ -54,8 +52,6 @@ public interface IAE2ThingAPI {
     String getVersion();
 
     long getStorageMyID(Grid grid);
-
-    void openTerminalMenu();
 
     @SideOnly(Side.CLIENT)
     void addCraftingCompleteNotification(IAEItemStack item);

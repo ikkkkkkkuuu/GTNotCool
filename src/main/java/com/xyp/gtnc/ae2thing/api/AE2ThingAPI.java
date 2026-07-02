@@ -131,18 +131,8 @@ public final class AE2ThingAPI implements IAE2ThingAPI {
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void openBackpackTerminal() {}
-
-    @SideOnly(Side.CLIENT)
-    @Override
     public void openDualinterfaceTerminal() {
         AE2Thing.proxy.netHandler.sendToServer(new CPacketSwitchGuis(GuiType.WIRELESS_DUAL_INTERFACE_TERMINAL));
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Override
-    public void openTerminalMenu() {
-        AE2Thing.proxy.netHandler.sendToServer(new CPacketSwitchGuis(GuiType.TERMINAL_MENU));
     }
 
     @Override

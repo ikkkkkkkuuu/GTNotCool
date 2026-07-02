@@ -5,8 +5,6 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 
 import com.google.common.collect.ImmutableList;
 import com.xyp.gtnc.ae2thing.client.gui.GuiCraftAmount;
@@ -16,14 +14,12 @@ import com.xyp.gtnc.ae2thing.client.gui.GuiPatternModifier;
 import com.xyp.gtnc.ae2thing.client.gui.GuiPatternValueAmount;
 import com.xyp.gtnc.ae2thing.client.gui.GuiPatternValueName;
 import com.xyp.gtnc.ae2thing.client.gui.GuiRenamer;
-import com.xyp.gtnc.ae2thing.client.gui.GuiTerminalMenu;
 import com.xyp.gtnc.ae2thing.client.gui.GuiWirelessDualInterfaceTerminal;
 import com.xyp.gtnc.ae2thing.client.gui.container.ContainerCraftConfirm;
 import com.xyp.gtnc.ae2thing.client.gui.container.ContainerPatternModifier;
 import com.xyp.gtnc.ae2thing.client.gui.container.ContainerPatternValueAmount;
 import com.xyp.gtnc.ae2thing.client.gui.container.ContainerPatternValueName;
 import com.xyp.gtnc.ae2thing.client.gui.container.ContainerRenamer;
-import com.xyp.gtnc.ae2thing.client.gui.container.ContainerTerminalMenu;
 import com.xyp.gtnc.ae2thing.client.gui.container.ContainerWirelessDualInterfaceTerminal;
 import com.xyp.gtnc.ae2thing.common.parts.THPart;
 
@@ -43,18 +39,6 @@ public enum GuiType {
         @Override
         protected Object createClientGui(EntityPlayer player, ITerminalHost inv) {
             return new GuiPatternModifier(player.inventory, inv);
-        }
-    }),
-    TERMINAL_MENU(new NullGuiFactory() {
-
-        @Override
-        public Object createServerGui(EntityPlayer player, World world, int x, int y, int z, ForgeDirection face) {
-            return new ContainerTerminalMenu();
-        }
-
-        @Override
-        public Object createClientGui(EntityPlayer player, World world, int x, int y, int z, ForgeDirection face) {
-            return new GuiTerminalMenu();
         }
     }),
     WIRELESS_DUAL_INTERFACE_TERMINAL(new ItemGuiFactory<>(ITerminalHost.class) {
