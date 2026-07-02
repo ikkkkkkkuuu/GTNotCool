@@ -23,8 +23,11 @@ import appeng.core.localization.PlayerMessages;
 import appeng.items.tools.powered.ToolWirelessTerminal;
 import appeng.util.Platform;
 import baubles.api.IBauble;
+import baubles.api.expanded.BaubleExpandedSlots;
+import baubles.api.expanded.IBaubleExpanded;
 
-public abstract class ItemBaseWirelessTerminal extends ToolWirelessTerminal implements IItemInventory, IBauble {
+public abstract class ItemBaseWirelessTerminal extends ToolWirelessTerminal
+    implements IItemInventory, IBauble, IBaubleExpanded {
 
     public ItemBaseWirelessTerminal() {
         super();
@@ -42,7 +45,23 @@ public abstract class ItemBaseWirelessTerminal extends ToolWirelessTerminal impl
 
     @Override
     public boolean canEquip(ItemStack itemstack, EntityLivingBase player) {
-        return false;
+        return true;
+    }
+
+    /**
+     * Allow the terminal to be placed into every registered bauble slot type, not just AE2's dedicated terminal slot.
+     */
+    @Override
+    public String[] getBaubleTypes(ItemStack itemstack) {
+        java.util.List<String> types = new java.util.ArrayList<>();
+        for (String type : BaubleExpandedSlots.getCurrentlyRegisteredTypes()) {
+            if (type == null || type.equals(BaubleExpandedSlots.unknownType)
+                || type.equals(BaubleExpandedSlots.invalidType)) {
+                continue;
+            }
+            types.add(type);
+        }
+        return types.toArray(new String[0]);
     }
 
     @Override
