@@ -228,6 +228,15 @@ public abstract class BaseMEGui extends AEBaseGui implements IGuiSelection {
             VirtualMESlot s = this.getVirtualMESlotUnderMouse();
             if (s instanceof VirtualMEMonitorableSlot) {
                 List<String> message = new ArrayList<>();
+                // #tr sciencenotcool.gui.terminal.store_action
+                // # %s: Store %s
+                // # zh_CN %s：存入 %s
+                // #tr sciencenotcool.gui.terminal.left_click
+                // # Left-Click
+                // # zh_CN 左键点击
+                // #tr sciencenotcool.gui.terminal.right_click
+                // # Right-Click
+                // # zh_CN 右键点击
                 message.add(
                     "\u00a77" + I18n.format(
                         NameConst.GUI_TERMINAL_STORE_ACTION,

@@ -28,6 +28,9 @@ public class ItemPatternModifier extends BaseItem implements IItemInventory {
 
     public ItemPatternModifier() {
         super();
+        // #tr item.pattern_modifier.name
+        // # Pattern Modifier
+        // # zh_CN 样板修改器
         setUnlocalizedName(NameConst.ITEM_PATTERN_MODIFIER);
         setTextureName(
             AE2Thing.resource(NameConst.ITEM_PATTERN_MODIFIER)

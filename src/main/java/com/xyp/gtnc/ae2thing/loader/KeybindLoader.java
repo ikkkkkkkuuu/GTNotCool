@@ -34,6 +34,9 @@ public class KeybindLoader implements Runnable {
 
     @Override
     public void run() {
+        // #tr sciencenotcool.key.open_dual_interface_terminal
+        // # Open Dual Interface Terminal
+        // # zh_CN 打开二合一接口终端
         openDualInterfaceTerminal = new KeyBinding(
             AE2Thing.MODID + ".key.open_dual_interface_terminal",
             Keyboard.CHAR_NONE,

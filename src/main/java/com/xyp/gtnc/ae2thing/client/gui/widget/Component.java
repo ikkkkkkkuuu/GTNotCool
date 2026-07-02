@@ -51,6 +51,27 @@ public class Component implements IClickable {
         this.repo = repo;
         this.idx = idx;
         this.render = gui.getFontRenderer();
+        // #tr sciencenotcool.gui.wireless_connector_terminal.name
+        // # Name
+        // # zh_CN 名字
+        // #tr sciencenotcool.gui.wireless_connector_terminal.pos
+        // # Pos
+        // # zh_CN 位置
+        // #tr sciencenotcool.gui.wireless_connector_terminal.color
+        // # Color
+        // # zh_CN 颜色
+        // #tr sciencenotcool.gui.wireless_connector_terminal.channels_used
+        // # Channels used
+        // # zh_CN 已使用频道
+        // #tr sciencenotcool.gui.wireless_connector_terminal.bind
+        // # Bind
+        // # zh_CN 绑定
+        // #tr sciencenotcool.gui.wireless_connector_terminal.unbind
+        // # Unbind
+        // # zh_CN 解绑
+        // #tr sciencenotcool.gui.wireless_connector_terminal.in_other_dim
+        // # Wireless connector located at dimension: %d and cant be highlighted
+        // # zh_CN 无线连接器位于 %d 世界，无法高亮显示
         this.x = x;
         this.y = y + offsetY * idx;
         this.textField.x = x

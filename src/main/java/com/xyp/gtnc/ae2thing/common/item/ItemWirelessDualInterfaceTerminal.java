@@ -39,6 +39,9 @@ public class ItemWirelessDualInterfaceTerminal extends ItemBaseWirelessTerminal
             .wireless()
             .registerWirelessHandler(this);
         this.setFeature(EnumSet.of(AEFeature.WirelessAccessTerminal, AEFeature.PoweredTools));
+        // #tr item.wireless_dual_interface_terminal.name
+        // # ME Wireless Dual Interface Terminal
+        // # zh_CN ME无线二合一接口终端
         setUnlocalizedName(NameConst.ITEM_WIRELESS_DUAL_INTERFACE_TERMINAL);
         setTextureName(
             AE2Thing.resource(NameConst.ITEM_WIRELESS_DUAL_INTERFACE_TERMINAL)
@@ -66,11 +69,20 @@ public class ItemWirelessDualInterfaceTerminal extends ItemBaseWirelessTerminal
         boolean displayMoreInfo) {
         super.addCheckedInformation(stack, player, toolTip, displayMoreInfo);
         if (isShiftKeyDown()) {
+            // #tr sciencenotcool.tooltip.wireless_dual_interface_terminal.desc
+            // # Dual interface terminal, support encode pattern
+            // # zh_CN 二合一接口终端,支持编写样板
             toolTip.add(I18n.format(NameConst.TT_INTERFACE_TERMINAL_DESC));
         } else {
+            // #tr sciencenotcool.tooltip.shift_for_more
+            // # §r> Hold §3Shift§r for more information
+            // # zh_CN §r> 按 §3Shift§r 显示更多信息
             toolTip.add(I18n.format(NameConst.TT_SHIFT_FOR_MORE));
         }
         if (isCtrlKeyDown()) {
+            // #tr sciencenotcool.tooltip.wireless.installed
+            // # Installed Card:
+            // # zh_CN 已安装的卡:
             toolTip.add(I18n.format(NameConst.TT_WIRELESS_INSTALLED));
             if (hasInfinityBoosterCard(stack) && getInfinityBoosterCard() != null) {
                 toolTip.add("  " + EnumChatFormatting.GOLD + getInfinityBoosterCard().getDisplayName());
@@ -79,6 +91,9 @@ public class ItemWirelessDualInterfaceTerminal extends ItemBaseWirelessTerminal
                 toolTip.add("  " + EnumChatFormatting.GOLD + getEnergyCard().getDisplayName());
             }
         } else {
+            // #tr sciencenotcool.tooltip.ctrl_for_more
+            // # §r> Hold §3Ctrl§r for more information
+            // # zh_CN §r> 按 §3Ctrl§r 显示更多信息
             toolTip.add(I18n.format(NameConst.TT_CTRL_FOR_MORE));
         }
 

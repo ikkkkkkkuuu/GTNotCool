@@ -76,6 +76,9 @@ public class GuiPatternValueName extends AEBaseGui implements IDropToFillTextFie
 
     @Override
     public void drawFG(int offsetX, int offsetY, int mouseX, int mouseY) {
+        // #tr sciencenotcool.gui.pattern_rename
+        // # Custom Name
+        // # zh_CN 自定义名称
         this.fontRendererObj.drawString(I18n.format(NameConst.GUI_PATTERN_RENAME), 12, 8, 4210752);
     }
 

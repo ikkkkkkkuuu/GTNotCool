@@ -24,6 +24,9 @@ public class NotificationEvent extends Event {
 
     public NotificationEvent(IAEItemStack item) {
         this(
+            // #tr sciencenotcool.message.crafting_complete
+            // # Auto-Crafting Complete
+            // # zh_CN 自动合成完毕！
             I18n.format(NameConst.MESSAGE_CRAFTING_COMPLETE),
             String.format(
                 "%s %s",

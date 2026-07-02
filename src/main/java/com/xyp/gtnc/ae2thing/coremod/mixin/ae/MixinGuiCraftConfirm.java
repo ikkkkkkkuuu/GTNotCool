@@ -74,6 +74,9 @@ public abstract class MixinGuiCraftConfirm extends AEBaseGui {
                 start.yPosition,
                 start.width,
                 start.height,
+                // #tr sciencenotcool.gui.button.replan
+                // # Replan
+                // # zh_CN 重新规划合成任务
                 I18n.format(NameConst.GUI_BUTTON_REPLAN),
                 ""));
         this.replan.visible = false;

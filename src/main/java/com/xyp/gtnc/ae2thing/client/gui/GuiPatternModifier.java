@@ -51,6 +51,9 @@ public class GuiPatternModifier extends AEBaseGui implements INEIGuiHandler {
 
     @Override
     public void drawFG(int offsetX, int offsetY, int mouseX, int mouseY) {
+        // #tr sciencenotcool.gui.pattern_modifier
+        // # Pattern Modifier
+        // # zh_CN 样板修改器
         fontRendererObj.drawString(getGuiDisplayName(I18n.format(NameConst.GUI_PATTERN_MODIFIER)), 8, 6, 0x404040);
         fontRendererObj.drawString(GuiText.inventory.getLocal(), 8, ySize - 94, 0x404040);
     }
@@ -71,6 +74,9 @@ public class GuiPatternModifier extends AEBaseGui implements INEIGuiHandler {
                 this.guiTop + 92,
                 50,
                 20,
+                // #tr sciencenotcool.gui.pattern_modifier.replace
+                // # Replace
+                // # zh_CN 替换
                 I18n.format(NameConst.GUI_PATTERN_MODIFIER_REPLACE)));
         this.buttonList.add(
             this.clear = new GuiButton(
@@ -79,6 +85,9 @@ public class GuiPatternModifier extends AEBaseGui implements INEIGuiHandler {
                 this.guiTop + 92,
                 50,
                 20,
+                // #tr sciencenotcool.gui.pattern_modifier.clear
+                // # Clear
+                // # zh_CN 清除
                 I18n.format(NameConst.GUI_PATTERN_MODIFIER_CLEAR)));
     }
 
