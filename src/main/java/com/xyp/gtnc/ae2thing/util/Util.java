@@ -160,6 +160,18 @@ public class Util {
             if (item == null || item.getItem() == null) continue;
             if (item.getItem() instanceof ItemWirelessDualInterfaceTerminal) return x;
         }
+        // Also look in the player's Baubles slots; encode the bauble slot with an offset so the GUI factory can
+        // resolve it from the baubles inventory instead of the main inventory.
+        net.minecraft.inventory.IInventory baublesInv = baubles.api.BaublesApi.getBaubles(player);
+        if (baublesInv != null) {
+            for (int x = 0; x < baublesInv.getSizeInventory(); x++) {
+                ItemStack item = baublesInv.getStackInSlot(x);
+                if (item == null || item.getItem() == null) continue;
+                if (item.getItem() instanceof ItemWirelessDualInterfaceTerminal) {
+                    return com.xyp.gtnc.ae2thing.api.Constants.BAUBLE_SLOT_OFFSET + x;
+                }
+            }
+        }
         return -1;
     }
 

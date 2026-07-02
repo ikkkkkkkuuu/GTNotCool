@@ -2,6 +2,13 @@ package com.xyp.gtnc.ae2thing.api;
 
 public interface Constants {
 
+    /**
+     * Slot-index offset used to distinguish a terminal held in a Baubles slot from one in the main inventory. A GUI
+     * "slot" value >= this offset means {@code value - BAUBLE_SLOT_OFFSET} is an index into the player's baubles
+     * inventory rather than {@code player.inventory}.
+     */
+    int BAUBLE_SLOT_OFFSET = 1000;
+
     String DISKUUID = "diskuuid";
     String DISKDATA = "diskdata";
     String FLUID_DISKLIST = "fluid_disklist";

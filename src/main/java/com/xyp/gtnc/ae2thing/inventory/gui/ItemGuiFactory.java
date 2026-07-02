@@ -8,10 +8,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
+import com.xyp.gtnc.ae2thing.api.Constants;
 import com.xyp.gtnc.ae2thing.inventory.item.IItemInventory;
 
 import appeng.container.AEBaseContainer;
 import appeng.container.ContainerOpenContext;
+import baubles.api.BaublesApi;
 
 public abstract class ItemGuiFactory<T> implements IGuiFactory {
 
@@ -53,6 +55,13 @@ public abstract class ItemGuiFactory<T> implements IGuiFactory {
     private ItemStack getItem(EntityPlayer player, int x) {
         if (x == -1) {
             return player.getCurrentEquippedItem();
+        } else if (x >= Constants.BAUBLE_SLOT_OFFSET) {
+            net.minecraft.inventory.IInventory baubles = BaublesApi.getBaubles(player);
+            int slot = x - Constants.BAUBLE_SLOT_OFFSET;
+            if (baubles != null && slot >= 0 && slot < baubles.getSizeInventory()) {
+                return baubles.getStackInSlot(slot);
+            }
+            return null;
         } else {
             return player.inventory.getStackInSlot(x);
         }
