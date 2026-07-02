@@ -64,12 +64,17 @@ public class CommonProxy {
 
         // 注册无线蒸汽网络事件处理器
         MinecraftForge.EVENT_BUS.register(new SteamNetworkEventHandler());
+
+        // 初始化ME无线二合一接口终端（并入本mod的ae2thing移植）
+        com.xyp.gtnc.ae2thing.AE2Thing.preInit(event, ScienceNotCool.instance);
     }
 
     // load "Do your mod setup. Build whatever data structures you care about. Register recipes." (Remove if not needed)
     public void init(FMLInitializationEvent event) {
         // 注册所有实体（必须在CommonProxy中，确保服务端和客户端都注册）
         EntityLoader.registerEntities();
+
+        com.xyp.gtnc.ae2thing.AE2Thing.init(event);
     }
 
     // postInit "Handle interaction with other mods, complete your setup based on this." (Remove if not needed)
@@ -82,6 +87,8 @@ public class CommonProxy {
             .registries()
             .interfaceTerminal();
         interfaceTerminal.register(SuperMTEHatchCraftingInputME.class);
+
+        com.xyp.gtnc.ae2thing.AE2Thing.postInit(event);
     }
 
     // register server commands in this event handler (Remove if not needed)
@@ -92,6 +99,8 @@ public class CommonProxy {
     public void complete(FMLLoadCompleteEvent event) {
         // 加载配方
         RecipeLoader.loadRecipes();
+
+        com.xyp.gtnc.ae2thing.AE2Thing.onLoadComplete(event);
     }
 
 }

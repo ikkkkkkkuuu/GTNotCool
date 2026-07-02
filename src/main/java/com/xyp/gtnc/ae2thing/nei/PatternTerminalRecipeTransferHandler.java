@@ -1,0 +1,146 @@
+package com.xyp.gtnc.ae2thing.nei;
+
+import static com.xyp.gtnc.ae2thing.nei.NEI_TH_Config.getConfigValue;
+import static com.xyp.gtnc.ae2thing.proxy.ClientProxy.mouseHandlers;
+import static net.minecraft.client.gui.GuiScreen.isShiftKeyDown;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.item.ItemStack;
+
+import com.xyp.gtnc.ae2thing.AE2Thing;
+import com.xyp.gtnc.ae2thing.api.Constants;
+import com.xyp.gtnc.ae2thing.client.gui.GuiWirelessDualInterfaceTerminal;
+import com.xyp.gtnc.ae2thing.integration.Mods;
+import com.xyp.gtnc.ae2thing.nei.object.OrderStack;
+import com.xyp.gtnc.ae2thing.nei.recipes.FluidRecipe;
+import com.xyp.gtnc.ae2thing.network.CPacketTransferRecipe;
+import com.xyp.gtnc.ae2thing.proxy.ClientProxy;
+import com.xyp.gtnc.ae2thing.util.GTUtil;
+
+import appeng.api.AEApi;
+import appeng.client.gui.AEBaseGui;
+import appeng.container.slot.SlotFake;
+import appeng.util.Platform;
+import codechicken.nei.PositionedStack;
+import codechicken.nei.api.IOverlayHandler;
+import codechicken.nei.recipe.GuiOverlayButton;
+import codechicken.nei.recipe.IRecipeHandler;
+import codechicken.nei.recipe.TemplateRecipeHandler;
+
+public class PatternTerminalRecipeTransferHandler implements IOverlayHandler {
+
+    public static final PatternTerminalRecipeTransferHandler INSTANCE = new PatternTerminalRecipeTransferHandler();
+
+    public static final HashSet<String> notOtherSet = new HashSet<>();
+    public static final HashSet<String> craftSet = new HashSet<>();
+
+    static {
+        notOtherSet.add("smelting");
+        notOtherSet.add("brewing");
+        craftSet.add("crafting");
+        craftSet.add("crafting2x2");
+    }
+
+    private static ItemStack findSameItem(ItemStack[] items, ItemStack item, Constants.MouseWheel wheel) {
+        for (int i = 0; i < items.length; i++) {
+            if (Platform.isSameItemPrecise(item, items[i])) {
+                int index = i + wheel.direction;
+                return items[index < 0 ? items.length - 1 : index % items.length];
+            }
+        }
+        return null;
+    }
+
+    public PatternTerminalRecipeTransferHandler() {
+        mouseHandlers.add((event, overlayButton) -> {
+            GuiScreen screen = Minecraft.getMinecraft().currentScreen;
+            if (screen instanceof AEBaseGui g && overlayButton != null && GuiScreen.isShiftKeyDown()) {
+                GuiOverlayButton btn = ClientProxy.getOverlayButton();
+                if (btn != null && g.theSlot instanceof SlotFake slot) {
+                    ItemStack slotItem = slot.getStack();
+                    if (slotItem == null) return false;
+
+                    List<PositionedStack> list = btn.handlerRef.handler.getIngredientStacks(btn.handlerRef.recipeIndex);
+                    for (PositionedStack stack : list) {
+                        ItemStack result = findSameItem(
+                            stack.items,
+                            slotItem,
+                            event.scrollAmount == -1 ? Constants.MouseWheel.NEXT : Constants.MouseWheel.PREVIEW);
+                        if (result != null) {
+                            List<OrderStack<?>> in = new ArrayList<>();
+                            List<OrderStack<?>> out = new ArrayList<>();
+                            in.add(new OrderStack<>(slotItem, 0));
+                            out.add(new OrderStack<>(result, 0));
+                            AE2Thing.proxy.netHandler.sendToServer(
+                                new CPacketTransferRecipe(
+                                    in,
+                                    out,
+                                    shouldCraft(btn.handlerRef.handler),
+                                    isShiftKeyDown(),
+                                    Constants.NEI_MOUSE_WHEEL));
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        });
+    }
+
+    @Override
+    public void overlayRecipe(GuiContainer firstGui, IRecipeHandler recipe, int recipeIndex, boolean shift) {
+        if (firstGui instanceof GuiWirelessDualInterfaceTerminal) {
+            boolean priority = ((GuiWirelessDualInterfaceTerminal) firstGui).container.prioritize;
+            boolean craft = shouldCraft(recipe);
+            List<OrderStack<?>> in;
+            in = FluidRecipe.getPackageInputs(recipe, recipeIndex, !craft && priority);
+            setSuggestion(craft, recipe, (GuiWirelessDualInterfaceTerminal) firstGui, in);
+            List<OrderStack<?>> out = FluidRecipe.getPackageOutputs(recipe, recipeIndex, !notUseOther(recipe));
+            AE2Thing.proxy.netHandler.sendToServer(new CPacketTransferRecipe(in, out, craft, shift));
+        }
+    }
+
+    private void setSuggestion(boolean craft, IRecipeHandler recipe, GuiWirelessDualInterfaceTerminal gui,
+        List<OrderStack<?>> in) {
+        String suggestion;
+        if (craft) {
+            com.google.common.base.Optional<ItemStack> molecular = AEApi.instance()
+                .definitions()
+                .blocks()
+                .molecularAssembler()
+                .maybeStack(1);
+            if (molecular.isPresent()) {
+                suggestion = Platform.getItemDisplayName(molecular.get());
+            } else {
+                suggestion = "";
+            }
+        } else if (Mods.isGt5UnofficialLoaded() || Mods.isLegacyGt5Loaded()) {
+            suggestion = GTUtil.getRecipeName(recipe, in);
+        } else {
+            suggestion = recipe.getRecipeName();
+        }
+        if (getConfigValue(ButtonConstants.DUAL_INTERFACE_TERMINAL)) {
+            gui.setSearchFieldText(suggestion);
+            gui.setHighlightSlot();
+        } else {
+            gui.setSearchFieldSuggestion(suggestion);
+        }
+    }
+
+    private boolean notUseOther(IRecipeHandler recipeHandler) {
+        TemplateRecipeHandler tRecipe = (TemplateRecipeHandler) recipeHandler;
+        return notOtherSet.contains(tRecipe.getOverlayIdentifier());
+    }
+
+    private boolean shouldCraft(IRecipeHandler recipeHandler) {
+        TemplateRecipeHandler tRecipe = (TemplateRecipeHandler) recipeHandler;
+        return craftSet.contains(tRecipe.getOverlayIdentifier());
+    }
+
+}
