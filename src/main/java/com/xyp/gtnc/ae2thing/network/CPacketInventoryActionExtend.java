@@ -137,7 +137,9 @@ public class CPacketInventoryActionExtend implements IMessage {
         public IMessage onMessage(CPacketInventoryActionExtend message, MessageContext ctx) {
             final EntityPlayerMP sender = ctx.getServerHandler().playerEntity;
             if(message.action == InventoryActionExtend.REQUEST_ITEM && sender.inventory.mainInventory[message.slot] == null){
-                message.stack.setStackSize(message.stack.getItemStack().getMaxStackSize());
+                // id == 1 -> extract a single item (Shift+middle click); otherwise a full stack
+                long requestCount = message.id == 1 ? 1 : message.stack.getItemStack().getMaxStackSize();
+                message.stack.setStackSize(requestCount);
                 IAEItemStack requestItem = message.stack.copy();
                 extractItemFromME(sender,requestItem,message.slot);
                 message.stack.decStackSize(requestItem.getStackSize());

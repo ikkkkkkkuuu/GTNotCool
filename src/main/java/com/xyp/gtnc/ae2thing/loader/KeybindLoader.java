@@ -62,15 +62,16 @@ public class KeybindLoader implements Runnable {
         EntityClientPlayerMP p = Minecraft.getMinecraft().thePlayer;
         // middle click
         if (Mouse.isButtonDown(2) && !p.capabilities.isCreativeMode && p.inventory.getCurrentItem() == null) {
-            // request item
+            // request item; Shift = single item, otherwise a full stack
             ItemStack block = getTargetBlock(p.getEntityWorld(), p);
             if (block != null) {
                 if (Util.findItemStack(p, block) == -1) {
+                    boolean single = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
                     AE2Thing.proxy.netHandler.sendToServer(
                         new CPacketInventoryActionExtend(
                             InventoryActionExtend.REQUEST_ITEM,
                             p.inventory.currentItem,
-                            0,
+                            single ? 1 : 0,
                             AEItemStack.create(block)));
                 }
             }
