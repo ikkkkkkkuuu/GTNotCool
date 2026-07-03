@@ -132,6 +132,24 @@ public class LargeSteamVoidMinerGui extends GTNCSteamMultiBlockBaseGui {
     }
 
     @Override
+    protected void registerSyncValues(PanelSyncManager syncManager) {
+        super.registerSyncValues(syncManager);
+        // targetDimName lives only on the server (restored in loadNBTData), so a freshly reloaded client has it as
+        // null and builds the ore filter list for the machine's own world dimension instead of the overridden one.
+        // Sync it here — before any panel is built — so the authoritative value reaches the client on the initial
+        // sync. IMPORTANT: the setter must be a PURE field assignment. Doing side effects here (e.g. refreshing the
+        // drop map, which swaps out vm().dropMap) mutates state the filter panel's widget tree is built from while
+        // the client is still processing the sync packet and restoring a remembered filter panel, which corrupts
+        // its widgets (the search TextField) and crashes on the next tick. The drop map is refreshed safely later,
+        // in a player-driven context, by createFilterPopup()'s own refreshDropMap() call when the panel is opened.
+        syncManager.syncValue(
+            "targetDimName",
+            new StringSyncValue(
+                () -> vm().targetDimName == null ? "" : vm().targetDimName,
+                str -> vm().targetDimName = (str == null || str.isEmpty()) ? null : str));
+    }
+
+    @Override
     protected Flow createButtonColumn(ModularPanel panel, PanelSyncManager syncManager) {
         IPanelHandler filterPopup = syncManager.syncedPanel("filter", true, this::createFilterPopup);
         this.filterPanel = filterPopup;
@@ -234,6 +252,11 @@ public class LargeSteamVoidMinerGui extends GTNCSteamMultiBlockBaseGui {
             displayMap = VoidMinerUtility.dropMapsByDimName.get(vm().targetDimName);
         }
         GTUtility.ItemId[] ores = displayMap != null ? sortOres(displayMap) : new GTUtility.ItemId[0];
+        // Keep selected sized to the current dimension's ore list so the button grid (indexed 0..ores.length) never
+        // reads an out-of-range slot. selected may carry a different size restored from NBT for another dimension.
+        if (vm().selected.getSlots() != ores.length) {
+            vm().selected.setSize(ores.length);
+        }
         return new ModularPanel("gtnc:vm:filter").child(ButtonWidget.panelCloseButton())
             .child(
                 Flow.column()
@@ -269,12 +292,21 @@ public class LargeSteamVoidMinerGui extends GTNCSteamMultiBlockBaseGui {
                 .children(ores.length, index -> {
                     ItemStack stack = ores[index].getItemStack();
                     return new ToggleButton()
-                        .value(new BoolValue.Dynamic(() -> vm().selected.getStackInSlot(index) != null, bool -> {
-                            if (bool) {
-                                vm().selected.insertItem(index, stack, false);
-                            } else vm().selected.extractItem(index, 1, false);
-                            syncer.setValue(vm().selected);
-                        }))
+                        // Guard every access to selected by its current slot count. The button grid is built for
+                        // the current dimension's ore list, but selected may momentarily have a different size
+                        // (e.g. restored from NBT for another dimension) while a remembered filter panel is being
+                        // rebuilt on GUI reopen. An unchecked index here throws "Slot N not in valid range",
+                        // aborting widget-tree init and leaving the search TextField in an invalid state.
+                        .value(
+                            new BoolValue.Dynamic(
+                                () -> index < vm().selected.getSlots() && vm().selected.getStackInSlot(index) != null,
+                                bool -> {
+                                    if (index >= vm().selected.getSlots()) return;
+                                    if (bool) {
+                                        vm().selected.insertItem(index, stack, false);
+                                    } else vm().selected.extractItem(index, 1, false);
+                                    syncer.setValue(vm().selected);
+                                }))
                         .overlay(
                             new ItemDrawable(stack).asIcon()
                                 .size(16))

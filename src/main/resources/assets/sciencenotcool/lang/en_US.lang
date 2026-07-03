@@ -404,7 +404,6 @@ Tooltip_LargeSteamVoidMiner_03=Blacklisted or non Whitelisted Ore will be VOIDED
 Tooltip_LargeSteamVoidMiner_Tier=Bronze: 6,400 L/cycle, 1 ore/s | Steel: 12,800 L/cycle, 2 ore/s
 Tooltip_LargeSteamVoidMiner_Output=Ore output depends on the dimension the machine is built in
 Tooltip_LargeSteamVoidMiner_Wireless=Right-click front face with Screwdriver to toggle Wireless Steam Mode
-Tooltip_LargeSteamVoidMiner_Refresh=If ore filter list is not refreshed, click the dimension button then re-enter GUI
 GT5U.chat.steam_void_miner.mode.white_list=Whitelist Mode: Only selected ores will be kept
 GT5U.chat.steam_void_miner.mode.black_list=Blacklist Mode: Selected ores will be voided
 GT5U.tooltip.tier.steel=Steel

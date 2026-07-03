@@ -30,7 +30,6 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -103,10 +102,6 @@ import gregtech.common.gui.modularui.multiblock.base.MTEMultiBlockBaseGui;
 // #tr Tooltip_LargeSteamVoidMiner_Wireless
 // # Right-click front face with Screwdriver to toggle Wireless Steam Mode
 // # zh_CN GUI内切换无线蒸汽模式
-
-// #tr Tooltip_LargeSteamVoidMiner_Refresh
-// # If ore filter list is not refreshed, click the dimension button then re-enter GUI
-// # zh_CN §c如果筛选列表没刷新，点击维度切换按钮后退出GUI重进即可
 
 // #tr GT5U.chat.steam_void_miner.mode.white_list
 // # Whitelist Mode: Only selected ores will be kept
@@ -552,7 +547,6 @@ public class LargeSteamVoidMiner extends GTNCSteamMultiBlockBase<LargeSteamVoidM
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamVoidMiner_01"))
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamVoidMiner_02"))
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamVoidMiner_03"))
-            .addInfo(EnumChatFormatting.RED + StatCollector.translateToLocal("Tooltip_LargeSteamVoidMiner_Refresh"))
             .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamVoidMiner_Wireless"))
             .beginStructureBlock(7, 9, 7, false)
             .addController("Front center, 2nd layer")
