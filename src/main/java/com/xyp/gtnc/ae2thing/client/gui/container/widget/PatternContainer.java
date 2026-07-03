@@ -437,6 +437,12 @@ public class PatternContainer implements IPatternContainer, IOptionalSlotHost, I
         boolean isPattern = definitions.items()
             .encodedPattern()
             .isSameAs(output);
+        // New GTNH standard: an already-encoded Ultimate Pattern must also count as a pattern, otherwise
+        // re-encoding over an existing output pattern is refused (encodeItemPattern returns early) and the
+        // user can never overwrite the placeholder in the output slot with a new pattern.
+        isPattern |= definitions.items()
+            .encodedUltimatePattern()
+            .isSameAs(output);
         isPattern |= definitions.materials()
             .blankPattern()
             .isSameAs(output);
