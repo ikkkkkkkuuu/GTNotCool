@@ -153,6 +153,7 @@ public class CPacketTerminalBtns implements IMessage {
                     case "InterfaceTerminal.SetStick" -> ciw.setStick(tag);
                     case "InterfaceTerminal.PatternModifier" -> ciw.setModifier(Integer.parseInt(value), tag);
                     case "InterfaceTerminal.PlacePattern" -> ciw.PlacePattern(Integer.parseInt(value), tag);
+                    case "InterfaceTerminal.ToggleVisibility" -> ciw.toggleVisibility(tag);
                 }
 
             }

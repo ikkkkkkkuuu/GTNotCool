@@ -106,6 +106,10 @@ public class CPacketInventoryAction implements IMessage {
                             if(message.stack != null && message.stack.getItem() instanceof ItemFluidDrop){
                                 ItemStack is = message.stack.getItemStack().copy();
                                 NBTTagCompound data = is.getTagCompound();
+                                // A fluid_drop built from a craftable fluid may have no NBT tag; guard against NPE.
+                                if (data == null) {
+                                    data = new NBTTagCompound();
+                                }
                                 data.removeTag(DISPLAY_ONLY);
                                 is.setTagCompound(data);
                                 baseContainer.setTargetStack(AEItemStack.create(is));

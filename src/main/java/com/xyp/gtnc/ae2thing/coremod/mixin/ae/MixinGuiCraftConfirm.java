@@ -22,7 +22,6 @@ import appeng.api.storage.data.IItemList;
 import appeng.client.gui.AEBaseGui;
 import appeng.client.gui.implementations.GuiCraftConfirm;
 import appeng.client.gui.widgets.GuiAeButton;
-import appeng.util.item.ItemList;
 
 @Mixin(GuiCraftConfirm.class)
 public abstract class MixinGuiCraftConfirm extends AEBaseGui {
@@ -57,11 +56,27 @@ public abstract class MixinGuiCraftConfirm extends AEBaseGui {
             clickStart = false;
             start.enabled = false;
             replan.visible = false;
-            ((ItemList) this.storage).clear();
-            ((ItemList) this.pending).clear();
-            ((ItemList) this.missing).clear();
+            // Do NOT cast to the concrete ItemList: when the crafting result contains fluids these lists are
+            // GTNH's IAEStackList, not ItemList, so a cast throws ClassCastException (crash on Start/Replan for
+            // any fluid craft). Both implementations expose a clear() method, so invoke it reflectively via the
+            // IItemList interface instead.
+            clearList(this.storage);
+            clearList(this.pending);
+            clearList(this.missing);
             this.visual.clear();
             AE2Thing.proxy.netHandler.sendToServer(new CPacketTerminalBtns("GuiCraftConfirm.replan", true));
+        }
+    }
+
+    private static void clearList(IItemList<IAEItemStack> list) {
+        if (list == null) return;
+        try {
+            list.getClass()
+                .getMethod("clear")
+                .invoke(list);
+        } catch (Throwable t) {
+            // Fallback: at least reset the stack sizes so the stale view is cleared before replanning.
+            list.resetStatus();
         }
     }
 

@@ -29,8 +29,10 @@ import com.xyp.gtnc.ae2thing.util.Ae2ReflectClient;
 import appeng.api.config.SearchBoxMode;
 import appeng.api.config.Settings;
 import appeng.api.config.TerminalStyle;
+import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
+import appeng.api.storage.data.IAEStackType;
 import appeng.api.util.IConfigManager;
 import appeng.client.gui.implementations.GuiMEMonitorable;
 import appeng.client.gui.slots.VirtualMEMonitorableSlot;
@@ -49,7 +51,9 @@ import appeng.helpers.InventoryAction;
 import appeng.helpers.MonitorableAction;
 import appeng.util.IConfigManagerHost;
 import appeng.util.Platform;
+import appeng.util.item.AEItemStack;
 import codechicken.nei.LayoutManager;
+import it.unimi.dsi.fastutil.objects.Reference2BooleanMap;
 import codechicken.nei.util.TextHistory;
 
 public class ItemPanel implements IAEBasePanel, IGuiMonitorTerminal, IConfigManagerHost, IDropToFillTextField {
@@ -63,6 +67,7 @@ public class ItemPanel implements IAEBasePanel, IGuiMonitorTerminal, IConfigMana
     private final AEBaseContainer inventorySlots;
     private final AdvItemRepo repo;
     private final IConfigManager configSrc;
+    private final ISortSource source;
     private final GuiScrollbar scrollbar;
     private int absX;
     private int absY;
@@ -85,6 +90,7 @@ public class ItemPanel implements IAEBasePanel, IGuiMonitorTerminal, IConfigMana
         this.parent = gui.getGui();
         this.inventorySlots = this.container;
         this.configSrc = configSrc;
+        this.source = source;
         this.scrollbar = new GuiScrollbar();
         this.repo = new AdvItemRepo(scrollbar, source);
         this.repo.setCache(this);
@@ -224,6 +230,16 @@ public class ItemPanel implements IAEBasePanel, IGuiMonitorTerminal, IConfigMana
         this.setScrollBar();
     }
 
+    /** Left edge of the ME terminal panel frame (absolute screen X). */
+    public int getAbsX() {
+        return this.absX;
+    }
+
+    /** Top edge of the ME terminal panel frame (absolute screen Y). */
+    public int getAbsY() {
+        return this.absY;
+    }
+
     @Override
     public boolean hideItemPanelSlot(int tx, int ty, int tw, int th) {
         int rw = 101;
@@ -309,8 +325,10 @@ public class ItemPanel implements IAEBasePanel, IGuiMonitorTerminal, IConfigMana
         switch (clickMode) {
             case 0: // pickup / set-down.
                 action = ctrlDown == 1 ? MonitorableAction.SPLIT_OR_PLACE_SINGLE : MonitorableAction.PICKUP_OR_SET_DOWN;
-                if (stack != null && action == MonitorableAction.PICKUP_OR_SET_DOWN
-                    && stack.getStackSize() == 0
+                // Use the generic aeStack, not the item-cast stack: a craftable FLUID is an IAEFluidStack, so the
+                // item-cast is null and autocraft would never trigger for fluids.
+                if (aeStack != null && action == MonitorableAction.PICKUP_OR_SET_DOWN
+                    && aeStack.getStackSize() == 0
                     && player.inventory.getItemStack() == null) {
                     action = MonitorableAction.AUTO_CRAFT;
                 }
@@ -319,7 +337,7 @@ public class ItemPanel implements IAEBasePanel, IGuiMonitorTerminal, IConfigMana
                 action = ctrlDown == 1 ? MonitorableAction.PICKUP_SINGLE : MonitorableAction.SHIFT_CLICK;
                 break;
             case 3: // creative dupe:
-                if (stack != null && stack.isCraftable()) {
+                if (aeStack != null && aeStack.isCraftable()) {
                     action = MonitorableAction.AUTO_CRAFT;
                 } else if (player.capabilities.isCreativeMode) {
                     if (aeStack instanceof IAEItemStack) {
@@ -329,14 +347,28 @@ public class ItemPanel implements IAEBasePanel, IGuiMonitorTerminal, IConfigMana
             default:
         }
         if (action == MonitorableAction.AUTO_CRAFT) {
-            this.inventorySlots.setTargetStack(stack);
+            // For a fluid the item-cast `stack` is null; carry the fluid as an ItemFluidDrop IAEItemStack so the
+            // AUTO_CRAFT packet (which requires IAEItemStack) can transport it. The server handler recognizes
+            // ItemFluidDrop and opens the fluid autocraft. Item stacks pass through unchanged.
+            IAEItemStack craftStack = stack;
+            if (craftStack == null && aeStack instanceof IAEFluidStack afs && afs.getFluidStack() != null) {
+                // A craftable fluid reports stackSize/amount 0, and ItemFluidDrop.newStack returns null when
+                // amount <= 0. Copy the FluidStack and bump the amount to >= 1 so we get a valid drop item to
+                // carry as the craft target (the amount here is only a transport placeholder; the real craft
+                // quantity is chosen in the craft-amount GUI).
+                net.minecraftforge.fluids.FluidStack fs = afs.getFluidStack()
+                    .copy();
+                if (fs.amount <= 0) fs.amount = 1;
+                craftStack = AEItemStack.create(ItemFluidDrop.newStack(fs));
+            }
+            this.inventorySlots.setTargetStack(craftStack);
             AE2Thing.proxy.netHandler.sendToServer(
                 new CPacketInventoryAction(
                     InventoryAction.AUTO_CRAFT,
                     Ae2ReflectClient.getInventorySlots(this.parent)
                         .size(),
                     -2,
-                    stack));
+                    craftStack));
         } else if (action != null) {
             if (stack != null && stack.getItem() instanceof ItemFluidDrop) stack = null;
             this.inventorySlots.setTargetStack(stack);
@@ -533,6 +565,15 @@ public class ItemPanel implements IAEBasePanel, IGuiMonitorTerminal, IConfigMana
     @Override
     public Enum<?> getSortDisplay() {
         return this.configSrc.getSetting(Settings.VIEW_MODE);
+    }
+
+    @Override
+    public Reference2BooleanMap<IAEStackType<?>> getTypeFilter() {
+        // The inner cache repo (AdvItemRepo.setCache) uses this ItemPanel as its ISortSource and does the actual
+        // client-side type filtering. Without this delegate we'd inherit ISortSource's default all-enabled map, so
+        // toggling the item/fluid/essentia buttons would flip the icon but never hide anything. Route to the GUI's
+        // live filter map instead.
+        return this.source.getTypeFilter();
     }
 
     @Override

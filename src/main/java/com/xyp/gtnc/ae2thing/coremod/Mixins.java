@@ -26,6 +26,7 @@ public enum Mixins implements IMixins {
         .addCommonMixins(
             "ae.MixinContainerCraftConfirm",
             "ae.MixinCraftingCPUCluster",
+            "ae.MixinPacketSwitchGuis",
             "ae.MixinTileIOPort",
             "ae.MixinContainerCraftAmount")
         .addRequiredMod(Mods.AE2)

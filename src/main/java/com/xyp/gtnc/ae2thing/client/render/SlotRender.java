@@ -1,11 +1,18 @@
 package com.xyp.gtnc.ae2thing.client.render;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class SlotRender {
 
-    private static final HashMap<Class<? extends ISlotRender>, ISlotRender> renders = new HashMap<>();
+    // LinkedHashMap: iteration MUST follow registration order. IGuiDrawSlot.drawSlot dispatches to the first
+    // matching renderer that returns false, and both RenderFluidDrop and RenderFluidPacketPatternSlot match an
+    // ItemFluidDrop slot. RenderFluidDrop (registered first) is the one that actually paints the fluid texture via
+    // drawWidget; if RenderFluidPacketPatternSlot wins it recurses under a guard, skips baseDraw, and the slot ends
+    // up blank. A plain HashMap orders Class keys by identity hashcode (effectively arbitrary per run), so the tie
+    // was resolved unstably — fine upstream, blank here. Registration order makes the dispatch deterministic.
+    private static final Map<Class<? extends ISlotRender>, ISlotRender> renders = new LinkedHashMap<>();
     private static final SlotRender API = new SlotRender();
 
     private SlotRender() {

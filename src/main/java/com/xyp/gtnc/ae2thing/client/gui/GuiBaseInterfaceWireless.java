@@ -23,6 +23,7 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
@@ -55,6 +56,7 @@ import appeng.api.config.Settings;
 import appeng.api.config.TerminalStyle;
 import appeng.api.config.YesNo;
 import appeng.api.storage.ITerminalHost;
+import appeng.api.storage.data.IAEStack;
 import appeng.api.util.DimensionalCoord;
 import appeng.client.gui.IInterfaceTerminalPostUpdate;
 import appeng.client.gui.widgets.GuiImgButton;
@@ -102,15 +104,20 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
     private final GuiImgButton guiButtonHideFull;
     private final GuiImgButton guiButtonAssemblersOnly;
     private final GuiImgButton guiButtonBrokenRecipes;
+    private final GuiImgButton guiButtonShowHidden;
     private final GuiImgButton terminalStyleBox;
     private final GuiImgButton searchStringSave;
     private boolean onlyMolecularAssemblers = false;
     private boolean onlyBrokenRecipes = false;
+    private boolean showHidden = false;
     private boolean online;
     /** The height of the viewport. */
     protected int viewHeight;
     private final List<String> extraOptionsText;
     private ItemStack tooltipStack;
+    private List<String> pendingHideButtonTooltip;
+    private int pendingHideButtonTooltipX;
+    private int pendingHideButtonTooltipY;
     private final boolean neiPresent;
     protected static String searchFieldInputsText = "";
     protected static String searchFieldOutputsText = "";
@@ -169,6 +176,7 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
         guiButtonAssemblersOnly = new GuiImgButton(0, 0, Settings.ACTIONS, null);
         guiButtonHideFull = new GuiImgButton(0, 0, Settings.ACTIONS, null);
         guiButtonBrokenRecipes = new GuiImgButton(0, 0, Settings.ACTIONS, null);
+        guiButtonShowHidden = new GuiImgButton(0, 0, Settings.ACTIONS, null);
 
         terminalStyleBox = new GuiImgButton(0, 0, Settings.TERMINAL_STYLE, null);
 
@@ -238,7 +246,10 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
         guiButtonAssemblersOnly.xPosition = guiLeft - 18;
         guiButtonAssemblersOnly.yPosition = guiButtonHideFull.yPosition + 18;
 
-        offsetY = guiButtonAssemblersOnly.yPosition + 18;
+        guiButtonShowHidden.xPosition = guiLeft - 18;
+        guiButtonShowHidden.yPosition = guiButtonAssemblersOnly.yPosition + 18;
+
+        offsetY = guiButtonShowHidden.yPosition + 18;
 
         if (AEConfig.instance.preserveSearchBar || isSubGui()) {
             setSearchString();
@@ -250,6 +261,7 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
         buttonList.add(guiButtonAssemblersOnly);
         buttonList.add(guiButtonHideFull);
         buttonList.add(guiButtonBrokenRecipes);
+        buttonList.add(guiButtonShowHidden);
         buttonList.add(searchStringSave);
         buttonList.add(terminalStyleBox);
     }
@@ -292,6 +304,9 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
         guiButtonBrokenRecipes.set(
             onlyBrokenRecipes ? ActionItems.TOGGLE_SHOW_ONLY_INVALID_PATTERN_OFF
                 : ActionItems.TOGGLE_SHOW_ONLY_INVALID_PATTERN_ON);
+        guiButtonShowHidden.set(
+            showHidden ? ActionItems.TOGGLE_SHOW_HIDDEN_INTERFACES_ON
+                : ActionItems.TOGGLE_SHOW_HIDDEN_INTERFACES_OFF);
 
         terminalStyleBox.set(AEConfig.instance.settings.getSetting(Settings.TERMINAL_STYLE));
 
@@ -300,6 +315,17 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
         handleTooltip(mouseX, mouseY, searchFieldInputs);
         handleTooltip(mouseX, mouseY, searchFieldOutputs);
         handleTooltip(mouseX, mouseY, searchFieldNames.getTooltipProvider());
+
+        if (pendingHideButtonTooltip != null) {
+            GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
+            GL11.glDisable(GL11.GL_LIGHTING);
+            GL11.glDisable(GL11.GL_DEPTH_TEST);
+            GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+            drawHoveringText(pendingHideButtonTooltip, pendingHideButtonTooltipX, pendingHideButtonTooltipY,
+                fontRendererObj);
+            GL11.glPopAttrib();
+            pendingHideButtonTooltip = null;
+        }
     }
 
     @Override
@@ -332,6 +358,9 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
             masterList.markDirty();
         } else if (btn == guiButtonBrokenRecipes) {
             onlyBrokenRecipes = !onlyBrokenRecipes;
+            masterList.markDirty();
+        } else if (btn == guiButtonShowHidden) {
+            showHidden = !showHidden;
             masterList.markDirty();
         } else if (btn instanceof GuiImgButton iBtn) {
             if (iBtn.getSetting() != Settings.ACTIONS) {
@@ -369,6 +398,29 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
         searchFieldInputs.setText(searchFieldInputsText);
         searchFieldOutputs.setText(searchFieldOutputsText);
         searchFieldNames.setText(searchFieldNamesText);
+    }
+
+    private static List<String> buildInterfaceTerminalVisibilityTooltip(final GuiImgButton button) {
+        final List<String> tooltip = new ArrayList<>(2);
+        tooltip.add(ButtonToolTips.InterfaceTerminalVisibility.getLocal());
+
+        final Enum<?> current = button.getCurrentValue();
+        final boolean visible = current == YesNo.YES;
+        tooltip.add(
+            ensureGray(
+                (visible ? ButtonToolTips.InterfaceTerminalVisibilityVisible
+                    : ButtonToolTips.InterfaceTerminalVisibilityHidden).getLocal()));
+
+        return tooltip;
+    }
+
+    private static String ensureGray(final String text) {
+        if (text == null) {
+            return null;
+        }
+        // This tooltip is drawn manually via drawHoveringText, so it isn't auto-grayed by AEBaseGui.
+        // If the localization already contains formatting, keep it to avoid double formatting.
+        return text.indexOf('§') >= 0 ? text : EnumChatFormatting.GRAY + text;
     }
 
     @Override
@@ -571,30 +623,47 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
             }
         }
         Tessellator.instance.draw();
-        /* Draw button */
+        /* Draw button — Alt switches to hide button, Shift switches to rename button */
         if (viewY + entry.optionsButton.height > 0 && viewY < viewHeight) {
+            final boolean altHeld = Keyboard.isKeyDown(Keyboard.KEY_LMENU) || Keyboard.isKeyDown(Keyboard.KEY_RMENU);
             entry.optionsButton.yPosition = viewY;
             entry.renameButton.yPosition = viewY;
+            entry.hideButton.yPosition = altHeld ? viewY : -1;
             entry.doubleButton.yPosition = viewY + 8;
-            GuiFCImgButton toRender;
-            if (isShiftKeyDown()) {
-                toRender = entry.renameButton;
-            } else {
-                toRender = entry.optionsButton;
-            }
-            toRender.drawButton(mc, relMouseX, relMouseY);
-            entry.doubleButton.drawButton(mc, relMouseX, relMouseY);
             List<String> tooltips = new ArrayList<>();
-            if (toRender.getMouseIn()
-                && relMouseY >= Math.max(InterfaceWirelessSection.TITLE_HEIGHT, entry.optionsButton.yPosition)) {
-                tooltips.add(toRender.getMessage());
-            } else if (entry.doubleButton.getMouseIn()
-                && relMouseY >= Math.max(InterfaceWirelessSection.TITLE_HEIGHT, entry.optionsButton.yPosition)) {
+            final int tooltipFloor = Math.max(InterfaceWirelessSection.TITLE_HEIGHT, entry.optionsButton.yPosition);
+            if (altHeld) {
+                entry.hideButton.set(entry.terminalVisible ? YesNo.YES : YesNo.NO);
+                entry.hideButton.drawButton(mc, relMouseX, relMouseY);
+                entry.doubleButton.drawButton(mc, relMouseX, relMouseY);
+                if (entry.hideButton.getMouseIn() && relMouseY >= tooltipFloor) {
+                    pendingHideButtonTooltip = buildInterfaceTerminalVisibilityTooltip(entry.hideButton);
+                    pendingHideButtonTooltipX = relMouseX + guiLeft + VIEW_LEFT;
+                    pendingHideButtonTooltipY = relMouseY + guiTop + HEADER_HEIGHT + 1;
+                } else if (entry.doubleButton.getMouseIn() && relMouseY >= tooltipFloor) {
                     Collections.addAll(
                         tooltips,
                         entry.doubleButton.getMessage()
                             .split("\\n"));
                 }
+            } else {
+                GuiFCImgButton toRender;
+                if (isShiftKeyDown()) {
+                    toRender = entry.renameButton;
+                } else {
+                    toRender = entry.optionsButton;
+                }
+                toRender.drawButton(mc, relMouseX, relMouseY);
+                entry.doubleButton.drawButton(mc, relMouseX, relMouseY);
+                if (toRender.getMouseIn() && relMouseY >= tooltipFloor) {
+                    tooltips.add(toRender.getMessage());
+                } else if (entry.doubleButton.getMouseIn() && relMouseY >= tooltipFloor) {
+                    Collections.addAll(
+                        tooltips,
+                        entry.doubleButton.getMessage()
+                            .split("\\n"));
+                }
+            }
             if (!tooltips.isEmpty()) {
                 // draw a tooltip
                 GL11.glTranslatef(0f, 0f, TOOLTIP_Z);
@@ -607,6 +676,7 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
         } else {
             entry.optionsButton.yPosition = -1;
             entry.renameButton.yPosition = -1;
+            entry.hideButton.yPosition = -1;
             entry.doubleButton.yPosition = -1;
         }
         /* PASS 2: Items */
@@ -630,21 +700,27 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
                     && relMouseY >= Math.max(viewY + rowYTop, InterfaceWirelessSection.TITLE_HEIGHT)
                     && relMouseY < Math.min(viewY + rowYBot, viewHeight);
                 if (stack != null) {
-                    final ItemEncodedPattern iep = (ItemEncodedPattern) stack.getItem();
-                    final ItemStack toRender = iep.getOutput(stack);
+                    // Render the pattern's output. Use the AE stack so fluid outputs render with their
+                    // fluid texture + a single amount overlay (drawing iep.getOutput() directly would show
+                    // the fluid-drop item icon AND a second aeRenderItem overlay — the doubled amount).
+                    final IAEStack<?> displayStack;
+                    if (stack.getItem() instanceof final ItemEncodedPattern iep) {
+                        IAEStack<?> outputAE = iep.getOutputAE(stack);
+                        displayStack = outputAE != null ? outputAE : AEItemStack.create(stack);
+                    } else {
+                        displayStack = AEItemStack.create(stack);
+                    }
 
                     GL11.glPushMatrix();
                     GL11.glTranslatef(colLeft, viewY + rowYTop + 1, ITEM_STACK_Z);
-                    GL11.glEnable(GL12.GL_RESCALE_NORMAL);
+                    GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_COLOR_BUFFER_BIT | GL11.GL_LIGHTING_BIT);
                     RenderHelper.enableGUIStandardItemLighting();
-                    translatedRenderItem.zLevel = ITEM_STACK_Z - MAGIC_RENDER_ITEM_Z;
-                    translatedRenderItem
-                        .renderItemAndEffectIntoGUI(fontRendererObj, mc.getTextureManager(), toRender, 0, 0);
+                    GL11.glEnable(GL12.GL_RESCALE_NORMAL);
+                    GL11.glEnable(GL11.GL_DEPTH_TEST);
+                    displayStack.drawInGui(mc, 0, 0);
                     GL11.glTranslatef(0.0f, 0.0f, ITEM_STACK_OVERLAY_Z);
-                    aeRenderItem.setAeStack(AEItemStack.create(toRender));
-                    aeRenderItem.renderItemOverlayIntoGUI(fontRendererObj, mc.getTextureManager(), toRender, 0, 0);
-                    aeRenderItem.zLevel = 0.0f;
-                    RenderHelper.disableStandardItemLighting();
+                    displayStack.drawOverlayInGui(mc, 0, 0, true, true, false, false);
+                    GL11.glPopAttrib();
                     if (!tooltip) {
                         if (entry.slotIsBroken(slotIdx)) {
                             GL11.glTranslatef(0.0f, 0.0f, SLOT_Z - ITEM_STACK_OVERLAY_Z);
@@ -693,12 +769,23 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
 
     @Override
     public List<String> handleItemTooltip(ItemStack stack, int mouseX, int mouseY, List<String> currentToolTip) {
-        return currentToolTip;
+        // Over the interface list we contribute nothing extra; elsewhere (the ME terminal's virtual slots) defer to
+        // AEBaseGui so fluid slots get their fluid display name.
+        if (tooltipStack != null) {
+            return currentToolTip;
+        }
+        return super.handleItemTooltip(stack, mouseX, mouseY, currentToolTip);
     }
 
     @Override
     public ItemStack getHoveredStack() {
-        return tooltipStack;
+        // tooltipStack is set only while hovering the interface list. When it's null the cursor may be over the ME
+        // terminal's virtual slots, so fall back to AEBaseGui's hovered-virtual-slot stack — otherwise NEI/vanilla
+        // gets no stack and draws no tooltip for ME items/fluids.
+        if (tooltipStack != null) {
+            return tooltipStack;
+        }
+        return super.getHoveredStack();
     }
 
     /**
@@ -899,6 +986,7 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
                 addCmd.p2pOutput).setLocation(addCmd.x, addCmd.y, addCmd.z, addCmd.dim, addCmd.side)
                     .setIcons(addCmd.selfRep, addCmd.dispRep)
                     .setItems(addCmd.items);
+            entry.terminalVisible = addCmd.terminalVisible;
             masterList.addEntry(entry);
         } else if (cmd instanceof PacketInterfaceTerminalUpdate.PacketRemove) {
             masterList.removeEntry(id);
@@ -911,6 +999,10 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
 
             if (owCmd.onlineValid) {
                 entry.online = owCmd.online;
+            }
+
+            if (owCmd.terminalVisibleValid) {
+                entry.terminalVisible = owCmd.terminalVisible;
             }
 
             if (owCmd.itemsValid) {
@@ -1244,6 +1336,7 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
 
             for (InterfaceWirelessEntry entry : entries) {
                 if (!entry.online || entry.p2pOutput) continue;
+                if (!entry.terminalVisible && !showHidden) continue;
                 var moleAss = AEApi.instance()
                     .definitions()
                     .blocks()
@@ -1327,6 +1420,7 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
         AppEngInternalInventory inv;
         GuiFCImgButton optionsButton;
         GuiFCImgButton renameButton;
+        GuiImgButton hideButton;
         GuiImgButton doubleButton;
 
         /** Nullable - icon that represents the interface */
@@ -1341,6 +1435,7 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
         int dispY = -9999;
         boolean online;
         boolean p2pOutput;
+        boolean terminalVisible = true;
         private Boolean[] brokenRecipes;
         int numItems = 0;
         /** Should recipe be filtered out/grayed out? */
@@ -1359,6 +1454,8 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
             this.optionsButton.setHalfSize(true);
             this.renameButton = new GuiFCImgButton(2, 0, "EDIT", "YES");
             this.renameButton.setHalfSize(true);
+            this.hideButton = new GuiImgButton(2, 0, Settings.INTERFACE_TERMINAL, YesNo.YES);
+            this.hideButton.setHalfSize(true);
             if (ModAndClassUtil.isDoubleButton) {
                 this.doubleButton = new GuiImgButton(2, 0, Settings.ACTIONS, ActionItems.DOUBLE);
                 this.doubleButton.setHalfSize(true);
@@ -1377,6 +1474,10 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
             this.side = side;
 
             return this;
+        }
+
+        boolean isInPlayerDimension() {
+            return mc != null && mc.thePlayer != null && mc.thePlayer.dimension == this.dim;
         }
 
         InterfaceWirelessEntry setIcons(ItemStack selfRep, ItemStack dispRep) {
@@ -1483,8 +1584,21 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
             if (mouseX >= optionsButton.xPosition && mouseX < 2 + optionsButton.width
                 && mouseY > Math.max(optionsButton.yPosition, InterfaceWirelessSection.TITLE_HEIGHT)
                 && mouseY <= Math.min(optionsButton.yPosition + optionsButton.height, viewHeight)) {
-                optionsButton.func_146113_a(mc.getSoundHandler());
+                final boolean altHeld = Keyboard.isKeyDown(Keyboard.KEY_LMENU)
+                    || Keyboard.isKeyDown(Keyboard.KEY_RMENU);
                 DimensionalCoord blockPos = new DimensionalCoord(x, y, z, dim);
+
+                if (altHeld) {
+                    hideButton.func_146113_a(mc.getSoundHandler());
+                    AE2Thing.proxy.netHandler.sendToServer(
+                        new CPacketTerminalBtns(
+                            "InterfaceTerminal.ToggleVisibility",
+                            "1",
+                            getDimensionalCoordSide()));
+                    return true;
+                }
+
+                optionsButton.func_146113_a(mc.getSoundHandler());
 
                 if (isShiftKeyDown()) {
                     AE2Thing.proxy.netHandler.sendToServer(

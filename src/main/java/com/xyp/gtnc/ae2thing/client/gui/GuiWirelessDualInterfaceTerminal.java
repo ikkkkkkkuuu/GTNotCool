@@ -247,7 +247,11 @@ public class GuiWirelessDualInterfaceTerminal extends GuiBaseInterfaceWireless i
                 GuiText.CraftingStatus.getLocal(),
                 itemRender));
         this.craftingStatusBtn.setHideEdge(13); // GuiTabButton implementation //
-        this.typeFilter.init(this.buttonList, this.guiLeft - 18, this.guiTop + 8);
+        // These toggles (item/fluid/essentia) filter what the LEFT ME terminal panel shows, so they belong beside
+        // that panel — not on the interface terminal's guiLeft-18 column, where they overlapped its option buttons.
+        // Mirror stock AE2 GuiMEMonitorable's layout: the panel's own config buttons sit at absX-18, so the type
+        // toggles go one column further left at absX-36, starting at the panel's top edge.
+        this.typeFilter.init(this.buttonList, this.itemPanel.getAbsX() - 36, this.itemPanel.getAbsY());
     }
 
     @Override

@@ -38,6 +38,8 @@ import com.xyp.gtnc.ae2thing.inventory.item.WirelessTerminal;
 import com.xyp.gtnc.ae2thing.util.Ae2Reflect;
 import com.xyp.gtnc.ae2thing.util.GTUtil;
 
+import appeng.api.config.Settings;
+import appeng.api.config.YesNo;
 import appeng.api.implementations.ICraftingPatternItem;
 import appeng.api.networking.IGrid;
 import appeng.api.networking.IGridHost;
@@ -59,6 +61,7 @@ import appeng.core.AELog;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketInterfaceTerminalUpdate;
 import appeng.helpers.IContainerCraftingPacket;
+import appeng.helpers.IInterfaceHost;
 import appeng.helpers.InventoryAction;
 import appeng.me.cache.CraftingGridCache;
 import appeng.me.helpers.ChannelPowerSrc;
@@ -363,6 +366,20 @@ public class ContainerWirelessDualInterfaceTerminal extends ContainerMonitor
         World w = DimensionManager.getWorld(c.getDimension());
         if (Mods.isLegacyGt5Loaded() || Mods.isGt5UnofficialLoaded()) {
             GTUtil.setDataStick(c.x, c.y, c.z, this.player, w);
+        }
+    }
+
+    public void toggleVisibility(NBTTagCompound tag) {
+        ImmutablePair<World, IInterfaceViewable> result = getWorldAndHost(tag);
+        if (result == null) return;
+        if (result.right instanceof IInterfaceHost host) {
+            final var cm = host.getInterfaceDuality()
+                .getConfigManager();
+            final YesNo current = (YesNo) cm.getSetting(Settings.INTERFACE_TERMINAL);
+            cm.putSetting(Settings.INTERFACE_TERMINAL, current == YesNo.YES ? YesNo.NO : YesNo.YES);
+            host.saveChanges();
+            // Force the delegate interface-terminal container to resync the entry's visibility to the client.
+            this.delegateContainer.scheduleUpdate();
         }
     }
 

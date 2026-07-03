@@ -15,6 +15,7 @@ import org.lwjgl.opengl.GL11;
 import com.xyp.gtnc.ae2thing.client.gui.container.slot.SlotPatternFake;
 import com.xyp.gtnc.ae2thing.client.render.ISlotRender;
 import com.xyp.gtnc.ae2thing.client.render.SlotRender;
+import com.xyp.gtnc.ae2thing.util.FluidIconAnimation;
 
 import appeng.api.storage.data.IAEItemStack;
 import appeng.client.gui.AEBaseGui;
@@ -95,6 +96,12 @@ public interface IGuiDrawSlot {
         if (fluid == null) return;
         IIcon icon = fluid.getIcon();
         if (icon == null) return;
+
+        // On GTNH, Hodgepodge patches the block texture atlas so animated fluid sprites (lava, etc.) only advance
+        // their frames when marked as needing an animation update. Faithful to upstream ae2thing's drawWidget.
+        // Hodgepodge isn't on our compile classpath, so mark it reflectively. (This is NOT what fixed the blank
+        // encode-slot fluid — that was the renderer dispatch order; see SlotRender's LinkedHashMap.)
+        FluidIconAnimation.mark(icon);
 
         Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.locationBlocksTexture);
         GL11.glTranslatef(0f, 0f, 100.0f);

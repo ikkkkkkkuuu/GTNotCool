@@ -54,8 +54,17 @@ public abstract class MixinCraftingCPUCluster {
                 networkKey = ((TileSecurity) iterator.next()
                     .getMachine()).getLocatableSerial();
                 player = ps.player;
-                output = (IAEItemStack) job.getOutput()
-                    .copy();
+                // job.getOutput() is an IAEFluidStack for fluid crafts (the craft target is now the native fluid),
+                // so a direct (IAEItemStack) cast crashes. Store items as-is; wrap fluids back into an
+                // ItemFluidDrop IAEItemStack so the completion notification packet (appendItem) still works.
+                appeng.api.storage.data.IAEStack<?> jobOut = job.getOutput();
+                if (jobOut instanceof IAEItemStack aeItem) {
+                    output = aeItem.copy();
+                } else if (jobOut instanceof appeng.api.storage.data.IAEFluidStack aeFluid) {
+                    output = com.glodblock.github.common.item.ItemFluidDrop.newAeStack(aeFluid.getFluidStack());
+                } else {
+                    output = null;
+                }
             } else {
                 setAsNull();
             }

@@ -13,7 +13,11 @@ import com.xyp.gtnc.ae2thing.api.adapter.terminal.IGuiCraftAmount;
 import com.xyp.gtnc.ae2thing.inventory.InventoryHandler;
 import com.xyp.gtnc.ae2thing.inventory.gui.GuiType;
 
+import com.glodblock.github.common.item.ItemFluidDrop;
+
 import appeng.api.storage.StorageName;
+import appeng.api.storage.data.IAEFluidStack;
+import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.client.gui.AEBaseGui;
 import appeng.client.gui.slots.VirtualMESlotSingle;
@@ -228,7 +232,17 @@ public abstract class GuiAmount extends AEBaseGui implements IGuiDrawSlot, IGuiC
     @Override
     public void receiveSlotStacks(StorageName invName, Int2ObjectMap<IAEStack<?>> slotStacks) {
         if (this.craftingSlot != null) {
-            this.craftingSlot.setAEStack(slotStacks.get(0));
+            IAEStack<?> display = slotStacks.get(0);
+            // The server keeps the craft target as an ItemFluidDrop IAEItemStack (needed for the actual
+            // crafting job). Rendering that item stack draws a blank item icon, so for DISPLAY ONLY convert
+            // it back to its IAEFluidStack, which draws the proper fluid texture + amount.
+            if (display instanceof IAEItemStack ais && ais.getItem() instanceof ItemFluidDrop) {
+                IAEFluidStack fluid = ItemFluidDrop.getAeFluidStack(ais);
+                if (fluid != null) {
+                    display = fluid;
+                }
+            }
+            this.craftingSlot.setAEStack(display);
         }
     }
 }
