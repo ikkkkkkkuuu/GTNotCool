@@ -9,11 +9,10 @@ import net.minecraft.item.ItemStack;
 
 import org.lwjgl.input.Keyboard;
 
+import com.glodblock.github.common.item.ItemFluidDrop;
 import com.xyp.gtnc.ae2thing.api.adapter.terminal.IGuiCraftAmount;
 import com.xyp.gtnc.ae2thing.inventory.InventoryHandler;
 import com.xyp.gtnc.ae2thing.inventory.gui.GuiType;
-
-import com.glodblock.github.common.item.ItemFluidDrop;
 
 import appeng.api.storage.StorageName;
 import appeng.api.storage.data.IAEFluidStack;

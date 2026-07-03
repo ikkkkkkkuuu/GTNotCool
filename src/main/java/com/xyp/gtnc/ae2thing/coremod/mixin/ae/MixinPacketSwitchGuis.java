@@ -19,7 +19,8 @@ import appeng.core.sync.packets.PacketSwitchGuis;
  * target, and vanilla's server handler then does {@code getPrimaryGui().open(player)} — which NPEs here because
  * primaryGui is null (the {@code assert} is disabled in production).
  *
- * <p>When the open container is our wireless {@link com.xyp.gtnc.ae2thing.client.gui.container.ContainerCraftConfirm},
+ * <p>
+ * When the open container is our wireless {@link com.xyp.gtnc.ae2thing.client.gui.container.ContainerCraftConfirm},
  * route the "go back" action through its own {@code switchToOriginalGUI()} (which reopens the wireless terminal via our
  * InventoryHandler) and cancel the vanilla handling to avoid the crash.
  */

@@ -53,8 +53,8 @@ import appeng.util.IConfigManagerHost;
 import appeng.util.Platform;
 import appeng.util.item.AEItemStack;
 import codechicken.nei.LayoutManager;
-import it.unimi.dsi.fastutil.objects.Reference2BooleanMap;
 import codechicken.nei.util.TextHistory;
+import it.unimi.dsi.fastutil.objects.Reference2BooleanMap;
 
 public class ItemPanel implements IAEBasePanel, IGuiMonitorTerminal, IConfigManagerHost, IDropToFillTextField {
 

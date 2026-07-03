@@ -305,8 +305,7 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
             onlyBrokenRecipes ? ActionItems.TOGGLE_SHOW_ONLY_INVALID_PATTERN_OFF
                 : ActionItems.TOGGLE_SHOW_ONLY_INVALID_PATTERN_ON);
         guiButtonShowHidden.set(
-            showHidden ? ActionItems.TOGGLE_SHOW_HIDDEN_INTERFACES_ON
-                : ActionItems.TOGGLE_SHOW_HIDDEN_INTERFACES_OFF);
+            showHidden ? ActionItems.TOGGLE_SHOW_HIDDEN_INTERFACES_ON : ActionItems.TOGGLE_SHOW_HIDDEN_INTERFACES_OFF);
 
         terminalStyleBox.set(AEConfig.instance.settings.getSetting(Settings.TERMINAL_STYLE));
 
@@ -321,7 +320,10 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
             GL11.glDisable(GL11.GL_LIGHTING);
             GL11.glDisable(GL11.GL_DEPTH_TEST);
             GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-            drawHoveringText(pendingHideButtonTooltip, pendingHideButtonTooltipX, pendingHideButtonTooltipY,
+            drawHoveringText(
+                pendingHideButtonTooltip,
+                pendingHideButtonTooltipX,
+                pendingHideButtonTooltipY,
                 fontRendererObj);
             GL11.glPopAttrib();
             pendingHideButtonTooltip = null;
@@ -1591,10 +1593,7 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
                 if (altHeld) {
                     hideButton.func_146113_a(mc.getSoundHandler());
                     AE2Thing.proxy.netHandler.sendToServer(
-                        new CPacketTerminalBtns(
-                            "InterfaceTerminal.ToggleVisibility",
-                            "1",
-                            getDimensionalCoordSide()));
+                        new CPacketTerminalBtns("InterfaceTerminal.ToggleVisibility", "1", getDimensionalCoordSide()));
                     return true;
                 }
 
