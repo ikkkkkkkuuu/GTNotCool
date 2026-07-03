@@ -49,11 +49,7 @@ public class CommonProxy {
 
         // 注册工具带GUI处理器
         NetworkRegistry.INSTANCE.registerGuiHandler(ScienceNotCool.instance, new BeltGuiHandler());
-
-        // 注册通配样板符GUI处理器
-        NetworkRegistry.INSTANCE.registerGuiHandler(
-            ScienceNotCool.instance,
-            new com.xyp.gtnc.Common.gui.modularui.wildcard.WildcardGuiHandler());
+        // 通配样板符 GUI 改用 MUI2 PlayerInventoryGuiFactory 打开，不再走 FML IGuiHandler
 
         // 注册工具带事件处理器
         BeltEvents beltEvents = new BeltEvents();

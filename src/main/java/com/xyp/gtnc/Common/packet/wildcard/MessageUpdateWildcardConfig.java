@@ -5,7 +5,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
 import com.xyp.gtnc.Common.items.wildcard.WildcardPatternGenerator;
-import com.xyp.gtnc.Common.items.wildcard.WildcardPatternState;
+import com.xyp.gtnc.Common.items.wildcard.model.WildcardModelState;
 import com.xyp.gtnc.Loader.ItemsLoader;
 
 import cpw.mods.fml.common.network.ByteBufUtils;
@@ -53,7 +53,7 @@ public class MessageUpdateWildcardConfig implements IMessage {
             }
 
             WildcardPatternGenerator.markAsWildcard(stack);
-            WildcardPatternState.applyConfig(stack, message.config);
+            WildcardModelState.applyConfig(stack, message.config);
             player.inventory.markDirty();
             return null;
         }
