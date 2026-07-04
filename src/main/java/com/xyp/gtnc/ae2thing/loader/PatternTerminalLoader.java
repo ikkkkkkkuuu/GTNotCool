@@ -46,6 +46,30 @@ public class PatternTerminalLoader implements Runnable {
                     ciw.onCraftMatrixChanged(outputSlot);
                     ciw.saveChanges();
                 }
+            })
+            // BlockRenderer6343 multiblock structure preview -> processing pattern (blocks in, renamed paper out).
+            .registerIdentifier(Constants.NEI_BR, (container, inputs, outputs, identifier, adapter, message) -> {
+                if (container instanceof ContainerWirelessDualInterfaceTerminal ciw) {
+                    ciw.setCraftingMode(false);
+                    ciw.setCrafting(false);
+                    IPatternTerminal pt = ciw.getContainer()
+                        .getPatternTerminal();
+                    IInventory inputSlot = pt.getInventoryByName(Constants.CRAFTING_EX);
+                    IInventory outputSlot = pt.getInventoryByName(Constants.OUTPUT_EX);
+                    for (int i = 0; i < inputSlot.getSizeInventory(); i++) {
+                        inputSlot.setInventorySlotContents(i, null);
+                    }
+                    for (int i = 0; i < outputSlot.getSizeInventory(); i++) {
+                        outputSlot.setInventorySlotContents(i, null);
+                    }
+                    inputs = NEIUtils.clearNull(inputs);
+                    outputs = NEIUtils.clearNull(outputs);
+                    adapter.transferPack(inputs, inputSlot);
+                    adapter.transferPack(outputs, outputSlot);
+                    ciw.onCraftMatrixChanged(inputSlot);
+                    ciw.onCraftMatrixChanged(outputSlot);
+                    ciw.saveChanges();
+                }
             });
     }
 }

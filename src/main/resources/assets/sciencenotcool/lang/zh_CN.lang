@@ -58,6 +58,7 @@ nei.options.sciencenotcool.pinned_bar_remove.false=溢出移除
 nei.options.sciencenotcool.pinned_bar_crafting_state=固定栏中预览当前物品合成状态
 nei.options.sciencenotcool.pinned_bar_crafting_state.true=是
 nei.options.sciencenotcool.pinned_bar_crafting_state.false=否
+sciencenotcool.gui.multiblock_structure=多方块结构
 Tooltip_NoMobsSpawnInThisBlock=生物不会在这个方块上生成
 Tooltip_NoTileEntitySpawnInThisBlock=这不是一个实体！
 GTNC_gui_button_upgrade_tree=天途

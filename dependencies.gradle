@@ -38,7 +38,7 @@ dependencies {
     compileOnlyApi("com.github.GTNewHorizons:Chisel:2.17.26-GTNH:dev")
     devOnlyNonPublishable("com.github.GTNewHorizons:NotEnoughEnergistics:1.7.30:dev")
     runtimeOnlyNonPublishable("com.github.GTNewHorizons:ServerUtilities:2.3.0:dev")
-    runtimeOnlyNonPublishable("com.github.GTNewHorizons:BlockRenderer6343:1.4.14:dev")
+    devOnlyNonPublishable("com.github.GTNewHorizons:BlockRenderer6343:1.4.14:dev")
     runtimeOnlyNonPublishable("com.github.GTNewHorizons:ForestryMC:4.11.26:dev")
     runtimeOnlyNonPublishable(rfg.deobf("curse.maven:spark-361579:4271867"))
 

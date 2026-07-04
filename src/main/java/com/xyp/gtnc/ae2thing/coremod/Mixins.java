@@ -40,6 +40,11 @@ public enum Mixins implements IMixins {
             "nei.MixinPanelWidget",
             "nei.MixinRecipeItemInputHandler")
         .addRequiredMod(Mods.NOT_ENOUGH_ITEMS)
+        .setPhase(Phase.LATE)),
+
+    BR(new MixinBuilder().addClientMixins("br.MixinBRUtil")
+        .addRequiredMod(Mods.NOT_ENOUGH_ITEMS)
+        .addRequiredMod(Mods.BLOCK_RENDERER)
         .setPhase(Phase.LATE));
 
     private final MixinBuilder builder;

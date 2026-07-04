@@ -136,5 +136,6 @@ public class NameConst {
     public static final String CRAFTING_DEBUG_CARD_EXPORT_FILE = CRAFTING_DEBUG_CARD + "export_file";
     public static final String GUI_BUTTON = GUI_KEY + "button.";
     public static final String GUI_BUTTON_REPLAN = GUI_BUTTON + "replan";
+    public static final String GUI_MULTIBLOCK_STRUCTURE = GUI_KEY + "multiblock_structure";
 
 }

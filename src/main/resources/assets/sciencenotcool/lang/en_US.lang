@@ -58,6 +58,7 @@ nei.options.sciencenotcool.pinned_bar_remove.false=Never
 nei.options.sciencenotcool.pinned_bar_crafting_state=Pinned bar preview current item crafting state
 nei.options.sciencenotcool.pinned_bar_crafting_state.true=Yes
 nei.options.sciencenotcool.pinned_bar_crafting_state.false=No
+sciencenotcool.gui.multiblock_structure=Multiblock Structure
 Tooltip_NoMobsSpawnInThisBlock=Mobs cannot Spawn on this Block
 Tooltip_NoTileEntitySpawnInThisBlock=This is NOT a TileEntity!
 GTNC_gui_button_upgrade_tree=Upgrade Tree
