@@ -57,7 +57,8 @@ public class CPacketSwitchGuis implements IMessage {
             EntityPlayerMP player = ctx.getServerHandler().playerEntity;
             Container cont = player.openContainer;
             World w = player.worldObj;
-            if (message.guiType == GuiType.WIRELESS_DUAL_INTERFACE_TERMINAL) {
+            if (message.guiType == GuiType.WIRELESS_DUAL_INTERFACE_TERMINAL
+                || message.guiType == GuiType.WIRELESS_CRAFTING_TERMINAL) {
                 int s = Util.findDualInterfaceTerminal(player);
                 if (s != -1) {
                     InventoryHandler.openGui(player, w, new BlockPos(s, 0, 0), ForgeDirection.UNKNOWN, message.guiType);

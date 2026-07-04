@@ -23,7 +23,9 @@ import com.xyp.gtnc.ae2thing.client.event.EncodeEvent;
 import com.xyp.gtnc.ae2thing.client.gui.IWidgetGui;
 import com.xyp.gtnc.ae2thing.client.gui.container.ContainerWirelessDualInterfaceTerminal;
 import com.xyp.gtnc.ae2thing.client.gui.container.slot.SlotPatternFake;
+import com.xyp.gtnc.ae2thing.inventory.gui.GuiType;
 import com.xyp.gtnc.ae2thing.network.CPacketInventoryActionExtend;
+import com.xyp.gtnc.ae2thing.network.CPacketSwitchGuis;
 import com.xyp.gtnc.ae2thing.network.CPacketTerminalBtns;
 import com.xyp.gtnc.ae2thing.util.Ae2ReflectClient;
 import com.xyp.gtnc.ae2thing.util.ModAndClassUtil;
@@ -69,6 +71,7 @@ public class PatternPanel implements IAEBasePanel {
     protected GuiFCImgButton combineDisableBtn;
     protected GuiTabButton tabProcessButton;
     protected GuiTabButton tabCraftButton;
+    protected GuiTabButton craftingTerminalButton;
     protected final GuiScrollbar processingScrollBar = new GuiScrollbar();
     private final AEBaseContainer inventorySlots;
     protected final Set<Slot> drag_click;
@@ -225,6 +228,17 @@ public class PatternPanel implements IAEBasePanel {
                     this.parent.getGuiTop() + 93,
                     new ItemStack(Blocks.crafting_table),
                     GuiText.CraftingPattern.getLocal(),
+                    this.gui.getRenderItem()));
+        // #tr sciencenotcool.tooltip.switch_to_crafting_terminal
+        // # Switch to Wireless Crafting Terminal
+        // # zh_CN 切换到无线合成终端
+        this.gui.getButtonList()
+            .add(
+                this.craftingTerminalButton = new GuiTabButton(
+                    this.parent.getGuiLeft() + 248,
+                    this.parent.getGuiTop() + 117,
+                    new ItemStack(Blocks.crafting_table),
+                    net.minecraft.client.resources.I18n.format("sciencenotcool.tooltip.switch_to_crafting_terminal"),
                     this.gui.getRenderItem()));
         this.substitutionsEnabledBtn = new GuiImgButton(
             this.parent.getGuiLeft() + 306,
@@ -425,6 +439,9 @@ public class PatternPanel implements IAEBasePanel {
                 new CPacketTerminalBtns(
                     "PatternTerminal.CraftMode",
                     this.tabProcessButton == btn ? MODE_CRAFTING : MODE_PROCESSING));
+            return true;
+        } else if (this.craftingTerminalButton == btn) {
+            AE2Thing.proxy.netHandler.sendToServer(new CPacketSwitchGuis(GuiType.WIRELESS_CRAFTING_TERMINAL));
             return true;
         } else if (this.encodeBtn == btn) {
             int value = (isCtrlKeyDown() ? 1 : 0) << 1 | (isShiftKeyDown() ? 1 : 0);

@@ -53,6 +53,7 @@ public enum GuiType {
             return new GuiWirelessDualInterfaceTerminal(player.inventory, inv);
         }
     }),
+    WIRELESS_CRAFTING_TERMINAL(new WirelessCraftingTerminalGuiFactory()),
     CRAFTING_CONFIRM(new PartGuiFactory<>(THPart.class) {
 
         @Override

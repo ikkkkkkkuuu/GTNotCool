@@ -11,11 +11,13 @@ public enum Mixins implements IMixins {
     AE_CLIENT(new MixinBuilder()
         .addClientMixins(
             "ae.AccessorGuiScrollbar",
+            "ae.AccessorContainerMEMonitorable",
             "ae.MixinAEBaseGui",
             "ae.MixinContainerCraftConfirm",
             "ae.MixinCraftingCPUCluster",
             "ae.MixinGuiCraftAmount",
             "ae.MixinGuiCraftConfirm",
+            "ae.MixinGuiCraftingTerm",
             "ae.MixinItemRepo",
             "ae.MixinTileIOPort",
             "ae.MixinContainerCraftAmount")
