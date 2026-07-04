@@ -104,6 +104,7 @@ import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.MTEHatchInputBus;
 import gregtech.api.objects.GTDualInputPattern;
+import gregtech.api.recipe.RecipeMap;
 import gregtech.api.render.TextureFactory;
 import gregtech.api.util.GTSplit;
 import gregtech.api.util.GTUtility;
@@ -680,7 +681,12 @@ public class SuperMTEHatchCraftingInputME extends MTEHatchInputBus
             return getCustomName();
         }
         StringBuilder name = new StringBuilder();
-        if (getCrafterIcon() != null) {
+        String recipeMapKey = getRecipeMapNameKey();
+        if (recipeMapKey != null) {
+            // Prefer the controller's recipe-map name (e.g. "Assembler") over the machine icon name ("Large Steam
+            // Assembler"), matching the NEI-overwrite auto-fill naming (GTUtil.getRecipeName -> recipe category name).
+            name.append(StatCollector.translateToLocal(recipeMapKey));
+        } else if (getCrafterIcon() != null) {
             name.append(getCrafterIcon().getDisplayName());
         } else {
             name.append(getLocalName());
@@ -696,11 +702,43 @@ public class SuperMTEHatchCraftingInputME extends MTEHatchInputBus
             return getCustomName();
         }
 
+        String recipeMapKey = getRecipeMapNameKey();
+        if (recipeMapKey != null) {
+            return recipeMapKey;
+        }
         if (getCrafterIcon() != null) {
             return getCrafterIcon().getUnlocalizedName();
         } else {
             return getLocalName();
         }
+    }
+
+    /**
+     * The untranslated recipe-category name key of the controller's recipe map (translated client-side to e.g.
+     * "Assembler"), or null if this hatch isn't bound to a recipe map. The controller sets {@code mRecipeMap} on each
+     * hatch when the multiblock forms (MTEMultiBlockBase), and it's the same map NEI uses, so the interface-terminal
+     * name lines up with the NEI-overwrite auto-fill name. Priority (custom name > recipe map > machine icon) is
+     * enforced by the callers.
+     */
+    private String getRecipeMapNameKey() {
+        RecipeMap<?> map = this.mRecipeMap != null ? this.mRecipeMap : this.controllerRecipeMap;
+        if (map == null) {
+            return null;
+        }
+        return map.getDefaultRecipeCategory().unlocalizedName;
+    }
+
+    /**
+     * Recipe map captured from the owning multiblock controller when the structure forms. GT5 sets {@code mRecipeMap}
+     * on plain input buses, but this hatch is an {@link IDualInputHatch}, and MTEMultiBlockBase.addToMachineList
+     * returns early on the dual-input branch before the mRecipeMap assignment — so mRecipeMap stays null for us. A
+     * mixin on addToMachineList feeds the controller's recipe map here instead. See
+     * MixinMTEMultiBlockBaseHatchRecipeMap.
+     */
+    private RecipeMap<?> controllerRecipeMap;
+
+    public void setControllerRecipeMap(RecipeMap<?> map) {
+        this.controllerRecipeMap = map;
     }
 
     @Override
@@ -722,6 +760,16 @@ public class SuperMTEHatchCraftingInputME extends MTEHatchInputBus
         if (manualSlots.length() > 0) {
             try {
                 suffix.append(String.format(Gregtech.machines.cibManualSlotsSuffixFormat, manualSlots));
+            } catch (IllegalFormatException ignored) {}
+        }
+
+        // Also surface the phantom mold slot's item so the interface terminal name reflects the selected mold.
+        // Show its meta value (item damage) rather than the display name, matching the ghost-circuit suffix style
+        // (see CommonBaseMetaTileEntity.getInterfaceNameSuffix) so NEI-overwrite auto-naming stays consistent.
+        ItemStack mold = mInventory[SLOT_MOLD];
+        if (mold != null) {
+            try {
+                suffix.append(String.format(Gregtech.machines.ghostCircuitSuffixFormat, mold.getItemDamage()));
             } catch (IllegalFormatException ignored) {}
         }
 

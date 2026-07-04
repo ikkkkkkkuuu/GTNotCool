@@ -126,7 +126,10 @@ public class ContainerWirelessDualInterfaceTerminal extends ContainerMonitor
                 if (g != null) {
                     this.setPowerSource(new ChannelPowerSrc(this.networkNode, g.getCache(IEnergyGrid.class)));
                     IStorageGrid storageGrid = g.getCache(IStorageGrid.class);
-                    this.monitor.setMonitor(storageGrid.getItemInventory());
+                    this.monitor.setMonitor(
+                        new com.xyp.gtnc.ae2thing.common.storage.RefreshingItemMonitor(
+                            storageGrid.getItemInventory(),
+                            this.player));
                     this.fluidMonitor.setMonitor(storageGrid.getFluidInventory(), storageGrid.getItemInventory());
                     this.monitor.setFluidMonitorObject(this.fluidMonitor);
                     if (this.monitor.getMonitor() == null) {

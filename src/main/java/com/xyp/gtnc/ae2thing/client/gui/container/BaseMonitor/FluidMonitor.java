@@ -34,6 +34,11 @@ public class FluidMonitor implements IMEMonitorHandlerReceiver<IAEFluidStack>, I
     private final Set<IAEItemStack> craftingFluids = new HashSet<>();
     private final List<ICrafting> crafters;
     private final List<IAEFluidStack> toSend = new ArrayList<>();
+    // Snapshot of the fluid storage list for external-change (removed craftable) detection — mirrors
+    // RefreshingItemMonitor on the item side. AE2's crafting cache only posts the CURRENT craftable set, never a
+    // "no-longer-craftable" event, so a vanished craftable fluid must be detected by diffing.
+    private IItemList<IAEFluidStack> lastSnapshot;
+    private int refreshCounter = 0;
 
     public FluidMonitor(IStorageGrid storageGrid, List<ICrafting> crafters) {
         this.fluidMonitor = storageGrid.getFluidInventory();
@@ -86,9 +91,52 @@ public class FluidMonitor implements IMEMonitorHandlerReceiver<IAEFluidStack>, I
         return this.fluidMonitor;
     }
 
+    /**
+     * Detect craftable fluids that vanished from the network (e.g. a pattern was removed). AE2's crafting cache only
+     * posts the current craftable set, never a removal event, so we snapshot-diff the fluid storage list every few
+     * ticks. A vanished entry is queued into {@code this.fluids} with a non-zero sentinel size so it survives the
+     * MeaningfulFluidIterator in the loop below; that loop's else-branch then zeroes it before sending, and the client
+     * prunes the size-0 / non-craftable record. Mirrors {@code RefreshingItemMonitor} on the item side.
+     */
+    private void detectExternalChanges() {
+        if (this.fluidMonitor == null) {
+            return;
+        }
+        // Throttle to every ~5 ticks (processItemList runs each tick via detectAndSendChanges).
+        if (this.lastSnapshot != null && (this.refreshCounter++ % 5) != 0) {
+            return;
+        }
+        final IItemList<IAEFluidStack> current = this.fluidMonitor.getStorageList();
+        // Build a clean deep copy of the current list. getStorageList() returns AE2's shared cachedList, in which a
+        // removed craftable leaves a ZOMBIE record: resetStatus() zeroed it (size 0 / craftable false) but never
+        // physically removed the key from the backing set. findPrecise() reads that set directly, so it would still
+        // hit the zombie and we'd never detect the removal. Iterating `current` here drives the MeaningfulFluidIterator
+        // (which skips + physically removes zombies), so only meaningful entries land in `copy`; using `copy` for the
+        // findPrecise check below makes vanished craftables actually detectable. (This is what the diagnostic dump was
+        // accidentally doing — the detection was never really working without that iteration.)
+        final IItemList<IAEFluidStack> copy = AEApi.instance()
+            .storage()
+            .createFluidList();
+        for (final IAEFluidStack f : current) {
+            copy.addStorage(f.copy());
+        }
+        if (this.lastSnapshot != null) {
+            for (final IAEFluidStack prev : this.lastSnapshot) {
+                if (copy.findPrecise(prev) == null) {
+                    final IAEFluidStack gone = prev.copy();
+                    gone.reset();
+                    gone.setStackSize(-1);
+                    this.fluids.add(gone);
+                }
+            }
+        }
+        this.lastSnapshot = copy;
+    }
+
     @Override
     public void processItemList() {
         SPacketMEFluidInvUpdate piu = new SPacketMEFluidInvUpdate();
+        this.detectExternalChanges();
         if (!this.fluids.isEmpty()) {
             final IItemList<IAEFluidStack> monitorCache = this.fluidMonitor.getStorageList();
             final IItemList<IAEItemStack> itemMonitorCache = this.itemMonitor.getStorageList();

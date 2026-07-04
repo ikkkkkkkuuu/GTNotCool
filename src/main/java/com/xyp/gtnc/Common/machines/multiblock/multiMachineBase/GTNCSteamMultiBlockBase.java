@@ -26,6 +26,7 @@ import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 
 import com.xyp.gtnc.Common.gui.modularui.multiblock.GTNCSteamMultiBlockBaseGui;
+import com.xyp.gtnc.Common.machines.hatch.SuperMTEHatchCraftingInputME;
 import com.xyp.gtnc.utils.enums.GTNCItemList;
 import com.xyp.gtnc.utils.world.steam.SteamWirelessNetworkManager;
 
@@ -299,6 +300,25 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
     // endregion
 
     // region Item I/O
+
+    /**
+     * Feed the controller's recipe map to our Super Crafting Input hatch when it's added on structure form. Our hatch
+     * is
+     * an {@link IDualInputHatch} stored in {@code mDualInputHatches}; GT5's {@code addInputBusToMachineList} returns on
+     * that branch WITHOUT setting {@code mRecipeMap} (only the plain-input-bus branch below it does). The structure
+     * scanner adds InputBus elements via {@code addInputBusToMachineList} (see HatchElement.InputBus), NOT
+     * {@code addToMachineList} — so this is the method to hook. With the recipe map in hand the hatch shows the
+     * recipe-map name ("Assembler") instead of the machine icon name, matching NEI-overwrite auto-fill naming.
+     */
+    @Override
+    public boolean addInputBusToMachineList(final IGregTechTileEntity aTileEntity, final int aBaseCasingIndex) {
+        boolean result = super.addInputBusToMachineList(aTileEntity, aBaseCasingIndex);
+        if (aTileEntity != null
+            && aTileEntity.getMetaTileEntity() instanceof SuperMTEHatchCraftingInputME craftingInput) {
+            craftingInput.setControllerRecipeMap(getRecipeMap());
+        }
+        return result;
+    }
 
     @Override
     public ArrayList<ItemStack> getStoredInputsForColor(Optional<Byte> color) {

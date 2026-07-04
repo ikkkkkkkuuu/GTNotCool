@@ -25,7 +25,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -982,6 +981,7 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
             InterfaceWirelessEntry entry = new InterfaceWirelessEntry(
                 id,
                 addCmd.name,
+                addCmd.suffix,
                 addCmd.rows,
                 addCmd.rowSize,
                 addCmd.online,
@@ -1007,9 +1007,21 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
                 entry.terminalVisible = owCmd.terminalVisible;
             }
 
+            // Apply size (row count) changes BEFORE the item update: fullItemUpdate derives rows from entry.rowSize,
+            // so an interface that grew/shrank rows (GTNH interfaces exceed 27 slots and expand extra rows) must have
+            // the new rowSize in place first. AE2 sends this via setSize alongside a full item update (see
+            // ContainerInterfaceTerminal: on size change it does setItems(new int[0], ...).setSize(...)).
+            if (owCmd.sizeValid) {
+                entry.rows = owCmd.rows;
+                entry.rowSize = owCmd.rowSize;
+            }
+
             if (owCmd.itemsValid) {
                 if (owCmd.allItemUpdate) {
-                    entry.fullItemUpdate(owCmd.items, owCmd.validIndices.length);
+                    // Full update: AE2 leaves validIndices null (only partial updates carry it, see
+                    // PacketOverwrite.read). The new slot count is the full item-list size, not validIndices.length —
+                    // using the latter NPEs when a resized interface (>27 slots, GTNH multi-row) pushes a full update.
+                    entry.fullItemUpdate(owCmd.items, owCmd.items.tagCount());
                 } else {
                     entry.partialItemUpdate(owCmd.items, owCmd.validIndices);
                 }
@@ -1019,14 +1031,31 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
             InterfaceWirelessEntry entry = masterList.list.get(id);
 
             if (entry != null) {
-                if (StatCollector.canTranslate(renameCmd.newName)) {
-                    entry.dispName = StatCollector.translateToLocal(renameCmd.newName);
-                } else {
-                    entry.dispName = StatCollector.translateToFallback(renameCmd.newName);
-                }
+                entry.dispName = buildDispName(renameCmd.newName, renameCmd.suffix);
             }
             masterList.isDirty = true;
         }
+    }
+
+    /**
+     * Build the display name = translated raw name + the dynamic suffix (GT machines expose their ghost-circuit
+     * number / internal item via IInterfaceNameProvider.getInterfaceNameSuffix, AE2 rv3-beta-977 PR #1196). AE2's own
+     * terminal appends the suffix as-is (typically " [24]"); here we instead strip any surrounding brackets and join
+     * with a single space, so it reads "Name 24" to match the user's auto-fill naming convention.
+     */
+    private static String buildDispName(String rawName, String suffix) {
+        final String translated = CraftingCPUCluster.translateFromNetwork(rawName);
+        if (suffix == null) {
+            return translated;
+        }
+        // Drop bracket characters GT may include (" [24]" -> "24"), then normalize whitespace.
+        final String cleaned = suffix.replace("[", "")
+            .replace("]", "")
+            .trim();
+        if (cleaned.isEmpty()) {
+            return translated;
+        }
+        return translated + " " + cleaned;
     }
 
     private boolean itemStackMatchesSearchTerm(final ItemStack itemStack, final String searchTerm, boolean in) {
@@ -1444,9 +1473,10 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
         boolean[] filteredRecipes;
         private int hoveredSlotIdx = -1;
 
-        InterfaceWirelessEntry(long id, String name, int rows, int rowSize, boolean online, boolean p2pOutput) {
+        InterfaceWirelessEntry(long id, String name, String suffix, int rows, int rowSize, boolean online,
+            boolean p2pOutput) {
             this.id = id;
-            this.dispName = CraftingCPUCluster.translateFromNetwork(name);
+            this.dispName = buildDispName(name, suffix);
             this.inv = new AppEngInternalInventory(null, rows * rowSize, 1);
             this.rows = rows;
             this.rowSize = rowSize;
@@ -1494,6 +1524,10 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
             inv = new AppEngInternalInventory(null, newSize);
             rows = newSize / rowSize;
             brokenRecipes = new Boolean[newSize];
+            // filteredRecipes must be resized in lockstep with inv/brokenRecipes: the render loop indexes
+            // filteredRecipes[slotIdx] up to rows*rowSize, so a stale (smaller) array from a previous size
+            // ArrayIndexOutOfBounds-crashes when an interface grows rows, and leaves dangling state when it shrinks.
+            filteredRecipes = new boolean[newSize];
             numItems = 0;
 
             for (int i = 0; i < inv.getSizeInventory(); ++i) {
