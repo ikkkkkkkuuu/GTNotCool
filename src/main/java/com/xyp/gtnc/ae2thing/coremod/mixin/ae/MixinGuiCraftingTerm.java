@@ -7,6 +7,7 @@ import net.minecraft.inventory.Container;
 import net.minecraft.item.ItemStack;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -38,6 +39,12 @@ public abstract class MixinGuiCraftingTerm extends AEBaseGui {
         super(container);
     }
 
+    @Shadow(remap = false)
+    protected abstract int getPinButtonX();
+
+    @Shadow(remap = false)
+    protected abstract int getPinButtonY();
+
     private boolean openedFromDualInterfaceTerminal() {
         if (!(this.inventorySlots instanceof ContainerMEMonitorable)) return false;
         ITerminalHost host = ((AccessorContainerMEMonitorable) this.inventorySlots).getHost();
@@ -53,8 +60,8 @@ public abstract class MixinGuiCraftingTerm extends AEBaseGui {
         // # Switch to Dual Interface Terminal
         // # zh_CN 切换到二合一接口终端
         this.switchBackButton = new GuiTabButton(
-            this.guiLeft - 18,
-            this.guiTop,
+            this.getPinButtonX(),
+            this.getPinButtonY() + 20,
             new ItemStack(Blocks.crafting_table),
             I18n.format("sciencenotcool.tooltip.switch_to_dual_interface_terminal"),
             AEBaseGui.aeRenderItem);
