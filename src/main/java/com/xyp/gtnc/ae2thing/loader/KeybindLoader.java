@@ -16,6 +16,7 @@ import com.xyp.gtnc.ae2thing.AE2Thing;
 import com.xyp.gtnc.ae2thing.api.AE2ThingAPI;
 import com.xyp.gtnc.ae2thing.api.InventoryActionExtend;
 import com.xyp.gtnc.ae2thing.network.CPacketInventoryActionExtend;
+import com.xyp.gtnc.ae2thing.network.CPacketSendHeldItemToNetwork;
 import com.xyp.gtnc.ae2thing.util.BlockPos;
 import com.xyp.gtnc.ae2thing.util.Util;
 
@@ -31,6 +32,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 public class KeybindLoader implements Runnable {
 
     public static KeyBinding openDualInterfaceTerminal;
+    public static KeyBinding sendHeldItemToNetwork;
 
     @Override
     public void run() {
@@ -42,6 +44,14 @@ public class KeybindLoader implements Runnable {
             Keyboard.CHAR_NONE,
             "key.categories.sciencenotcool");
         ClientRegistry.registerKeyBinding(openDualInterfaceTerminal);
+        // #tr sciencenotcool.key.send_held_item_to_network
+        // # Send Held Item to Network
+        // # zh_CN 发送手持物品到网络
+        sendHeldItemToNetwork = new KeyBinding(
+            AE2Thing.MODID + ".key.send_held_item_to_network",
+            Keyboard.CHAR_NONE,
+            "key.categories.sciencenotcool");
+        ClientRegistry.registerKeyBinding(sendHeldItemToNetwork);
         FMLCommonHandler.instance()
             .bus()
             .register(this);
@@ -75,6 +85,13 @@ public class KeybindLoader implements Runnable {
         if (openDualInterfaceTerminal.isPressed()) {
             AE2ThingAPI.instance()
                 .openDualinterfaceTerminal();
+        }
+        if (sendHeldItemToNetwork.isPressed()) {
+            // send the currently held stack into the ME network of a wireless terminal in inventory/baubles
+            ItemStack held = p.inventory.getCurrentItem();
+            if (held != null && held.getItem() != null && held.stackSize > 0) {
+                AE2Thing.proxy.netHandler.sendToServer(new CPacketSendHeldItemToNetwork(p.inventory.currentItem));
+            }
         }
 
     }

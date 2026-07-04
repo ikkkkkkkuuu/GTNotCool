@@ -21,6 +21,7 @@ sciencenotcool.tooltip.wireless.installed=Installed Card:
 sciencenotcool.tooltip.ctrl_for_more=§r> Hold §3Ctrl§r for more information
 sciencenotcool.gui.button.replan=Replan
 sciencenotcool.key.open_dual_interface_terminal=Open Dual Interface Terminal
+sciencenotcool.key.send_held_item_to_network=Send Held Item to Network
 nei.options.sciencenotcool=ScienceNotCool
 nei.options.sciencenotcool.history=Draw terminal history
 nei.options.sciencenotcool.history.true=Yes

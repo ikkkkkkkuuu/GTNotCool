@@ -21,6 +21,7 @@ sciencenotcool.tooltip.wireless.installed=已安装的卡:
 sciencenotcool.tooltip.ctrl_for_more=§r> 按 §3Ctrl§r 显示更多信息
 sciencenotcool.gui.button.replan=重新规划合成任务
 sciencenotcool.key.open_dual_interface_terminal=打开二合一接口终端
+sciencenotcool.key.send_held_item_to_network=发送手持物品到网络
 nei.options.sciencenotcool=ScienceNotCool
 nei.options.sciencenotcool.history=终端历史记录
 nei.options.sciencenotcool.history.true=显示
