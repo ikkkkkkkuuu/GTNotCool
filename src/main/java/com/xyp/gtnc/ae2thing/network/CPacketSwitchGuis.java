@@ -61,6 +61,8 @@ public class CPacketSwitchGuis implements IMessage {
                 || message.guiType == GuiType.WIRELESS_CRAFTING_TERMINAL) {
                 int s = Util.findDualInterfaceTerminal(player);
                 if (s != -1) {
+                    // Remember which of the two views the player switched to so reopening the terminal restores it.
+                    Util.setLastGuiMode(player, s, message.guiType);
                     InventoryHandler.openGui(player, w, new BlockPos(s, 0, 0), ForgeDirection.UNKNOWN, message.guiType);
                 }
                 return null;

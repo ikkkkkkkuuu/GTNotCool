@@ -132,7 +132,18 @@ public final class AE2ThingAPI implements IAE2ThingAPI {
     @SideOnly(Side.CLIENT)
     @Override
     public void openDualinterfaceTerminal() {
-        AE2Thing.proxy.netHandler.sendToServer(new CPacketSwitchGuis(GuiType.WIRELESS_DUAL_INTERFACE_TERMINAL));
+        // Reopen whichever view the player last switched to on the terminal, defaulting to the dual interface terminal.
+        net.minecraft.entity.player.EntityPlayer player = Minecraft.getMinecraft().thePlayer;
+        GuiType mode = GuiType.WIRELESS_DUAL_INTERFACE_TERMINAL;
+        if (player != null) {
+            int slot = com.xyp.gtnc.ae2thing.util.Util.findDualInterfaceTerminal(player);
+            if (slot != -1) {
+                mode = com.xyp.gtnc.ae2thing.util.Util.getLastGuiMode(
+                    com.xyp.gtnc.ae2thing.util.Util.getTerminalInSlot(player, slot),
+                    GuiType.WIRELESS_DUAL_INTERFACE_TERMINAL);
+            }
+        }
+        AE2Thing.proxy.netHandler.sendToServer(new CPacketSwitchGuis(mode));
     }
 
     @Override

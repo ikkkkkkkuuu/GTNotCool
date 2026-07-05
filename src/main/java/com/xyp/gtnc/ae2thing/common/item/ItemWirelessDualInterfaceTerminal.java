@@ -50,7 +50,8 @@ public class ItemWirelessDualInterfaceTerminal extends ItemBaseWirelessTerminal
 
     @Override
     protected GuiType guiGuiType(ItemStack item) {
-        return GuiType.WIRELESS_DUAL_INTERFACE_TERMINAL;
+        // Restore whichever view (dual interface vs AE2 crafting terminal) the player last switched to on this stack.
+        return com.xyp.gtnc.ae2thing.util.Util.getLastGuiMode(item, GuiType.WIRELESS_DUAL_INTERFACE_TERMINAL);
     }
 
     @Override

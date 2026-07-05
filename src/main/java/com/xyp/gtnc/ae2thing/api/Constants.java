@@ -57,6 +57,12 @@ public interface Constants {
     int MODE_PROCESSING = 0;
     String INFINITY_BOOSTER_CARD = "infinityBoosterCard";
     String INFINITY_ENERGY_CARD = "InfinityEnergyCard";
+    /**
+     * Stores the GuiType ordinal last chosen via the in-GUI switch button on the wireless dual interface terminal, so
+     * reopening the terminal (right-click / bauble keybind) restores the crafting-terminal vs dual-interface view the
+     * player last had open instead of always defaulting back to the dual interface terminal.
+     */
+    String LAST_GUI_MODE = "last_gui_mode";
 
     enum MessageType {
 

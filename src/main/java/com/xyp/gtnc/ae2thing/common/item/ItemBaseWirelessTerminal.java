@@ -18,8 +18,11 @@ import appeng.api.AEApi;
 import appeng.api.features.ILocatable;
 import appeng.api.features.IWirelessTermHandler;
 import appeng.api.features.IWirelessTermRegistry;
+import appeng.api.implementations.guiobjects.IGuiItem;
+import appeng.api.implementations.guiobjects.IGuiItemObject;
 import appeng.core.features.AEFeature;
 import appeng.core.localization.PlayerMessages;
+import appeng.items.contents.WirelessCraftingTerminalGuiObject;
 import appeng.items.tools.powered.ToolWirelessTerminal;
 import appeng.util.Platform;
 import baubles.api.IBauble;
@@ -27,7 +30,7 @@ import baubles.api.expanded.BaubleExpandedSlots;
 import baubles.api.expanded.IBaubleExpanded;
 
 public abstract class ItemBaseWirelessTerminal extends ToolWirelessTerminal
-    implements IItemInventory, IBauble, IBaubleExpanded {
+    implements IItemInventory, IBauble, IBaubleExpanded, IGuiItem {
 
     public ItemBaseWirelessTerminal() {
         super();
@@ -125,6 +128,30 @@ public abstract class ItemBaseWirelessTerminal extends ToolWirelessTerminal
     @Override
     public boolean hasInfinityRange(ItemStack is) {
         return com.xyp.gtnc.ae2thing.api.WirelessObject.hasInfinityBoosterCard(is);
+    }
+
+    /**
+     * When AE2's own GUI switching (PacketSwitchGuis / GuiBridge) reopens a terminal from its item stack — e.g. the
+     * "back" button on the crafting-status screen returning to GUI_CRAFTING_TERMINAL — it rebuilds the host via
+     * {@link appeng.core.sync.GuiBridge#getGuiObject}. Without this override that path wraps any wireless terminal in a
+     * plain {@link appeng.helpers.WirelessTerminalGuiObject}, which is NOT an
+     * {@link appeng.api.parts.ICraftingTerminal},
+     * so GUI_CRAFTING_TERMINAL's host check fails, a ContainerNull is returned and the GUI closes. Returning a
+     * {@link WirelessCraftingTerminalGuiObject} (an ICraftingTerminal superset of the plain object) makes the crafting
+     * terminal reopen correctly while remaining valid for the plain ME/status GUIs too. Because IGuiItem is checked
+     * before the wireless-handler fallback in getGuiObject, this takes effect for every AE2-driven reopen of our
+     * terminal.
+     */
+    @Override
+    public IGuiItemObject getGuiObject(ItemStack is, World world, EntityPlayer player, int x, int y, int z) {
+        IWirelessTermHandler handler = AEApi.instance()
+            .registries()
+            .wireless()
+            .getWirelessTerminalHandler(is);
+        if (handler == null) {
+            return null;
+        }
+        return new WirelessCraftingTerminalGuiObject(handler, is, player, world, x, y, z);
     }
 
     protected abstract GuiType guiGuiType(ItemStack item);

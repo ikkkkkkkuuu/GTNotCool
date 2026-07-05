@@ -19,13 +19,16 @@ import com.xyp.gtnc.ae2thing.api.adapter.terminal.IGuiCraftAmount;
 import com.xyp.gtnc.ae2thing.api.adapter.terminal.ITerminal;
 import com.xyp.gtnc.ae2thing.client.event.UpdateAmountTextEvent;
 import com.xyp.gtnc.ae2thing.nei.ButtonConstants;
+import com.xyp.gtnc.ae2thing.util.Ae2ReflectClient;
 import com.xyp.gtnc.ae2thing.util.Util;
 
 import appeng.api.implementations.guiobjects.IGuiItemObject;
 import appeng.api.parts.IPart;
 import appeng.api.parts.PartItemStack;
 import appeng.api.storage.data.IAEItemStack;
+import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IDisplayRepo;
+import appeng.api.storage.data.IItemList;
 import appeng.client.gui.AEBaseGui;
 import appeng.client.me.ItemRepo;
 import appeng.container.AEBaseContainer;
@@ -67,10 +70,12 @@ public abstract class MixinPanelWidget extends Widget implements IContainerToolt
                     Util.setSearchFieldText(g, Platform.getItemDisplayName(is));
                 } else if (g.inventorySlots instanceof AEBaseContainer c) {
                     MonitorableAction action = null;
-                    if (NEIClientUtils.shiftKey()) {
-                        action = MonitorableAction.PICKUP_OR_SET_DOWN;
-                    } else if (GuiScreen.isCtrlKeyDown()) {
-                        action = MonitorableAction.PICKUP_SINGLE;
+                    // shift / ctrl + middle-click should MOVE the item from the network straight into the player's
+                    // inventory (like the vanilla ME terminal's shift+left-click), not pick it up onto the cursor.
+                    // SHIFT_CLICK is the action that runs InventoryAdaptor.addItems into the player inventory; the old
+                    // PICKUP_OR_SET_DOWN / PICKUP_SINGLE actions dropped the stack onto the mouse cursor instead.
+                    if (NEIClientUtils.shiftKey() || GuiScreen.isCtrlKeyDown()) {
+                        action = MonitorableAction.SHIFT_CLICK;
                     } else if (getConfigValue(ButtonConstants.NEI_CRAFT_ITEM) && repo instanceof ItemRepo itemRepo
                         && canCraftItem(itemRepo, is)) {
                             is = is.copy();
@@ -113,13 +118,15 @@ public abstract class MixinPanelWidget extends Widget implements IContainerToolt
         if (repo == null || is == null) return false;
         final IAEItemStack target = AEItemStack.create(is);
         if (target == null) return false;
-        for (int i = 0; i < repo.size(); i++) {
-            final IAEItemStack item = repo.getReferenceItem(i);
-            if (item != null && item.isSameType(target)) {
-                return item.isCraftable();
-            }
-        }
-        return false;
+        // Look the item up in the repo's FULL backing list, not its filtered `view`. repo.size()/getReferenceItem()
+        // only walk the currently-visible (search-filtered, scroll-offset) view, so with text in the ME search box the
+        // middle-clicked NEI item is filtered out of the view and we wrongly report it as non-craftable — meaning
+        // middle-click crafting silently did nothing until the search box was cleared. findPrecise() matches on the
+        // full list (item+meta+NBT, same as isSameType here) regardless of the active search filter.
+        final IItemList<IAEStack<?>> list = Ae2ReflectClient.getList(repo);
+        if (list == null) return false;
+        final IAEStack<?> found = list.findPrecise(target);
+        return found instanceof IAEItemStack ais && ais.isCraftable();
     }
 
     private void openCraftAmount(Class<? extends Item> o, AEBaseContainer c, ItemStack is) {

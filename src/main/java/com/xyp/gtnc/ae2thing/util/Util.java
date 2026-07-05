@@ -182,6 +182,65 @@ public class Util {
         }
     }
 
+    /**
+     * Resolves the terminal ItemStack living in {@code slot}, using the same main-inventory / Baubles encoding as
+     * {@link #findDualInterfaceTerminal(EntityPlayer)} and {@link #writeBackTerminal(EntityPlayer, int, ItemStack)}.
+     */
+    public static ItemStack getTerminalInSlot(EntityPlayer player, int slot) {
+        if (slot == -1) {
+            return player.getCurrentEquippedItem();
+        }
+        if (slot >= com.xyp.gtnc.ae2thing.api.Constants.BAUBLE_SLOT_OFFSET) {
+            net.minecraft.inventory.IInventory baublesInv = baubles.api.BaublesApi.getBaubles(player);
+            int bSlot = slot - com.xyp.gtnc.ae2thing.api.Constants.BAUBLE_SLOT_OFFSET;
+            if (baublesInv != null && bSlot >= 0 && bSlot < baublesInv.getSizeInventory()) {
+                return baublesInv.getStackInSlot(bSlot);
+            }
+            return null;
+        }
+        if (slot >= 0 && slot < player.inventory.getSizeInventory()) {
+            return player.inventory.getStackInSlot(slot);
+        }
+        return null;
+    }
+
+    /**
+     * Persists the GuiType the player last switched to onto the terminal ItemStack's NBT so reopening the terminal
+     * restores that view. See {@link com.xyp.gtnc.ae2thing.api.Constants#LAST_GUI_MODE}.
+     */
+    public static void setLastGuiMode(EntityPlayer player, int slot, com.xyp.gtnc.ae2thing.inventory.gui.GuiType type) {
+        ItemStack stack = getTerminalInSlot(player, slot);
+        if (stack == null || type == null) {
+            return;
+        }
+        if (!stack.hasTagCompound()) {
+            stack.setTagCompound(new NBTTagCompound());
+        }
+        stack.getTagCompound()
+            .setByte(com.xyp.gtnc.ae2thing.api.Constants.LAST_GUI_MODE, (byte) type.ordinal());
+    }
+
+    /**
+     * Reads back the GuiType stored by {@link #setLastGuiMode}, falling back to {@code fallback} when the stack has no
+     * stored mode or the stored ordinal is not one of the two allowed terminal views.
+     */
+    public static com.xyp.gtnc.ae2thing.inventory.gui.GuiType getLastGuiMode(ItemStack stack,
+        com.xyp.gtnc.ae2thing.inventory.gui.GuiType fallback) {
+        if (stack == null || !stack.hasTagCompound()
+            || !stack.getTagCompound()
+                .hasKey(com.xyp.gtnc.ae2thing.api.Constants.LAST_GUI_MODE)) {
+            return fallback;
+        }
+        com.xyp.gtnc.ae2thing.inventory.gui.GuiType type = com.xyp.gtnc.ae2thing.inventory.gui.GuiType.getByOrdinal(
+            stack.getTagCompound()
+                .getByte(com.xyp.gtnc.ae2thing.api.Constants.LAST_GUI_MODE));
+        if (type == com.xyp.gtnc.ae2thing.inventory.gui.GuiType.WIRELESS_DUAL_INTERFACE_TERMINAL
+            || type == com.xyp.gtnc.ae2thing.inventory.gui.GuiType.WIRELESS_CRAFTING_TERMINAL) {
+            return type;
+        }
+        return fallback;
+    }
+
     public static int findDualInterfaceTerminal(EntityPlayer player) {
         for (int x = 0; x < player.inventory.mainInventory.length; x++) {
             ItemStack item = player.inventory.mainInventory[x];

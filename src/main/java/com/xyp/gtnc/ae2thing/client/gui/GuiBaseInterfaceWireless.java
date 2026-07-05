@@ -96,6 +96,48 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
         AppEng.MOD_ID,
         "textures/guis/newinterfaceterminal.png");
 
+    /**
+     * Natural (human) order for interface names: compares digit runs by numeric value so "Assembler 4" sorts before
+     * "Assembler 24" instead of the plain lexicographic order that puts "24" before "4". Non-digit runs compare
+     * case-insensitively, then case-sensitively as a tie-break so the ordering is stable/deterministic.
+     */
+    protected static final Comparator<String> NATURAL_ORDER = (a, b) -> {
+        int i = 0, j = 0;
+        final int la = a.length(), lb = b.length();
+        while (i < la && j < lb) {
+            char ca = a.charAt(i);
+            char cb = b.charAt(j);
+            if (Character.isDigit(ca) && Character.isDigit(cb)) {
+                // Skip leading zeros so "007" and "7" compare equal in magnitude.
+                int si = i, sj = j;
+                while (i < la && a.charAt(i) == '0') i++;
+                while (j < lb && b.charAt(j) == '0') j++;
+                int di = i, dj = j;
+                while (di < la && Character.isDigit(a.charAt(di))) di++;
+                while (dj < lb && Character.isDigit(b.charAt(dj))) dj++;
+                int lenA = di - i, lenB = dj - j;
+                if (lenA != lenB) return lenA - lenB; // more significant digits => larger number
+                while (i < di) {
+                    int diff = a.charAt(i) - b.charAt(j);
+                    if (diff != 0) return diff;
+                    i++;
+                    j++;
+                }
+                // Equal numeric value: fewer leading zeros first for determinism.
+                int lzDiff = (i - si) - (j - sj);
+                if (lzDiff != 0) return lzDiff;
+            } else {
+                char lca = Character.toLowerCase(ca);
+                char lcb = Character.toLowerCase(cb);
+                if (lca != lcb) return lca - lcb;
+                if (ca != cb) return ca - cb;
+                i++;
+                j++;
+            }
+        }
+        return (la - i) - (lb - j);
+    };
+
     private final InterfaceWirelessList masterList = new InterfaceWirelessList();
     private final MEGuiTextField searchFieldOutputs;
     private final MEGuiTextField searchFieldInputs;
@@ -1179,7 +1221,7 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
     private class InterfaceWirelessList {
 
         private final Map<Long, InterfaceWirelessEntry> list = new HashMap<>();
-        private final Map<String, InterfaceWirelessSection> sections = new TreeMap<>();
+        private final Map<String, InterfaceWirelessSection> sections = new TreeMap<>(NATURAL_ORDER);
         private final List<InterfaceWirelessSection> visibleSections = new ArrayList<>();
         private boolean isDirty;
         private int height;
@@ -1320,13 +1362,18 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
 
         String name;
         List<InterfaceWirelessEntry> entries = new ArrayList<>();
-        Set<InterfaceWirelessEntry> visibleEntries = new TreeSet<>(Comparator.comparing(e -> {
-            if (e.dispRep != null) {
-                return e.dispRep.getDisplayName() + e.id;
-            } else {
-                return String.valueOf(e.id);
+        // Sort entries within a section by the interface's own name (natural order), NOT by dispRep — dispRep is the
+        // icon of the interface's first pattern output, so sorting on it let a product name (e.g. a circuit assembler's
+        // output) drag that interface to the top and out of the expected name/number order. Fall back to the numeric id
+        // as a stable tie-break for identically-named interfaces.
+        Set<InterfaceWirelessEntry> visibleEntries = new TreeSet<>((e1, e2) -> {
+            int byName = NATURAL_ORDER
+                .compare(e1.dispName != null ? e1.dispName : "", e2.dispName != null ? e2.dispName : "");
+            if (byName != 0) {
+                return byName;
             }
-        }));
+            return Long.compare(e1.id, e2.id);
+        });
         int height;
         private boolean isDirty = true;
         boolean visible = false;
