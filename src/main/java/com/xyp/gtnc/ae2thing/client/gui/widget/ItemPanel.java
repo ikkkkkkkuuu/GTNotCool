@@ -93,7 +93,13 @@ public class ItemPanel implements IAEBasePanel, IGuiMonitorTerminal, IConfigMana
         this.source = source;
         this.scrollbar = new GuiScrollbar();
         this.repo = new AdvItemRepo(scrollbar, source);
-        this.repo.setCache(this);
+        // NOTE: deliberately NOT calling repo.setCache(this). The cache enables AdvItemRepo's background
+        // "repo sort thread", which rebuilds the reflected ItemRepo.view via clear()+addAll() while the render
+        // thread reads it (getReferenceStack/size/setScrollBar) from paths the drawScreen lock doesn't cover.
+        // That race showed up only in real (busy) networks as the left ME list mis-sorting or showing only
+        // fluids, and got worse on Shift release (setPaused(false) schedules an immediate re-sort). Without a
+        // cache, every AdvItemRepo override falls through to stock ItemRepo, so sorting/filtering runs
+        // synchronously on the client thread — identical to vanilla AE2's ME terminal, race eliminated.
         this.repo.setPowered(true);
         this.w = 101;
         this.h = 96;

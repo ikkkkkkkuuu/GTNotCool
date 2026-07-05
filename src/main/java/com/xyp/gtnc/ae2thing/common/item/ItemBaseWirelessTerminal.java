@@ -111,5 +111,21 @@ public abstract class ItemBaseWirelessTerminal extends ToolWirelessTerminal
         return super.onItemUseFirst(itemstack, player, world, x, y, z, side, hitX, hitY, hitZ);
     }
 
+    /**
+     * When the AE2 wireless crafting terminal path (WirelessTerminalGuiObject / AEBaseContainer.portableSourceTick)
+     * drives this terminal it drains real AE power unless the handler reports infinite power. Our own two-in-one GUI
+     * already treats the infinity energy card as "no drain" (WirelessObject#extractPower), so mirror that here so both
+     * GUIs behave the same: energy card -> infinite power, infinity booster card -> infinite range.
+     */
+    @Override
+    public boolean hasInfinityPower(ItemStack is) {
+        return com.xyp.gtnc.ae2thing.api.WirelessObject.hasEnergyCard(is);
+    }
+
+    @Override
+    public boolean hasInfinityRange(ItemStack is) {
+        return com.xyp.gtnc.ae2thing.api.WirelessObject.hasInfinityBoosterCard(is);
+    }
+
     protected abstract GuiType guiGuiType(ItemStack item);
 }

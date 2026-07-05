@@ -43,7 +43,16 @@ public class WirelessCraftingTerminalGuiFactory implements IGuiFactory {
         if (handler == null) {
             return null;
         }
-        return new WirelessCraftingTerminalGuiObject(handler, item, player, world, x, y, z);
+        // AEBaseContainer.checkItem()/lockPlayerInventorySlot revalidate the terminal item every tick using AE2's own
+        // baubles-slot encoding (Platform.baublesSlotsOffset). Our slot value uses Constants.BAUBLE_SLOT_OFFSET, so a
+        // bauble slot must be re-encoded to AE2's offset before it becomes the GuiObject's inventorySlot; otherwise
+        // AE2 decodes it to a wrong/out-of-range slot, sees no matching item and closes the GUI. Main-inventory slots
+        // pass through unchanged.
+        int aeSlot = x;
+        if (x >= Constants.BAUBLE_SLOT_OFFSET) {
+            aeSlot = appeng.util.Platform.baublesSlotsOffset + (x - Constants.BAUBLE_SLOT_OFFSET);
+        }
+        return new WirelessCraftingTerminalGuiObject(handler, item, player, world, aeSlot, y, z);
     }
 
     @Nullable
