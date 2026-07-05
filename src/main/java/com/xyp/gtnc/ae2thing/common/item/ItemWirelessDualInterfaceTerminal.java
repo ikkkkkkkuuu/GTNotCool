@@ -74,6 +74,24 @@ public class ItemWirelessDualInterfaceTerminal extends ItemBaseWirelessTerminal
             // # Dual interface terminal, support encode pattern
             // # zh_CN 二合一接口终端,支持编写样板
             toolTip.add(I18n.format(NameConst.TT_INTERFACE_TERMINAL_DESC));
+            // #tr sciencenotcool.tooltip.wireless_dual_interface_terminal.key_open
+            // # §r> Press §b%s§r to open the terminal GUI
+            // # zh_CN §r> 按 §b%s§r 打开终端界面
+            toolTip.add(
+                I18n.format(
+                    NameConst.TT_INTERFACE_TERMINAL_KEY_OPEN,
+                    keyName(com.xyp.gtnc.ae2thing.loader.KeybindLoader.openDualInterfaceTerminal)));
+            // #tr sciencenotcool.tooltip.wireless_dual_interface_terminal.key_send
+            // # §r> Press §b%s§r to send the held item into the ME network
+            // # zh_CN §r> 按 §b%s§r 将手持物品发送到 ME 网络
+            toolTip.add(
+                I18n.format(
+                    NameConst.TT_INTERFACE_TERMINAL_KEY_SEND,
+                    keyName(com.xyp.gtnc.ae2thing.loader.KeybindLoader.sendHeldItemToNetwork)));
+            // #tr sciencenotcool.tooltip.wireless_dual_interface_terminal.nei_to_inv
+            // # §r> §bShift§r/§bCtrl§r + §bMiddle-click§r a NEI item to send it to your inventory
+            // # zh_CN §r> 在 NEI 物品上 §bShift§r/§bCtrl§r + §b中键§r 发送到物品栏
+            toolTip.add(I18n.format(NameConst.TT_INTERFACE_TERMINAL_NEI_TO_INV));
         } else {
             // #tr sciencenotcool.tooltip.shift_for_more
             // # §r> Hold §3Shift§r for more information
@@ -98,6 +116,18 @@ public class ItemWirelessDualInterfaceTerminal extends ItemBaseWirelessTerminal
             toolTip.add(I18n.format(NameConst.TT_CTRL_FOR_MORE));
         }
 
+    }
+
+    /**
+     * Live display name of a keybind for the tooltip, read fresh each render so it reflects the player's current
+     * setting in Controls. Returns a localized "unbound" label when the key has no binding.
+     */
+    @cpw.mods.fml.relauncher.SideOnly(cpw.mods.fml.relauncher.Side.CLIENT)
+    private static String keyName(net.minecraft.client.settings.KeyBinding key) {
+        if (key == null || key.getKeyCode() == org.lwjgl.input.Keyboard.CHAR_NONE) {
+            return I18n.format(NameConst.TT_KEY_UNBOUND);
+        }
+        return net.minecraft.client.settings.GameSettings.getKeyDisplayString(key.getKeyCode());
     }
 
     @Override

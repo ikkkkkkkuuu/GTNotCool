@@ -51,6 +51,10 @@ public class NameConst {
     public static final String TT_CRAFTING_COMPLETE = TT_KEY + "crafting_complete";
     public static final String TT_INTERFACE_TERMINAL = TT_KEY + "wireless_dual_interface_terminal.";
     public static final String TT_INTERFACE_TERMINAL_DESC = TT_INTERFACE_TERMINAL + "desc";
+    public static final String TT_INTERFACE_TERMINAL_KEY_OPEN = TT_INTERFACE_TERMINAL + "key_open";
+    public static final String TT_INTERFACE_TERMINAL_KEY_SEND = TT_INTERFACE_TERMINAL + "key_send";
+    public static final String TT_INTERFACE_TERMINAL_NEI_TO_INV = TT_INTERFACE_TERMINAL + "nei_to_inv";
+    public static final String TT_KEY_UNBOUND = TT_KEY + "key_unbound";
     public static final String TT_CRAFTING_DEBUG_CARD = TT_KEY + "crafting_debug_card.";
     public static final String TT_CRAFTING_DEBUG_CARD_DESC = TT_CRAFTING_DEBUG_CARD + "desc";
     public static final String TT_FLUID_PACKET_ENCODER = TT_KEY + "fluid_packet_encoder.";
