@@ -59,11 +59,14 @@ jobs:
       - name: Rename JAR
         run: |
           VERSION="${{ steps.version.outputs.version }}"
-          for f in build/libs/*.jar; do
-            if [[ "$f" != *sources* ]] && [[ "$f" != *dev* ]]; then
-              mv "$f" "build/libs/GTNotCool-${VERSION}.jar"
-              break
-            fi
+          cd build/libs
+          # 按分类把主/dev/sources 三个 jar 都改成 tag 版本号，避免 release 里 dev/sources 仍带哈希版本。
+          for f in *.jar; do
+            case "$f" in
+              *-dev.jar)     mv "$f" "GTNotCool-${VERSION}-dev.jar" ;;
+              *-sources.jar) mv "$f" "GTNotCool-${VERSION}-sources.jar" ;;
+              *)             mv "$f" "GTNotCool-${VERSION}.jar" ;;
+            esac
           done
 
       - name: Create Tag and Release
