@@ -97,7 +97,19 @@ public class CPacketInventoryAction implements IMessage {
                     final ContainerOpenContext context = baseContainer.getOpenContext();
                     if (context != null) {
                         final TileEntity te = context.getTile();
-                        if (te != null || target instanceof WirelessTerminal) {
+                        // Resolve the item slot for item-hosted terminals. When our own dual interface view is open the
+                        // target is a WirelessTerminal; when the AE2 wireless crafting terminal view is open the target
+                        // is AE2's WirelessCraftingTerminalGuiObject (NOT a WirelessTerminal) with no tile, so the old
+                        // `target instanceof WirelessTerminal` gate dropped the auto-craft entirely. This packet is only
+                        // ever sent by our dual interface terminal, so re-locate it in our own slot encoding rather than
+                        // reading the target's slot (AE2's object uses a different baubles-slot offset than ours).
+                        int itemSlot = -2; // sentinel: not an item-hosted terminal we recognise
+                        if (target instanceof WirelessTerminal wt) {
+                            itemSlot = wt.getInventorySlot();
+                        } else if (te == null) {
+                            itemSlot = com.xyp.gtnc.ae2thing.util.Util.findDualInterfaceTerminal(sender);
+                        }
+                        if (te != null || itemSlot != -2) {
                             if (message.stack == null){
                                 if (baseContainer.getTargetStack() instanceof IAEItemStack ais) {
                                     message.stack = ais;
@@ -127,7 +139,7 @@ public class CPacketInventoryAction implements IMessage {
                                 InventoryHandler.openGui(
                                     sender,
                                     sender.getEntityWorld(),
-                                    new BlockPos(((WirelessTerminal) target).getInventorySlot(),0,0),
+                                    new BlockPos(itemSlot,0,0),
                                     Objects.requireNonNull(baseContainer.getOpenContext().getSide()),
                                     GuiType.CRAFTING_AMOUNT_ITEM);
                             }
