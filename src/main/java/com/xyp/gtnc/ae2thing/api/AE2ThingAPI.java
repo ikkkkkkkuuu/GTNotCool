@@ -22,7 +22,6 @@ import com.glodblock.github.util.Util;
 import com.xyp.gtnc.ae2thing.AE2Thing;
 import com.xyp.gtnc.ae2thing.client.event.NotificationEvent;
 import com.xyp.gtnc.ae2thing.common.Config;
-import com.xyp.gtnc.ae2thing.inventory.gui.GuiType;
 import com.xyp.gtnc.ae2thing.nei.ButtonConstants;
 import com.xyp.gtnc.ae2thing.network.CPacketSwitchGuis;
 import com.xyp.gtnc.ae2thing.util.Ae2Reflect;
@@ -133,17 +132,10 @@ public final class AE2ThingAPI implements IAE2ThingAPI {
     @Override
     public void openDualinterfaceTerminal() {
         // Reopen whichever view the player last switched to on the terminal, defaulting to the dual interface terminal.
-        net.minecraft.entity.player.EntityPlayer player = Minecraft.getMinecraft().thePlayer;
-        GuiType mode = GuiType.WIRELESS_DUAL_INTERFACE_TERMINAL;
-        if (player != null) {
-            int slot = com.xyp.gtnc.ae2thing.util.Util.findDualInterfaceTerminal(player);
-            if (slot != -1) {
-                mode = com.xyp.gtnc.ae2thing.util.Util.getLastGuiMode(
-                    com.xyp.gtnc.ae2thing.util.Util.getTerminalInSlot(player, slot),
-                    GuiType.WIRELESS_DUAL_INTERFACE_TERMINAL);
-            }
-        }
-        AE2Thing.proxy.netHandler.sendToServer(new CPacketSwitchGuis(mode));
+        // Let the server resolve the saved mode from the terminal's authoritative NBT: when the terminal sits in a
+        // Baubles slot the server-side NBT change is not synced back to the client, so reading it here would always
+        // see the stale (default) value and, worse, send that stale value back and overwrite the real saved mode.
+        AE2Thing.proxy.netHandler.sendToServer(CPacketSwitchGuis.restoreLast());
     }
 
     @Override

@@ -28,6 +28,12 @@ import io.netty.buffer.ByteBuf;
 public class CPacketSwitchGuis implements IMessage {
 
     private GuiType guiType;
+    /**
+     * When set, the server ignores {@link #guiType} and instead resolves the view to open from the terminal's own
+     * authoritative NBT ({@link Util#getLastGuiMode}). Used by the Baubles keybind path, whose worn-slot NBT is not
+     * synced back to the client, so the client cannot reliably read the last-used mode itself.
+     */
+    private boolean restoreSaved;
 
     public CPacketSwitchGuis() {}
 
@@ -36,14 +42,27 @@ public class CPacketSwitchGuis implements IMessage {
         AEBaseGui.setSwitchingGuis(true);
     }
 
+    /**
+     * Ask the server to reopen the dual interface terminal in whichever view was last saved on the stack, without the
+     * client reading (and potentially clobbering with a stale value) the terminal's NBT.
+     */
+    public static CPacketSwitchGuis restoreLast() {
+        CPacketSwitchGuis p = new CPacketSwitchGuis();
+        p.restoreSaved = true;
+        AEBaseGui.setSwitchingGuis(true);
+        return p;
+    }
+
     @Override
     public void fromBytes(ByteBuf byteBuf) {
         guiType = GuiType.getByOrdinal(byteBuf.readByte());
+        restoreSaved = byteBuf.readBoolean();
     }
 
     @Override
     public void toBytes(ByteBuf buf) {
         buf.writeByte(guiType != null ? guiType.ordinal() : 0);
+        buf.writeBoolean(restoreSaved);
     }
 
     public static class Handler implements IMessageHandler<CPacketSwitchGuis, IMessage> {
@@ -51,12 +70,24 @@ public class CPacketSwitchGuis implements IMessage {
         @Nullable
         @Override
         public IMessage onMessage(CPacketSwitchGuis message, MessageContext ctx) {
+            EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+            World w = player.worldObj;
+            // Baubles keybind path: the client can't read the worn terminal's last-used mode (server NBT changes on
+            // worn slots aren't synced back), so it just asks us to restore. Resolve from authoritative server NBT and
+            // do NOT write it back (writing the client-supplied value would clobber the real saved mode).
+            if (message.restoreSaved) {
+                int s = Util.findDualInterfaceTerminal(player);
+                if (s != -1) {
+                    GuiType mode = Util
+                        .getLastGuiMode(Util.getTerminalInSlot(player, s), GuiType.WIRELESS_DUAL_INTERFACE_TERMINAL);
+                    InventoryHandler.openGui(player, w, new BlockPos(s, 0, 0), ForgeDirection.UNKNOWN, mode);
+                }
+                return null;
+            }
             if (message.guiType == null) {
                 return null;
             }
-            EntityPlayerMP player = ctx.getServerHandler().playerEntity;
             Container cont = player.openContainer;
-            World w = player.worldObj;
             if (message.guiType == GuiType.WIRELESS_DUAL_INTERFACE_TERMINAL
                 || message.guiType == GuiType.WIRELESS_CRAFTING_TERMINAL) {
                 int s = Util.findDualInterfaceTerminal(player);
