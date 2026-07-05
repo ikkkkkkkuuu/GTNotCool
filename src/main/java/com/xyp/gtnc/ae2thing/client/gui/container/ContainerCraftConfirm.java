@@ -26,7 +26,13 @@ public class ContainerCraftConfirm extends appeng.container.implementations.Cont
 
         final IActionHost ah = this.getActionHost();
         if (ah instanceof WirelessDualInterfaceTerminalInventory) {
-            originalGui = GuiType.WIRELESS_DUAL_INTERFACE_TERMINAL;
+            // Return to whichever terminal view the craft was launched from (dual interface vs AE2 wireless crafting
+            // terminal), not always the dual interface terminal. The current view is persisted on the terminal NBT;
+            // read it here server-side (authoritative) so a baubles-slot terminal resolves correctly too.
+            net.minecraft.item.ItemStack stack = com.xyp.gtnc.ae2thing.util.Util
+                .getTerminalInSlot(this.getInventoryPlayer().player, ((WirelessTerminal) ah).getInventorySlot());
+            originalGui = com.xyp.gtnc.ae2thing.util.Util
+                .getLastGuiMode(stack, GuiType.WIRELESS_DUAL_INTERFACE_TERMINAL);
         }
 
         if (this.getOpenContext() != null && ah instanceof THPart) {

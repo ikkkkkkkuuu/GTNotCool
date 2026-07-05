@@ -167,7 +167,7 @@ public abstract class GuiAmount extends AEBaseGui implements IGuiDrawSlot, IGuiC
     protected void actionPerformed(final GuiButton btn) {
         super.actionPerformed(btn);
         if (btn == this.originalGuiBtn) {
-            InventoryHandler.switchGui(originalGui);
+            switchToOriginalGui();
         }
         final boolean isPlus = btn == this.plus1 || btn == this.plus10 || btn == this.plus100 || btn == this.plus1000;
         final boolean isMinus = btn == this.minus1 || btn == this.minus10
@@ -196,6 +196,15 @@ public abstract class GuiAmount extends AEBaseGui implements IGuiDrawSlot, IGuiC
     }
 
     protected abstract void setOriginGUI(Object target);
+
+    /**
+     * Navigate back from the craft-amount screen to the terminal the craft was launched from. Default returns to the
+     * resolved {@link #originalGui}; subclasses whose origin depends on runtime state (e.g. the wireless dual interface
+     * terminal, which can be viewed as either its own GUI or the AE2 wireless crafting terminal) override this.
+     */
+    protected void switchToOriginalGui() {
+        InventoryHandler.switchGui(originalGui);
+    }
 
     protected abstract String getBackground();
 

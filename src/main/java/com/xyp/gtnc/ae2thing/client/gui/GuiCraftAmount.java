@@ -94,6 +94,17 @@ public class GuiCraftAmount extends GuiAmount {
         }
     }
 
+    /**
+     * The craft-amount screen for our terminal is always item-hosted; the view it was launched from (dual interface vs
+     * AE2 wireless crafting terminal) is persisted on the terminal NBT. Route the back navigation through the server's
+     * "restore last" path rather than the hard-coded {@link GuiType#WIRELESS_DUAL_INTERFACE_TERMINAL}, so it returns to
+     * the correct view — and works for a baubles-slot terminal whose NBT the client can't read reliably.
+     */
+    @Override
+    protected void switchToOriginalGui() {
+        AE2Thing.proxy.netHandler.sendToServer(com.xyp.gtnc.ae2thing.network.CPacketSwitchGuis.restoreLast());
+    }
+
     @Override
     protected String getBackground() {
         return "guis/craftAmt.png";
