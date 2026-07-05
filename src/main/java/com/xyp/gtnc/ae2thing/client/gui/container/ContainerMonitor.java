@@ -257,6 +257,25 @@ public abstract class ContainerMonitor extends ContainerMEMonitorable
         if (didSomething) {
             return null;
         }
+        // Shift-clicking a normal (non-pattern) item from the player inventory should push it straight into the ME
+        // network, NOT into the interface pattern-encoding fake slots. AEBaseContainer.transferStackInSlot would
+        // otherwise treat the encoding area as a valid shift destination (getValidDestinationFakeSlot) and drop the
+        // item there. Route player-side non-pattern items directly to shiftStoreItem (ME insert) and bypass base.
+        if (Platform.isServer() && clickSlot instanceof appeng.container.slot.AppEngSlot aeSlot
+            && aeSlot.isPlayerSide()
+            && is != null
+            && !(is.getItem() instanceof ItemEncodedPattern)) {
+            final int before = is.stackSize;
+            final ItemStack remainder = this.shiftStoreItem(is);
+            if (remainder == null || remainder.stackSize != before) {
+                // Something (possibly all) was inserted into the ME network.
+                aeSlot.putStack(remainder);
+                this.detectAndSendChanges();
+                return null;
+            }
+            // Nothing could be stored (network full / no power) — fall through to vanilla shift behavior so the item
+            // can still shuffle between hotbar and main inventory.
+        }
         return super.transferStackInSlot(p, idx);
     }
 
