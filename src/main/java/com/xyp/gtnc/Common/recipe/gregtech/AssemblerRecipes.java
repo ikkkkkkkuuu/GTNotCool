@@ -6,6 +6,7 @@ import static gregtech.api.enums.TierEU.RECIPE_IV;
 import static gregtech.api.enums.TierEU.RECIPE_LV;
 import static gregtech.api.enums.TierEU.RECIPE_LuV;
 import static gregtech.api.enums.TierEU.RECIPE_MV;
+import static gregtech.api.enums.TierEU.RECIPE_UHV;
 import static gregtech.api.enums.TierEU.RECIPE_ZPM;
 import static gregtech.api.util.GTRecipeBuilder.INGOTS;
 import static gregtech.api.util.GTRecipeBuilder.SECONDS;
@@ -107,7 +108,7 @@ public class AssemblerRecipes {
             .itemOutputs(GTNCItemList.ChipTier1.get(1))
             .fluidInputs(Materials.Polyethylene.getMolten(9216))
             .circuit(24)
-            .eut(RECIPE_EV)
+            .eut(RECIPE_MV)
             .duration(20 * 15)
             .addTo(As);
 
@@ -120,7 +121,7 @@ public class AssemblerRecipes {
             .itemOutputs(GTNCItemList.ChipTier2.get(1))
             .fluidInputs(Materials.Polyethylene.getMolten(9216))
             .circuit(24)
-            .eut(RECIPE_IV)
+            .eut(RECIPE_HV)
             .duration(20 * 20)
             .addTo(As);
 
@@ -133,7 +134,7 @@ public class AssemblerRecipes {
             .itemOutputs(GTNCItemList.ChipTier3.get(1))
             .fluidInputs(Materials.Polyethylene.getMolten(9216))
             .circuit(24)
-            .eut(RECIPE_LuV)
+            .eut(RECIPE_EV)
             .duration(20 * 20)
             .addTo(As);
 
@@ -146,7 +147,7 @@ public class AssemblerRecipes {
             .itemOutputs(GTNCItemList.ChipTier4.get(1))
             .fluidInputs(Materials.Polyethylene.getMolten(9216))
             .circuit(24)
-            .eut(RECIPE_ZPM)
+            .eut(RECIPE_IV)
             .duration(20 * 20)
             .addTo(As);
 
@@ -159,7 +160,7 @@ public class AssemblerRecipes {
             .itemOutputs(GTNCItemList.ChipTier5.get(1))
             .fluidInputs(Materials.Polyethylene.getMolten(9216))
             .circuit(24)
-            .eut(RECIPE_ZPM)
+            .eut(RECIPE_LuV)
             .duration(20 * 20)
             .addTo(As);
 
@@ -185,7 +186,7 @@ public class AssemblerRecipes {
             .itemOutputs(GTNCItemList.ChipTier7.get(1))
             .fluidInputs(Materials.Polyethylene.getMolten(9216))
             .circuit(24)
-            .eut(RECIPE_ZPM)
+            .eut(RECIPE_UHV)
             .duration(20 * 20)
             .addTo(As);
 

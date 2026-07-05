@@ -19,11 +19,11 @@ public abstract class MixinElectricBlastFurnace {
     @Inject(method = "createProcessingLogic", at = @At("RETURN"), cancellable = false)
     private void gtnc$injectSpeedBonus(CallbackInfoReturnable<ProcessingLogic> cir) {
         cir.getReturnValue()
-            .setSpeedBonus(0.1);
+            .setSpeedBonus(0.01);
     }
 
     @Inject(method = "checkMachine", at = @At("TAIL"))
     private void gtnc$increaseHeat(CallbackInfo ci) {
-        mHeatingCapacity += 23000;
+        mHeatingCapacity += 63000;
     }
 }
