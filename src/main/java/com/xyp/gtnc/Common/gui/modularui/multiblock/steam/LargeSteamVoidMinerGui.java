@@ -368,7 +368,11 @@ public class LargeSteamVoidMinerGui extends GTNCSteamMultiBlockBaseGui {
     }
 
     private GTUtility.ItemId[] sortOres(VoidMinerUtility.DropMap dropMap) {
-        return Arrays.stream(dropMap.getOres())
+        GTUtility.ItemId[] ores = dropMap.getOres();
+        if (ores == null) {
+            return new GTUtility.ItemId[0];
+        }
+        return Arrays.stream(ores)
             .sorted((ore1, ore2) -> {
                 if (ore1.metaData() == ore2.metaData()) return 0;
                 return ore1.metaData() > ore2.metaData() ? 1 : -1;
