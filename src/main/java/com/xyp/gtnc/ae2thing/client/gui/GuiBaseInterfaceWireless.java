@@ -1239,6 +1239,7 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
             visibleSections.clear();
             String[] list = GuiBaseInterfaceWireless.this.searchFieldNames.getText()
                 .split(" ");
+            List<InterfaceWirelessSection> matched = new ArrayList<>();
             out: for (InterfaceWirelessSection section : sections.values()) {
                 for (String query : list) {
                     if (!NeCharUtil.INSTANCE.contains(query.toLowerCase(), section.name.toLowerCase())) {
@@ -1249,11 +1250,39 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
                 section.isDirty = true;
                 if (section.getVisible()
                     .hasNext()) {
-                    height += section.getHeight();
-                    visibleSections.add(section);
+                    matched.add(section);
                 }
             }
+
+            // 有名称搜索时，让"更贴合搜索词"的接口靠前：优先按搜索词在接口名中的出现位置
+            // （前缀/精确匹配 index=0 排最前，如搜"组装机"时"组装机"排在"电路组装机"之前），
+            // 再按名字长度，最后回退 NATURAL_ORDER。无搜索词时保持 TreeMap 的自然序。
+            String primary = list.length > 0 ? list[0].toLowerCase()
+                .trim() : "";
+            if (!primary.isEmpty() && matched.size() > 1) {
+                matched.sort((s1, s2) -> {
+                    int i1 = matchIndex(s1.name, primary);
+                    int i2 = matchIndex(s2.name, primary);
+                    if (i1 != i2) return Integer.compare(i1, i2);
+                    if (s1.name.length() != s2.name.length()) {
+                        return Integer.compare(s1.name.length(), s2.name.length());
+                    }
+                    return NATURAL_ORDER.compare(s1.name, s2.name);
+                });
+            }
+
+            for (InterfaceWirelessSection section : matched) {
+                height += section.getHeight();
+                visibleSections.add(section);
+            }
             isDirty = false;
+        }
+
+        /** 搜索词在接口名中的出现位置（大小写不敏感）；不是字面子串（如拼音匹配）时返回 MAX_VALUE 以退到长度/自然序。 */
+        private int matchIndex(String name, String query) {
+            int idx = name.toLowerCase()
+                .indexOf(query);
+            return idx < 0 ? Integer.MAX_VALUE : idx;
         }
 
         public void markDirty() {
