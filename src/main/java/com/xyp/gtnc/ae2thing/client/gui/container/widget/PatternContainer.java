@@ -534,19 +534,22 @@ public class PatternContainer implements IPatternContainer, IOptionalSlotHost, I
     }
 
     private static IAEStack<?>[] itemsToAEStack(ItemStack[] items) {
-        List<IAEStack<?>> stacks = new ArrayList<>();
-        for (ItemStack stack : items) {
-            if (stack != null) {
-                IAEFluidStack fluidStack = toAEFluidStack(stack);
-                if (fluidStack != null) {
-                    stacks.add(fluidStack);
-                    continue;
-                }
-                IAEItemStack aeStack = AEItemStack.create(stack);
-                if (aeStack != null) stacks.add(aeStack);
+        // Keep the array the SAME length as the input grid and leave empty slots as null.
+        // AE2FC's FluidPatternDetails.writeStackArray/setInputs encodes by POSITION (null slots write empty tags),
+        // and shaped crafting recipes (e.g. for the Molecular Assembler) rely on those positions. Filtering out
+        // nulls here compacts the array, so an ingredient in slot 2 shifts to slot 1 after encoding.
+        IAEStack<?>[] stacks = new IAEStack<?>[items.length];
+        for (int i = 0; i < items.length; i++) {
+            ItemStack stack = items[i];
+            if (stack == null) continue;
+            IAEFluidStack fluidStack = toAEFluidStack(stack);
+            if (fluidStack != null) {
+                stacks[i] = fluidStack;
+                continue;
             }
+            stacks[i] = AEItemStack.create(stack);
         }
-        return stacks.toArray(new IAEStack<?>[0]);
+        return stacks;
     }
 
     protected ItemStack stampAuthor(ItemStack patternStack) {
