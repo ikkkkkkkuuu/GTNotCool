@@ -13,6 +13,7 @@ import java.util.Set;
 import net.minecraft.item.ItemStack;
 
 import forestry.api.apiculture.BeeManager;
+import forestry.api.apiculture.EnumBeeChromosome;
 import forestry.api.apiculture.EnumBeeType;
 import forestry.api.apiculture.IAlleleBeeSpecies;
 import forestry.api.apiculture.IBee;
@@ -20,6 +21,9 @@ import forestry.api.apiculture.IBeeGenome;
 import forestry.api.apiculture.IBeeMutation;
 import forestry.api.apiculture.IBeeRoot;
 import forestry.api.genetics.IAllele;
+import forestry.apiculture.genetics.alleles.AlleleEffect;
+import forestry.core.genetics.alleles.AlleleHelper;
+import forestry.core.genetics.alleles.EnumAllele;
 
 /**
  * 蜜蜂繁育工具类
@@ -790,6 +794,41 @@ public class BeeBreedingHelper {
     }
 
     /**
+     * 将模板中除物种(SPECIES)外的所有染色体覆写为“满分”等位基因。
+     * <p>
+     * <ul>
+     * <li>工作(生产)速度最高 (Speed.FASTEST)</li>
+     * <li>授粉速度最快 (Flowering.MAXIMUM)</li>
+     * <li>温度/湿度适应度拉满 (Tolerance.BOTH_5，上下各 ±5)</li>
+     * <li>昼夜性：夜行/全天可工作 (NOCTURNAL = true)</li>
+     * <li>耐雨 (TOLERANT_FLYER = true)</li>
+     * <li>穴居 (CAVE_DWELLING = true)</li>
+     * <li>寿命最长 (Lifespan.LONGEST)</li>
+     * <li>采蜜对象：鲜花 (Flowers.VANILLA)</li>
+     * <li>活动范围：平均 (Territory.AVERAGE)</li>
+     * <li>特殊效果：无 (effectNone)</li>
+     * </ul>
+     * 模板由 {@code getTemplate()} 返回的独立副本（Arrays.copyOf），可安全就地修改。
+     */
+    private static void applyMaxGenome(IAllele[] template) {
+        if (template == null || AlleleHelper.instance == null) return;
+        AlleleHelper helper = AlleleHelper.instance;
+        helper.set(template, EnumBeeChromosome.SPEED, EnumAllele.Speed.FASTEST);
+        helper.set(template, EnumBeeChromosome.FLOWERING, EnumAllele.Flowering.MAXIMUM);
+        helper.set(template, EnumBeeChromosome.TEMPERATURE_TOLERANCE, EnumAllele.Tolerance.BOTH_5);
+        helper.set(template, EnumBeeChromosome.HUMIDITY_TOLERANCE, EnumAllele.Tolerance.BOTH_5);
+        helper.set(template, EnumBeeChromosome.NOCTURNAL, true);
+        helper.set(template, EnumBeeChromosome.TOLERANT_FLYER, true);
+        helper.set(template, EnumBeeChromosome.CAVE_DWELLING, true);
+        helper.set(template, EnumBeeChromosome.LIFESPAN, EnumAllele.Lifespan.LONGEST);
+        helper.set(template, EnumBeeChromosome.FLOWER_PROVIDER, EnumAllele.Flowers.VANILLA);
+        helper.set(template, EnumBeeChromosome.TERRITORY, EnumAllele.Territory.AVERAGE);
+        if (AlleleEffect.effectNone != null) {
+            helper.set(template, EnumBeeChromosome.EFFECT, AlleleEffect.effectNone);
+        }
+    }
+
+    /**
      * 创建指定品种的雄蜂 ItemStack。
      * 优先按 UID 查找，其次按名称查找。
      */
@@ -804,6 +843,7 @@ public class BeeBreedingHelper {
         IAllele[] template = root.getTemplate(species.getUID());
         if (template == null) return null;
 
+        applyMaxGenome(template);
         IBeeGenome genome = root.templateAsGenome(template);
         IBee bee = root.getBee(null, genome);
         if (bee == null) return null;
@@ -825,6 +865,7 @@ public class BeeBreedingHelper {
         IAllele[] template = root.getTemplate(species.getUID());
         if (template == null) return null;
 
+        applyMaxGenome(template);
         IBeeGenome genome = root.templateAsGenome(template);
         IBee bee = root.getBee(null, genome);
         if (bee == null) return null;

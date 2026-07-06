@@ -646,7 +646,9 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
         if (pendingPrincessOutputs > 0) {
             ItemStack princess = BeeBreedingHelper.createPrincess(targetBeeSpecies);
             if (princess != null) {
-                mOutputItems = new ItemStack[] { princess };
+                // 同时产出一只配套的满分雄蜂，凑成纯合满分蜂对（后代仍满分）
+                ItemStack drone = BeeBreedingHelper.createDrone(targetBeeSpecies);
+                mOutputItems = drone != null ? new ItemStack[] { princess, drone } : new ItemStack[] { princess };
                 pendingPrincessOutputs--;
             } else {
                 allTasksBlocked = true;
