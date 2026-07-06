@@ -137,12 +137,10 @@ public class Utils {
         return String.format("%.1fT", value / 1_000_000_000_000.0);
     }
 
+    /** @deprecated identical to {@link #shortFormat(long)}; kept as an alias. */
+    @Deprecated
     public static String formatNumbers(long value) {
-        if (value < 1000) return String.valueOf(value);
-        if (value < 1_000_000) return String.format("%.1fK", value / 1000.0);
-        if (value < 1_000_000_000L) return String.format("%.1fM", value / 1_000_000.0);
-        if (value < 1_000_000_000_000L) return String.format("%.1fB", value / 1_000_000_000.0);
-        return String.format("%.1fT", value / 1_000_000_000_000.0);
+        return shortFormat(value);
     }
 
 }

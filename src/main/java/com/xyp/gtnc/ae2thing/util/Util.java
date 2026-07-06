@@ -56,12 +56,26 @@ import codechicken.nei.recipe.StackInfo;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.ModContainer;
 import cpw.mods.fml.common.registry.GameRegistry;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 public class Util {
 
     private static int AE_VERSION = -1;
+
+    /**
+     * Caches the resolved display-repo {@link Field} per concrete GUI class. {@code getDisplayRepo} is called per
+     * fake/pattern slot every render frame; without this it re-walks getDeclaredFields()+setAccessible up the whole
+     * superclass chain each time. A sentinel {@link #NO_REPO_FIELD} marks classes that have no repo field so the
+     * miss is cached too.
+     */
+    private static final java.util.Map<Class<?>, Field> DISPLAY_REPO_FIELD_CACHE = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final Field NO_REPO_FIELD;
+    static {
+        Field sentinel = null;
+        try {
+            sentinel = Util.class.getDeclaredField("AE_VERSION");
+        } catch (NoSuchFieldException ignored) {}
+        NO_REPO_FIELD = sentinel;
+    }
 
     public static int getAEVersion() {
         if (AE_VERSION == -1) {
@@ -398,22 +412,6 @@ public class Util {
         return result;
     }
 
-    @SideOnly(Side.CLIENT)
-    public static int getLimitFPS() {
-        Minecraft mc = Minecraft.getMinecraft();
-        return mc.gameSettings.limitFramerate;
-    }
-
-    @SideOnly(Side.CLIENT)
-    public static int getCurrentFPS() {
-        try {
-            Field field = Minecraft.class.getDeclaredField("debugFPS");
-            field.setAccessible(true);
-            return field.getInt(Minecraft.getMinecraft());
-        } catch (Exception ignored) {}
-        return 0;
-    }
-
     public static IDisplayRepo getDisplayRepo(AEBaseGui gui) {
         if (gui instanceof IGuiMonitorTerminal gmt) {
             return gmt.getRepo();
@@ -461,21 +459,28 @@ public class Util {
         } catch (Exception ignored) {}
     }
 
-    @SuppressWarnings("unchecked")
     private static IDisplayRepo getDisplayRepo(AEBaseGui gui, Class<? extends AEBaseGui> clazz) {
+        Field field = DISPLAY_REPO_FIELD_CACHE.computeIfAbsent(clazz, Util::resolveDisplayRepoField);
+        if (field == NO_REPO_FIELD) return null;
         try {
-            if (clazz == AEBaseGui.class) {
-                return null;
-            }
-            for (Field f : clazz.getDeclaredFields()) {
-                if (f.getType() == IDisplayRepo.class || f.getType() == ItemRepo.class) {
-                    f.setAccessible(true);
-                    return (IDisplayRepo) f.get(gui);
-                }
-            }
-            return getDisplayRepo(gui, (Class<? extends AEBaseGui>) clazz.getSuperclass());
+            return (IDisplayRepo) field.get(gui);
         } catch (Exception ignored) {}
         return null;
+    }
+
+    /**
+     * Walks the superclass chain once to find the repo field for {@code clazz}; returns {@link #NO_REPO_FIELD} if none.
+     */
+    private static Field resolveDisplayRepoField(Class<?> clazz) {
+        for (Class<?> c = clazz; c != null && c != AEBaseGui.class; c = c.getSuperclass()) {
+            for (Field f : c.getDeclaredFields()) {
+                if (f.getType() == IDisplayRepo.class || f.getType() == ItemRepo.class) {
+                    f.setAccessible(true);
+                    return f;
+                }
+            }
+        }
+        return NO_REPO_FIELD;
     }
 
     public static class DimensionalCoordSide extends DimensionalCoord {

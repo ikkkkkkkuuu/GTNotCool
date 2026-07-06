@@ -1,6 +1,5 @@
 package com.xyp.gtnc.Loader;
 
-import net.minecraft.block.Block;
 import net.minecraft.util.StatCollector;
 
 import com.xyp.gtnc.Common.blocks.casings.base.ItemBlockBase;
@@ -95,10 +94,6 @@ public class BlockLoader {
 
     /** 装配矩阵 & 量子计算机 外壳方块 (meta 4-19), textureIdOffsite=32 对应 GT5 纹理偏移 */
     public static MetaCasing metaCasing02 = new MetaCasing("MetaCasing02", (byte) 32);
-
-    /** @deprecated 使用 {@link #metaCasing02} 代替，保留用于向后兼容 */
-    @Deprecated
-    public static Block blockGTNCCasings = metaCasing02;
 
     /**
      * 注册所有方块到 Forge GameRegistry。

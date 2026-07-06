@@ -52,6 +52,8 @@ public class WildcardPatternEntry {
     private static final Map<String, Materials> MATERIAL_NAME_CACHE = new ConcurrentHashMap<>();
     private static final Map<String, ItemStack> DEFAULT_ORE_STACK_CACHE = new ConcurrentHashMap<>();
     private static volatile Set<String> ALL_KNOWN_MATERIAL_NAMES;
+    /** Cached OrePrefixes -> display name, resolved once per prefix to avoid per-call reflection in hot loops. */
+    private static final Map<OrePrefixes, String> PREFIX_NAME_CACHE = new ConcurrentHashMap<>();
 
     private boolean oreDictMode;
     private FluidState fluidType;
@@ -871,6 +873,11 @@ public class WildcardPatternEntry {
 
     private static String getPrefixName(OrePrefixes prefix) {
         if (prefix == null) return "";
+        // Reflection resolved once per prefix and cached; called inside OrePrefixes.VALUES / oreName loops.
+        return PREFIX_NAME_CACHE.computeIfAbsent(prefix, WildcardPatternEntry::resolvePrefixName);
+    }
+
+    private static String resolvePrefixName(OrePrefixes prefix) {
         try {
             return (String) prefix.getClass()
                 .getMethod("getName")

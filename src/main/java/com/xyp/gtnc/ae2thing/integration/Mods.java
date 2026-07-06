@@ -109,39 +109,58 @@ public enum Mods implements IMod, ITargetMod {
         return isGt5Loaded() && !isGt5UnofficialLoaded();
     }
 
+    // Capability checks below probe for classes/fields that don't change at runtime; memoize so callers on GUI
+    // draw/update paths don't repeat Class.forName / getDeclaredField every invocation.
+    private static Boolean hasAe2TypeFilter;
+    private static Boolean hasCraftingStatusSetting;
+    private static Boolean hasDoubleButton;
+    private static Boolean hasBeSubstitutionsButton;
+
     public static boolean hasAe2TypeFilter() {
-        try {
-            Class.forName("appeng.core.features.registries.ItemDisplayRegistry");
-            return true;
-        } catch (ClassNotFoundException ignored) {
-            return false;
+        if (hasAe2TypeFilter == null) {
+            try {
+                Class.forName("appeng.core.features.registries.ItemDisplayRegistry");
+                hasAe2TypeFilter = true;
+            } catch (ClassNotFoundException ignored) {
+                hasAe2TypeFilter = false;
+            }
         }
+        return hasAe2TypeFilter;
     }
 
     public static boolean hasCraftingStatusSetting() {
-        try {
-            Settings.class.getDeclaredField("CRAFTING_STATUS");
-            return true;
-        } catch (NoSuchFieldException ignored) {
-            return false;
+        if (hasCraftingStatusSetting == null) {
+            try {
+                Settings.class.getDeclaredField("CRAFTING_STATUS");
+                hasCraftingStatusSetting = true;
+            } catch (NoSuchFieldException ignored) {
+                hasCraftingStatusSetting = false;
+            }
         }
+        return hasCraftingStatusSetting;
     }
 
     public static boolean hasDoubleButton() {
-        try {
-            ActionItems.class.getDeclaredField("DOUBLE");
-            return true;
-        } catch (NoSuchFieldException ignored) {
-            return false;
+        if (hasDoubleButton == null) {
+            try {
+                ActionItems.class.getDeclaredField("DOUBLE");
+                hasDoubleButton = true;
+            } catch (NoSuchFieldException ignored) {
+                hasDoubleButton = false;
+            }
         }
+        return hasDoubleButton;
     }
 
     public static boolean hasBeSubstitutionsButton() {
-        try {
-            ButtonToolTips.class.getDeclaredField("BeSubstitutionsDescEnabled");
-            return true;
-        } catch (NoSuchFieldException ignored) {
-            return false;
+        if (hasBeSubstitutionsButton == null) {
+            try {
+                ButtonToolTips.class.getDeclaredField("BeSubstitutionsDescEnabled");
+                hasBeSubstitutionsButton = true;
+            } catch (NoSuchFieldException ignored) {
+                hasBeSubstitutionsButton = false;
+            }
         }
+        return hasBeSubstitutionsButton;
     }
 }

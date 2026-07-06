@@ -12,8 +12,13 @@ public class NeCharUtil {
 
     private Method m;
     private Object o;
+    /**
+     * Resolved once — the NEChar mod-loaded state never changes at runtime. Guards the hot contains()/matcher() paths.
+     */
+    private final boolean neCharLoaded;
 
     public NeCharUtil() {
+        this.neCharLoaded = Mods.NECHAR.isModLoaded() || Mods.NECH.isModLoaded();
         try {
             if (Mods.NECHAR.isModLoaded()) {
                 notEnoughCharacters(); // 官方版本
@@ -60,7 +65,7 @@ public class NeCharUtil {
     }
 
     public boolean contains(String input, String text) {
-        if (Mods.NECHAR.isModLoaded() || Mods.NECH.isModLoaded()) {
+        if (neCharLoaded) {
             return this._contains(input, text);
         } else {
             return text.contains(input);
@@ -68,7 +73,7 @@ public class NeCharUtil {
     }
 
     public boolean matcher(Pattern p, CharSequence text) {
-        if (Mods.NECHAR.isModLoaded() || Mods.NECH.isModLoaded()) {
+        if (neCharLoaded) {
             return this._contains(p.pattern(), (String) text);
         } else {
             return p.matcher(text)
