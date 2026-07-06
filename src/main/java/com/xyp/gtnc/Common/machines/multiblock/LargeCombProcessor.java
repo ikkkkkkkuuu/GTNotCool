@@ -113,7 +113,7 @@ public class LargeCombProcessor extends MTEEnhancedMultiBlockBase<LargeCombProce
 
     // 15 wide (x), 17 tall (y), 15 deep (z)
     // A=glass, B=dirt/grass, G=casing+hatches, H=wood planks, I=wood slabs, J/K/L/N/O/P=bronze frame
-    private final String[][] shape = transpose(
+    private static final String[][] shape = transpose(
         new String[][] {
             { "               ", "               ", "               ", "      HHH      ", "    HHAAAHH    ",
                 "    HAPLPAH    ", "   HAPAAAPAH   ", "   HALAAALAH   ", "   HAPAAAPAH   ", "    HAPLPAH    ",

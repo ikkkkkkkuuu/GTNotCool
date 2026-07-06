@@ -70,7 +70,7 @@ public class LargeSteamAlloySmelter extends GTNCSteamMultiBlockBase<LargeSteamAl
     private static final int DEPTH_OFF_SET = 0;
     // 3 wide (x), 4 tall (y), 3 deep (z)
     // 'B' = tiered casing + hatches, 'D' = frame
-    private final String[][] shape = new String[][] { { " B ", "BBB", " B " }, { "BBB", "BBB", "BBB" },
+    private static final String[][] shape = new String[][] { { " B ", "BBB", " B " }, { "BBB", "BBB", "BBB" },
         { "B~B", "B B", "BBB" }, { "DDD", "DDD", "DDD" } };
     private int mCountCasing = 0;
     private int tierMachineCasing = -1;

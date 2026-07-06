@@ -102,7 +102,7 @@ public class LargeSteamExtruder extends GTNCSteamMultiBlockBase<LargeSteamExtrud
     // 5 wide (x), 8 tall (y), 5 deep (z)
     // 'A' = tiered casing + hatches, 'B' = gear, 'C' = pipe, 'D' = frame, 'G' = glass
     // GT-NL used 'E' brick, 'F' material block → mapped to 'D' frame
-    private final String[][] shape = new String[][] { { "     ", " AAA ", "AABAA", " AAA ", "     " },
+    private static final String[][] shape = new String[][] { { "     ", " AAA ", "AABAA", " AAA ", "     " },
         { "     ", "     ", "A B A", "     ", "     " }, { "DDDDD", "D   D", "A B A", "D   D", "DDDDD" },
         { "AAAAA", "ACCCA", "ACBCA", "ACCCA", "AAAAA" }, { "AGGGA", "GDDDG", "GDCDG", "GDDDG", "AGGGA" },
         { "AGGGA", "GDDDG", "GDCDG", "GDDDG", "AGGGA" }, { "AGGGA", "GDDDG", "GDDDG", "GDDDG", "AGGGA" },

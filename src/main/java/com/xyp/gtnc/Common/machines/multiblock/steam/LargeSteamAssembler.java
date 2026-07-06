@@ -100,7 +100,7 @@ public class LargeSteamAssembler extends GTNCSteamMultiBlockBase<LargeSteamAssem
 
     // 9 wide (x), 5 tall (y), 5 deep (z)
     // 'A' = glass, 'B' = tiered casing + hatches, 'C' = pipe casing, 'D' = frame
-    private final String[][] shape = new String[][] {
+    private static final String[][] shape = new String[][] {
         { "BBBBBBBBB", "BBBBBBBBB", "BBBBBBBBB", "BBBBBBBBB", "BBBBBBBBB" },
         { "D       D", "BAAAAAAAB", "B       B", "BAAAAAAAB", "D       D" },
         { "D       D", "BAAAAAAAB", "B       B", "BAAAAAAAB", "D       D" },

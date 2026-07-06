@@ -103,7 +103,7 @@ public class LargeSteamChemicalReactor extends GTNCSteamMultiBlockBase<LargeStea
 
     // 5 wide (x), 5 tall (y), 9 deep (z)
     // 'A' = glass, 'B' = tiered casing + hatches, 'C' = pipe casing, 'D' = frame
-    private final String[][] shape = new String[][] {
+    private static final String[][] shape = new String[][] {
         { "BBBBB", "BCBCB", "BCBCB", "BCBCB", "BCBCB", "BCBCB", "BCBCB", "BCBCB", "BBBBB" },
         { "BAAAB", " AAA ", " AAA ", " AAA ", " AAA ", " AAA ", " AAA ", " AAA ", "BBBBB" },
         { "BA~AB", " ADA ", " ADA ", " ADA ", " ADA ", " ADA ", " ADA ", " ADA ", "BB BB" },

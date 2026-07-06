@@ -92,8 +92,8 @@ public class LargeSteamWireMill extends GTNCSteamMultiBlockBase<LargeSteamWireMi
 
     // 5 wide (x), 3 tall (y), 3 deep (z)
     // 'B' = tiered casing + hatches, 'C' = pipe casing
-    private final String[][] shape = new String[][] { { "BBB  ", "BBBBB", "BBB  " }, { "B~BBB", "BBCBB", "B BBB" },
-        { "BBBBB", "BBBBB", "BBBBB" } };
+    private static final String[][] shape = new String[][] { { "BBB  ", "BBBBB", "BBB  " },
+        { "B~BBB", "BBCBB", "B BBB" }, { "BBBBB", "BBBBB", "BBBBB" } };
 
     @Override
     protected IIconContainer getInactiveOverlay() {

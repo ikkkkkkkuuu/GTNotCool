@@ -94,7 +94,7 @@ public class LargeSteamFormingPress extends GTNCSteamMultiBlockBase<LargeSteamFo
 
     // 5 wide (x), 3 tall (y), 5 deep (z)
     // 'A' = tiered casing + hatches, 'B' = gear, 'C' = pipe
-    private final String[][] shape = new String[][] { { " AAA ", "AAAAA", "AAAAA", "AAAAA", " AAA " },
+    private static final String[][] shape = new String[][] { { " AAA ", "AAAAA", "AAAAA", "AAAAA", " AAA " },
         { " A A ", "ABCBA", " C C ", "ABCBA", " A A " }, { " A~A ", "AAAAA", "AAAAA", "AAAAA", " AAA " } };
 
     @Override

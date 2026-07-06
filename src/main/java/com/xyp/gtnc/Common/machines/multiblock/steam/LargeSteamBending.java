@@ -96,7 +96,7 @@ public class LargeSteamBending extends GTNCSteamMultiBlockBase<LargeSteamBending
 
     // 5 wide (x), 4 tall (y), 5 deep (z)
     // 'B' = tiered casing + hatches, 'C' = pipe casing, 'D' = frame, 'G' = gear casing
-    private final String[][] shape = new String[][] { { "     ", "     ", "     ", "DBBBD", "D   D" },
+    private static final String[][] shape = new String[][] { { "     ", "     ", "     ", "DBBBD", "D   D" },
         { "D   D", "D   D", "DBBBD", "GCCCG", "DBBBD" }, { "D ~ D", "     ", "     ", "DBBBD", "D   D" },
         { "DBBBD", "DBBBD", "DBBBD", "DBBBD", "DBBBD" } };
 

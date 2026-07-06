@@ -107,7 +107,7 @@ public class LargeSteamCompressor extends GTNCSteamMultiBlockBase<LargeSteamComp
 
     // 7 wide (x), 7 tall (y), 7 deep (z)
     // 'A' = tiered casing + hatches, 'B' = gear, 'C' = frame, 'E' = glass
-    private final String[][] shape = new String[][] {
+    private static final String[][] shape = new String[][] {
         { "  AAA  ", " AAAAA ", "AAAAAAA", "AAAAAAA", "AAAAAAA", " AAAAA ", "  AAA  " },
         { "  AAA  ", " ABBBA ", "ABCCCBA", "ABCCCBA", "ABCCCBA", " ABBBA ", "  AAA  " },
         { "       ", " CEEEC ", " E   E ", " E   E ", " E   E ", " CEEEC ", "       " },

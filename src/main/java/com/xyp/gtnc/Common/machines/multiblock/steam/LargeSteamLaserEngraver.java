@@ -96,7 +96,7 @@ public class LargeSteamLaserEngraver extends GTNCSteamMultiBlockBase<LargeSteamL
 
     // 5 wide (x), 4 tall (y), 5 deep (z)
     // 'A' = glass, 'B' = tiered casing + hatches, 'C' = pipe casing
-    private final String[][] shape = new String[][] { { "BBBBB", "BBBBB", "BBBBB", "BBBBB", "BBBBB" },
+    private static final String[][] shape = new String[][] { { "BBBBB", "BBBBB", "BBBBB", "BBBBB", "BBBBB" },
         { "BAAAB", "BCCCB", "BCCCB", "BCCCB", "BAAAB" }, { "BAAAB", "BCCCB", "BCCCB", "BCCCB", "BAAAB" },
         { "BB~BB", "BBBBB", "BBBBB", "BBBBB", "BBBBB" } };
 

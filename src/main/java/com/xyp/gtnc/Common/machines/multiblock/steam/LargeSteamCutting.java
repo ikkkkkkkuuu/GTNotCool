@@ -100,7 +100,7 @@ public class LargeSteamCutting extends GTNCSteamMultiBlockBase<LargeSteamCutting
 
     // 9 wide (x), 4 tall (y), 5 deep (z)
     // 'A' = tiered casing + hatches, 'B' = gear, 'C' = pipe, 'D' = frame
-    private final String[][] shape = new String[][] {
+    private static final String[][] shape = new String[][] {
         { "   AAA   ", "  ADDDA  ", "  ADDDA  ", "  ADDDA  ", "   AAA   " },
         { "  DDDDD  ", " DD B DD ", " DDDDDDD ", " DD B DD ", "  DDDDD  " },
         { " DAA~AAD ", "DDD   DDD", "DCCCCCCCD", "DDD   DDD", " DAAAAAD " },

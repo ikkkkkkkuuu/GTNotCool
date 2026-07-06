@@ -104,7 +104,7 @@ public class LargeSteamCentrifuge extends GTNCSteamMultiBlockBase<LargeSteamCent
 
     // 7 wide (x), 10 tall (y), 7 deep (z)
     // 'A' = glass, 'B' = tiered casing + hatches, 'C' = pipe casing, 'D' = frame, 'G' = gear casing
-    private final String[][] shape = new String[][] {
+    private static final String[][] shape = new String[][] {
         { "       ", "  BBB  ", " BBBBB ", " BBGBB ", " BBBBB ", "  BBB  ", "       " },
         { "  BBB  ", " BBBBB ", "BB   BB", "B     B", "BB   BB", " BBBBB ", "  BBB  " },
         { "  BAB  ", " DC CD ", "BC   CB", "A     A", "BC   CB", " DC CD ", "  BAB  " },

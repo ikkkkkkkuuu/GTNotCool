@@ -104,7 +104,7 @@ public class LargeSteamMixer extends GTNCSteamMultiBlockBase<LargeSteamMixer> im
     // 7 wide (x), 7 tall (y), 7 deep (z)
     // 'A' = tiered casing + hatches, 'B' = gear, 'C' = pipe, 'D' = frame, 'E' = glass
     // GT-NL 'D' was firebox casing → mapped to frame, 'F' industrial casing → mapped to 'A'
-    private final String[][] shape = new String[][] {
+    private static final String[][] shape = new String[][] {
         { "  DDD  ", " DAAAD ", "DAAAAAD", "DAAAAAD", "DAAAAAD", " DAAAD ", "  DDD  " },
         { "  EAE  ", " ABABA ", "EA   AE", "AB C BA", "EA   AE", " ABABA ", "  EAE  " },
         { "  EAE  ", " ABABA ", "EACCCAE", "ABCCCBA", "EACCCAE", " ABABA ", "  EAE  " },

@@ -93,7 +93,7 @@ public class LargeSteamFluidSolidifier extends GTNCSteamMultiBlockBase<LargeStea
 
     // 5 wide (x), 4 tall (y), 5 deep (z)
     // 'B' = tiered casing + hatches, 'C' = pipe casing
-    private final String[][] shape = new String[][] { { " BBB ", "BBBBB", "BBBBB", "BBBBB", " BBB " },
+    private static final String[][] shape = new String[][] { { " BBB ", "BBBBB", "BBBBB", "BBBBB", " BBB " },
         { " BBB ", "BC CB", "B   B", "BC CB", " BBB " }, { " B~B ", "BC CB", "B   B", "BC CB", " BBB " },
         { " BBB ", "BBBBB", "BBBBB", "BBBBB", " BBB " } };
 

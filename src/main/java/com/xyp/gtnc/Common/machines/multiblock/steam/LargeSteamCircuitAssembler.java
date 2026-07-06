@@ -96,7 +96,7 @@ public class LargeSteamCircuitAssembler extends GTNCSteamMultiBlockBase<LargeSte
 
     // 3 wide (x), 4 tall (y), 10 deep (z)
     // 'B' = tiered casing + hatches + pipe, 'C' = pipe casing, 'D' = frame
-    private final String[][] shape = new String[][] {
+    private static final String[][] shape = new String[][] {
         { " B ", " B ", " B ", " B ", " B ", " B ", " B ", " B ", " B ", " B " },
         { "BBB", "BDB", "BDB", "BDB", "BDB", "BDB", "BDB", "BDB", "BDB", "BBB" },
         { "B~B", "BCB", "BCB", "BCB", "BCB", "BCB", "BCB", "BCB", "BCB", "BBB" },

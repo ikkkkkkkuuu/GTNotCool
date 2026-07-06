@@ -100,7 +100,7 @@ public class LargeSteamHammer extends GTNCSteamMultiBlockBase<LargeSteamHammer> 
 
     // 7 wide (x), 13 tall (y), 7 deep (z)
     // 'A' = tiered casing + hatches, 'B' = gear, 'C' = frame, 'E' = glass
-    private final String[][] shape = new String[][] {
+    private static final String[][] shape = new String[][] {
         { "  AAA  ", " AAAAA ", "AAAAAAA", "AAAAAAA", "AAAAAAA", " AAAAA ", "  AAA  " },
         { "  AAA  ", " AACAA ", "AACCCAA", "ACCCCCA", "AACCCAA", " AACAA ", "  AAA  " },
         { "   A   ", " CAAAC ", " ACCCA ", "AACCCAA", " ACCCA ", " CAAAC ", "   A   " },
