@@ -19,7 +19,7 @@ public class MixinTileEntityCropSticks {
     private int modifyTickRateInUpdateEntity(int original) {
         // TICK_RATE 是生长“间隔”(每隔多少 tick 生长一次)，越小越快。
         // 原版 256，改成 64 = 间隔 1/4 = 4 倍速。
-        return 4;
+        return 1;
     }
 
     // 彻底禁用杂草：spawnWeed(长杂草)与 spreadWeed(向邻居传播杂草/生成高草)是杂草产生的唯一入口，

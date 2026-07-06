@@ -13,6 +13,6 @@ public class MixinTileEntityCrop {
     private static int modifyTickRateInStaticInit(int original) {
         // tickRate 是生长“间隔”(ticker % tickRate == 0 才生长)，越小越快。
         // 原版 256，改成 64 = 原版速度的 4 倍。
-        return 4;
+        return 1;
     }
 }
