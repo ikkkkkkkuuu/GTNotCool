@@ -162,44 +162,34 @@ public class LargeSteamVoidMinerGui extends GTNCSteamMultiBlockBaseGui {
             .reverseLayout(true)
             .child(createPowerSwitchButton())
             .child(createWirelessModeButton(syncManager))
-            .child(createDimOverrideButton(dimPanel))
+            .child(createPanelToggleButton(dimPanel, "GT5U.gui.button.vm.dimension"))
             .child(
-                new ButtonWidget<>().size(16)
-                    .marginBottom(2)
-                    .background(GTNCGuiTextures.BUTTON_CELESTIAL_32x32)
-                    .disableHoverBackground()
-                    .overlay(GuiTextures.GEAR)
+                // Filter button: same gear toggle, plus a server-side drop-map refresh when pressed.
+                createPanelToggleButton(filterPopup, "GT5U.gui.text.vm.title")
                     .syncHandler(new InteractionSyncHandler().setOnMousePressed(mouseDelta -> {
                         if (!mouseDelta.isClient()) {
                             vm().refreshDropMap();
                             vm().getBaseMetaTileEntity()
                                 .markDirty();
                         }
-                    }))
-                    .onMousePressed(button -> {
-                        if (filterPopup.isPanelOpen()) {
-                            filterPopup.closePanel();
-                        } else filterPopup.openPanel();
-                        return true;
-                    })
-                    .tooltip(t -> t.addLine(translateToLocal("GT5U.gui.text.vm.title")))
-                    .tooltipShowUpTimer(TOOLTIP_DELAY))
+                    })))
             .child(createStructureUpdateButton(syncManager));
     }
 
-    private ButtonWidget<?> createDimOverrideButton(IPanelHandler dimPanel) {
+    /** A 16px gear button that toggles {@code panel} open/closed, with {@code tooltipKey} as its hover tooltip. */
+    private ButtonWidget<?> createPanelToggleButton(IPanelHandler panel, String tooltipKey) {
         return new ButtonWidget<>().size(16)
             .marginBottom(2)
             .background(GTNCGuiTextures.BUTTON_CELESTIAL_32x32)
             .disableHoverBackground()
             .overlay(GuiTextures.GEAR)
             .onMousePressed(button -> {
-                if (dimPanel.isPanelOpen()) {
-                    dimPanel.closePanel();
-                } else dimPanel.openPanel();
+                if (panel.isPanelOpen()) {
+                    panel.closePanel();
+                } else panel.openPanel();
                 return true;
             })
-            .tooltip(t -> t.addLine(translateToLocal("GT5U.gui.button.vm.dimension")))
+            .tooltip(t -> t.addLine(translateToLocal(tooltipKey)))
             .tooltipShowUpTimer(TOOLTIP_DELAY);
     }
 

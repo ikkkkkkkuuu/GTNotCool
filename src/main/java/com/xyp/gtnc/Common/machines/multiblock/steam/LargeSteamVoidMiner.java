@@ -120,8 +120,16 @@ public class LargeSteamVoidMiner extends GTNCSteamMultiBlockBase<LargeSteamVoidM
     private static final int VERTICAL_OFF_SET = 7;
     private static final int DEPTH_OFF_SET = 1;
 
+    // Tier-keyed operating values (index by tierMachine: 1 = Bronze, 2 = Steel).
+    // Steam consumed per tick and ores produced per 20-tick cycle.
+    private static final long STEAM_PER_TICK_BRONZE = 320L;
+    private static final long STEAM_PER_TICK_STEEL = 640L;
+    private static final int ORE_PER_CYCLE_BRONZE = 1;
+    private static final int ORE_PER_CYCLE_STEEL = 2;
+    private static final int CYCLE_TICKS = 20;
+
     // 'B' = tiered casing + hatches, 'D' = frame, 'C' = tiered casing center
-    private final String[][] shape = new String[][] {
+    private static final String[][] shape = new String[][] {
         { "       ", "       ", "       ", "   B   ", "       ", "       ", "       " },
         { "       ", "       ", "       ", "   B   ", "       ", "       ", "       " },
         { "       ", "       ", "       ", "   B   ", "       ", "       ", "       " },
@@ -143,7 +151,6 @@ public class LargeSteamVoidMiner extends GTNCSteamMultiBlockBase<LargeSteamVoidM
     public VoidMinerUtility.DropMap dropMap = null;
     public VoidMinerUtility.DropMap extraDropMap = null;
     private float totalWeight;
-    private int multiplier = 1;
     public ItemStackHandler selected = new ItemStackHandler();
     public boolean blacklist = false;
     /** Override dimension for drop map, null = use world dimension */
@@ -364,11 +371,13 @@ public class LargeSteamVoidMiner extends GTNCSteamMultiBlockBase<LargeSteamVoidM
         this.totalWeight = 0;
         this.canVoidMine = false;
 
-        String dimName = targetDimName != null && !targetDimName.isEmpty() ? targetDimName
-            : DimensionDef.getDefForWorld(getBaseMetaTileEntity().getWorld()) != null
-                ? DimensionDef.getDefForWorld(getBaseMetaTileEntity().getWorld())
-                    .getDimensionName()
-                : null;
+        String dimName;
+        if (targetDimName != null && !targetDimName.isEmpty()) {
+            dimName = targetDimName;
+        } else {
+            ModDimensionDef worldDef = DimensionDef.getDefForWorld(getBaseMetaTileEntity().getWorld());
+            dimName = worldDef != null ? worldDef.getDimensionName() : null;
+        }
         if (dimName == null) return;
 
         ModDimensionDef dimensionDef = DimensionDef.getDefByName(dimName);
@@ -409,17 +418,25 @@ public class LargeSteamVoidMiner extends GTNCSteamMultiBlockBase<LargeSteamVoidM
         this.canVoidMine = this.dropMap != null;
     }
 
+    /** Steam consumed per tick for the current machine tier. */
+    private long getSteamPerTick() {
+        return tierMachine == 2 ? STEAM_PER_TICK_STEEL : STEAM_PER_TICK_BRONZE;
+    }
+
+    /** Ores produced per 20-tick cycle for the current machine tier. */
+    private int getOrePerCycle() {
+        return tierMachine == 2 ? ORE_PER_CYCLE_STEEL : ORE_PER_CYCLE_BRONZE;
+    }
+
     @Override
     public CheckRecipeResult checkProcessing() {
         if (!canVoidMine || totalWeight == 0.f) {
             stopMachine(ShutDownReasonRegistry.NONE);
             return CheckRecipeResultRegistry.NO_RECIPE;
         }
-        long steamPerTick = tierMachine == 2 ? 640L : 320L;
-
-        lEUt = -steamPerTick;
+        lEUt = -getSteamPerTick();
         mProgresstime = 0;
-        mMaxProgresstime = 20;
+        mMaxProgresstime = CYCLE_TICKS;
         mEfficiency = 10000;
         mEfficiencyIncrease = 10000;
         mOutputItems = new ItemStack[0];
@@ -430,8 +447,7 @@ public class LargeSteamVoidMiner extends GTNCSteamMultiBlockBase<LargeSteamVoidM
     @Override
     protected void outputAfterRecipe() {
         // Track per-cycle steam for WAILA
-        long steamPerTick = tierMachine == 2 ? 640L : 320L;
-        totalSteamConsumed = steamPerTick * 20;
+        totalSteamConsumed = getSteamPerTick() * CYCLE_TICKS;
         if (this.canVoidMine && this.totalWeight != 0.f) {
             handleOutputs();
         }
@@ -440,9 +456,7 @@ public class LargeSteamVoidMiner extends GTNCSteamMultiBlockBase<LargeSteamVoidM
     private void handleOutputs() {
         final ItemStack output = this.dropMap.nextOre()
             .getItemStack();
-        // Bronze: 1 ore/s, Steel: 2 ore/s (per 20-tick cycle)
-        int outputMultiplier = tierMachine == 2 ? 2 : 1;
-        output.stackSize = outputMultiplier;
+        output.stackSize = getOrePerCycle();
 
         final List<ItemStack> inputOres = this.getStoredInputs()
             .stream()
