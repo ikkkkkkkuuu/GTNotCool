@@ -240,8 +240,8 @@ public class BlockLoader {
         // # Quantum Computer Core
         // # zh_CN 量子计算机核心
         // #tr Tooltip_QuantumComputerCore_00
-        // # Provides 2560M crafting storage and 1638400 co-processing threads.
-        // # zh_CN 提供 2560M 合成存储空间和 1638400 并行处理线程。
+        // # Provides 2.56G crafting storage and 1638400 co-processing threads.
+        // # zh_CN 提供 2.56G 合成存储空间和 1638400 并行处理线程。
         GTNCItemList.QuantumComputerCore.set(
             MetaItemBlockCasing.initMetaBlockCasing(
                 17,
