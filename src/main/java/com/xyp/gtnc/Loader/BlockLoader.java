@@ -217,8 +217,8 @@ public class BlockLoader {
         // # Quantum Computer Accelerator
         // # zh_CN 量子计算机加速器
         // #tr Tooltip_QuantumComputerAccelerator_00
-        // # Provides 16384 co-processing threads per block.
-        // # zh_CN 每个加速器提供 16384 个并行处理线程。
+        // # Provides 1638400 co-processing threads per block.
+        // # zh_CN 每个加速器提供 1638400 个并行处理线程。
         GTNCItemList.QuantumComputerAccelerator.set(
             MetaItemBlockCasing.initMetaBlockCasing(
                 15,
@@ -229,7 +229,6 @@ public class BlockLoader {
         // # zh_CN 量子计算机多线程处理器
         // #tr Tooltip_QuantumComputerMultiThreader_00
         // # Multiplies the amount of co-processors in the Quantum Computer Multiblock by 4. Limited to %s per
-        // multiblock
         // # zh_CN 量子计算机的并行线程数变为 4 倍。每个量子计算机中最多放置 %s 个。
         GTNCItemList.QuantumComputerMultiThreader.set(
             MetaItemBlockCasing.initMetaBlockCasing(
@@ -241,8 +240,8 @@ public class BlockLoader {
         // # Quantum Computer Core
         // # zh_CN 量子计算机核心
         // #tr Tooltip_QuantumComputerCore_00
-        // # Provides 256M crafting storage and 16384 co-processing threads.
-        // # zh_CN 提供 256M 合成存储空间和 16384 并行处理线程。
+        // # Provides 2560M crafting storage and 1638400 co-processing threads.
+        // # zh_CN 提供 2560M 合成存储空间和 1638400 并行处理线程。
         GTNCItemList.QuantumComputerCore.set(
             MetaItemBlockCasing.initMetaBlockCasing(
                 17,

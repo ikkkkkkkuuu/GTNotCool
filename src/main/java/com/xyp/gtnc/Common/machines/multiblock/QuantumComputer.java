@@ -1,0 +1,1199 @@
+package com.xyp.gtnc.Common.machines.multiblock;
+
+import java.util.EnumSet;
+import java.util.List;
+
+import net.minecraft.block.Block;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.StatCollector;
+import net.minecraft.world.World;
+import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.common.util.ForgeDirection;
+
+import org.jetbrains.annotations.NotNull;
+
+import com.gtnewhorizon.structurelib.StructureLibAPI;
+import com.gtnewhorizon.structurelib.alignment.constructable.IConstructable;
+import com.xyp.gtnc.Common.gui.modularui.multiblock.QuantumComputerGui;
+import com.xyp.gtnc.Config.Config;
+import com.xyp.gtnc.Loader.BlockLoader;
+import com.xyp.gtnc.ScienceNotCool;
+import com.xyp.gtnc.utils.ECPUCluster;
+import com.xyp.gtnc.utils.enums.GTNCItemList;
+
+import appeng.api.AEApi;
+import appeng.api.config.Actionable;
+import appeng.api.networking.GridFlags;
+import appeng.api.networking.IGridHost;
+import appeng.api.networking.IGridNode;
+import appeng.api.networking.events.MENetworkChannelsChanged;
+import appeng.api.networking.events.MENetworkCraftingCpuChange;
+import appeng.api.networking.events.MENetworkEventSubscribe;
+import appeng.api.networking.events.MENetworkPowerStatusChange;
+import appeng.api.networking.security.IActionHost;
+import appeng.api.networking.security.MachineSource;
+import appeng.api.networking.storage.IStorageGrid;
+import appeng.api.storage.IMEMonitor;
+import appeng.api.storage.data.IAEItemStack;
+import appeng.api.storage.data.IItemList;
+import appeng.api.util.AECableType;
+import appeng.api.util.DimensionalCoord;
+import appeng.api.util.WorldCoord;
+import appeng.helpers.ICustomNameObject;
+import appeng.me.GridAccessException;
+import appeng.me.cluster.implementations.CraftingCPUCluster;
+import appeng.me.helpers.AENetworkProxy;
+import appeng.me.helpers.IGridProxyable;
+import gregtech.api.enums.Textures;
+import gregtech.api.enums.VoidingMode;
+import gregtech.api.interfaces.ISecondaryDescribable;
+import gregtech.api.interfaces.ITexture;
+import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
+import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
+import gregtech.api.metatileentity.implementations.MTETooltipMultiBlockBase;
+import gregtech.api.render.TextureFactory;
+import gregtech.api.structure.error.StructureError;
+import gregtech.api.structure.error.StructureErrors;
+import gregtech.api.util.GTUtility;
+import gregtech.api.util.MultiblockTooltipBuilder;
+import gregtech.common.gui.modularui.multiblock.base.MTEMultiBlockBaseGui;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+
+public class QuantumComputer extends MTETooltipMultiBlockBase
+    implements IConstructable, ISecondaryDescribable, IActionHost, IGridProxyable, ICustomNameObject {
+
+    public static int CASING_INDEX = GTUtility.getTextureId((byte) 116, (byte) 42);
+    public static final EnumSet<ForgeDirection> upDirection = EnumSet.of(ForgeDirection.UP);
+    public static final EnumSet<ForgeDirection> emptyDirection = EnumSet.noneOf(ForgeDirection.class);
+
+    public static Block CRAFTING_STORAGE = AEApi.instance()
+        .definitions()
+        .blocks()
+        .craftingStorage1k()
+        .maybeBlock()
+        .orNull();
+    public static Block ADV_CRAFTING_STORAGE = AEApi.instance()
+        .definitions()
+        .blocks()
+        .craftingStorage256k()
+        .maybeBlock()
+        .orNull();
+    public static Block SINGULARITY_CRAFTING_STORAGE = AEApi.instance()
+        .definitions()
+        .blocks()
+        .craftingStorageSingularity()
+        .maybeBlock()
+        .orNull();
+    public static Block CRAFTING_PROCESSING_UNIT = AEApi.instance()
+        .definitions()
+        .blocks()
+        .craftingUnit()
+        .maybeBlock()
+        .orNull();
+    public static Block ADV_CRAFTING_PROCESSING_UNIT = AEApi.instance()
+        .definitions()
+        .blocks()
+        .craftingAccelerator64x()
+        .maybeBlock()
+        .orNull();
+
+    // Extent in all directions. Specifically the offset from the controller to each wall.
+    // Min values will always be negative, Max values positive.
+    public int dxMin = 0, dxMax = 0, dzMin = 0, dzMax = 0, dyMin = 0;
+
+    public int width;
+    public int height;
+    public int depth;
+
+    public int casingCount;
+    public int unitCount;
+    public int coreCount;
+    public int multiThreaderCount;
+    public int dataEntanglerCount;
+    public int singularityCraftingStorageCount;
+    public long maximumStorage = 0;
+    public int maximumParallel = 0;
+    public long usedStorage = 0;
+    public int usedParallel = 0;
+    public boolean enabledSingularityCore = false;
+    public String customName = "";
+    public CraftingCPUCluster virtualCPU = null;
+    public final List<CraftingCPUCluster> cpus = new ReferenceArrayList<>();
+
+    private AENetworkProxy gridProxy;
+    private boolean wasActive = false;
+
+    public long getMaximumStorage() {
+        if (singularityCraftingStorageCount > 0) return Long.MAX_VALUE;
+        return maximumStorage;
+    }
+
+    public int getWidthForGui() {
+        return width;
+    }
+
+    public void setWidthFromGui(int width) {
+        this.width = width;
+    }
+
+    public int getHeightForGui() {
+        return height;
+    }
+
+    public void setHeightFromGui(int height) {
+        this.height = height;
+    }
+
+    public int getDepthForGui() {
+        return depth;
+    }
+
+    public void setDepthFromGui(int depth) {
+        this.depth = depth;
+    }
+
+    public int getMaximumParallelForGui() {
+        return maximumParallel;
+    }
+
+    public void setMaximumParallelFromGui(int maximumParallel) {
+        this.maximumParallel = maximumParallel;
+    }
+
+    public int getUsedParallelForGui() {
+        return getUsedParallel();
+    }
+
+    public void setUsedParallelFromGui(int usedParallel) {
+        this.usedParallel = usedParallel;
+    }
+
+    public long getMaximumStorageForGui() {
+        return getMaximumStorage();
+    }
+
+    public void setMaximumStorageFromGui(long maximumStorage) {
+        this.maximumStorage = maximumStorage;
+    }
+
+    public long getUsedStorageForGui() {
+        return getUsedBytes();
+    }
+
+    public void setUsedStorageFromGui(long usedStorage) {
+        this.usedStorage = usedStorage;
+    }
+
+    public String getDisplayNameForGui() {
+        return hasCustomName() ? customName : getMachineCraftingIcon().getDisplayName();
+    }
+
+    public QuantumComputer(int aID, String aName, String aNameRegional) {
+        super(aID, aName, aNameRegional);
+    }
+
+    public QuantumComputer(String aName) {
+        super(aName);
+    }
+
+    @Override
+    public IMetaTileEntity newMetaEntity(IGregTechTileEntity aTileEntity) {
+        return new QuantumComputer(mName);
+    }
+
+    @Override
+    public String[] getStructureDescription(ItemStack itemStack) {
+        return new String[] { StatCollector.translateToLocal("Tooltip_QuantumComputer_10") };
+    }
+
+    @Override
+    public MultiblockTooltipBuilder createTooltip() {
+        final MultiblockTooltipBuilder tt = new MultiblockTooltipBuilder();
+        tt.addMachineType(StatCollector.translateToLocal("QuantumComputerRecipeType"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_QuantumComputer_00"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_QuantumComputer_01"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_QuantumComputer_02"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_QuantumComputer_03"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_QuantumComputer_04"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_QuantumComputer_05"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_QuantumComputer_06"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_QuantumComputer_07"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_QuantumComputer_08"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_QuantumComputer_09"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_QuantumComputer_10"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_QuantumComputer_11"))
+            .addInfo(StatCollector.translateToLocal("Tooltip_QuantumComputer_12"))
+            .beginVariableStructureBlock(
+                3,
+                Config.QuantumComputer.maxMultiblockSize,
+                3,
+                Config.QuantumComputer.maxMultiblockSize,
+                3,
+                Config.QuantumComputer.maxMultiblockSize,
+                true)
+            .toolTipFinisher();
+        return tt;
+    }
+
+    @Override
+    public void onFirstTick(IGregTechTileEntity baseMetaTileEntity) {
+        super.onFirstTick(baseMetaTileEntity);
+        if (checkStructure(true, getBaseMetaTileEntity())) {
+            this.mStartUpCheck = -1;
+            this.mUpdate = 200;
+        }
+        getProxy().onReady();
+    }
+
+    @Override
+    public boolean isFacingValid(ForgeDirection facing) {
+        return (facing.flag & (ForgeDirection.UP.flag | ForgeDirection.DOWN.flag)) == 0;
+    }
+
+    public QuantumComputerBlockType getBlockType(IGregTechTileEntity aBaseMetaTileEntity, int dx, int dy, int dz,
+        boolean isCasings) {
+        Block block = aBaseMetaTileEntity.getBlockOffset(dx, dy, dz);
+        int meta = block.getDamageValue(
+            aBaseMetaTileEntity.getWorld(),
+            aBaseMetaTileEntity.getXCoord() + dx,
+            aBaseMetaTileEntity.getYCoord() + dy,
+            aBaseMetaTileEntity.getZCoord() + dz);
+
+        if (isCasings) {
+            if (block == BlockLoader.metaCasing02 && meta == 10) {
+                return QuantumComputerBlockType.CASING;
+            } else {
+                return QuantumComputerBlockType.INVALID;
+            }
+        }
+
+        if (block == BlockLoader.metaCasing02) {
+            if (meta == 11) return QuantumComputerBlockType.UNIT;
+            if (meta == 12) return QuantumComputerBlockType.CRAFTING_STORAGE_128M;
+            if (meta == 13) return QuantumComputerBlockType.CRAFTING_STORAGE_256M;
+            if (meta == 14) return QuantumComputerBlockType.DATA_ENTANGLER;
+            if (meta == 15) return QuantumComputerBlockType.ACCELERATOR;
+            if (meta == 16) return QuantumComputerBlockType.MULTI_THREADER;
+            if (meta == 17) return QuantumComputerBlockType.CORE;
+            if (meta == 19) return QuantumComputerBlockType.SINGULARITY_CORE;
+        }
+
+        if (block == CRAFTING_STORAGE) {
+            if (meta == 0) return QuantumComputerBlockType.CRAFTING_STORAGE_1K;
+            if (meta == 1) return QuantumComputerBlockType.CRAFTING_STORAGE_4K;
+            if (meta == 2) return QuantumComputerBlockType.CRAFTING_STORAGE_16K;
+            if (meta == 3) return QuantumComputerBlockType.CRAFTING_STORAGE_64K;
+        }
+
+        if (block == ADV_CRAFTING_STORAGE) {
+            if (meta == 0) return QuantumComputerBlockType.CRAFTING_STORAGE_256K;
+            if (meta == 1) return QuantumComputerBlockType.CRAFTING_STORAGE_1024K;
+            if (meta == 2) return QuantumComputerBlockType.CRAFTING_STORAGE_4096K;
+            if (meta == 3) return QuantumComputerBlockType.CRAFTING_STORAGE_16384K;
+        }
+
+        if (block == SINGULARITY_CRAFTING_STORAGE) {
+            return QuantumComputerBlockType.CRAFTING_STORAGE_SINGULARITY;
+        }
+
+        if (block == CRAFTING_PROCESSING_UNIT) {
+            if (meta == 1) return QuantumComputerBlockType.CRAFTING_PROCESSING_UNIT_1;
+            if (meta == 2) return QuantumComputerBlockType.CRAFTING_PROCESSING_UNIT_4;
+            if (meta == 3) return QuantumComputerBlockType.CRAFTING_PROCESSING_UNIT_16;
+        }
+
+        if (block == ADV_CRAFTING_PROCESSING_UNIT) {
+            if (meta == 0) return QuantumComputerBlockType.CRAFTING_PROCESSING_UNIT_64;
+            if (meta == 1) return QuantumComputerBlockType.CRAFTING_PROCESSING_UNIT_256;
+            if (meta == 2) return QuantumComputerBlockType.CRAFTING_PROCESSING_UNIT_1024;
+            if (meta == 3) return QuantumComputerBlockType.CRAFTING_PROCESSING_UNIT_4096;
+        }
+
+        return QuantumComputerBlockType.INVALID;
+    }
+
+    /**
+     * Add a block to the quantum computer which is at the specified offset. This properly increases the count of
+     * casings/unit
+     *
+     * @return True on success (block was correctly added), false on failure (invalid block type).
+     */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public boolean addStructureBlock(IGregTechTileEntity aBaseMetaTileEntity, int dx, int dy, int dz,
+        boolean isCasing) {
+
+        switch (getBlockType(aBaseMetaTileEntity, dx, dy, dz, isCasing)) {
+
+            case CASING:
+                casingCount++;
+                return true;
+
+            case UNIT:
+                unitCount++;
+                return true;
+
+            case CORE:
+                maximumStorage = addToStorage(maximumStorage, 2684354560L);
+                maximumParallel = addToParallel(maximumParallel, 1638400);
+                unitCount++;
+                coreCount++;
+                return true;
+
+            case SINGULARITY_CORE:
+                unitCount++;
+                coreCount++;
+                singularityCraftingStorageCount++;
+                enabledSingularityCore = true;
+                return true;
+
+            case CRAFTING_STORAGE_1K:
+                maximumStorage = addToStorage(maximumStorage, 1024L);
+                unitCount++;
+                return true;
+
+            case CRAFTING_STORAGE_4K:
+                maximumStorage = addToStorage(maximumStorage, 4L * 1024);
+                unitCount++;
+                return true;
+
+            case CRAFTING_STORAGE_16K:
+                maximumStorage = addToStorage(maximumStorage, 16L * 1024);
+                unitCount++;
+                return true;
+
+            case CRAFTING_STORAGE_64K:
+                maximumStorage = addToStorage(maximumStorage, 64L * 1024);
+                unitCount++;
+                return true;
+
+            case CRAFTING_STORAGE_256K:
+                maximumStorage = addToStorage(maximumStorage, 256L * 1024);
+                unitCount++;
+                return true;
+
+            case CRAFTING_STORAGE_1024K:
+                maximumStorage = addToStorage(maximumStorage, 1024L * 1024);
+                unitCount++;
+                return true;
+
+            case CRAFTING_STORAGE_4096K:
+                maximumStorage = addToStorage(maximumStorage, 4096L * 1024);
+                unitCount++;
+                return true;
+
+            case CRAFTING_STORAGE_16384K:
+                maximumStorage = addToStorage(maximumStorage, 16384L * 1024);
+                unitCount++;
+                return true;
+
+            case CRAFTING_STORAGE_128M:
+                maximumStorage = addToStorage(maximumStorage, 128L * 1024 * 1024);
+                unitCount++;
+                return true;
+
+            case CRAFTING_STORAGE_256M:
+                maximumStorage = addToStorage(maximumStorage, 256L * 1024 * 1024);
+                unitCount++;
+                return true;
+
+            case DATA_ENTANGLER:
+                dataEntanglerCount++;
+                unitCount++;
+                return true;
+
+            case CRAFTING_STORAGE_SINGULARITY:
+                maximumStorage = Long.MAX_VALUE;
+                singularityCraftingStorageCount++;
+                unitCount++;
+                return true;
+
+            case CRAFTING_PROCESSING_UNIT_1:
+                maximumParallel = addToParallel(maximumParallel, 1);
+                unitCount++;
+                return true;
+
+            case CRAFTING_PROCESSING_UNIT_4:
+                maximumParallel = addToParallel(maximumParallel, 4);
+                unitCount++;
+                return true;
+
+            case CRAFTING_PROCESSING_UNIT_16:
+                maximumParallel = addToParallel(maximumParallel, 16);
+                unitCount++;
+                return true;
+
+            case CRAFTING_PROCESSING_UNIT_64:
+                maximumParallel = addToParallel(maximumParallel, 64);
+                unitCount++;
+                return true;
+
+            case CRAFTING_PROCESSING_UNIT_256:
+                maximumParallel = addToParallel(maximumParallel, 256);
+                unitCount++;
+                return true;
+
+            case CRAFTING_PROCESSING_UNIT_1024:
+                maximumParallel = addToParallel(maximumParallel, 1024);
+                unitCount++;
+                return true;
+
+            case CRAFTING_PROCESSING_UNIT_4096:
+                maximumParallel = addToParallel(maximumParallel, 4096);
+                unitCount++;
+                return true;
+
+            case ACCELERATOR:
+                maximumParallel = addToParallel(maximumParallel, 1638400);
+                unitCount++;
+                return true;
+
+            case MULTI_THREADER:
+                multiThreaderCount++;
+                unitCount++;
+                return true;
+
+            case INVALID:
+                if (Config.QuantumComputer.enableDebugMode)
+                    ScienceNotCool.LOG.info("Quantum Computer: Invalid block at offset ({}, {}, {}).", dx, dy, dz);
+                return false;
+
+            default:
+                throw new IllegalArgumentException(
+                    "Quantum Computer error: unknown block type at offset (" + dx + ", " + dy + ", " + dz + ").");
+        }
+    }
+
+    public long addToStorage(long current, long increment) {
+        if (current > Long.MAX_VALUE - increment) {
+            return Long.MAX_VALUE;
+        }
+        return current + increment;
+    }
+
+    public int addToParallel(int current, int increment) {
+        if (current > Integer.MAX_VALUE - increment) {
+            return Integer.MAX_VALUE;
+        }
+        return current + increment;
+    }
+
+    /**
+     * Find the horizontal size of the quantum computer. Populates values dxMin, dxMax, dzMin, and dzMax.
+     *
+     * @return True on success, false on failure (which means an invalid structure).
+     */
+    public boolean checkSize(IGregTechTileEntity aBaseMetaTileEntity) {
+
+        // X direction (min)
+        dxMin = -1;
+        while (true) {
+            int next = dxMin - 1;
+
+            if (getBlockType(aBaseMetaTileEntity, next, 0, 0, true) == QuantumComputerBlockType.INVALID) {
+                break;
+            }
+
+            if (next < -Config.QuantumComputer.maxMultiblockSize / 2) {
+                return false;
+            }
+
+            dxMin = next;
+        }
+
+        // X direction (max)
+        dxMax = 1;
+        while (true) {
+            int next = dxMax + 1;
+
+            if (getBlockType(aBaseMetaTileEntity, next, 0, 0, true) == QuantumComputerBlockType.INVALID) {
+                break;
+            }
+
+            if (next > Config.QuantumComputer.maxMultiblockSize / 2) {
+                return false;
+            }
+
+            dxMax = next;
+        }
+
+        // controller must be centered (odd) or one of two center blocks (even)
+        if (Math.abs(dxMin + dxMax) > 1) {
+            return false;
+        }
+
+        // Z direction (min)
+        dzMin = -1;
+        while (true) {
+            int next = dzMin - 1;
+
+            if (getBlockType(aBaseMetaTileEntity, 0, 0, next, true) == QuantumComputerBlockType.INVALID) {
+                break;
+            }
+
+            if (next < -Config.QuantumComputer.maxMultiblockSize / 2) {
+                return false;
+            }
+
+            dzMin = next;
+        }
+
+        // Z direction (max)
+        dzMax = 1;
+        while (true) {
+            int next = dzMax + 1;
+
+            if (getBlockType(aBaseMetaTileEntity, 0, 0, next, true) == QuantumComputerBlockType.INVALID) {
+                break;
+            }
+
+            if (next > Config.QuantumComputer.maxMultiblockSize / 2) {
+                return false;
+            }
+
+            dzMax = next;
+        }
+
+        return Math.abs(dzMin + dzMax) <= 1;
+    }
+
+    /**
+     * Checks whether the ceiling layer of the quantum computer is complete. Assumes that
+     * {@link #checkSize(IGregTechTileEntity)} has already been run.
+     *
+     * @return True on success, false on failure.
+     */
+    @SuppressWarnings({ "BooleanMethodIsAlwaysInverted", "StatementWithEmptyBody" })
+    public boolean checkCeiling(IGregTechTileEntity aBaseMetaTileEntity) {
+        // Edges must be plascrete, everything else must be filters (except for the controller).
+        for (int dx = dxMin; dx <= dxMax; ++dx) {
+            for (int dz = dzMin; dz <= dzMax; ++dz) {
+                if (dx == 0 && dz == 0) {
+                    // Controller.
+                } else if (dx == dxMin || dx == dxMax || dz == dzMin || dz == dzMax) {
+                    // Edge.
+                    if (!addStructureBlock(aBaseMetaTileEntity, dx, 0, dz, true)) return false;
+                } else {
+                    // Internal block.
+                    if (!addStructureBlock(aBaseMetaTileEntity, dx, 0, dz, true)) return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Checks the floor of the quantum computer. Note that if this fails, it is not necessarily because the structure is
+     * invalid, maybe the floor just isn't where we thought it was, and we're looking at a wall.
+     *
+     * @param dy Vertical offset of the floor from the controller.
+     * @return True on success, false on failure.
+     */
+    public boolean checkFloor(IGregTechTileEntity aBaseMetaTileEntity, int dy) {
+        for (int dx = dxMin + 1; dx <= dxMax - 1; ++dx) {
+            for (int dz = dzMin + 1; dz <= dzMax - 1; ++dz) {
+                switch (getBlockType(aBaseMetaTileEntity, dx, dy, dz, true)) {
+                    case CASING:
+                        casingCount++;
+                        break;
+
+                    case INVALID:
+                        // Do not log an error, we might not be at the correct floor level yet.
+                        return false;
+
+                    default:
+                        throw new IllegalArgumentException(
+                            "Quantum Computer error: unknown block type at at offset (" + dx
+                                + ", "
+                                + dy
+                                + ", "
+                                + dz
+                                + ").");
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Checks the walls of the quantum computer at a specified vertical offset.
+     *
+     * @param dy Vertical offset of the floor from the controller.
+     * @return True on success, false on failure.
+     */
+    public boolean checkWall(IGregTechTileEntity aBaseMetaTileEntity, int dy) {
+        for (int dx = dxMin + 1; dx <= dxMax - 1; ++dx) {
+            if (!addStructureBlock(aBaseMetaTileEntity, dx, dy, dzMin, true)) return false;
+            if (!addStructureBlock(aBaseMetaTileEntity, dx, dy, dzMax, true)) return false;
+        }
+        for (int dz = dzMin + 1; dz <= dzMax - 1; ++dz) {
+            if (!addStructureBlock(aBaseMetaTileEntity, dxMin, dy, dz, true)) return false;
+            if (!addStructureBlock(aBaseMetaTileEntity, dxMax, dy, dz, true)) return false;
+        }
+
+        return addStructureBlock(aBaseMetaTileEntity, dxMin, dy, dzMin, true)
+            && addStructureBlock(aBaseMetaTileEntity, dxMin, dy, dzMax, true)
+            && addStructureBlock(aBaseMetaTileEntity, dxMax, dy, dzMin, true)
+            && addStructureBlock(aBaseMetaTileEntity, dxMax, dy, dzMax, true);
+    }
+
+    @Override
+    public void clearHatches() {
+        width = 0;
+        height = 0;
+        depth = 0;
+        casingCount = 0;
+        unitCount = 0;
+        coreCount = 0;
+        multiThreaderCount = 0;
+        dataEntanglerCount = 0;
+        singularityCraftingStorageCount = 0;
+        maximumStorage = 0L;
+        maximumParallel = 0;
+        enabledSingularityCore = false;
+    }
+
+    @Override
+    public void checkMachine(IGregTechTileEntity aBaseMetaTileEntity, ItemStack aStack, List<StructureError> errors) {
+        boolean valid = checkMachine(aBaseMetaTileEntity);
+        if (valid) {
+            getProxy().setValidSides(upDirection);
+            if (this.virtualCPU == null) {
+                createVirtualCPU();
+            }
+        } else {
+            getProxy().setValidSides(emptyDirection);
+            if (this.virtualCPU != null) {
+                this.virtualCPU.destroy();
+                this.virtualCPU = null;
+            }
+            errors.add(StructureErrors.of("GTNC.gui.text.structure_error.legacy_check_failed"));
+        }
+    }
+
+    public boolean checkMachine(IGregTechTileEntity aBaseMetaTileEntity) {
+        // Optimization: a vast majority of the time, the size of the CR won't change. Try checking it using the old
+        // size, and only if that fails, try to find a new size.
+        if (dyMin == 0 || !checkCeiling(aBaseMetaTileEntity)) {
+            if (!checkSize(aBaseMetaTileEntity)) return false;
+            if (!checkCeiling(aBaseMetaTileEntity)) return false;
+        }
+
+        // Check downward until we find a valid floor.
+        // We check specifically internal blocks for a valid floor. This means that in most cases this check
+        // immediately falls through, as the first block we check is already invalid (e.g., air or machine).
+        for (dyMin = -1; dyMin >= -(Config.QuantumComputer.maxMultiblockSize - 1); --dyMin) {
+            if (dyMin < -1 && checkFloor(aBaseMetaTileEntity, dyMin)) {
+                // Found a valid floor. Add its edges and finish.
+                for (int dx = dxMin; dx <= dxMax; ++dx) {
+                    if (!addStructureBlock(aBaseMetaTileEntity, dx, dyMin, dzMin, true)) return false;
+                    if (!addStructureBlock(aBaseMetaTileEntity, dx, dyMin, dzMax, true)) return false;
+                }
+                for (int dz = dzMin + 1; dz <= dzMax - 1; ++dz) {
+                    if (!addStructureBlock(aBaseMetaTileEntity, dxMin, dyMin, dz, true)) return false;
+                    if (!addStructureBlock(aBaseMetaTileEntity, dxMax, dyMin, dz, true)) return false;
+                }
+                break;
+            } else {
+                // Not floor yet, check for a wall.
+                if (!checkWall(aBaseMetaTileEntity, dyMin)) {
+                    dyMin = 0;
+                    return false;
+                }
+            }
+        }
+        if (dyMin < -(Config.QuantumComputer.maxMultiblockSize - 1)) {
+            if (Config.QuantumComputer.enableDebugMode) ScienceNotCool.LOG.info("Quantum Computer: Too tall.");
+            return false;
+        }
+
+        if (Config.QuantumComputer.enableDebugMode) ScienceNotCool.LOG
+            .info("Quantum Computer: Structure complete. Found {} casings, {} unit blocks.", casingCount, unitCount);
+
+        width = dxMax - dxMin + 1;
+        height = -dyMin + 1;
+        depth = dzMax - dzMin + 1;
+
+        if (casingCount != calculateCasingCount(width, height, depth) - 1) {
+            return false;
+        }
+
+        for (int dy = dyMin + 1; dy < 0; ++dy) {
+            for (int dx = dxMin + 1; dx <= dxMax - 1; ++dx) {
+                for (int dz = dzMin + 1; dz <= dzMax - 1; dz++) {
+                    if (!addStructureBlock(aBaseMetaTileEntity, dx, dy, dz, false)) return false;
+                }
+            }
+        }
+
+        if (unitCount != (width - 2) * (height - 2) * (depth - 2)) {
+            return false;
+        }
+
+        if (multiThreaderCount > Config.QuantumComputer.maxMultiThreader
+            || dataEntanglerCount > Config.QuantumComputer.maxDataEntangler) {
+            return false;
+        }
+
+        if (singularityCraftingStorageCount > 0) maximumStorage = Long.MAX_VALUE;
+
+        for (int i = 0; i < dataEntanglerCount; i++) {
+            if (maximumStorage > Long.MAX_VALUE / 4L) {
+                maximumStorage = Long.MAX_VALUE;
+                break;
+            }
+            maximumStorage *= 4L;
+        }
+
+        for (int i = 0; i < multiThreaderCount; i++) {
+            if (maximumParallel > Integer.MAX_VALUE / 4) {
+                maximumParallel = Integer.MAX_VALUE;
+                break;
+            }
+            maximumParallel *= 4;
+        }
+
+        if (Config.QuantumComputer.enableDebugMode) ScienceNotCool.LOG.info("Quantum Computer: Check successful.");
+
+        return true;
+    }
+
+    public static int calculateCasingCount(int width, int height, int depth) {
+        if (width < 1 || height < 1 || depth < 1) return 0;
+
+        return 2 * (width * height + height * depth + width * depth) - 4 * (width + height + depth) + 8;
+    }
+
+    @Override
+    public ITexture[] getTexture(IGregTechTileEntity baseMetaTileEntity, ForgeDirection sideDirection,
+        ForgeDirection facingDirection, int colorIndex, boolean active, boolean redstoneLevel) {
+        if ((sideDirection.flag & (ForgeDirection.UP.flag | ForgeDirection.DOWN.flag)) != 0) {
+            return new ITexture[] { Textures.BlockIcons.getCasingTextureForId(CASING_INDEX),
+                active ? TextureFactory.of(TextureFactory.of(Textures.BlockIcons.OVERLAY_ME_INPUT_HATCH_ACTIVE))
+                    : TextureFactory.of(TextureFactory.of(Textures.BlockIcons.OVERLAY_ME_INPUT_HATCH)) };
+        }
+        return new ITexture[] { Textures.BlockIcons.getCasingTextureForId(CASING_INDEX) };
+    }
+
+    @Override
+    public void construct(ItemStack stackSize, boolean hintsOnly) {
+        final int i = Math.min(stackSize.stackSize, Config.QuantumComputer.maxMultiblockSize / 2);
+        IGregTechTileEntity baseEntity = this.getBaseMetaTileEntity();
+        World world = baseEntity.getWorld();
+        int x = baseEntity.getXCoord();
+        int y = baseEntity.getYCoord();
+        int z = baseEntity.getZCoord();
+        int yoff = Math.max(i * 2, 2);
+
+        for (int X = x - i; X <= x + i; X++) {
+            for (int Y = y - yoff; Y <= y; Y++) {
+                for (int Z = z - i; Z <= z + i; Z++) {
+                    if (X == x && Y == y && Z == z) continue;
+
+                    boolean isWall = (X == x - i || X == x + i || Z == z - i || Z == z + i);
+                    boolean isTop = (Y == y);
+                    boolean isBottom = (Y == y - yoff);
+
+                    if (isWall || isTop || isBottom) {
+                        if (hintsOnly) StructureLibAPI.hintParticle(world, X, Y, Z, BlockLoader.metaCasing02, 10);
+                        else world.setBlock(X, Y, Z, BlockLoader.metaCasing02, 10, 2);
+                    }
+                }
+            }
+        }
+
+        for (int X = x - i + 1; X <= x + i - 1; X++) {
+            for (int Y = y - yoff + 1; Y <= y - 1; Y++) {
+                for (int Z = z - i + 1; Z <= z + i - 1; Z++) {
+                    if (hintsOnly) StructureLibAPI.hintParticle(world, X, Y, Z, BlockLoader.metaCasing02, 11);
+                    else world.setBlock(X, Y, Z, BlockLoader.metaCasing02, 11, 2);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
+        super.onPostTick(aBaseMetaTileEntity, aTick);
+        if (aBaseMetaTileEntity.isAllowedToWork()) aBaseMetaTileEntity.disableWorking();
+    }
+
+    @Override
+    public void onBlockDestroyed() {
+        super.onBlockDestroyed();
+        clearCPUs();
+        postCPUClusterChangeEvent();
+    }
+
+    @Override
+    public void saveNBTData(NBTTagCompound aNBT) {
+        aNBT.setInteger("dxMin", dxMin);
+        aNBT.setInteger("dxMax", dxMax);
+        aNBT.setInteger("dzMin", dzMin);
+        aNBT.setInteger("dzMax", dzMax);
+        aNBT.setInteger("dyMin", dyMin);
+        aNBT.setInteger("width", width);
+        aNBT.setInteger("height", height);
+        aNBT.setInteger("depth", depth);
+        aNBT.setInteger("casingCount", casingCount);
+        aNBT.setInteger("coreCount", coreCount);
+        aNBT.setInteger("unitCount", unitCount);
+        aNBT.setInteger("multiThreaderCount", multiThreaderCount);
+        aNBT.setInteger("dataEntanglerCount", dataEntanglerCount);
+        aNBT.setInteger("singularityCraftingStorageCount", singularityCraftingStorageCount);
+        aNBT.setLong("maximumStorage", getMaximumStorage());
+        aNBT.setInteger("maximumParallel", maximumParallel);
+        aNBT.setBoolean("enabledSingularityCore", enabledSingularityCore);
+
+        if (customName != null) aNBT.setString("customName", customName);
+
+        getProxy().writeToNBT(aNBT);
+        writeCPUNBT(aNBT);
+
+        super.saveNBTData(aNBT);
+    }
+
+    @Override
+    public void loadNBTData(NBTTagCompound aNBT) {
+        dxMin = aNBT.getInteger("dxMin");
+        dxMax = aNBT.getInteger("dxMax");
+        dzMin = aNBT.getInteger("dzMin");
+        dzMax = aNBT.getInteger("dzMax");
+        dyMin = aNBT.getInteger("dyMin");
+        width = aNBT.getInteger("width");
+        height = aNBT.getInteger("height");
+        depth = aNBT.getInteger("depth");
+        casingCount = aNBT.getInteger("casingCount");
+        coreCount = aNBT.getInteger("coreCount");
+        unitCount = aNBT.getInteger("unitCount");
+        multiThreaderCount = aNBT.getInteger("multiThreaderCount");
+        dataEntanglerCount = aNBT.getInteger("dataEntanglerCount");
+        singularityCraftingStorageCount = aNBT.getInteger("singularityCraftingStorageCount");
+        maximumStorage = aNBT.getLong("maximumStorage");
+        maximumParallel = aNBT.getInteger("maximumParallel");
+        enabledSingularityCore = aNBT.getBoolean("enabledSingularityCore");
+
+        if (aNBT.hasKey("customName")) setCustomName(aNBT.getString("customName"));
+
+        getProxy().readFromNBT(aNBT);
+        readCPUNBT(aNBT);
+
+        super.loadNBTData(aNBT);
+    }
+
+    public void writeCPUNBT(final NBTTagCompound compound) {
+        final NBTTagList clustersTag = new NBTTagList();
+        cpus.forEach(cluster -> {
+            NBTTagCompound clusterTag = new NBTTagCompound();
+            cluster.writeToNBT(clusterTag);
+            clusterTag.setLong("availableStorage", cluster.getAvailableStorage());
+            clustersTag.appendTag(clusterTag);
+        });
+        compound.setTag("clusters", clustersTag);
+    }
+
+    public void readCPUNBT(final NBTTagCompound compound) {
+        new ReferenceArrayList<>(cpus).forEach(CraftingCPUCluster::destroy);
+        cpus.clear();
+
+        final NBTTagList clustersTag = compound.getTagList("clusters", Constants.NBT.TAG_COMPOUND);
+        for (int i = 0; i < clustersTag.tagCount(); i++) {
+            NBTTagCompound clusterTag = clustersTag.getCompoundTagAt(i);
+
+            WorldCoord coord = getWorldCoord();
+            CraftingCPUCluster cluster = new CraftingCPUCluster(coord, coord);
+            ECPUCluster eCluster = ECPUCluster.from(cluster);
+            eCluster.ec$setVirtualCPUOwner(this);
+            eCluster.ec$setAvailableStorage(clusterTag.getLong("availableStorage"));
+            cluster.readFromNBT(clusterTag);
+            cpus.add(cluster);
+        }
+    }
+
+    @Override
+    public boolean isRecipeLockingEnabled() {
+        return false;
+    }
+
+    @Override
+    public VoidingMode getVoidingMode() {
+        return VoidingMode.VOID_NONE;
+    }
+
+    @Override
+    public boolean isInputSeparationEnabled() {
+        return false;
+    }
+
+    @Override
+    public boolean isBatchModeEnabled() {
+        return false;
+    }
+
+    @Override
+    protected @NotNull MTEMultiBlockBaseGui<?> getGui() {
+        return new QuantumComputerGui(this);
+    }
+
+    @Override
+    public void checkMaintenance() {}
+
+    @Override
+    public boolean getDefaultHasMaintenanceChecks() {
+        return false;
+    }
+
+    @Override
+    public boolean shouldCheckMaintenance() {
+        return false;
+    }
+
+    @Override
+    public IGridNode getActionableNode() {
+        return getProxy().getNode();
+    }
+
+    @Override
+    public DimensionalCoord getLocation() {
+        return new DimensionalCoord(
+            getBaseMetaTileEntity().getWorld(),
+            getBaseMetaTileEntity().getXCoord(),
+            getBaseMetaTileEntity().getYCoord(),
+            getBaseMetaTileEntity().getZCoord());
+    }
+
+    @Override
+    public IGridNode getGridNode(ForgeDirection dir) {
+        return getProxy().getNode();
+    }
+
+    @Override
+    public AECableType getCableConnectionType(ForgeDirection forgeDirection) {
+        return AECableType.DENSE_COVERED;
+    }
+
+    @Override
+    public AENetworkProxy getProxy() {
+        if (gridProxy == null) {
+            var bmte = getBaseMetaTileEntity();
+            if (bmte instanceof IGridProxyable) {
+                gridProxy = new AENetworkProxy(this, "proxy", GTNCItemList.QuantumComputer.get(1), true);
+                gridProxy.setFlags(GridFlags.REQUIRE_CHANNEL);
+                if (bmte.getWorld() != null) {
+                    gridProxy.setOwner(
+                        bmte.getWorld()
+                            .getPlayerEntityByName(bmte.getOwnerName()));
+                }
+            }
+        }
+        return gridProxy;
+    }
+
+    @Override
+    public String getCustomName() {
+        return customName != null ? customName : getMachineCraftingIcon().getDisplayName();
+    }
+
+    @Override
+    public boolean hasCustomName() {
+        return customName != null && !customName.isEmpty();
+    }
+
+    @Override
+    public void setCustomName(String name) {
+        customName = name;
+        if (virtualCPU != null) {
+            ECPUCluster.from(virtualCPU)
+                .ec$setName(customName);
+        }
+    }
+
+    @Override
+    public void securityBreak() {}
+
+    @MENetworkEventSubscribe
+    public void stateChange(final MENetworkPowerStatusChange c) {
+        final boolean currentActive = isActive();
+        if (wasActive != currentActive) {
+            wasActive = currentActive;
+            postCPUClusterChangeEvent();
+        }
+    }
+
+    @MENetworkEventSubscribe
+    public void stateChange(final MENetworkChannelsChanged c) {
+        final boolean currentActive = isActive();
+        if (wasActive != currentActive) {
+            wasActive = currentActive;
+            postCPUClusterChangeEvent();
+        }
+    }
+
+    public void postCPUClusterChangeEvent() {
+        if (isActive()) {
+            try {
+                getProxy().getGrid()
+                    .postEvent(new MENetworkCraftingCpuChange(getProxy().getNode()));
+            } catch (final GridAccessException ignored) {}
+        }
+    }
+
+    public boolean isActive() {
+        return getProxy().isActive();
+    }
+
+    public boolean isVirtualCPU(Object cluster) {
+        return virtualCPU == cluster;
+    }
+
+    public List<CraftingCPUCluster> getCPUs() {
+        if (!isActive()) return ObjectLists.emptyList();
+
+        if (cpus.isEmpty()) {
+            return virtualCPU != null ? ObjectLists.singleton(virtualCPU) : ObjectLists.emptyList();
+        }
+
+        final List<CraftingCPUCluster> clusters = new ReferenceArrayList<>(cpus);
+        if (virtualCPU != null) {
+            ECPUCluster.from(virtualCPU)
+                .ec$setVirtualCPUOwner(this);
+            clusters.add(virtualCPU);
+        }
+        return clusters;
+    }
+
+    public void onVirtualCPUSubmitJob(final long usedBytes) {
+        final boolean prevEmpty = cpus.isEmpty();
+
+        ECPUCluster.from(virtualCPU)
+            .ec$setVirtualCPUOwner(this);
+        cpus.add(virtualCPU);
+
+        if (prevEmpty) {
+            markDirty();
+        }
+
+        ECPUCluster ecpuCluster = ECPUCluster.from(virtualCPU);
+        ecpuCluster.ec$setAvailableStorage(usedBytes);
+        ecpuCluster.ec$setName("");
+        virtualCPU = null;
+        createVirtualCPU();
+    }
+
+    public long getAvailableBytes() {
+        if (enabledSingularityCore) return Long.MAX_VALUE;
+        return getMaximumStorage() - getUsedBytes();
+    }
+
+    public long getUsedBytes() {
+        if (enabledSingularityCore) return 0;
+        usedStorage = cpus.stream()
+            .mapToLong(CraftingCPUCluster::getAvailableStorage)
+            .sum();
+        return usedStorage;
+    }
+
+    public int getUsedParallel() {
+        usedParallel = cpus.stream()
+            .mapToInt(CraftingCPUCluster::getCoProcessors)
+            .sum();
+        return usedParallel;
+    }
+
+    public void createVirtualCPU() {
+        final long availableBytes = getAvailableBytes();
+        if (virtualCPU != null) {
+            ECPUCluster eCluster = ECPUCluster.from(virtualCPU);
+            eCluster.ec$setAvailableStorage(availableBytes);
+            eCluster.ec$setAccelerators(maximumParallel);
+            return;
+        }
+
+        WorldCoord pos = getWorldCoord();
+        virtualCPU = new CraftingCPUCluster(pos, pos);
+        ECPUCluster eCluster = ECPUCluster.from(virtualCPU);
+        eCluster.ec$setVirtualCPUOwner(this);
+        eCluster.ec$setAvailableStorage(availableBytes);
+        eCluster.ec$setAccelerators(maximumParallel);
+        if (hasCustomName()) eCluster.ec$setName(customName);
+
+        postCPUClusterChangeEvent();
+    }
+
+    public void clearCPUs() {
+        IMEMonitor<IAEItemStack> itemInventory = null;
+        try {
+            var t = getBaseMetaTileEntity();
+            var te = t.getWorld()
+                .getTileEntity(t.getXCoord(), t.getYCoord() + 1, t.getZCoord());
+            if (te instanceof IGridHost igh) itemInventory = igh.getGridNode(ForgeDirection.UNKNOWN)
+                .getGrid()
+                .<IStorageGrid>getCache(IStorageGrid.class)
+                .getItemInventory();
+        } catch (Exception ignored) {}
+        final var s = new MachineSource(this);
+        for (var cpu : cpus) {
+            if (itemInventory != null) {
+                IItemList<IAEItemStack> itemList = AEApi.instance()
+                    .storage()
+                    .createItemList();
+                cpu.getInventory()
+                    .getAvailableItems(itemList);
+                for (var stack : itemList) {
+                    itemInventory.injectItems(stack, Actionable.MODULATE, s);
+                }
+            }
+            ECPUCluster.from(cpu)
+                .ec$markDestroyed();
+        }
+        cpus.clear();
+    }
+
+    public WorldCoord getWorldCoord() {
+        return new WorldCoord(
+            getBaseMetaTileEntity().getXCoord(),
+            getBaseMetaTileEntity().getYCoord(),
+            getBaseMetaTileEntity().getZCoord());
+    }
+
+    public void onCPUDestroyed(final CraftingCPUCluster cluster) {
+        cpus.remove(cluster);
+        createVirtualCPU();
+        postCPUClusterChangeEvent();
+        if (cpus.isEmpty()) {
+            markDirty();
+        }
+    }
+
+    public enum QuantumComputerBlockType {
+        CASING,
+        UNIT,
+        MULTI_THREADER,
+        DATA_ENTANGLER,
+        ACCELERATOR,
+        CORE,
+        SINGULARITY_CORE,
+        CRAFTING_STORAGE_1K,
+        CRAFTING_STORAGE_4K,
+        CRAFTING_STORAGE_16K,
+        CRAFTING_STORAGE_64K,
+        CRAFTING_STORAGE_256K,
+        CRAFTING_STORAGE_1024K,
+        CRAFTING_STORAGE_4096K,
+        CRAFTING_STORAGE_16384K,
+        CRAFTING_STORAGE_128M,
+        CRAFTING_STORAGE_256M,
+        CRAFTING_STORAGE_SINGULARITY,
+        CRAFTING_PROCESSING_UNIT_1,
+        CRAFTING_PROCESSING_UNIT_4,
+        CRAFTING_PROCESSING_UNIT_16,
+        CRAFTING_PROCESSING_UNIT_64,
+        CRAFTING_PROCESSING_UNIT_256,
+        CRAFTING_PROCESSING_UNIT_1024,
+        CRAFTING_PROCESSING_UNIT_4096,
+        INVALID
+    }
+}

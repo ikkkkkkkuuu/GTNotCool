@@ -18,6 +18,7 @@ import com.xyp.gtnc.Common.machines.multiblock.GTNCMiningRig;
 import com.xyp.gtnc.Common.machines.multiblock.LargeCombProcessor;
 import com.xyp.gtnc.Common.machines.multiblock.LargeOreProcessor;
 import com.xyp.gtnc.Common.machines.multiblock.MTEMegaIndustrialApiary;
+import com.xyp.gtnc.Common.machines.multiblock.QuantumComputer;
 import com.xyp.gtnc.Common.machines.multiblock.SingularityDataHub;
 import com.xyp.gtnc.Common.machines.multiblock.SuperSpaceElevator;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeBoiler;
@@ -73,6 +74,16 @@ public class MachineLoader {
                 "AssemblerMatrix",
                 StatCollector.translateToLocal("NameAssemblerMatrix")));
         addItemTooltip(GTNCItemList.AssemblerMatrix.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        // #tr NameQuantumComputer
+        // # Quantum Computer
+        // # zh_CN 量子计算机
+        GTNCItemList.QuantumComputer.set(
+            new QuantumComputer(
+                GTNCMachineID.QUANTUM_COMPUTER.ID,
+                "QuantumComputer",
+                StatCollector.translateToLocal("NameQuantumComputer")));
+        addItemTooltip(GTNCItemList.QuantumComputer.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
 
         // #tr NameSingularityDataHub
         // # Singularity Data Hub

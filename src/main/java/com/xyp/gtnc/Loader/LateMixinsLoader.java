@@ -30,6 +30,8 @@ public class LateMixinsLoader implements ILateMixinLoader {
             "AppliedEnergistics.SuperMTEHatchCraftingInputMEMixin",
             "AppliedEnergistics.AccessorTaskProgress",
             "AppliedEnergistics.MixinCraftingCPUCluster",
+            "AppliedEnergistics.quantumComputer.MixinCraftingCPUCluster",
+            "AppliedEnergistics.quantumComputer.MixinCraftingGridCache",
             // Gregtech
             "Gregtech.GTMetaTools",
             "Gregtech.MixinElectricBlastFurnace",

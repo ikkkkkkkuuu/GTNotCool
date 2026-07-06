@@ -53,6 +53,16 @@ public class Config {
     }
     // endregion
 
+    // region QuantumComputer 配置
+    public static class QuantumComputer {
+
+        public static int maxMultiblockSize = 7;
+        public static int maxMultiThreader = 1;
+        public static int maxDataEntangler = 1;
+        public static boolean enableDebugMode = false;
+    }
+    // endregion
+
     // region ToolBelt 配置
     public static boolean releaseToSwap = true;
     public static boolean clipMouseToCircle = true;
@@ -73,6 +83,7 @@ public class Config {
     private static final String CATEGORY_VEIN_MINER_PICKAXE = "Vein_Miner_Pickaxe";
     private static final String CATEGORY_TOOL_BELT = "Tool_Belt";
     private static final String CATEGORY_ME_OUTPUT_HATCH = "ME_Output_Hatch";
+    private static final String CATEGORY_QUANTUM_COMPUTER = "Quantum_Computer";
     // endregion
 
     // region 配置文件
@@ -270,6 +281,37 @@ public class Config {
                 CATEGORY_ME_OUTPUT_HATCH,
                 OutPutBusMEEnable,
                 "Enable infinite capacity for ME Item Output Bus");
+
+            // Quantum Computer 配置项
+            QuantumComputer.maxMultiblockSize = configuration.getInt(
+                "maxMultiblockSize",
+                CATEGORY_QUANTUM_COMPUTER,
+                QuantumComputer.maxMultiblockSize,
+                3,
+                64,
+                "Maximum edge length of the Quantum Computer multiblock cube (minimum 3)");
+
+            QuantumComputer.maxMultiThreader = configuration.getInt(
+                "maxMultiThreader",
+                CATEGORY_QUANTUM_COMPUTER,
+                QuantumComputer.maxMultiThreader,
+                0,
+                Integer.MAX_VALUE,
+                "Maximum number of Multi-Threader blocks per Quantum Computer");
+
+            QuantumComputer.maxDataEntangler = configuration.getInt(
+                "maxDataEntangler",
+                CATEGORY_QUANTUM_COMPUTER,
+                QuantumComputer.maxDataEntangler,
+                0,
+                Integer.MAX_VALUE,
+                "Maximum number of Data Entangler blocks per Quantum Computer");
+
+            QuantumComputer.enableDebugMode = configuration.getBoolean(
+                "enableDebugMode",
+                CATEGORY_QUANTUM_COMPUTER,
+                QuantumComputer.enableDebugMode,
+                "Enable Quantum Computer structure-check debug logging");
         }
 
         if (configuration.hasChanged()) {
@@ -285,5 +327,7 @@ public class Config {
         configuration.addCustomCategoryComment(CATEGORY_TOOL_BELT, "Configuration settings for Tool Belt");
         configuration
             .addCustomCategoryComment(CATEGORY_ME_OUTPUT_HATCH, "Configuration settings for ME Output Hatch and Bus");
+        configuration
+            .addCustomCategoryComment(CATEGORY_QUANTUM_COMPUTER, "Configuration settings for the Quantum Computer");
     }
 }
