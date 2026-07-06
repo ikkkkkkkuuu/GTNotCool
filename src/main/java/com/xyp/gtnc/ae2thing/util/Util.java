@@ -174,11 +174,35 @@ public class Util {
             int bSlot = slot - com.xyp.gtnc.ae2thing.api.Constants.BAUBLE_SLOT_OFFSET;
             if (baublesInv != null && bSlot >= 0 && bSlot < baublesInv.getSizeInventory()) {
                 baublesInv.setInventorySlotContents(bSlot, stack);
+                // Baubles only serializes its in-memory stackList into player.getEntityData()'s "Baubles.Inventory"
+                // tag at world-save time (PlayerHandler.savePlayerBaubles -> InventoryBaubles.saveNBT). A worn
+                // terminal's NBT is edited in place (e.g. encoding a blank pattern into the pattern slot), which never
+                // touches that durable snapshot. Any mid-session readNBT (or stackList reconstruction from a sync)
+                // then restores the STALE snapshot and drops the change ("opened a few times and it's gone"), and the
+                // same stale snapshot is what persists on relog. Flush the authoritative inventory to entityData now
+                // so the durable snapshot always carries the latest terminal NBT.
+                flushBaublesToEntityData(player, baublesInv);
             }
             return;
         }
         if (slot >= 0 && slot < player.inventory.getSizeInventory()) {
             player.inventory.setInventorySlotContents(slot, stack);
+        }
+    }
+
+    /**
+     * Calls {@code InventoryBaubles.saveNBT(player.getEntityData())} via reflection so we don't hard-depend on Baubles
+     * internals. This writes the live baubles stackList into the durable {@code "Baubles.Inventory"} snapshot that
+     * Baubles saves/loads, keeping a worn terminal's in-place NBT edits from being lost. Fails silently if Baubles is
+     * absent or its API changes.
+     */
+    private static void flushBaublesToEntityData(EntityPlayer player, net.minecraft.inventory.IInventory baublesInv) {
+        try {
+            java.lang.reflect.Method saveNBT = baublesInv.getClass()
+                .getMethod("saveNBT", NBTTagCompound.class);
+            saveNBT.invoke(baublesInv, player.getEntityData());
+        } catch (Throwable ignored) {
+            // Baubles not present or API changed; nothing we can do, non-fatal.
         }
     }
 
