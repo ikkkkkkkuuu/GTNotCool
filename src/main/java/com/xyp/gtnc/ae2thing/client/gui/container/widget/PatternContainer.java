@@ -477,13 +477,26 @@ public class PatternContainer implements IPatternContainer, IOptionalSlotHost, I
         if (output != null && this.notPattern(output)) {
             return;
         }
-        // Determine the output pattern item — prefer Encoded Ultimate Pattern (new GTNH standard)
+        // Pick the pattern item by mode. GTNH convention: a CRAFTING pattern must use vanilla AE2's encoded pattern
+        // (its FluidPatternDetails/PatternHelper reports isCraftable()=true), while a PROCESSING pattern uses the
+        // Encoded Ultimate Pattern (AE2FC). Encoding a crafting recipe onto an ultimate pattern makes it read back as a
+        // processing pattern, which then forces the terminal back into processing mode.
         final ItemStack ultimatePattern = AEApi.instance()
             .definitions()
             .items()
             .encodedUltimatePattern()
             .maybeStack(1)
             .orNull();
+        final ItemStack vanillaPattern = AEApi.instance()
+            .definitions()
+            .items()
+            .encodedPattern()
+            .maybeStack(1)
+            .orNull();
+        // The pattern item this mode should produce.
+        final ItemStack targetPattern = this.container.craftingMode
+            ? (vanillaPattern != null ? vanillaPattern : ultimatePattern)
+            : (ultimatePattern != null ? ultimatePattern : vanillaPattern);
         if (output == null) {
             // Grab a blank pattern from the input slot
             output = this.patternSlotIN.getStack();
@@ -494,17 +507,13 @@ public class PatternContainer implements IPatternContainer, IOptionalSlotHost, I
             if (output.stackSize == 0) {
                 this.patternSlotIN.putStack(null);
             }
-            // Use ultimate pattern if available, otherwise fall back
-            output = ultimatePattern != null ? ultimatePattern.copy()
-                : AEApi.instance()
-                    .definitions()
-                    .items()
-                    .encodedPattern()
-                    .maybeStack(1)
-                    .orNull();
-        } else if (ultimatePattern != null) {
-            // Re-encoding over existing pattern — upgrade to ultimate pattern
-            output = ultimatePattern.copy();
+            output = targetPattern != null ? targetPattern.copy() : null;
+        } else {
+            // Re-encoding over an existing pattern — reuse the item that matches the current mode.
+            output = targetPattern != null ? targetPattern.copy() : output;
+        }
+        if (output == null) {
+            return;
         }
 
         // encode the slot using IAEStack for proper fluid support
