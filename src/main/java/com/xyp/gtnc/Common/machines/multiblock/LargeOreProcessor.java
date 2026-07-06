@@ -169,37 +169,28 @@ public class LargeOreProcessor extends MTEEnhancedMultiBlockBase<LargeOreProcess
         for (ItemStack input : tInput) {
             if (input == null || input.stackSize <= 0) continue;
 
-            // 遍历所有配方查找匹配的
-            for (GTRecipe recipe : recipeMap.getAllRecipes()) {
-                if (recipe.mInputs == null || recipe.mInputs.length < 1) continue;
+            // 使用 GT 自带的配方查找，支持矿辞统一和通配符匹配
+            GTRecipe recipe = recipeMap.findRecipeQuery()
+                .items(input)
+                .find();
 
-                ItemStack recipeInput = recipe.mInputs[0];
-                // 使用更宽松的匹配：只检查物品 ID 和 damage，不检查 NBT
-                if (GTUtility.areStacksEqual(recipeInput, input, false)) {
-                    // 找到配方！计算可以处理的并行数
-                    int parallel = Math.min(input.stackSize, MAX_PARALLEL - totalParallel);
+            if (recipe != null) {
+                // 找到配方！计算可以处理的并行数
+                int parallel = Math.min(input.stackSize, MAX_PARALLEL - totalParallel);
 
-                    if (parallel <= 0) break;
+                if (parallel <= 0) break;
 
-                    // 消耗输入
-                    input.stackSize -= parallel;
+                // 消耗输入
+                input.stackSize -= parallel;
 
-                    // 添加产出
-                    for (ItemStack output : recipe.mOutputs) {
-                        if (output != null) {
-                            outputs.add(GTUtility.copyAmountUnsafe(output.stackSize * parallel, output));
-                        }
-                    }
-
-                    totalParallel += parallel;
-
-                    // 如果这个物品还有剩余，继续尝试匹配其他配方
-                    if (input.stackSize > 0 && totalParallel < MAX_PARALLEL) {
-                        continue;
-                    } else {
-                        break; // 这个物品处理完了或者达到最大并行
+                // 添加产出
+                for (ItemStack output : recipe.mOutputs) {
+                    if (output != null) {
+                        outputs.add(GTUtility.copyAmountUnsafe(output.stackSize * parallel, output));
                     }
                 }
+
+                totalParallel += parallel;
             }
 
             // 达到最大并行限制，停止处理

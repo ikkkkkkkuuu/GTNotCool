@@ -386,7 +386,7 @@ public class OreProcessingRecipes {
                     outputs.add(werkstoff.get(OrePrefixes.dust, 3));
                 }
 
-                // generate recipes - NO LUBRICANT REQUIRED
+                // generate recipes for ore - NO LUBRICANT REQUIRED
                 GTRecipeBuilder.builder()
                     .itemInputs(werkstoff.get(OrePrefixes.ore, 1))
                     .itemOutputs(outputs.toArray(new ItemStack[] {}))
@@ -402,6 +402,45 @@ public class OreProcessingRecipes {
                         .eut(EUT)
                         .duration(DURATION_TICKS)
                         .addTo(OreProcessingRecipes);
+                }
+
+                // Process crushed ore - same outputs as normal ore
+                if (werkstoff.hasItemType(OrePrefixes.crushed)) {
+                    ItemStack crushedOre = werkstoff.get(OrePrefixes.crushed, 1);
+                    if (crushedOre != null) {
+                        GTRecipeBuilder.builder()
+                            .itemInputs(crushedOre)
+                            .itemOutputs(outputs.toArray(new ItemStack[] {}))
+                            .eut(EUT)
+                            .duration(DURATION_TICKS)
+                            .addTo(OreProcessingRecipes);
+                    }
+                }
+
+                // Process impure dust - simplified output (just main dust * 6)
+                if (werkstoff.hasItemType(OrePrefixes.dustImpure)) {
+                    ItemStack impureDust = werkstoff.get(OrePrefixes.dustImpure, 1);
+                    if (impureDust != null) {
+                        GTRecipeBuilder.builder()
+                            .itemInputs(impureDust)
+                            .itemOutputs(werkstoff.get(OrePrefixes.dust, 6))
+                            .eut(EUT)
+                            .duration(DURATION_TICKS)
+                            .addTo(OreProcessingRecipes);
+                    }
+                }
+
+                // Process clean dust - simplified output (just main dust * 7)
+                if (werkstoff.hasItemType(OrePrefixes.dustPure)) {
+                    ItemStack cleanDust = werkstoff.get(OrePrefixes.dustPure, 1);
+                    if (cleanDust != null) {
+                        GTRecipeBuilder.builder()
+                            .itemInputs(cleanDust)
+                            .itemOutputs(werkstoff.get(OrePrefixes.dust, 7))
+                            .eut(EUT)
+                            .duration(DURATION_TICKS)
+                            .addTo(OreProcessingRecipes);
+                    }
                 }
             }
         } catch (Throwable t) {
@@ -453,6 +492,20 @@ public class OreProcessingRecipes {
             Method getDust = materialClass.getMethod("getDust", int.class);
             Method getRawOre = materialClass.getMethod("getRawOre", int.class);
 
+            // Try to get intermediate product methods - they might not exist in GT++
+            Method getCrushed = null;
+            Method getDustImpure = null;
+            Method getDustPure = null;
+            try {
+                getCrushed = materialClass.getMethod("getCrushed", int.class);
+            } catch (NoSuchMethodException ignored) {}
+            try {
+                getDustImpure = materialClass.getMethod("getDustImpure", int.class);
+            } catch (NoSuchMethodException ignored) {}
+            try {
+                getDustPure = materialClass.getMethod("getDustPure", int.class);
+            } catch (NoSuchMethodException ignored) {}
+
             for (Object ore : gtppOres) {
                 try {
                     ItemStack in = (ItemStack) getOre.invoke(ore, 1);
@@ -473,6 +526,47 @@ public class OreProcessingRecipes {
                             .eut(EUT)
                             .duration(DURATION_TICKS)
                             .addTo(OreProcessingRecipes);
+                    }
+
+                    // Process crushed ore - same output as normal ore (if method exists)
+                    if (getCrushed != null) {
+                        ItemStack crushed = (ItemStack) getCrushed.invoke(ore, 1);
+                        if (crushed != null && out != null) {
+                            GTRecipeBuilder.builder()
+                                .itemInputs(crushed)
+                                .itemOutputs(new ItemStack[] { out })
+                                .eut(EUT)
+                                .duration(DURATION_TICKS)
+                                .addTo(OreProcessingRecipes);
+                        }
+                    }
+
+                    // Process impure dust - half output (dust * 6, if method exists)
+                    if (getDustImpure != null) {
+                        ItemStack impure = (ItemStack) getDustImpure.invoke(ore, 1);
+                        ItemStack dustOut6 = (ItemStack) getDust.invoke(ore, 6);
+                        if (impure != null && dustOut6 != null) {
+                            GTRecipeBuilder.builder()
+                                .itemInputs(impure)
+                                .itemOutputs(new ItemStack[] { dustOut6 })
+                                .eut(EUT)
+                                .duration(DURATION_TICKS)
+                                .addTo(OreProcessingRecipes);
+                        }
+                    }
+
+                    // Process pure dust - slightly better output (dust * 7, if method exists)
+                    if (getDustPure != null) {
+                        ItemStack pure = (ItemStack) getDustPure.invoke(ore, 1);
+                        ItemStack dustOut7 = (ItemStack) getDust.invoke(ore, 7);
+                        if (pure != null && dustOut7 != null) {
+                            GTRecipeBuilder.builder()
+                                .itemInputs(pure)
+                                .itemOutputs(new ItemStack[] { dustOut7 })
+                                .eut(EUT)
+                                .duration(DURATION_TICKS)
+                                .addTo(OreProcessingRecipes);
+                        }
                     }
                 } catch (Throwable e) {
                     // ignore per-ore failures

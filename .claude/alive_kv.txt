@@ -1,0 +1,60 @@
+item.pattern_modifier.name|Pattern Modifier|样板修改器
+item.wireless_dual_interface_terminal.name|ME Wireless Dual Interface Terminal|ME无线二合一接口终端
+nei.options.sciencenotcool|ScienceNotCool|ScienceNotCool
+nei.options.sciencenotcool.block_render|Pattern ignore hatches when encoding|样板终端编码时忽略功能仓室
+nei.options.sciencenotcool.block_render.false|No|否
+nei.options.sciencenotcool.block_render.true|Yes|是
+nei.options.sciencenotcool.crafting_notification|Notify about finished crafting jobs (requires wireless terminal)|自动合成完成时发送提醒(需要无线终端)
+nei.options.sciencenotcool.crafting_notification.false|No|否
+nei.options.sciencenotcool.crafting_notification.true|Yes|是
+nei.options.sciencenotcool.dual_interface_terminal_append_circuit_damage|Dual interface terminal append NC items (molds, circuit boards, etc.) to recipe name|二合一接口终端将nc物品(模头，电路板等)追加到配方名称
+nei.options.sciencenotcool.dual_interface_terminal_append_circuit_damage.false|No|否
+nei.options.sciencenotcool.dual_interface_terminal_append_circuit_damage.true|Yes|是
+nei.options.sciencenotcool.dual_interface_terminal_fill_circuit|Dual interface terminal autofill recipe name to search field,ignore circuit|二合一接口终端自动填充合成菜单名字时,忽略电路编号
+nei.options.sciencenotcool.dual_interface_terminal_fill_circuit.false|No|否
+nei.options.sciencenotcool.dual_interface_terminal_fill_circuit.true|Yes|是
+nei.options.sciencenotcool.dual_interface_terminal_fill_search_names|Dual interface terminal autofill recipe name to search field|二合一接口终端自动填充合成菜单名字
+nei.options.sciencenotcool.dual_interface_terminal_fill_search_names.false|No|否
+nei.options.sciencenotcool.dual_interface_terminal_fill_search_names.true|Yes|是
+nei.options.sciencenotcool.history|Draw terminal history|终端历史记录
+nei.options.sciencenotcool.history.false|No|隐藏
+nei.options.sciencenotcool.history.true|Yes|显示
+nei.options.sciencenotcool.nei_craft_item|Middle click NEI panel to quick order item from ae terminal |NEI中鼠标中键快速下单终端中的物品 
+nei.options.sciencenotcool.nei_craft_item.false|No|否
+nei.options.sciencenotcool.nei_craft_item.true|Yes|是
+nei.options.sciencenotcool.pinned_bar|Enable terminal crafting pinned bar|终端合成固定栏
+nei.options.sciencenotcool.pinned_bar.false|No|隐藏
+nei.options.sciencenotcool.pinned_bar.true|Yes|显示
+nei.options.sciencenotcool.pinned_bar_crafting_state|Pinned bar preview current item crafting state|固定栏中预览当前物品合成状态
+nei.options.sciencenotcool.pinned_bar_crafting_state.false|No|否
+nei.options.sciencenotcool.pinned_bar_crafting_state.true|Yes|是
+nei.options.sciencenotcool.pinned_bar_remove|Pinned bar remove crafting finished item|固定栏移除合成结束物品
+nei.options.sciencenotcool.pinned_bar_remove.false|Never|溢出移除
+nei.options.sciencenotcool.pinned_bar_remove.true|Default|默认
+nei.options.sciencenotcool.state|Display terminal inventory state|终端库存状态
+nei.options.sciencenotcool.state.false|No|隐藏
+nei.options.sciencenotcool.state.true|Yes|显示
+nei.options.sciencenotcool.ultra_terminal_mode|Universal terminal support selection mode in the terminal menu|终端菜单中通用无限终端支持选择模式
+nei.options.sciencenotcool.ultra_terminal_mode.false|No|否
+nei.options.sciencenotcool.ultra_terminal_mode.true|Yes|是
+sciencenotcool.gui.button.replan|Replan|重新规划合成任务
+sciencenotcool.gui.pattern_modifier|Pattern Modifier|样板修改器
+sciencenotcool.gui.pattern_modifier.clear|Clear|清除
+sciencenotcool.gui.pattern_modifier.replace|Replace|替换
+sciencenotcool.gui.pattern_rename|Custom Name|自定义名称
+sciencenotcool.gui.terminal.left_click|Left-Click|左键点击
+sciencenotcool.gui.terminal.right_click|Right-Click|右键点击
+sciencenotcool.gui.terminal.store_action|%s: Store %s|%s：存入 %s
+sciencenotcool.gui.wireless_connector_terminal.bind|Bind|绑定
+sciencenotcool.gui.wireless_connector_terminal.channels_used|Channels used|已使用频道
+sciencenotcool.gui.wireless_connector_terminal.color|Color|颜色
+sciencenotcool.gui.wireless_connector_terminal.in_other_dim|Wireless connector located at dimension: %d and cant be highlighted|无线连接器位于 %d 世界，无法高亮显示
+sciencenotcool.gui.wireless_connector_terminal.name|Name|名字
+sciencenotcool.gui.wireless_connector_terminal.pos|Pos|位置
+sciencenotcool.gui.wireless_connector_terminal.unbind|Unbind|解绑
+sciencenotcool.key.open_dual_interface_terminal|Open Dual Interface Terminal|打开二合一接口终端
+sciencenotcool.message.crafting_complete|Auto-Crafting Complete|自动合成完毕！
+sciencenotcool.tooltip.ctrl_for_more|§r> Hold §3Ctrl§r for more information|§r> 按 §3Ctrl§r 显示更多信息
+sciencenotcool.tooltip.shift_for_more|§r> Hold §3Shift§r for more information|§r> 按 §3Shift§r 显示更多信息
+sciencenotcool.tooltip.wireless.installed|Installed Card:|已安装的卡:
+sciencenotcool.tooltip.wireless_dual_interface_terminal.desc|Dual interface terminal, support encode pattern|二合一接口终端,支持编写样板
