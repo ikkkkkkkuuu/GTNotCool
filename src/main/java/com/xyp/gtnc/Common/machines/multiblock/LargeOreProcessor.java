@@ -45,18 +45,23 @@ import gregtech.api.util.MultiblockTooltipBuilder;
 
 public class LargeOreProcessor extends MTEEnhancedMultiBlockBase<LargeOreProcessor> implements ISurvivalConstructable {
 
+    // Machine constants
     private static final int MAX_PARALLEL = Integer.MAX_VALUE;
     private static final int DURATION_TICKS = 20;
+    private static final int EU_PER_TICK = 0; // No energy consumption
 
-    @Override
-    public IMetaTileEntity newMetaEntity(IGregTechTileEntity aTileEntity) {
-        return new LargeOreProcessor(this.mName);
-    }
-
+    // Structure constants
     private static final String STRUCTURE_PIECE_MAIN = "main";
     private static final String LOP_STRUCTURE_FILE_PATH = RESOURCE_ROOT_ID + ":" + "multiblock/large_ore_processor";
-    private static final String[][] shape = StructureUtils.readStructureFromFile(LOP_STRUCTURE_FILE_PATH);
+    private static final String[][] STRUCTURE_SHAPE = StructureUtils.readStructureFromFile(LOP_STRUCTURE_FILE_PATH);
+    private static final int HORIZONTAL_OFFSET = 1;
+    private static final int VERTICAL_OFFSET = 1;
+    private static final int DEPTH_OFFSET = 0;
 
+    // Instance state
+    private int mCountCasing = 0;
+
+    // Constructors
     public LargeOreProcessor(String aName) {
         super(aName);
     }
@@ -65,11 +70,174 @@ public class LargeOreProcessor extends MTEEnhancedMultiBlockBase<LargeOreProcess
         super(aID, aName, aNameRegional);
     }
 
-    private static final int HORIZONTAL_OFF_SET = 1;
-    private static final int VERTICAL_OFF_SET = 1;
-    private static final int DEPTH_OFF_SET = 0;
+    @Override
+    public IMetaTileEntity newMetaEntity(IGregTechTileEntity aTileEntity) {
+        return new LargeOreProcessor(this.mName);
+    }
 
-    private int mCountCasing = 0;
+    // ==================== Structure Definition ====================
+
+    @Override
+    public IStructureDefinition<LargeOreProcessor> getStructureDefinition() {
+        return StructureDefinition.<LargeOreProcessor>builder()
+            .addShape(STRUCTURE_PIECE_MAIN, transpose(STRUCTURE_SHAPE))
+            .addElement(
+                'A',
+                ofChain(
+                    buildHatchAdder(LargeOreProcessor.class).casingIndex(getCasingTextureID())
+                        .hint(1)
+                        .atLeast(InputBus, OutputBus, Maintenance)
+                        .build(),
+                    onElementPass(x -> ++x.mCountCasing, ofBlock(BlockLoader.metaCasing02, 4))))
+            .build();
+    }
+
+    @Override
+    public void construct(ItemStack stackSize, boolean hintsOnly) {
+        this.buildPiece(STRUCTURE_PIECE_MAIN, stackSize, hintsOnly, HORIZONTAL_OFFSET, VERTICAL_OFFSET, DEPTH_OFFSET);
+    }
+
+    @Override
+    public int survivalConstruct(ItemStack stackSize, int elementBudget, ISurvivalBuildEnvironment env) {
+        if (this.mMachine) return -1;
+        return this.survivalBuildPiece(
+            STRUCTURE_PIECE_MAIN,
+            stackSize,
+            HORIZONTAL_OFFSET,
+            VERTICAL_OFFSET,
+            DEPTH_OFFSET,
+            elementBudget,
+            env,
+            false,
+            true);
+    }
+
+    @Override
+    public void checkMachine(IGregTechTileEntity aBaseMetaTileEntity, ItemStack aStack, List<StructureError> errors) {
+        mCountCasing = 0;
+        if (!checkPiece(STRUCTURE_PIECE_MAIN, HORIZONTAL_OFFSET, VERTICAL_OFFSET, DEPTH_OFFSET, errors)) {
+            return;
+        }
+        checkCasingMin(errors, mCountCasing, 1);
+    }
+
+    // ==================== Recipe Processing ====================
+
+    @Override
+    public RecipeMap<?> getRecipeMap() {
+        return GTNCRecipeMaps.OreProcessingRecipes;
+    }
+
+    @Override
+    public int getMaxParallelRecipes() {
+        return MAX_PARALLEL;
+    }
+
+    @Override
+    @NotNull
+    public CheckRecipeResult checkProcessing() {
+        List<ItemStack> inputs = getStoredInputs();
+        if (inputs.isEmpty()) {
+            return CheckRecipeResultRegistry.NO_RECIPE;
+        }
+
+        RecipeMap<?> recipeMap = getRecipeMap();
+        if (recipeMap == null) {
+            return CheckRecipeResultRegistry.NO_RECIPE;
+        }
+
+        ProcessingResult result = processInputs(inputs, recipeMap);
+
+        if (result.outputs.isEmpty()) {
+            return CheckRecipeResultRegistry.NO_RECIPE;
+        }
+
+        applyProcessingResult(result);
+        return CheckRecipeResultRegistry.SUCCESSFUL;
+    }
+
+    /**
+     * Process all inputs and collect outputs
+     */
+    private ProcessingResult processInputs(List<ItemStack> inputs, RecipeMap<?> recipeMap) {
+        List<ItemStack> outputs = new ArrayList<>();
+        int totalParallel = 0;
+
+        // Process each input with recipe lookup
+        for (ItemStack input : inputs) {
+            if (input == null || input.stackSize <= 0) continue;
+
+            GTRecipe recipe = recipeMap.findRecipeQuery()
+                .items(input)
+                .find();
+
+            if (recipe != null) {
+                int parallel = Math.min(input.stackSize, MAX_PARALLEL - totalParallel);
+                if (parallel <= 0) break;
+
+                processRecipe(input, recipe, parallel, outputs);
+                totalParallel += parallel;
+
+                if (totalParallel >= MAX_PARALLEL) break;
+            }
+        }
+
+        // Transfer unprocessed items to output
+        transferUnprocessedItems(inputs, outputs);
+
+        return new ProcessingResult(outputs, totalParallel);
+    }
+
+    /**
+     * Process a single recipe with parallel multiplier
+     */
+    private void processRecipe(ItemStack input, GTRecipe recipe, int parallel, List<ItemStack> outputs) {
+        input.stackSize -= parallel;
+
+        for (ItemStack output : recipe.mOutputs) {
+            if (output != null) {
+                outputs.add(GTUtility.copyAmountUnsafe(output.stackSize * parallel, output));
+            }
+        }
+    }
+
+    /**
+     * Transfer any unprocessed items to output to avoid input clogging
+     */
+    private void transferUnprocessedItems(List<ItemStack> inputs, List<ItemStack> outputs) {
+        for (ItemStack input : inputs) {
+            if (input != null && input.stackSize > 0) {
+                outputs.add(input.copy());
+                input.stackSize = 0;
+            }
+        }
+    }
+
+    /**
+     * Apply processing result to machine state
+     */
+    private void applyProcessingResult(ProcessingResult result) {
+        this.mOutputItems = result.outputs.toArray(new ItemStack[0]);
+        this.mEUt = EU_PER_TICK;
+        this.mMaxProgresstime = DURATION_TICKS;
+        updateSlots();
+    }
+
+    /**
+     * Helper class to hold processing results
+     */
+    private static class ProcessingResult {
+
+        final List<ItemStack> outputs;
+        final int totalParallel;
+
+        ProcessingResult(List<ItemStack> outputs, int totalParallel) {
+            this.outputs = outputs;
+            this.totalParallel = totalParallel;
+        }
+    }
+
+    // ==================== Rendering ====================
 
     @Override
     public ITexture[] getTexture(IGregTechTileEntity aBaseMetaTileEntity, ForgeDirection side, ForgeDirection aFacing,
@@ -88,142 +256,11 @@ public class LargeOreProcessor extends MTEEnhancedMultiBlockBase<LargeOreProcess
         return new ITexture[] { Textures.BlockIcons.getCasingTextureForId(id) };
     }
 
-    @Override
-    public IStructureDefinition<LargeOreProcessor> getStructureDefinition() {
-        return StructureDefinition.<LargeOreProcessor>builder()
-            .addShape(STRUCTURE_PIECE_MAIN, transpose(shape))
-            .addElement(
-                'A',
-                ofChain(
-                    buildHatchAdder(LargeOreProcessor.class).casingIndex(getCasingTextureID())
-                        .hint(1)
-                        .atLeast(InputBus, OutputBus, Maintenance)
-                        .build(),
-                    onElementPass(x -> ++x.mCountCasing, ofBlock(BlockLoader.metaCasing02, 4))))
-            .build();
-    }
-
-    @Override
-    public void construct(ItemStack stackSize, boolean hintsOnly) {
-        this.buildPiece(
-            STRUCTURE_PIECE_MAIN,
-            stackSize,
-            hintsOnly,
-            HORIZONTAL_OFF_SET,
-            VERTICAL_OFF_SET,
-            DEPTH_OFF_SET);
-    }
-
-    @Override
-    public int survivalConstruct(ItemStack stackSize, int elementBudget, ISurvivalBuildEnvironment env) {
-        if (this.mMachine) return -1;
-        return this.survivalBuildPiece(
-            STRUCTURE_PIECE_MAIN,
-            stackSize,
-            HORIZONTAL_OFF_SET,
-            VERTICAL_OFF_SET,
-            DEPTH_OFF_SET,
-            elementBudget,
-            env,
-            false,
-            true);
-    }
-
-    @Override
-    public void checkMachine(IGregTechTileEntity aBaseMetaTileEntity, ItemStack aStack, List<StructureError> errors) {
-        mCountCasing = 0;
-        if (!checkPiece(STRUCTURE_PIECE_MAIN, HORIZONTAL_OFF_SET, VERTICAL_OFF_SET, DEPTH_OFF_SET, errors)) {
-            return;
-        }
-        checkCasingMin(errors, mCountCasing, 1);
-    }
-
-    @Override
-    public int getMaxParallelRecipes() {
-        return MAX_PARALLEL;
-    }
-
-    @Override
-    public RecipeMap<?> getRecipeMap() {
-        return GTNCRecipeMaps.OreProcessingRecipes;
-    }
-
-    @Override
-    @NotNull
-    public CheckRecipeResult checkProcessing() {
-        // 直接从所有输入总线获取物品
-        List<ItemStack> tInput = getStoredInputs();
-        if (tInput.isEmpty()) {
-            return CheckRecipeResultRegistry.NO_RECIPE;
-        }
-
-        RecipeMap<?> recipeMap = getRecipeMap();
-        if (recipeMap == null) {
-            return CheckRecipeResultRegistry.NO_RECIPE;
-        }
-
-        List<ItemStack> outputs = new ArrayList<>();
-        int totalParallel = 0;
-
-        // 检查每个输入物品
-        for (ItemStack input : tInput) {
-            if (input == null || input.stackSize <= 0) continue;
-
-            // 使用 GT 自带的配方查找，支持矿辞统一和通配符匹配
-            GTRecipe recipe = recipeMap.findRecipeQuery()
-                .items(input)
-                .find();
-
-            if (recipe != null) {
-                // 找到配方！计算可以处理的并行数
-                int parallel = Math.min(input.stackSize, MAX_PARALLEL - totalParallel);
-
-                if (parallel <= 0) break;
-
-                // 消耗输入
-                input.stackSize -= parallel;
-
-                // 添加产出
-                for (ItemStack output : recipe.mOutputs) {
-                    if (output != null) {
-                        outputs.add(GTUtility.copyAmountUnsafe(output.stackSize * parallel, output));
-                    }
-                }
-
-                totalParallel += parallel;
-            }
-
-            // 达到最大并行限制，停止处理
-            if (totalParallel >= MAX_PARALLEL) break;
-        }
-
-        // 将无法被配方处理的剩余物品转到输出总线，避免堵塞输入
-        for (ItemStack input : tInput) {
-            if (input != null && input.stackSize > 0) {
-                outputs.add(input.copy());
-                input.stackSize = 0;
-            }
-        }
-
-        // 如果没有任何产出（配方产出 + 未处理物品）
-        if (outputs.isEmpty()) {
-            return CheckRecipeResultRegistry.NO_RECIPE;
-        }
-
-        // 设置输出和运行参数 - 完全不消耗能源
-        this.mOutputItems = outputs.toArray(new ItemStack[0]);
-        this.mEUt = 0; // 不消耗任何能源
-        this.mMaxProgresstime = DURATION_TICKS;
-
-        // 更新槽位
-        updateSlots();
-
-        return CheckRecipeResultRegistry.SUCCESSFUL;
-    }
-
     public int getCasingTextureID() {
         return GTUtility.getTextureId((byte) 116, (byte) 36);
     }
+
+    // ==================== Tooltip ====================
 
     @Override
     protected MultiblockTooltipBuilder createTooltip() {
