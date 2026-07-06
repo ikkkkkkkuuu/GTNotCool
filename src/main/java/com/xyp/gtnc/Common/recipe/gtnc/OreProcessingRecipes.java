@@ -34,10 +34,12 @@ public class OreProcessingRecipes {
 
     public static final RecipeMap<?> OreProcessingRecipes = GTNCRecipeMaps.OreProcessingRecipes;
 
-    /**
-     * Ore stone types enum
-     */
-    public static final Set<OrePrefixes> basicStoneTypes = Sets.newHashSet(
+    // Recipe constants - no energy consumption
+    private static final int EUT = 0;
+    private static final int DURATION_TICKS = 20;
+
+    // Ore stone types
+    public static final Set<OrePrefixes> BASIC_STONE_TYPES = Sets.newHashSet(
         OrePrefixes.ore,
         OrePrefixes.oreBasalt,
         OrePrefixes.oreBlackgranite,
@@ -46,7 +48,7 @@ public class OreProcessingRecipes {
         OrePrefixes.oreNetherrack,
         OrePrefixes.oreEndstone);
 
-    public static final Set<OrePrefixes> basicStoneTypesExceptNormalStone = Sets.newHashSet(
+    public static final Set<OrePrefixes> BASIC_STONE_TYPES_EXCEPT_NORMAL = Sets.newHashSet(
         OrePrefixes.oreBasalt,
         OrePrefixes.oreBlackgranite,
         OrePrefixes.oreRedgranite,
@@ -54,525 +56,331 @@ public class OreProcessingRecipes {
         OrePrefixes.oreNetherrack,
         OrePrefixes.oreEndstone);
 
-    public static final Map<Materials, ItemStack> processingLineMaterials = new HashMap<>();
+    // Special processing line materials (PGM processing)
+    private static final Map<Materials, ItemStack> PROCESSING_LINE_MATERIALS = new HashMap<>();
 
-    // Recipe constants - no energy consumption
-    private static final int EUT = 0; // No energy consumption
-    private static final int DURATION_TICKS = 20; // 1 second
-
-    public static void initProcessingLineMaterials() {
-        processingLineMaterials.put(Materials.Platinum, WerkstoffLoader.PTMetallicPowder.get(OrePrefixes.dust, 1));
-        processingLineMaterials.put(Materials.Palladium, WerkstoffLoader.PDMetallicPowder.get(OrePrefixes.dust, 1));
-        processingLineMaterials.put(Materials.Iridium, WerkstoffLoader.IrLeachResidue.get(OrePrefixes.dust, 1));
-        processingLineMaterials.put(Materials.Osmium, WerkstoffLoader.IrOsLeachResidue.get(OrePrefixes.dust, 1));
-        processingLineMaterials
-            .put(Materials.Samarium, WerkstoffMaterialPool.SamariumOreConcentrate.get(OrePrefixes.dust, 1));
-        processingLineMaterials
-            .put(Materials.Cerium, WerkstoffMaterialPool.CeriumOreConcentrate.get(OrePrefixes.dust, 1));
-    }
-
-    public static ItemStack getDustStack(Materials material, int amount) {
-        ItemStack t = processingLineMaterials.get(material);
-        if (t != null) {
-            return GTUtility.copyAmountUnsafe(amount * 3, t);
-        }
-        return GTUtility.copyAmountUnsafe(amount, GTOreDictUnificator.get(OrePrefixes.dust, material, 1));
-    }
+    // Special materials that need custom recipes
+    private static final Set<Materials> SPECIAL_MATERIALS = Sets.newHashSet(
+        Materials.Samarium,
+        Materials.Cerium,
+        Materials.Naquadah,
+        Materials.NaquadahEnriched,
+        Materials.Naquadria);
 
     /**
-     * Generate all ore processing recipes
+     * Main entry point - loads all ore processing recipes
      */
     public static void loadOreProcessingRecipes() {
         initProcessingLineMaterials();
 
-        Set<Materials> specialProcesses = Sets.newHashSet(
-            Materials.Samarium,
-            Materials.Cerium,
-            Materials.Naquadah,
-            Materials.NaquadahEnriched,
-            Materials.Naquadria);
-
-        // Generate normal GT materials' ore processing recipes
-        for (int i = 0; i < GregTechAPI.sGeneratedMaterials.length; i++) {
-            if (GregTechAPI.sGeneratedMaterials[i] == null) continue;
-
-            Materials material = GregTechAPI.sGeneratedMaterials[i];
-
-            // Rule out special materials
-            if (!specialProcesses.isEmpty() && specialProcesses.contains(material)) {
-                specialProcesses.remove(material);
-                continue;
-            }
-
-            // Generate recipes
-            processOreRecipe(material, i);
-        }
-
-        // Process GT++ ores (if present) and Bartworks ores so third-party ores get recipes too
-        processGTPPOreRecipes();
+        processGTMaterials();
         processBartworksOreRecipes();
-
-        // Process special ores
-        processSpecialOreRecipe();
-
-        // Process intermediate products (crushed ores, impure dusts, clean dusts)
+        processGTPPOreRecipes();
+        processSpecialOreRecipes();
         processIntermediateProducts();
 
         ScienceNotCool.LOG.info("Loaded ore processing recipes");
     }
 
-    /**
-     * Generate special ores recipes
-     */
-    public static void processSpecialOreRecipe() {
-        // Cerium ore
-        {
-            ItemStack[] outputs = new ItemStack[] {
-                WerkstoffMaterialPool.CeriumOreConcentrate.get(OrePrefixes.dust, 11) };
-            ItemStack[] outputsRich = new ItemStack[] {
-                WerkstoffMaterialPool.CeriumOreConcentrate.get(OrePrefixes.dust, 22) };
-
-            registryOreProcessRecipe(GTOreDictUnificator.get(OrePrefixes.rawOre, Materials.Cerium, 1), outputs);
-            for (OrePrefixes prefixes : basicStoneTypes) {
-                if (GTOreDictUnificator.get(prefixes, Materials.Cerium, 1) == null) continue;
-                registryOreProcessRecipe(
-                    GTOreDictUnificator.get(prefixes, Materials.Cerium, 1),
-                    isRich(prefixes) ? outputsRich : outputs);
-            }
-        }
-
-        // Samarium Ore
-        {
-            ItemStack[] outputs = new ItemStack[] {
-                WerkstoffMaterialPool.SamariumOreConcentrate.get(OrePrefixes.dust, 11) };
-            ItemStack[] outputsRich = new ItemStack[] {
-                WerkstoffMaterialPool.SamariumOreConcentrate.get(OrePrefixes.dust, 22) };
-
-            registryOreProcessRecipe(GTOreDictUnificator.get(OrePrefixes.rawOre, Materials.Samarium, 1), outputs);
-            for (OrePrefixes prefixes : basicStoneTypes) {
-                if (GTOreDictUnificator.get(prefixes, Materials.Samarium, 1) == null) continue;
-                registryOreProcessRecipe(
-                    GTOreDictUnificator.get(prefixes, Materials.Samarium, 1),
-                    isRich(prefixes) ? outputsRich : outputs);
-            }
-        }
-
-        // Naquadah Ore
-        {
-            ItemStack[] outputs = new ItemStack[] { GGMaterial.naquadahEarth.get(OrePrefixes.dust, 8),
-                GGMaterial.enrichedNaquadahEarth.get(OrePrefixes.dust, 3), };
-            ItemStack[] outputsRich = new ItemStack[] { GGMaterial.naquadahEarth.get(OrePrefixes.dust, 16),
-                GGMaterial.enrichedNaquadahEarth.get(OrePrefixes.dust, 8), };
-
-            registryOreProcessRecipe(GTOreDictUnificator.get(OrePrefixes.rawOre, Materials.Naquadah, 1), outputs);
-            for (OrePrefixes prefixes : basicStoneTypes) {
-                if (GTOreDictUnificator.get(prefixes, Materials.Naquadah, 1) == null) continue;
-                registryOreProcessRecipe(
-                    GTOreDictUnificator.get(prefixes, Materials.Naquadah, 1),
-                    isRich(prefixes) ? outputsRich : outputs);
-            }
-        }
-
-        // Enriched Naquadah Ore
-        {
-            ItemStack[] outputs = new ItemStack[] { GGMaterial.enrichedNaquadahEarth.get(OrePrefixes.dust, 8),
-                GGMaterial.naquadriaEarth.get(OrePrefixes.dust, 3) };
-            ItemStack[] outputsRich = new ItemStack[] { GGMaterial.enrichedNaquadahEarth.get(OrePrefixes.dust, 16),
-                GGMaterial.naquadriaEarth.get(OrePrefixes.dust, 6) };
-
-            registryOreProcessRecipe(
-                GTOreDictUnificator.get(OrePrefixes.rawOre, Materials.NaquadahEnriched, 1),
-                outputs);
-            for (OrePrefixes prefixes : basicStoneTypes) {
-                if (GTOreDictUnificator.get(prefixes, Materials.NaquadahEnriched, 1) == null) continue;
-                registryOreProcessRecipe(
-                    GTOreDictUnificator.get(prefixes, Materials.NaquadahEnriched, 1),
-                    isRich(prefixes) ? outputsRich : outputs);
-            }
-        }
-
-        // Naquadria Ore
-        {
-            ItemStack[] outputs = new ItemStack[] { GGMaterial.naquadriaEarth.get(OrePrefixes.dust, 8),
-                GGMaterial.naquadriaEarth.get(OrePrefixes.dust, 3), };
-            ItemStack[] outputsRich = new ItemStack[] { GGMaterial.naquadriaEarth.get(OrePrefixes.dust, 16),
-                GGMaterial.naquadriaEarth.get(OrePrefixes.dust, 6), };
-
-            registryOreProcessRecipe(GTOreDictUnificator.get(OrePrefixes.rawOre, Materials.Naquadria, 1), outputs);
-            for (OrePrefixes prefixes : basicStoneTypes) {
-                if (GTOreDictUnificator.get(prefixes, Materials.Naquadria, 1) == null) continue;
-                registryOreProcessRecipe(
-                    GTOreDictUnificator.get(prefixes, Materials.Naquadria, 1),
-                    isRich(prefixes) ? outputsRich : outputs);
-            }
-        }
-
-        // Tinker Construct - Cobalt ore
-        processOreRecipe(GTModHandler.getModItem("TConstruct", "SearedBrick", 1, 1), Materials.Cobalt, true);
-
-        // Tinker Construct - Ardite ore
-        processOreRecipe(GTModHandler.getModItem("TConstruct", "SearedBrick", 1, 2), Materials.Ardite, true);
-
-        // IC2 Uranium ore
-        processOreRecipe(GTUtility.copyAmountUnsafe(1, Ic2Items.uraniumOre), Materials.Uranium, false);
-
-        // Minecraft Iron ore
-        processOreRecipe(new ItemStack(Blocks.iron_ore), Materials.Iron, false);
+    private static void initProcessingLineMaterials() {
+        PROCESSING_LINE_MATERIALS.put(Materials.Platinum, WerkstoffLoader.PTMetallicPowder.get(OrePrefixes.dust, 1));
+        PROCESSING_LINE_MATERIALS.put(Materials.Palladium, WerkstoffLoader.PDMetallicPowder.get(OrePrefixes.dust, 1));
+        PROCESSING_LINE_MATERIALS.put(Materials.Iridium, WerkstoffLoader.IrLeachResidue.get(OrePrefixes.dust, 1));
+        PROCESSING_LINE_MATERIALS.put(Materials.Osmium, WerkstoffLoader.IrOsLeachResidue.get(OrePrefixes.dust, 1));
+        PROCESSING_LINE_MATERIALS
+            .put(Materials.Samarium, WerkstoffMaterialPool.SamariumOreConcentrate.get(OrePrefixes.dust, 1));
+        PROCESSING_LINE_MATERIALS
+            .put(Materials.Cerium, WerkstoffMaterialPool.CeriumOreConcentrate.get(OrePrefixes.dust, 1));
     }
 
-    /**
-     * Generate intermediate ore product recipes (crushed ores, impure dusts, clean dusts)
-     */
-    public static void processIntermediateProducts() {
+    // ==================== GT Materials Processing ====================
+
+    private static void processGTMaterials() {
+        Set<Materials> specialProcesses = new HashSet<>(SPECIAL_MATERIALS);
+
         for (int i = 0; i < GregTechAPI.sGeneratedMaterials.length; i++) {
             if (GregTechAPI.sGeneratedMaterials[i] == null) continue;
 
             Materials material = GregTechAPI.sGeneratedMaterials[i];
 
-            // Process crushed ore - use same outputs as normal ore but don't multiply
-            ItemStack crushedOre = GTOreDictUnificator.get(OrePrefixes.crushed, material, 1);
-            if (crushedOre != null) {
-                ItemStack[] outputs = getOutputs(material, false);
-                registryOreProcessRecipe(crushedOre, outputs);
-            }
-
-            // Process impure dust
-            ItemStack impureDust = GTOreDictUnificator.get(OrePrefixes.dustImpure, material, 1);
-            if (impureDust != null) {
-                ItemStack[] outputs = new ItemStack[] { getDustStack(material, 6) };
-                registryOreProcessRecipe(impureDust, outputs);
-            }
-
-            // Process clean dust
-            ItemStack cleanDust = GTOreDictUnificator.get(OrePrefixes.dustPure, material, 1);
-            if (cleanDust != null) {
-                ItemStack[] outputs = new ItemStack[] { getDustStack(material, 7) };
-                registryOreProcessRecipe(cleanDust, outputs);
-            }
-        }
-    }
-
-    /**
-     * Generate normal ore recipes
-     *
-     * @param material The ore's Material.
-     * @param ID       The material ID.
-     */
-    public static void processOreRecipe(Materials material, int ID) {
-        if (GTOreDictUnificator.get(OrePrefixes.ore, material, 1) == null) return;
-        ItemStack[] outputs = getOutputs(material, false);
-        ItemStack[] outputsRich = getOutputs(material, true);
-
-        // Registry normal stone ore
-        registryOreProcessRecipe(GTModHandler.getModItem("gregtech", "gt.blockores", 1, ID), outputs);
-
-        // Registry raw ore item style
-        registryOreProcessRecipe(GTOreDictUnificator.get(OrePrefixes.rawOre, material, 1), outputs);
-
-        // Registry gt stone ore
-        for (OrePrefixes prefixes : basicStoneTypesExceptNormalStone) {
-            if (GTOreDictUnificator.get(prefixes, material, 1) == null) {
-                ScienceNotCool.LOG.info("Failed to get ore: material=" + material + " , prefixes=" + prefixes);
+            // Skip special materials
+            if (specialProcesses.remove(material)) {
                 continue;
             }
-            registryOreProcessRecipe(
-                GTOreDictUnificator.get(prefixes, material, 1),
-                isRich(prefixes) ? outputsRich : outputs);
+
+            processGTMaterialOre(material, i);
         }
     }
 
-    /**
-     * Process other mods' ore but normal style.
-     *
-     * @param inputOreItems Input ore item stack.
-     * @param material      Input ore's material in GT design.
-     * @param isRich        Is this ore a rich type.
-     */
-    public static void processOreRecipe(ItemStack inputOreItems, Materials material, boolean isRich) {
-        registryOreProcessRecipe(inputOreItems, getOutputs(material, isRich));
+    private static void processGTMaterialOre(Materials material, int materialID) {
+        if (GTOreDictUnificator.get(OrePrefixes.ore, material, 1) == null) return;
+
+        ItemStack[] normalOutputs = getOutputs(material, false);
+        ItemStack[] richOutputs = getOutputs(material, true);
+
+        // Normal stone ore
+        addRecipe(GTModHandler.getModItem("gregtech", "gt.blockores", 1, materialID), normalOutputs);
+
+        // Raw ore
+        addRecipe(GTOreDictUnificator.get(OrePrefixes.rawOre, material, 1), normalOutputs);
+
+        // Other stone types
+        for (OrePrefixes prefix : BASIC_STONE_TYPES_EXCEPT_NORMAL) {
+            ItemStack ore = GTOreDictUnificator.get(prefix, material, 1);
+            if (ore == null) {
+                ScienceNotCool.LOG.info("Failed to get ore: material=" + material + ", prefix=" + prefix);
+                continue;
+            }
+            addRecipe(ore, isRichOre(prefix) ? richOutputs : normalOutputs);
+        }
     }
 
-    public static ItemStack[] getOutputs(Materials material, boolean isRich) {
+    private static ItemStack[] getOutputs(Materials material, boolean isRich) {
         List<ItemStack> outputs = new ArrayList<>();
 
-        // Check byproduct - add null check
+        // Main output + byproducts
         if (material.mOreByProducts != null && !material.mOreByProducts.isEmpty()) {
-            // The basic output the material
-            ItemStack mainDust = getDustStack(material, 4);
-            if (mainDust != null) outputs.add(mainDust);
+            outputs.add(getDustStack(material, 4));
 
             if (material.mOreByProducts.size() == 1) {
                 for (Materials byproduct : material.mOreByProducts) {
-                    if (byproduct == null) continue;
-                    ItemStack byproductDust = getDustStack(byproduct, 3);
-                    if (byproductDust != null) outputs.add(byproductDust);
+                    if (byproduct != null) {
+                        outputs.add(getDustStack(byproduct, 3));
+                    }
                 }
             } else {
                 for (Materials byproduct : material.mOreByProducts) {
                     if (byproduct == null || byproduct == Materials.Netherrack
                         || byproduct == Materials.Endstone
                         || byproduct == Materials.Stone) continue;
-
-                    ItemStack byproductDust = getDustStack(byproduct, 2);
-                    if (byproductDust != null) outputs.add(byproductDust);
+                    outputs.add(getDustStack(byproduct, 2));
                 }
             }
-
         } else {
-            ItemStack mainDust = getDustStack(material, 8);
-            if (mainDust != null) outputs.add(mainDust);
+            outputs.add(getDustStack(material, 8));
         }
 
-        // Check gem style
-        ItemStack gem = GTOreDictUnificator.get(OrePrefixes.gem, material, 1);
-        if (gem != null) {
-            ItemStack gemExquisite = GTOreDictUnificator.get(OrePrefixes.gemExquisite, material, 1);
-            if (gemExquisite != null) {
-                // Has gem style
-                outputs.add(gemExquisite);
-                outputs.add(GTOreDictUnificator.get(OrePrefixes.gemFlawless, material, 2));
-                outputs.add(gem);
+        // Gem outputs
+        addGemOutputs(outputs, material);
 
-            } else {
-                // Just normal gem
-                outputs.add(gem);
-            }
-        }
-
+        // Rich ore multiplier
         if (isRich) {
-            for (ItemStack out : outputs) {
-                if (out != null) {
-                    out.stackSize *= 2;
-                }
-            }
+            outputs.forEach(stack -> { if (stack != null) stack.stackSize *= 2; });
         }
 
         return outputs.toArray(new ItemStack[0]);
     }
 
-    /**
-     * Process Bartworks ores (generate recipes for Werkstoff ores)
-     */
+    private static void addGemOutputs(List<ItemStack> outputs, Materials material) {
+        ItemStack gem = GTOreDictUnificator.get(OrePrefixes.gem, material, 1);
+        if (gem == null) return;
+
+        ItemStack gemExquisite = GTOreDictUnificator.get(OrePrefixes.gemExquisite, material, 1);
+        if (gemExquisite != null) {
+            outputs.add(gemExquisite);
+            outputs.add(GTOreDictUnificator.get(OrePrefixes.gemFlawless, material, 2));
+        }
+        outputs.add(gem);
+    }
+
+    private static ItemStack getDustStack(Materials material, int amount) {
+        ItemStack special = PROCESSING_LINE_MATERIALS.get(material);
+        if (special != null) {
+            return GTUtility.copyAmountUnsafe(amount * 3, special);
+        }
+        return GTUtility.copyAmountUnsafe(amount, GTOreDictUnificator.get(OrePrefixes.dust, material, 1));
+    }
+
+    // ==================== Intermediate Products Processing ====================
+
+    private static void processIntermediateProducts() {
+        for (Materials material : GregTechAPI.sGeneratedMaterials) {
+            if (material == null) continue;
+
+            // Crushed ore → same outputs as normal ore
+            processIntermediateForm(material, OrePrefixes.crushed, m -> getOutputs(m, false));
+
+            // Impure dust → main dust * 6
+            processIntermediateForm(material, OrePrefixes.dustImpure, m -> new ItemStack[] { getDustStack(m, 6) });
+
+            // Pure dust → main dust * 7
+            processIntermediateForm(material, OrePrefixes.dustPure, m -> new ItemStack[] { getDustStack(m, 7) });
+        }
+    }
+
+    private static void processIntermediateForm(Materials material, OrePrefixes prefix,
+        java.util.function.Function<Materials, ItemStack[]> outputProvider) {
+
+        ItemStack input = GTOreDictUnificator.get(prefix, material, 1);
+        if (input != null) {
+            addRecipe(input, outputProvider.apply(material));
+        }
+    }
+
+    // ==================== Special Materials Processing ====================
+
+    private static void processSpecialOreRecipes() {
+        // Cerium
+        processSpecialMaterial(
+            Materials.Cerium,
+            WerkstoffMaterialPool.CeriumOreConcentrate.get(OrePrefixes.dust, 11),
+            WerkstoffMaterialPool.CeriumOreConcentrate.get(OrePrefixes.dust, 22));
+
+        // Samarium
+        processSpecialMaterial(
+            Materials.Samarium,
+            WerkstoffMaterialPool.SamariumOreConcentrate.get(OrePrefixes.dust, 11),
+            WerkstoffMaterialPool.SamariumOreConcentrate.get(OrePrefixes.dust, 22));
+
+        // Naquadah
+        processSpecialMaterial(
+            Materials.Naquadah,
+            new ItemStack[] { GGMaterial.naquadahEarth.get(OrePrefixes.dust, 8),
+                GGMaterial.enrichedNaquadahEarth.get(OrePrefixes.dust, 3) },
+            new ItemStack[] { GGMaterial.naquadahEarth.get(OrePrefixes.dust, 16),
+                GGMaterial.enrichedNaquadahEarth.get(OrePrefixes.dust, 8) });
+
+        // Enriched Naquadah
+        processSpecialMaterial(
+            Materials.NaquadahEnriched,
+            new ItemStack[] { GGMaterial.enrichedNaquadahEarth.get(OrePrefixes.dust, 8),
+                GGMaterial.naquadriaEarth.get(OrePrefixes.dust, 3) },
+            new ItemStack[] { GGMaterial.enrichedNaquadahEarth.get(OrePrefixes.dust, 16),
+                GGMaterial.naquadriaEarth.get(OrePrefixes.dust, 6) });
+
+        // Naquadria
+        processSpecialMaterial(
+            Materials.Naquadria,
+            new ItemStack[] { GGMaterial.naquadriaEarth.get(OrePrefixes.dust, 8),
+                GGMaterial.naquadriaEarth.get(OrePrefixes.dust, 3) },
+            new ItemStack[] { GGMaterial.naquadriaEarth.get(OrePrefixes.dust, 16),
+                GGMaterial.naquadriaEarth.get(OrePrefixes.dust, 6) });
+
+        // Other mod ores
+        processOtherModOre(GTModHandler.getModItem("TConstruct", "SearedBrick", 1, 1), Materials.Cobalt, true);
+        processOtherModOre(GTModHandler.getModItem("TConstruct", "SearedBrick", 1, 2), Materials.Ardite, true);
+        processOtherModOre(GTUtility.copyAmountUnsafe(1, Ic2Items.uraniumOre), Materials.Uranium, false);
+        processOtherModOre(new ItemStack(Blocks.iron_ore), Materials.Iron, false);
+    }
+
+    private static void processSpecialMaterial(Materials material, ItemStack normalOutput, ItemStack richOutput) {
+        processSpecialMaterial(material, new ItemStack[] { normalOutput }, new ItemStack[] { richOutput });
+    }
+
+    private static void processSpecialMaterial(Materials material, ItemStack[] normalOutputs, ItemStack[] richOutputs) {
+        // Raw ore
+        addRecipe(GTOreDictUnificator.get(OrePrefixes.rawOre, material, 1), normalOutputs);
+
+        // All stone types
+        for (OrePrefixes prefix : BASIC_STONE_TYPES) {
+            ItemStack ore = GTOreDictUnificator.get(prefix, material, 1);
+            if (ore != null) {
+                addRecipe(ore, isRichOre(prefix) ? richOutputs : normalOutputs);
+            }
+        }
+    }
+
+    private static void processOtherModOre(ItemStack ore, Materials material, boolean isRich) {
+        if (ore != null) {
+            addRecipe(ore, getOutputs(material, isRich));
+        }
+    }
+
+    // ==================== Bartworks Processing ====================
+
     public static void processBartworksOreRecipes() {
         try {
             for (Werkstoff werkstoff : Werkstoff.werkstoffHashSet) {
                 if (!werkstoff.hasItemType(OrePrefixes.ore)) continue;
-                ArrayList<ItemStack> outputs = new ArrayList<>();
 
-                // basic output
-                outputs.add(werkstoff.get(OrePrefixes.dust, 4));
+                ItemStack[] outputs = getBartworksOutputs(werkstoff);
 
-                // gem output
-                if (werkstoff.hasItemType(OrePrefixes.gem)) {
-                    if (werkstoff.hasItemType(OrePrefixes.gemExquisite)) {
-                        outputs.add(werkstoff.get(OrePrefixes.gemExquisite, 1));
-                        outputs.add(werkstoff.get(OrePrefixes.gemFlawless, 2));
-                        outputs.add(werkstoff.get(OrePrefixes.gem, 2));
-                    } else {
-                        outputs.add(werkstoff.get(OrePrefixes.gem, 4));
-                    }
-                }
+                // Ore forms
+                addRecipe(werkstoff.get(OrePrefixes.ore, 1), outputs);
+                addRecipeIfNotNull(werkstoff.get(OrePrefixes.rawOre, 1), outputs);
 
-                // byproducts
-                if (werkstoff.getNoOfByProducts() >= 1) {
-                    if (werkstoff.getNoOfByProducts() == 1) {
-                        outputs.add(GTUtility.copyAmountUnsafe(3, werkstoff.getOreByProduct(0, OrePrefixes.dust)));
-                    } else {
-                        for (int i = 0; i < werkstoff.getNoOfByProducts(); i++) {
-                            outputs.add(GTUtility.copyAmountUnsafe(2, werkstoff.getOreByProduct(i, OrePrefixes.dust)));
-                        }
-                    }
-                } else {
-                    outputs.add(werkstoff.get(OrePrefixes.dust, 3));
-                }
-
-                // generate recipes for ore - NO LUBRICANT REQUIRED
-                GTRecipeBuilder.builder()
-                    .itemInputs(werkstoff.get(OrePrefixes.ore, 1))
-                    .itemOutputs(outputs.toArray(new ItemStack[] {}))
-                    .eut(EUT)
-                    .duration(DURATION_TICKS)
-                    .addTo(OreProcessingRecipes);
-
-                ItemStack r = werkstoff.get(OrePrefixes.rawOre, 1);
-                if (r != null) {
-                    GTRecipeBuilder.builder()
-                        .itemInputs(r)
-                        .itemOutputs(outputs.toArray(new ItemStack[] {}))
-                        .eut(EUT)
-                        .duration(DURATION_TICKS)
-                        .addTo(OreProcessingRecipes);
-                }
-
-                // Process crushed ore - same outputs as normal ore
-                if (werkstoff.hasItemType(OrePrefixes.crushed)) {
-                    ItemStack crushedOre = werkstoff.get(OrePrefixes.crushed, 1);
-                    if (crushedOre != null) {
-                        GTRecipeBuilder.builder()
-                            .itemInputs(crushedOre)
-                            .itemOutputs(outputs.toArray(new ItemStack[] {}))
-                            .eut(EUT)
-                            .duration(DURATION_TICKS)
-                            .addTo(OreProcessingRecipes);
-                    }
-                }
-
-                // Process impure dust - simplified output (just main dust * 6)
-                if (werkstoff.hasItemType(OrePrefixes.dustImpure)) {
-                    ItemStack impureDust = werkstoff.get(OrePrefixes.dustImpure, 1);
-                    if (impureDust != null) {
-                        GTRecipeBuilder.builder()
-                            .itemInputs(impureDust)
-                            .itemOutputs(werkstoff.get(OrePrefixes.dust, 6))
-                            .eut(EUT)
-                            .duration(DURATION_TICKS)
-                            .addTo(OreProcessingRecipes);
-                    }
-                }
-
-                // Process clean dust - simplified output (just main dust * 7)
-                if (werkstoff.hasItemType(OrePrefixes.dustPure)) {
-                    ItemStack cleanDust = werkstoff.get(OrePrefixes.dustPure, 1);
-                    if (cleanDust != null) {
-                        GTRecipeBuilder.builder()
-                            .itemInputs(cleanDust)
-                            .itemOutputs(werkstoff.get(OrePrefixes.dust, 7))
-                            .eut(EUT)
-                            .duration(DURATION_TICKS)
-                            .addTo(OreProcessingRecipes);
-                    }
-                }
+                // Intermediate products
+                processWerkstoffIntermediate(werkstoff, OrePrefixes.crushed, outputs);
+                processWerkstoffIntermediate(werkstoff, OrePrefixes.dustImpure, werkstoff.get(OrePrefixes.dust, 6));
+                processWerkstoffIntermediate(werkstoff, OrePrefixes.dustPure, werkstoff.get(OrePrefixes.dust, 7));
             }
         } catch (Throwable t) {
             ScienceNotCool.LOG.info("Failed to process Bartworks ores: " + t.getMessage());
         }
     }
 
-    /**
-     * Process GT++ ores via reflection so build won't fail when GT++ isn't present.
-     */
+    private static ItemStack[] getBartworksOutputs(Werkstoff werkstoff) {
+        ArrayList<ItemStack> outputs = new ArrayList<>();
+
+        // Main dust
+        outputs.add(werkstoff.get(OrePrefixes.dust, 4));
+
+        // Gems
+        if (werkstoff.hasItemType(OrePrefixes.gem)) {
+            if (werkstoff.hasItemType(OrePrefixes.gemExquisite)) {
+                outputs.add(werkstoff.get(OrePrefixes.gemExquisite, 1));
+                outputs.add(werkstoff.get(OrePrefixes.gemFlawless, 2));
+                outputs.add(werkstoff.get(OrePrefixes.gem, 2));
+            } else {
+                outputs.add(werkstoff.get(OrePrefixes.gem, 4));
+            }
+        }
+
+        // Byproducts
+        int byproductCount = werkstoff.getNoOfByProducts();
+        if (byproductCount == 1) {
+            outputs.add(GTUtility.copyAmountUnsafe(3, werkstoff.getOreByProduct(0, OrePrefixes.dust)));
+        } else if (byproductCount > 1) {
+            for (int i = 0; i < byproductCount; i++) {
+                outputs.add(GTUtility.copyAmountUnsafe(2, werkstoff.getOreByProduct(i, OrePrefixes.dust)));
+            }
+        } else {
+            outputs.add(werkstoff.get(OrePrefixes.dust, 3));
+        }
+
+        return outputs.toArray(new ItemStack[0]);
+    }
+
+    private static void processWerkstoffIntermediate(Werkstoff werkstoff, OrePrefixes prefix, ItemStack... outputs) {
+        if (werkstoff.hasItemType(prefix)) {
+            addRecipeIfNotNull(werkstoff.get(prefix, 1), outputs);
+        }
+    }
+
+    // ==================== GT++ Processing ====================
+
     public static void processGTPPOreRecipes() {
         try {
-            Class<?> materialsOresClass = Class.forName("gtPlusPlus.core.material.MaterialsOres");
             Class<?> materialClass = Class.forName("gtPlusPlus.core.material.Material");
-            java.util.Set<Object> gtppOres = new HashSet<>();
-            for (Field field : materialsOresClass.getFields()) {
-                if (!materialClass.isAssignableFrom(field.getType())) continue;
-                try {
-                    Object object = field.get(null);
-                    if (object == null) continue;
-                    gtppOres.add(object);
-                } catch (IllegalAccessException e) {
-                    // ignore
-                }
-            }
-
-            // try adding a few known specials if present
-            try {
-                Class<?> misc = Class.forName("gtPlusPlus.core.material.MaterialMisc");
-                Field f1 = misc.getField("RARE_EARTH_LOW");
-                gtppOres.add(f1.get(null));
-                Field f2 = misc.getField("RARE_EARTH_MID");
-                gtppOres.add(f2.get(null));
-                Field f3 = misc.getField("RARE_EARTH_HIGH");
-                gtppOres.add(f3.get(null));
-            } catch (Throwable ignored) {}
-            try {
-                Class<?> alloy = Class.forName("gtPlusPlus.core.material.MaterialsAlloy");
-                Field f = alloy.getField("KOBOLDITE");
-                gtppOres.add(f.get(null));
-            } catch (Throwable ignored) {}
-            try {
-                Class<?> elems = Class.forName("gtPlusPlus.core.material.MaterialsElements$STANDALONE");
-                Field f = elems.getField("RUNITE");
-                gtppOres.add(f.get(null));
-            } catch (Throwable ignored) {}
+            Set<Object> gtppMaterials = collectGTPPMaterials(materialClass);
 
             Method getOre = materialClass.getMethod("getOre", int.class);
             Method getDust = materialClass.getMethod("getDust", int.class);
             Method getRawOre = materialClass.getMethod("getRawOre", int.class);
 
-            // Try to get intermediate product methods - they might not exist in GT++
-            Method getCrushed = null;
-            Method getDustImpure = null;
-            Method getDustPure = null;
-            try {
-                getCrushed = materialClass.getMethod("getCrushed", int.class);
-            } catch (NoSuchMethodException ignored) {}
-            try {
-                getDustImpure = materialClass.getMethod("getDustImpure", int.class);
-            } catch (NoSuchMethodException ignored) {}
-            try {
-                getDustPure = materialClass.getMethod("getDustPure", int.class);
-            } catch (NoSuchMethodException ignored) {}
+            // Intermediate product methods (may not exist)
+            Method getCrushed = getMethodSafely(materialClass, "getCrushed");
+            Method getDustImpure = getMethodSafely(materialClass, "getDustImpure");
+            Method getDustPure = getMethodSafely(materialClass, "getDustPure");
 
-            for (Object ore : gtppOres) {
+            for (Object material : gtppMaterials) {
                 try {
-                    ItemStack in = (ItemStack) getOre.invoke(ore, 1);
-                    ItemStack out = (ItemStack) getDust.invoke(ore, 12);
-                    if (in != null && out != null) {
-                        GTRecipeBuilder.builder()
-                            .itemInputs(in)
-                            .itemOutputs(new ItemStack[] { out })
-                            .eut(EUT)
-                            .duration(DURATION_TICKS)
-                            .addTo(OreProcessingRecipes);
-                    }
-                    ItemStack raw = (ItemStack) getRawOre.invoke(ore, 1);
-                    if (raw != null && out != null) {
-                        GTRecipeBuilder.builder()
-                            .itemInputs(raw)
-                            .itemOutputs(new ItemStack[] { out })
-                            .eut(EUT)
-                            .duration(DURATION_TICKS)
-                            .addTo(OreProcessingRecipes);
-                    }
+                    ItemStack mainOutput = (ItemStack) getDust.invoke(material, 12);
+                    if (mainOutput == null) continue;
 
-                    // Process crushed ore - same output as normal ore (if method exists)
-                    if (getCrushed != null) {
-                        ItemStack crushed = (ItemStack) getCrushed.invoke(ore, 1);
-                        if (crushed != null && out != null) {
-                            GTRecipeBuilder.builder()
-                                .itemInputs(crushed)
-                                .itemOutputs(new ItemStack[] { out })
-                                .eut(EUT)
-                                .duration(DURATION_TICKS)
-                                .addTo(OreProcessingRecipes);
-                        }
-                    }
+                    // Ore forms
+                    addRecipeIfNotNull((ItemStack) getOre.invoke(material, 1), mainOutput);
+                    addRecipeIfNotNull((ItemStack) getRawOre.invoke(material, 1), mainOutput);
 
-                    // Process impure dust - half output (dust * 6, if method exists)
-                    if (getDustImpure != null) {
-                        ItemStack impure = (ItemStack) getDustImpure.invoke(ore, 1);
-                        ItemStack dustOut6 = (ItemStack) getDust.invoke(ore, 6);
-                        if (impure != null && dustOut6 != null) {
-                            GTRecipeBuilder.builder()
-                                .itemInputs(impure)
-                                .itemOutputs(new ItemStack[] { dustOut6 })
-                                .eut(EUT)
-                                .duration(DURATION_TICKS)
-                                .addTo(OreProcessingRecipes);
-                        }
-                    }
+                    // Intermediate products
+                    processGTPPIntermediate(material, getCrushed, getDust, 12);
+                    processGTPPIntermediate(material, getDustImpure, getDust, 6);
+                    processGTPPIntermediate(material, getDustPure, getDust, 7);
 
-                    // Process pure dust - slightly better output (dust * 7, if method exists)
-                    if (getDustPure != null) {
-                        ItemStack pure = (ItemStack) getDustPure.invoke(ore, 1);
-                        ItemStack dustOut7 = (ItemStack) getDust.invoke(ore, 7);
-                        if (pure != null && dustOut7 != null) {
-                            GTRecipeBuilder.builder()
-                                .itemInputs(pure)
-                                .itemOutputs(new ItemStack[] { dustOut7 })
-                                .eut(EUT)
-                                .duration(DURATION_TICKS)
-                                .addTo(OreProcessingRecipes);
-                        }
-                    }
                 } catch (Throwable e) {
-                    // ignore per-ore failures
+                    // Ignore per-material failures
                 }
             }
-
         } catch (ClassNotFoundException e) {
             // GT++ not present, skip
         } catch (Throwable t) {
@@ -580,24 +388,82 @@ public class OreProcessingRecipes {
         }
     }
 
-    public static void registryOreProcessRecipe(ItemStack input, ItemStack[] output) {
-        if (input == null) return;
+    private static Set<Object> collectGTPPMaterials(Class<?> materialClass) throws Exception {
+        Set<Object> materials = new HashSet<>();
 
+        // Main materials
+        Class<?> oresClass = Class.forName("gtPlusPlus.core.material.MaterialsOres");
+        for (Field field : oresClass.getFields()) {
+            if (materialClass.isAssignableFrom(field.getType())) {
+                try {
+                    Object obj = field.get(null);
+                    if (obj != null) materials.add(obj);
+                } catch (IllegalAccessException ignored) {}
+            }
+        }
+
+        // Special materials
+        addGTPPSpecialMaterials(
+            materials,
+            "gtPlusPlus.core.material.MaterialMisc",
+            "RARE_EARTH_LOW",
+            "RARE_EARTH_MID",
+            "RARE_EARTH_HIGH");
+        addGTPPSpecialMaterials(materials, "gtPlusPlus.core.material.MaterialsAlloy", "KOBOLDITE");
+        addGTPPSpecialMaterials(materials, "gtPlusPlus.core.material.MaterialsElements$STANDALONE", "RUNITE");
+
+        return materials;
+    }
+
+    private static void addGTPPSpecialMaterials(Set<Object> materials, String className, String... fieldNames) {
+        try {
+            Class<?> clazz = Class.forName(className);
+            for (String fieldName : fieldNames) {
+                try {
+                    materials.add(
+                        clazz.getField(fieldName)
+                            .get(null));
+                } catch (Throwable ignored) {}
+            }
+        } catch (Throwable ignored) {}
+    }
+
+    private static void processGTPPIntermediate(Object material, Method getInput, Method getDust, int dustAmount)
+        throws Exception {
+        if (getInput != null) {
+            ItemStack input = (ItemStack) getInput.invoke(material, 1);
+            ItemStack output = (ItemStack) getDust.invoke(material, dustAmount);
+            addRecipeIfNotNull(input, output);
+        }
+    }
+
+    private static Method getMethodSafely(Class<?> clazz, String methodName) {
+        try {
+            return clazz.getMethod(methodName, int.class);
+        } catch (NoSuchMethodException e) {
+            return null;
+        }
+    }
+
+    // ==================== Helper Methods ====================
+
+    private static void addRecipe(ItemStack input, ItemStack... outputs) {
+        if (input == null) return;
         GTRecipeBuilder.builder()
             .itemInputs(input)
-            .itemOutputs(output)
+            .itemOutputs(outputs)
             .eut(EUT)
             .duration(DURATION_TICKS)
             .addTo(OreProcessingRecipes);
     }
 
-    /**
-     * Check is this OrePrefix is rich ore style.
-     *
-     * @param prefixes The style to check.
-     * @return True is rich ore.
-     */
-    public static boolean isRich(OrePrefixes prefixes) {
-        return prefixes == OrePrefixes.oreNetherrack || prefixes == OrePrefixes.oreEndstone;
+    private static void addRecipeIfNotNull(ItemStack input, ItemStack... outputs) {
+        if (input != null && outputs != null && outputs.length > 0 && outputs[0] != null) {
+            addRecipe(input, outputs);
+        }
+    }
+
+    private static boolean isRichOre(OrePrefixes prefix) {
+        return prefix == OrePrefixes.oreNetherrack || prefix == OrePrefixes.oreEndstone;
     }
 }
