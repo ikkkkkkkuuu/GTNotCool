@@ -1,12 +1,11 @@
 package com.xyp.gtnc.Loader;
 
-import com.xyp.gtnc.Common.recipe.gregtech.AssemblerMatrixRecipes;
 import com.xyp.gtnc.Common.recipe.gregtech.AssemblerRecipes;
 import com.xyp.gtnc.Common.recipe.gregtech.AssemblingLineRecipes;
 import com.xyp.gtnc.Common.recipe.gregtech.BenderRecipes;
 import com.xyp.gtnc.Common.recipe.gregtech.FurnaceRecipes;
 import com.xyp.gtnc.Common.recipe.gregtech.LaserEngraverRecipes;
-import com.xyp.gtnc.Common.recipe.gregtech.QuantumComputerRecipes;
+import com.xyp.gtnc.Common.recipe.gtnc.AssemblerMatrixRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.CombProcessingRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.CraftingTableRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.CrucibleRecipes;
@@ -14,6 +13,7 @@ import com.xyp.gtnc.Common.recipe.gtnc.DrillingRigRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.GeneralChemicalFactoryRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.MiningRigRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.OreProcessingRecipes;
+import com.xyp.gtnc.Common.recipe.gtnc.QuantumComputerRecipes;
 
 public class RecipeLoader {
 

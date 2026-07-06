@@ -1,4 +1,4 @@
-package com.xyp.gtnc.Common.recipe.gregtech;
+package com.xyp.gtnc.Common.recipe.gtnc;
 
 import static gregtech.api.enums.TierEU.RECIPE_MV;
 import static gregtech.api.util.GTRecipeBuilder.SECONDS;
