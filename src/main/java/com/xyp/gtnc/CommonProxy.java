@@ -6,6 +6,7 @@ import com.xyp.gtnc.Common.command.CommandSteamNetwork;
 import com.xyp.gtnc.Common.items.toolbelt.common.BeltEvents;
 import com.xyp.gtnc.Common.items.toolbelt.common.BeltGuiHandler;
 import com.xyp.gtnc.Common.machines.hatch.SuperMTEHatchCraftingInputME;
+import com.xyp.gtnc.Common.machines.multiblock.AssemblerMatrix;
 import com.xyp.gtnc.Common.packet.NetWorkHandler;
 import com.xyp.gtnc.Loader.BlockLoader;
 import com.xyp.gtnc.Loader.EntityLoader;
@@ -83,6 +84,7 @@ public class CommonProxy {
             .registries()
             .interfaceTerminal();
         interfaceTerminal.register(SuperMTEHatchCraftingInputME.class);
+        interfaceTerminal.register(AssemblerMatrix.class);
 
         com.xyp.gtnc.ae2thing.AE2Thing.postInit(event);
     }

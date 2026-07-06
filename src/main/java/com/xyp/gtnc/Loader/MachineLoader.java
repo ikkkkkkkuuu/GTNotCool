@@ -11,6 +11,7 @@ import com.xyp.gtnc.Common.machines.cover.WirelessMultiEnergyCover;
 import com.xyp.gtnc.Common.machines.hatch.SuperMTEHatchCraftingInputME;
 import com.xyp.gtnc.Common.machines.hatch.SuperMTEHatchCraftingInputSlave;
 import com.xyp.gtnc.Common.machines.hatch.VaultPortHatch;
+import com.xyp.gtnc.Common.machines.multiblock.AssemblerMatrix;
 import com.xyp.gtnc.Common.machines.multiblock.GTNCDrillingRig;
 import com.xyp.gtnc.Common.machines.multiblock.GTNCGeneralChemicalFactory;
 import com.xyp.gtnc.Common.machines.multiblock.GTNCMiningRig;
@@ -63,6 +64,16 @@ import tectech.thing.metaTileEntity.hatch.MTEHatchWirelessMulti;
 public class MachineLoader {
 
     public static void registerMachines() {
+        // #tr NameAssemblerMatrix
+        // # Assembler Matrix
+        // # zh_CN 装配矩阵
+        GTNCItemList.AssemblerMatrix.set(
+            new AssemblerMatrix(
+                GTNCMachineID.ASSEMBLER_MATRIX.ID,
+                "AssemblerMatrix",
+                StatCollector.translateToLocal("NameAssemblerMatrix")));
+        addItemTooltip(GTNCItemList.AssemblerMatrix.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
         // #tr NameSingularityDataHub
         // # Singularity Data Hub
         // # zh_CN 奇点数据枢纽

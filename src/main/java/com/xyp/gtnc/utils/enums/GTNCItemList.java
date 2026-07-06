@@ -606,6 +606,7 @@ public enum GTNCItemList implements IItemContainer {
     MegaIndustrialApiary,
     SuperSpaceElevator,
     QuantumComputer,
+    AssemblerMatrix,
     VeinMiningPickaxe,
     // ---- 外壳方块 (MetaCasing02) ----
     MineralprocessingFrame,
