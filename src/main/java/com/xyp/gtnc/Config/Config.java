@@ -45,6 +45,15 @@ public class Config {
     public static int timeVialBaseDuration = 18000;
     // endregion
 
+    // region TimeAccelerator 配置
+    /**
+     * 世界加速器 (MTETimeAccelerator) TE 模式下跳过加速的 TileEntity 黑名单。
+     * 匹配方式：TileEntity 的完整类名以列表中任一字符串开头。
+     * 默认排除 AE2 (appeng) 与 AE2FC (com.glodblock.github)，因为反复 tick ME 网络方块会造成严重卡顿。
+     */
+    public static String[] timeAcceleratorTileBlacklist = { "appeng.", "com.glodblock.github." };
+    // endregion
+
     // region VeinMiningPickaxe 配置
     public static class VeinMinerPickaxe {
 
@@ -84,6 +93,7 @@ public class Config {
     private static final String CATEGORY_TOOL_BELT = "Tool_Belt";
     private static final String CATEGORY_ME_OUTPUT_HATCH = "ME_Output_Hatch";
     private static final String CATEGORY_QUANTUM_COMPUTER = "Quantum_Computer";
+    private static final String CATEGORY_TIME_ACCELERATOR = "Time_Accelerator";
     // endregion
 
     // region 配置文件
@@ -312,6 +322,15 @@ public class Config {
                 CATEGORY_QUANTUM_COMPUTER,
                 QuantumComputer.enableDebugMode,
                 "Enable Quantum Computer structure-check debug logging");
+
+            // Time Accelerator 配置项
+            timeAcceleratorTileBlacklist = configuration.getStringList(
+                "tileBlacklist",
+                CATEGORY_TIME_ACCELERATOR,
+                timeAcceleratorTileBlacklist,
+                "TileEntity class-name prefixes skipped by the World Accelerator in TE mode. "
+                    + "Any tile whose full class name starts with one of these is not accelerated. "
+                    + "Default excludes AE2 (appeng.) and AE2FC (com.glodblock.github.) to avoid severe lag from ticking ME network blocks.");
         }
 
         if (configuration.hasChanged()) {
@@ -329,5 +348,7 @@ public class Config {
             .addCustomCategoryComment(CATEGORY_ME_OUTPUT_HATCH, "Configuration settings for ME Output Hatch and Bus");
         configuration
             .addCustomCategoryComment(CATEGORY_QUANTUM_COMPUTER, "Configuration settings for the Quantum Computer");
+        configuration
+            .addCustomCategoryComment(CATEGORY_TIME_ACCELERATOR, "Configuration settings for the World Accelerator");
     }
 }

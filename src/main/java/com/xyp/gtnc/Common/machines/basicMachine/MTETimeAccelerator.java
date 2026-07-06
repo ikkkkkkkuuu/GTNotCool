@@ -322,6 +322,8 @@ public class MTETimeAccelerator extends MTETieredMachineBlock {
                     // Skip other time accelerators to prevent mutual recursive acceleration
                     if (tTile instanceof IGregTechTileEntity
                         && ((IGregTechTileEntity) tTile).getMetaTileEntity() instanceof MTETimeAccelerator) continue;
+                    // Skip blacklisted tiles (e.g. AE2 network blocks) — repeatedly ticking them lags hard
+                    if (isBlacklisted(tTile)) continue;
 
                     // Refund EU for all accelerated ticks except the last,
                     // so each machine only pays normal energy cost.
@@ -341,6 +343,22 @@ public class MTETimeAccelerator extends MTETieredMachineBlock {
 
     private static long getGTEU(TileEntity tTile) {
         return tTile instanceof IGregTechTileEntity gtTE ? gtTE.getStoredEU() : -1;
+    }
+
+    /**
+     * True if this tile should not be accelerated, based on the configured class-name prefix blacklist
+     * (see {@link com.xyp.gtnc.Config.Config#timeAcceleratorTileBlacklist}). Ticking AE2 network blocks
+     * up to thousands of times per tick causes severe lag, so they are excluded by default.
+     */
+    private static boolean isBlacklisted(TileEntity tTile) {
+        String[] blacklist = com.xyp.gtnc.Config.Config.timeAcceleratorTileBlacklist;
+        if (blacklist == null || blacklist.length == 0) return false;
+        String className = tTile.getClass()
+            .getName();
+        for (String prefix : blacklist) {
+            if (prefix != null && !prefix.isEmpty() && className.startsWith(prefix)) return true;
+        }
+        return false;
     }
 
     private static void restoreGTEU(TileEntity tTile, long savedEU) {
