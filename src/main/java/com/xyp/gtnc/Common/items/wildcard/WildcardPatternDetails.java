@@ -75,11 +75,12 @@ public class WildcardPatternDetails implements ICraftingPatternDetails {
         if (items == null || items.length == 0) {
             return new IAEStack<?>[0];
         }
-        IAEStack<?>[] result = new IAEStack<?>[items.length];
-        for (int i = 0; i < items.length; i++) {
-            IAEItemStack ais = items[i];
+        // 注意：绝不能在结果里保留 null 元素。AE2 的 CraftingGridCache.setPatternsFromCraftingMethods
+        // 遍历 getAEOutputs() 时直接 out.copy() 不判空，若数组含 null 会每 tick NPE 刷屏、样板注册失败。
+        // 输入的消费方也一律跳过 null，故这里统一跳过 null 并压缩数组。
+        java.util.List<IAEStack<?>> result = new java.util.ArrayList<>(items.length);
+        for (IAEItemStack ais : items) {
             if (ais == null) {
-                result[i] = null;
                 continue;
             }
             ItemStack stack = ais.getItemStack();
@@ -92,12 +93,12 @@ public class WildcardPatternDetails implements ICraftingPatternDetails {
                 }
             }
             if (fluidStack != null) {
-                result[i] = AEFluidStack.create(fluidStack);
+                result.add(AEFluidStack.create(fluidStack));
             } else {
-                result[i] = ais;
+                result.add(ais);
             }
         }
-        return result;
+        return result.toArray(new IAEStack<?>[0]);
     }
 
     @Override
