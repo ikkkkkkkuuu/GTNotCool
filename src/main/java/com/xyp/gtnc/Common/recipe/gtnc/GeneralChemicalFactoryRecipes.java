@@ -158,7 +158,7 @@ public class GeneralChemicalFactoryRecipes {
             .itemOutputs(GTUtility.copyAmountUnsafe(64 * 5, Materials.Calcium.getDust(1)))
             .fluidOutputs(
                 Materials.PhosphoricAcid.getFluid(1000 * 3 * 64),
-                Materials.HydrochloricAcid.getFluid(1000 * 1 * 64))
+                Materials.HydrochloricAcid.getFluid(1000 * 64))
             .specialValue(4500)
             .eut(RECIPE_HV)
             .duration(20 * 8 * 16)
@@ -835,6 +835,30 @@ public class GeneralChemicalFactoryRecipes {
             .eut(RECIPE_UV)
             .duration(2 * 100)
             .addTo(GCFR);
+
+        // region 高级胶水 集成配方
+        // 把原本四步压成一步：直接喂最底层原料(硅/甲烷/氯气/水/胶水)即产高级胶水。
+        // 物料按一个整周期(3× 混合)对齐：
+        // 甲烷2000 + 氯气4000 → 氯甲烷2000 + 盐酸2000
+        // Si×1 + 氯甲烷2000 → 二甲基二氯硅烷1000
+        // 二甲基二氯硅烷1000 + 水1000 → 聚二甲基硅氧烷粉×3 + 稀盐酸1000
+        // 聚二甲基硅氧烷粉×3 + 胶水720×3 → 高级胶水360×3
+        // 盐酸/稀盐酸作为副产保留(物料守恒，可回收)。
+        GTValues.RA.stdBuilder()
+            .itemInputs(GTUtility.getIntegratedCircuit(1), Materials.Silicon.getDust(1))
+            .fluidInputs(
+                Materials.Methane.getGas(2_000),
+                Materials.Chlorine.getGas(4_000),
+                Materials.Water.getFluid(1_000),
+                Materials.Glue.getFluid(2_160))
+            .fluidOutputs(
+                Materials.GlueAdvanced.getFluid(1_080),
+                Materials.HydrochloricAcid.getFluid(2_000),
+                Materials.DilutedHydrochloricAcid.getFluid(1_000))
+            .eut(RECIPE_MV)
+            .duration(40 * 20)
+            .addTo(GCFR);
+        // endregion
 
     }
 }
