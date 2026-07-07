@@ -155,12 +155,33 @@ public class DireCraftingPatternDetails implements ICraftingPatternDetails {
 
     @Override
     public IAEItemStack[] getCondensedOutputs() {
-        return outputs;
+        return stripNulls(outputs);
     }
 
     @Override
     public IAEItemStack[] getOutputs() {
-        return outputs;
+        return stripNulls(outputs);
+    }
+
+    /**
+     * 绝不能把含 null 的输出数组交给 AE2。CraftingGridCache.setPatternsFromCraftingMethods 遍历
+     * getOutputs()/getCondensedOutputs() 时直接对元素 copy() 不判空，若某样板输出槽为空（NBT 无 out）
+     * 或引用了已被删除的物品，outputs[0] 会是 null，导致每 tick NPE 刷屏、AE 网络卡死、TPS 崩。
+     * 与通配符样板同一类 bug、同一处 AE2 崩点，这里统一跳过 null 并压缩数组。
+     */
+    private static IAEItemStack[] stripNulls(IAEItemStack[] stacks) {
+        if (stacks == null || stacks.length == 0) return stacks;
+        int nonNull = 0;
+        for (IAEItemStack s : stacks) {
+            if (s != null) nonNull++;
+        }
+        if (nonNull == stacks.length) return stacks;
+        IAEItemStack[] result = new IAEItemStack[nonNull];
+        int idx = 0;
+        for (IAEItemStack s : stacks) {
+            if (s != null) result[idx++] = s;
+        }
+        return result;
     }
 
     @Override
