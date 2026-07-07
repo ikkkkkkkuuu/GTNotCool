@@ -40,9 +40,10 @@ public class LateMixinsLoader implements ILateMixinLoader {
             "Gregtech.MEOutputHatchCapacityMixin",
             "Gregtech.MixinMTEBasicMachineFacing",
             "Gregtech.ModifySomeConfigs",
+            "Gregtech.MixinMTEAssemblyLine",
+            "Gregtech.MixinMTEAdvAssLine",
             // CropsNH
-            "CropsNH.MixinTileEntityCropSticks",
-            "CropsNH.MixinTileEntityCrop");
+            "CropsNH.MixinTileEntityCropSticks");
 
     }
 

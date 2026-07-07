@@ -17,9 +17,11 @@ import com.xyp.gtnc.utils.enums.GTNCItemList;
 
 import appeng.api.config.AccessRestriction;
 import appeng.api.config.Actionable;
+import appeng.api.config.PowerMultiplier;
 import appeng.api.implementations.IPowerChannelState;
 import appeng.api.networking.GridFlags;
 import appeng.api.networking.IGridNode;
+import appeng.api.networking.energy.IAEPowerStorage;
 import appeng.api.networking.events.MENetworkCellArrayUpdate;
 import appeng.api.networking.events.MENetworkChannelsChanged;
 import appeng.api.networking.events.MENetworkEventSubscribe;
@@ -50,7 +52,7 @@ import gregtech.api.metatileentity.implementations.MTEHatch;
 import gregtech.api.render.TextureFactory;
 
 public class VaultPortHatch extends MTEHatch
-    implements ICellContainer, IGridProxyable, IActionHost, IPowerChannelState, IMEConnectable {
+    implements ICellContainer, IGridProxyable, IActionHost, IPowerChannelState, IMEConnectable, IAEPowerStorage {
 
     public IItemVault controller;
     public AENetworkProxy gridProxy = null;
@@ -196,6 +198,7 @@ public class VaultPortHatch extends MTEHatch
             if (getBaseMetaTileEntity() instanceof IGridProxyable) {
                 gridProxy = new AENetworkProxy(this, "proxy", GTNCItemList.VaultPortHatch.get(1), true);
                 gridProxy.setFlags(GridFlags.REQUIRE_CHANNEL);
+                gridProxy.setIdlePowerUsage(0);
                 var bmte = getBaseMetaTileEntity();
                 updateValidGridProxySides();
                 if (bmte.getWorld() != null) {
@@ -485,6 +488,44 @@ public class VaultPortHatch extends MTEHatch
         } catch (GridAccessException e) {
             // :P
         }
+    }
+
+    // ===== IAEPowerStorage: acts as a built-in creative energy cell, so the
+    // vault (and its whole AE network) runs without any external power. =====
+
+    @Override
+    public double injectAEPower(double amt, Actionable mode) {
+        return 0;
+    }
+
+    @Override
+    public double extractAEPower(double amt, Actionable mode, PowerMultiplier usePowerMultiplier) {
+        return amt;
+    }
+
+    @Override
+    public double getAEMaxPower() {
+        return Long.MAX_VALUE / 10000d;
+    }
+
+    @Override
+    public double getAECurrentPower() {
+        return Long.MAX_VALUE / 10000d;
+    }
+
+    @Override
+    public boolean isAEPublicPowerStorage() {
+        return true;
+    }
+
+    @Override
+    public AccessRestriction getPowerFlow() {
+        return AccessRestriction.READ_WRITE;
+    }
+
+    @Override
+    public boolean isInfinite() {
+        return true;
     }
 
 }

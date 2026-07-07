@@ -86,6 +86,11 @@ public class Config {
     public static boolean OutPutBusMEEnable = true;
     // endregion
 
+    // region CropsNH 配置
+    /** 开启后，作物棒每次生长判定直接把进度拉满，即瞬间成熟。 */
+    public static boolean enableCropInstantGrowth = true;
+    // endregion
+
     // region 分类定义
     private static final String CATEGORY_TIME_VIAL = "Time_Vial";
     private static final String CATEGORY_GENERAL = "General";
@@ -94,6 +99,7 @@ public class Config {
     private static final String CATEGORY_ME_OUTPUT_HATCH = "ME_Output_Hatch";
     private static final String CATEGORY_QUANTUM_COMPUTER = "Quantum_Computer";
     private static final String CATEGORY_TIME_ACCELERATOR = "Time_Accelerator";
+    private static final String CATEGORY_CROPSNH = "CropsNH";
     // endregion
 
     // region 配置文件
@@ -331,6 +337,13 @@ public class Config {
                 "TileEntity class-name prefixes skipped by the World Accelerator in TE mode. "
                     + "Any tile whose full class name starts with one of these is not accelerated. "
                     + "Default excludes AE2 (appeng.) and AE2FC (com.glodblock.github.) to avoid severe lag from ticking ME network blocks.");
+
+            // CropsNH 配置项
+            enableCropInstantGrowth = configuration.getBoolean(
+                "enableInstantGrowth",
+                CATEGORY_CROPSNH,
+                enableCropInstantGrowth,
+                "If set to TRUE, crop sticks reach full maturity on their very next growth tick (instant growth).");
         }
 
         if (configuration.hasChanged()) {
@@ -350,5 +363,6 @@ public class Config {
             .addCustomCategoryComment(CATEGORY_QUANTUM_COMPUTER, "Configuration settings for the Quantum Computer");
         configuration
             .addCustomCategoryComment(CATEGORY_TIME_ACCELERATOR, "Configuration settings for the World Accelerator");
+        configuration.addCustomCategoryComment(CATEGORY_CROPSNH, "Configuration settings for CropsNH crop growth");
     }
 }
