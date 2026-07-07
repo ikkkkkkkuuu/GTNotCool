@@ -48,10 +48,14 @@ public class Config {
     // region TimeAccelerator 配置
     /**
      * 世界加速器 (MTETimeAccelerator) TE 模式下跳过加速的 TileEntity 黑名单。
-     * 匹配方式：TileEntity 的完整类名以列表中任一字符串开头。
-     * 默认排除 AE2 (appeng) 与 AE2FC (com.glodblock.github)，因为反复 tick ME 网络方块会造成严重卡顿。
+     * 匹配方式：TileEntity 完整类名、或（GT 机器）其内部 MetaTileEntity 完整类名以列表中任一字符串开头。
+     * 默认排除 AE2 (appeng) 与 AE2FC (com.glodblock.github)，因为反复 tick ME 网络方块会造成严重卡顿；
+     * 以及本模组的超级样板仓 / 装配矩阵 / 量子计算机——这些是重型 AE/合成多方块，反复加速会拖垮 TPS。
      */
-    public static String[] timeAcceleratorTileBlacklist = { "appeng.", "com.glodblock.github." };
+    public static String[] timeAcceleratorTileBlacklist = { "appeng.", "com.glodblock.github.",
+        "com.xyp.gtnc.Common.machines.hatch.SuperMTEHatchCraftingInputME",
+        "com.xyp.gtnc.Common.machines.multiblock.AssemblerMatrix",
+        "com.xyp.gtnc.Common.machines.multiblock.QuantumComputer" };
     // endregion
 
     // region VeinMiningPickaxe 配置

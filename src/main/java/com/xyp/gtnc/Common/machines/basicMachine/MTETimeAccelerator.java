@@ -349,14 +349,27 @@ public class MTETimeAccelerator extends MTETieredMachineBlock {
      * True if this tile should not be accelerated, based on the configured class-name prefix blacklist
      * (see {@link com.xyp.gtnc.Config.Config#timeAcceleratorTileBlacklist}). Ticking AE2 network blocks
      * up to thousands of times per tick causes severe lag, so they are excluded by default.
+     * <p>
+     * For GregTech machines the world tile is always {@code BaseMetaTileEntity}; the actual machine logic
+     * lives in its {@link MetaTileEntity}. So besides the tile's own class name we also match against the
+     * wrapped MetaTileEntity's class name, otherwise a prefix like {@code com.xyp.gtnc.} could never match
+     * a GT machine (its tile is a GregTech class, not ours).
      */
     private static boolean isBlacklisted(TileEntity tTile) {
         String[] blacklist = com.xyp.gtnc.Config.Config.timeAcceleratorTileBlacklist;
         if (blacklist == null || blacklist.length == 0) return false;
-        String className = tTile.getClass()
+        String tileClassName = tTile.getClass()
             .getName();
+        String mteClassName = null;
+        if (tTile instanceof IGregTechTileEntity gtTE) {
+            final var mte = gtTE.getMetaTileEntity();
+            if (mte != null) mteClassName = mte.getClass()
+                .getName();
+        }
         for (String prefix : blacklist) {
-            if (prefix != null && !prefix.isEmpty() && className.startsWith(prefix)) return true;
+            if (prefix == null || prefix.isEmpty()) continue;
+            if (tileClassName.startsWith(prefix)) return true;
+            if (mteClassName != null && mteClassName.startsWith(prefix)) return true;
         }
         return false;
     }
