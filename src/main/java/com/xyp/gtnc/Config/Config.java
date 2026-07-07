@@ -89,6 +89,10 @@ public class Config {
     // region CropsNH 配置
     /** 开启后，作物棒每次生长判定直接把进度拉满，即瞬间成熟。 */
     public static boolean enableCropInstantGrowth = true;
+    /** 开启后，所有生成的种子的生长/产量/抗性三项属性都被拉满(31)。 */
+    public static boolean enableCropMaxStats = true;
+    /** 开启后，左键收获成熟作物必定掉落种子(绕过抗性概率判定)。 */
+    public static boolean enableCropGuaranteedSeedDrop = true;
     // endregion
 
     // region 分类定义
@@ -344,6 +348,16 @@ public class Config {
                 CATEGORY_CROPSNH,
                 enableCropInstantGrowth,
                 "If set to TRUE, crop sticks reach full maturity on their very next growth tick (instant growth).");
+            enableCropMaxStats = configuration.getBoolean(
+                "enableMaxStats",
+                CATEGORY_CROPSNH,
+                enableCropMaxStats,
+                "If set to TRUE, every seed is created with maxed-out growth/gain/resistance stats (31/31/31).");
+            enableCropGuaranteedSeedDrop = configuration.getBoolean(
+                "enableGuaranteedSeedDrop",
+                CATEGORY_CROPSNH,
+                enableCropGuaranteedSeedDrop,
+                "If set to TRUE, left-clicking a mature crop always drops a seed (bypasses the resistance-based chance check).");
         }
 
         if (configuration.hasChanged()) {

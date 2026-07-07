@@ -1,5 +1,7 @@
 package com.xyp.gtnc.mixins.late.CropsNH;
 
+import net.minecraft.item.ItemStack;
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -7,6 +9,7 @@ import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.gtnewhorizon.cropsnh.api.ISeedData;
 import com.gtnewhorizon.cropsnh.tileentity.TileEntityCropSticks;
@@ -26,6 +29,12 @@ public abstract class MixinTileEntityCropSticks {
 
     @Shadow(remap = false)
     public abstract boolean hasCrop();
+
+    @Shadow(remap = false)
+    public abstract boolean hasWeed();
+
+    @Shadow(remap = false)
+    public abstract ItemStack getSeedStack();
 
     @ModifyConstant(
         method = "updateEntity", // 修改 updateEntity 方法中的常量
@@ -67,5 +76,17 @@ public abstract class MixinTileEntityCropSticks {
     @Inject(method = "spreadWeed", at = @At("HEAD"), cancellable = true, remap = false)
     private void gtnc$disableSpreadWeed(CallbackInfo ci) {
         ci.cancel();
+    }
+
+    // 左键必爆种子：原版 getSeedDrop 里有 passesResistanceCheck()(抗性 vs 随机数)这道概率门槛，
+    // 抗性不够时会不掉种子。这里在 HEAD 直接短路：只要有作物且无杂草就返回种子拷贝，绕过抗性判定，
+    // 做到左键收获成熟作物必掉种子。判定条件与原版一致(hasCrop && !hasWeed)，只是去掉了概率那一项。
+    // 由 Config.enableCropGuaranteedSeedDrop 控制，默认开启。
+    @Inject(method = "getSeedDrop", at = @At("HEAD"), cancellable = true, remap = false)
+    private void gtnc$guaranteedSeedDrop(CallbackInfoReturnable<ItemStack> cir) {
+        if (!Config.enableCropGuaranteedSeedDrop) return;
+        if (this.hasCrop() && !this.hasWeed()) {
+            cir.setReturnValue(this.getSeedStack());
+        }
     }
 }

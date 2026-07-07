@@ -43,7 +43,8 @@ public class LateMixinsLoader implements ILateMixinLoader {
             "Gregtech.MixinMTEAssemblyLine",
             "Gregtech.MixinMTEAdvAssLine",
             // CropsNH
-            "CropsNH.MixinTileEntityCropSticks");
+            "CropsNH.MixinTileEntityCropSticks",
+            "CropsNH.MixinSeedStats");
 
     }
 
