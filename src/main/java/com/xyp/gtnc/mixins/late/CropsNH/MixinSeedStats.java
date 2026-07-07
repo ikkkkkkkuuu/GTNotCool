@@ -21,17 +21,17 @@ import com.xyp.gtnc.Config.Config;
 public abstract class MixinSeedStats {
 
     @ModifyVariable(method = "<init>(BBBZ)V", at = @At("HEAD"), argsOnly = true, ordinal = 0, remap = false)
-    private byte gtnc$maxGrowth(byte original) {
+    private static byte gtnc$maxGrowth(byte original) {
         return Config.enableCropMaxStats ? (byte) 31 : original;
     }
 
     @ModifyVariable(method = "<init>(BBBZ)V", at = @At("HEAD"), argsOnly = true, ordinal = 1, remap = false)
-    private byte gtnc$maxGain(byte original) {
+    private static byte gtnc$maxGain(byte original) {
         return Config.enableCropMaxStats ? (byte) 31 : original;
     }
 
     @ModifyVariable(method = "<init>(BBBZ)V", at = @At("HEAD"), argsOnly = true, ordinal = 2, remap = false)
-    private byte gtnc$maxResistance(byte original) {
+    private static byte gtnc$maxResistance(byte original) {
         return Config.enableCropMaxStats ? (byte) 31 : original;
     }
 }
