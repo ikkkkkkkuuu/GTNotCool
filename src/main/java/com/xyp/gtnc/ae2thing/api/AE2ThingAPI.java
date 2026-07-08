@@ -1,6 +1,5 @@
 package com.xyp.gtnc.ae2thing.api;
 
-import static com.xyp.gtnc.ae2thing.nei.NEI_TH_Config.getConfigValue;
 import static net.minecraft.init.Items.glass_bottle;
 
 import java.util.HashMap;
@@ -13,21 +12,17 @@ import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fluids.FluidStack;
 
 import org.apache.commons.lang3.tuple.MutablePair;
 
 import com.glodblock.github.util.Util;
 import com.xyp.gtnc.ae2thing.AE2Thing;
-import com.xyp.gtnc.ae2thing.client.event.NotificationEvent;
 import com.xyp.gtnc.ae2thing.common.Config;
-import com.xyp.gtnc.ae2thing.nei.ButtonConstants;
 import com.xyp.gtnc.ae2thing.network.CPacketSwitchGuis;
 import com.xyp.gtnc.ae2thing.util.Ae2Reflect;
 
 import appeng.api.storage.data.IAEFluidStack;
-import appeng.api.storage.data.IAEItemStack;
 import appeng.me.Grid;
 import appeng.util.ReadableNumberConverter;
 import cpw.mods.fml.relauncher.Side;
@@ -178,22 +173,6 @@ public final class AE2ThingAPI implements IAE2ThingAPI {
     public long getStorageMyID(Grid grid) {
         return Ae2Reflect.getMyStorage(grid)
             .getID();
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void addCraftingCompleteNotification(IAEItemStack item) {
-        if (getConfigValue(ButtonConstants.CRAFTING_NOTIFICATION)) {
-            MinecraftForge.EVENT_BUS.post(new NotificationEvent(item));
-        }
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void addNotification(String tile, String Content, ItemStack item) {
-        if (getConfigValue(ButtonConstants.CRAFTING_NOTIFICATION)) {
-            MinecraftForge.EVENT_BUS.post(new NotificationEvent(tile, Content, item));
-        }
     }
 
 }

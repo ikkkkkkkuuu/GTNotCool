@@ -53,8 +53,10 @@ public class Config {
      * 以及本模组的超级样板仓 / 装配矩阵 / 量子计算机——这些是重型 AE/合成多方块，反复加速会拖垮 TPS。
      */
     public static String[] timeAcceleratorTileBlacklist = { "appeng.", "com.glodblock.github.",
+        "com.xyp.gtnc.Common.machines.hatch.VaultPortHatch",
         "com.xyp.gtnc.Common.machines.hatch.SuperMTEHatchCraftingInputME",
         "com.xyp.gtnc.Common.machines.multiblock.AssemblerMatrix",
+        "com.xyp.gtnc.Common.machines.multiblock.SingularityDataHub",
         "com.xyp.gtnc.Common.machines.multiblock.QuantumComputer" };
     // endregion
 

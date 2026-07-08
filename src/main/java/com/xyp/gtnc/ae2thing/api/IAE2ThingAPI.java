@@ -6,7 +6,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 
 import appeng.api.storage.data.IAEFluidStack;
-import appeng.api.storage.data.IAEItemStack;
 import appeng.me.Grid;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -52,10 +51,4 @@ public interface IAE2ThingAPI {
     String getVersion();
 
     long getStorageMyID(Grid grid);
-
-    @SideOnly(Side.CLIENT)
-    void addCraftingCompleteNotification(IAEItemStack item);
-
-    @SideOnly(Side.CLIENT)
-    void addNotification(String tile, String Content, ItemStack item);
 }

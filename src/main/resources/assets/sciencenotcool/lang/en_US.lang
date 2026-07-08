@@ -1,4 +1,3 @@
-sciencenotcool.message.crafting_complete=Auto-Crafting Complete
 sciencenotcool.gui.terminal.store_action=%s: Store %s
 sciencenotcool.gui.terminal.left_click=Left-Click
 sciencenotcool.gui.terminal.right_click=Right-Click
@@ -43,9 +42,6 @@ nei.options.sciencenotcool.dual_interface_terminal_fill_search_names.false=No
 nei.options.sciencenotcool.dual_interface_terminal_append_circuit_damage=Dual interface terminal append NC items (molds, circuit boards, etc.) to recipe name
 nei.options.sciencenotcool.dual_interface_terminal_append_circuit_damage.true=Yes
 nei.options.sciencenotcool.dual_interface_terminal_append_circuit_damage.false=No
-nei.options.sciencenotcool.crafting_notification=Notify about finished crafting jobs (requires wireless terminal)
-nei.options.sciencenotcool.crafting_notification.true=Yes
-nei.options.sciencenotcool.crafting_notification.false=No
 nei.options.sciencenotcool.nei_craft_item=Middle click NEI panel to quick order item from ae terminal
 nei.options.sciencenotcool.nei_craft_item.true=Yes
 nei.options.sciencenotcool.nei_craft_item.false=No

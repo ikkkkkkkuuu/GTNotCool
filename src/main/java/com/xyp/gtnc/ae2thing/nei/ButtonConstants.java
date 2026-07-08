@@ -12,6 +12,5 @@ public interface ButtonConstants {
     String DUAL_INTERFACE_TERMINAL = "sciencenotcool.dual_interface_terminal_fill_search_names";
     String DUAL_INTERFACE_TERMINAL_FILL_CIRCUIT = "sciencenotcool.dual_interface_terminal_fill_circuit";
     String DUAL_INTERFACE_TERMINAL_APPEND_CIRCUIT_DAMAGE = "sciencenotcool.dual_interface_terminal_append_circuit_damage";
-    String CRAFTING_NOTIFICATION = "sciencenotcool.crafting_notification";
     String NEI_CRAFT_ITEM = "sciencenotcool.nei_craft_item";
 }

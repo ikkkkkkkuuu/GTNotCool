@@ -14,7 +14,6 @@ public enum Mixins implements IMixins {
             "ae.AccessorContainerMEMonitorable",
             "ae.MixinAEBaseGui",
             "ae.MixinContainerCraftConfirm",
-            "ae.MixinCraftingCPUCluster",
             "ae.MixinGuiCraftAmount",
             "ae.MixinGuiCraftConfirm",
             "ae.MixinGuiCraftingTerm",
@@ -27,7 +26,7 @@ public enum Mixins implements IMixins {
     AE_SERVER(new MixinBuilder()
         .addCommonMixins(
             "ae.MixinContainerCraftConfirm",
-            "ae.MixinCraftingCPUCluster",
+            "ae.MixinCraftingCPUClusterFollow",
             "ae.MixinPacketSwitchGuis",
             "ae.MixinTileIOPort",
             "ae.MixinContainerCraftAmount")
