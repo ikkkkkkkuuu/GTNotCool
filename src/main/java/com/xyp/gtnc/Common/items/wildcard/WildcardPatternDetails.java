@@ -23,6 +23,16 @@ public class WildcardPatternDetails implements ICraftingPatternDetails {
 
     private final PatternHelper delegate;
 
+    // AE2 每次电网重算都会对每个样板注册一遍，注册时反复调用下面这些派生数组 + hashCode。对同一个 details 对象它们
+    // 是恒定的（delegate 的输入输出固定），而 details 对象按签名跨重算复用，故惰性缓存一次即可把「上万样板 × 每次接入」
+    // 的重复流体探测/数组分配/NBT 指纹计算彻底消掉——这是通配符网络节点接入瞬时卡顿的常数放大器。
+    private IAEStack<?>[] cachedAeInputs;
+    private IAEStack<?>[] cachedCondensedAeInputs;
+    private IAEStack<?>[] cachedAeOutputs;
+    private IAEStack<?>[] cachedCondensedAeOutputs;
+    private int cachedHashCode;
+    private boolean hashCodeComputed;
+
     public WildcardPatternDetails(ItemStack stack, World world) {
         this.delegate = new PatternHelper(stack, world);
     }
@@ -53,22 +63,34 @@ public class WildcardPatternDetails implements ICraftingPatternDetails {
      */
     @Override
     public IAEStack<?>[] getAEInputs() {
-        return convertToAeStacks(this.delegate.getInputs());
+        if (this.cachedAeInputs == null) {
+            this.cachedAeInputs = convertToAeStacks(this.delegate.getInputs());
+        }
+        return this.cachedAeInputs;
     }
 
     @Override
     public IAEStack<?>[] getCondensedAEInputs() {
-        return convertToAeStacks(this.delegate.getCondensedInputs());
+        if (this.cachedCondensedAeInputs == null) {
+            this.cachedCondensedAeInputs = convertToAeStacks(this.delegate.getCondensedInputs());
+        }
+        return this.cachedCondensedAeInputs;
     }
 
     @Override
     public IAEStack<?>[] getAEOutputs() {
-        return convertToAeStacks(this.delegate.getOutputs());
+        if (this.cachedAeOutputs == null) {
+            this.cachedAeOutputs = convertToAeStacks(this.delegate.getOutputs());
+        }
+        return this.cachedAeOutputs;
     }
 
     @Override
     public IAEStack<?>[] getCondensedAEOutputs() {
-        return convertToAeStacks(this.delegate.getCondensedOutputs());
+        if (this.cachedCondensedAeOutputs == null) {
+            this.cachedCondensedAeOutputs = convertToAeStacks(this.delegate.getCondensedOutputs());
+        }
+        return this.cachedCondensedAeOutputs;
     }
 
     private IAEStack<?>[] convertToAeStacks(IAEItemStack[] items) {
@@ -143,12 +165,16 @@ public class WildcardPatternDetails implements ICraftingPatternDetails {
 
     @Override
     public int hashCode() {
-        ItemStack pattern = this.getPattern();
-        int result = pattern.getItem() != null ? System.identityHashCode(pattern.getItem()) : 0;
-        result = 31 * result + pattern.getItemDamage();
-        result = 31 * result + WildcardPatternGenerator.getPatternIdentity(pattern)
-            .hashCode();
-        return result;
+        if (!this.hashCodeComputed) {
+            ItemStack pattern = this.getPattern();
+            int result = pattern.getItem() != null ? System.identityHashCode(pattern.getItem()) : 0;
+            result = 31 * result + pattern.getItemDamage();
+            result = 31 * result + WildcardPatternGenerator.getPatternIdentity(pattern)
+                .hashCode();
+            this.cachedHashCode = result;
+            this.hashCodeComputed = true;
+        }
+        return this.cachedHashCode;
     }
 
     @Override
