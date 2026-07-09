@@ -105,7 +105,10 @@ public class ContainerWirelessDualInterfaceTerminal extends ContainerMonitor
         this.patternPanel = new PatternContainer(ip, monitorable, this);
         this.delegateContainer = new ContainerInterfaceTerminal(ip, (IInterfaceTerminal) monitorable);
         this.it = (IPatternTerminal) monitorable;
-        this.setMonitor();
+        // 不要在此再调 setMonitor()：父类 ContainerMonitor 构造函数已在服务端调过一次（ContainerMonitor:106）。
+        // 这里重复调用会 new 出第二个 RefreshingItemMonitor 覆盖 delegate，而第一个（R1）已挂到 grid 真实存储监视器上、
+        // 之后再也摘不掉（ItemMonitor 只持有第二个，关闭时只退订第二个；R1 的 isValid 恒真，AE2 自愈也剔不掉它）。
+        // 于是每开一次终端就往 grid 永久留一个僵尸监视器，网络每次变动都向它广播——正是「打开越多越卡」的根因。
         this.lockSlot();
         this.bindPlayerInventory(ip, 14, 0);
     }

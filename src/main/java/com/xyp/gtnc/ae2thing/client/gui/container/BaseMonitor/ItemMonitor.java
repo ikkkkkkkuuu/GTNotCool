@@ -35,6 +35,12 @@ public class ItemMonitor implements IMEMonitorHandlerReceiver<IAEItemStack>, IPr
     }
 
     public void setMonitor(IMEMonitor<IAEItemStack> itemMonitor) {
+        // 深度防御：若已持有旧 delegate 且被换成新的，先把自己从旧 delegate 退订，否则旧 delegate（可能是个已挂到 grid 的
+        // RefreshingItemMonitor）会永久残留、无法被摘除，形成「每次替换泄漏一个僵尸监视器」。正常路径下 setMonitor 每次
+        // 打开只应调用一次（见 ContainerWirelessDualInterfaceTerminal 的说明），这里只是兜底。
+        if (this.itemMonitor != null && this.itemMonitor != itemMonitor) {
+            this.itemMonitor.removeListener(this);
+        }
         this.itemMonitor = itemMonitor;
     }
 
