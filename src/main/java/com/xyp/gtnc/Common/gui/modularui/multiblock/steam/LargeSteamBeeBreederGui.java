@@ -40,6 +40,12 @@ public class LargeSteamBeeBreederGui extends MTEMultiBlockBaseGui<LargeSteamBeeB
 
     private static final int DISPLAY_ROW_HEIGHT = 12;
 
+    /** 预编译分隔符，避免动态 key 每帧 String.split 重新编译正则 */
+    private static final java.util.regex.Pattern ENTRY_SPLIT = java.util.regex.Pattern.compile("\\|");
+
+    /** 预编译字段分隔符（逗号） */
+    private static final java.util.regex.Pattern FIELD_SPLIT = java.util.regex.Pattern.compile(",");
+
     public LargeSteamBeeBreederGui(LargeSteamBeeBreeder breeder) {
         super(breeder);
         this.breeder = breeder;
@@ -198,7 +204,7 @@ public class LargeSteamBeeBreederGui extends MTEMultiBlockBaseGui<LargeSteamBeeB
                     .append(poolSize.getIntValue())
                     .append("\n\n")
                     .append(EnumChatFormatting.AQUA);
-                String[] species = summary.split("\\|");
+                String[] species = ENTRY_SPLIT.split(summary);
                 for (String s : species) {
                     if (!s.isEmpty()) {
                         sb.append("  \u2022 ")
@@ -249,11 +255,11 @@ public class LargeSteamBeeBreederGui extends MTEMultiBlockBaseGui<LargeSteamBeeB
                     sb.append(EnumChatFormatting.GRAY)
                         .append("(empty)");
                 } else {
-                    String[] steps = summary.split("\\|");
+                    String[] steps = ENTRY_SPLIT.split(summary);
                     for (int i = 0; i < steps.length; i++) {
                         String step = steps[i];
                         if (step.isEmpty()) continue;
-                        String[] parts = step.split(",", 5);
+                        String[] parts = FIELD_SPLIT.split(step, 5);
                         if (parts.length < 5) continue;
                         String status = parts[0];
                         String p1 = parts[1];
@@ -314,10 +320,10 @@ public class LargeSteamBeeBreederGui extends MTEMultiBlockBaseGui<LargeSteamBeeB
         return new TextWidget<>(IKey.dynamic(() -> {
             String summary = chainSummarySync.getStringValue();
             if (summary == null || summary.isEmpty()) return "";
-            String[] steps = summary.split("\\|");
+            String[] steps = ENTRY_SPLIT.split(summary);
             for (String step : steps) {
                 if (step.isEmpty()) continue;
-                String[] parts = step.split(",", 5);
+                String[] parts = FIELD_SPLIT.split(step, 5);
                 if (parts.length < 5) continue;
                 if (!"R".equals(parts[0])) continue;
                 return EnumChatFormatting.YELLOW + "\u2192 "

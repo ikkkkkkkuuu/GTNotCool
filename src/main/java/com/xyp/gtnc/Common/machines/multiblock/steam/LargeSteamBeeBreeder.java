@@ -255,6 +255,18 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
     /** 用于客户端同步的缺少品种信息（与syncedChainSummary同步更新，解决同步延迟问题） */
     private String syncedMissingInfo = "";
 
+    /**
+     * GUI 摘要脏标记。
+     * <p>
+     * 池摘要 / 链摘要只依赖 (雄蜂池内容 + 繁育链 + 齿轮/玻璃加成)，这些只在
+     * 投入蜜蜂、繁育出新品种、重算链、结构/齿轮变化时才会变。用脏标记避免每秒无谓重建字符串。
+     */
+    private boolean displayDirty = true;
+
+    private void markDisplayDirty() {
+        displayDirty = true;
+    }
+
     // ==================== 构造函数 ====================
 
     public LargeSteamBeeBreeder(String aName) {
@@ -375,6 +387,8 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
         tierMachine = 1;
         updateHatchTexture();
         hasStainlessSteelGear = checkStainlessSteelGear(getControllerSlot());
+        // 玻璃等级/齿轮影响摘要里显示的成功率，重新组装后强制重建一次
+        markDisplayDirty();
     }
 
     private boolean checkStainlessSteelGear(ItemStack stack) {
@@ -386,18 +400,26 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
     public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
         super.onPostTick(aBaseMetaTileEntity, aTick);
         if (aBaseMetaTileEntity.isServerSide() && mMachine && aTick % 20 == 0) {
+            boolean gearBefore = hasStainlessSteelGear;
             hasStainlessSteelGear = checkStainlessSteelGear(getControllerSlot());
+            if (gearBefore != hasStainlessSteelGear) markDisplayDirty();
+
             scanInputBuses();
             analyzeBreedingChain();
-            syncedPoolSummary = buildPoolSummary();
-            syncedChainSummary = buildChainSummary();
-            syncedPoolSize = dronePool.getAvailableSpecies()
-                .size();
-            // 同步重建缺失信息，使其与 chainSummary 同时触发客户端更新
-            if (allTasksBlocked && missingDroneSpecies != null && !missingDroneSpecies.isEmpty()) {
-                syncedMissingInfo = BeeBreedingHelper.getSpeciesDisplayName(missingDroneSpecies);
-            } else {
-                syncedMissingInfo = "";
+
+            // 摘要字符串只在池/链/加成变化时重建，避免每秒无谓的字符串拼接
+            if (displayDirty) {
+                syncedPoolSummary = buildPoolSummary();
+                syncedChainSummary = buildChainSummary();
+                syncedPoolSize = dronePool.getAvailableSpecies()
+                    .size();
+                // 同步重建缺失信息，使其与 chainSummary 同时触发客户端更新
+                if (allTasksBlocked && missingDroneSpecies != null && !missingDroneSpecies.isEmpty()) {
+                    syncedMissingInfo = BeeBreedingHelper.getSpeciesDisplayName(missingDroneSpecies);
+                } else {
+                    syncedMissingInfo = "";
+                }
+                displayDirty = false;
             }
         }
     }
@@ -606,7 +628,10 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
         for (ItemStack stack : toRemove) {
             stack.stackSize = 0;
         }
-        if (!toRemove.isEmpty()) updateSlots();
+        if (!toRemove.isEmpty()) {
+            updateSlots();
+            markDisplayDirty();
+        }
 
         return hasNew;
     }
@@ -631,6 +656,7 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
                 if (newDrone != null) {
                     newDrone.stackSize = 8;
                     dronePool.addDrone(newDrone);
+                    markDisplayDirty();
                 }
             }
         }
@@ -660,9 +686,25 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
     private void analyzeBreedingChain() {
         if (targetBeeSpecies == null || targetBeeSpecies.isEmpty()) return;
 
+        // 快照可能影响 GUI 摘要的状态，若变化则标记脏（覆盖非池变化引起的更新，如目标切换后重算链）
+        boolean prevBlocked = allTasksBlocked;
+        String prevMissing = missingDroneSpecies;
+        List<BeeBreedingHelper.BreedingStep> prevChain = breedingChain;
+        int prevCompleted = chainCompletedSteps;
+
         missingDroneSpecies = "";
         allTasksBlocked = false;
 
+        analyzeBreedingChainInternal();
+
+        if (prevBlocked != allTasksBlocked || !java.util.Objects.equals(prevMissing, missingDroneSpecies)
+            || prevChain != breedingChain
+            || prevCompleted != chainCompletedSteps) {
+            markDisplayDirty();
+        }
+    }
+
+    private void analyzeBreedingChainInternal() {
         if (!targetBeeSpecies.equals(lastChainTargetSpecies)) {
             recalculateBreedingChain();
             lastChainTargetSpecies = targetBeeSpecies;

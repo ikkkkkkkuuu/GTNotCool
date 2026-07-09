@@ -34,6 +34,58 @@ public class BeeBreedingHelper {
 
     private static final Random RANDOM = new Random();
 
+    // ==================== 缓存 ====================
+    // 蜂种模板与突变表在模组加载时注册后即固定，运行期不变，可一次性建索引避免每次全表扫描。
+
+    /** UID → 物种 缓存（O(1) 替代 getSpeciesByUID 的全表遍历） */
+    private static Map<String, IAlleleBeeSpecies> uidSpeciesCache = null;
+
+    /** 结果UID → 该品种的所有突变配方 索引（O(1) 替代 getMutationsForUID 的全表遍历） */
+    private static Map<String, List<MutationData>> mutationsByUidCache = null;
+
+    /** 显示名缓存（纯函数结果，按输入 key 缓存） */
+    private static final Map<String, String> displayNameCache = new HashMap<>();
+
+    /**
+     * 懒加载构建 UID→物种 与 结果UID→突变 两张索引。
+     * 遍历一次 genome templates + mutations，之后所有查询走 map。
+     */
+    private static void ensureCaches() {
+        if (uidSpeciesCache != null && mutationsByUidCache != null) return;
+        IBeeRoot root = getBeeRoot();
+        if (root == null) return;
+
+        Map<String, IAlleleBeeSpecies> speciesMap = new HashMap<>();
+        Map<String, List<MutationData>> mutationsMap = new HashMap<>();
+
+        Map<String, IAllele[]> templates = root.getGenomeTemplates();
+        if (templates != null) {
+            for (IAllele[] template : templates.values()) {
+                if (template != null && template.length > 0 && template[0] instanceof IAlleleBeeSpecies) {
+                    IAlleleBeeSpecies s = (IAlleleBeeSpecies) template[0];
+                    speciesMap.putIfAbsent(s.getUID(), s);
+                }
+            }
+        }
+
+        for (IBeeMutation mutation : root.getMutations(false)) {
+            IAllele[] resultTemplate = mutation.getTemplate();
+            if (resultTemplate.length == 0 || !(resultTemplate[0] instanceof IAlleleBeeSpecies)) continue;
+            IAlleleBeeSpecies resultSpecies = (IAlleleBeeSpecies) resultTemplate[0];
+            speciesMap.putIfAbsent(resultSpecies.getUID(), resultSpecies);
+
+            IAllele parent1Allele = mutation.getAllele0();
+            IAllele parent2Allele = mutation.getAllele1();
+            String p1 = parent1Allele != null ? parent1Allele.getUID() : "";
+            String p2 = parent2Allele != null ? parent2Allele.getUID() : "";
+            mutationsMap.computeIfAbsent(resultSpecies.getUID(), k -> new ArrayList<>())
+                .add(new MutationData(p1, p2, resultSpecies.getUID(), mutation.getBaseChance()));
+        }
+
+        uidSpeciesCache = speciesMap;
+        mutationsByUidCache = mutationsMap;
+    }
+
     /**
      * 获取 Forestry 蜜蜂根接口
      */
@@ -125,6 +177,14 @@ public class BeeBreedingHelper {
      */
     public static String getSpeciesDisplayName(String input) {
         if (input == null || input.isEmpty()) return "";
+        String cached = displayNameCache.get(input);
+        if (cached != null) return cached;
+        String result = computeSpeciesDisplayName(input);
+        displayNameCache.put(input, result);
+        return result;
+    }
+
+    private static String computeSpeciesDisplayName(String input) {
         // 先尝试按 UID 查找物种，确保同 unlocalizedName 但不同 UID 的品种显示正确
         IAlleleBeeSpecies uidSpecies = getSpeciesByUID(input);
         if (uidSpecies != null) {
@@ -247,25 +307,8 @@ public class BeeBreedingHelper {
      */
     public static IAlleleBeeSpecies getSpeciesByUID(String uid) {
         if (uid == null || uid.isEmpty()) return null;
-        IBeeRoot root = getBeeRoot();
-        if (root == null) return null;
-        Map<String, IAllele[]> templates = root.getGenomeTemplates();
-        if (templates != null) {
-            for (IAllele[] template : templates.values()) {
-                if (template != null && template.length > 0 && template[0] instanceof IAlleleBeeSpecies) {
-                    IAlleleBeeSpecies s = (IAlleleBeeSpecies) template[0];
-                    if (uid.equals(s.getUID())) return s;
-                }
-            }
-        }
-        for (IBeeMutation mutation : root.getMutations(false)) {
-            IAllele[] template = mutation.getTemplate();
-            if (template.length > 0 && template[0] instanceof IAlleleBeeSpecies) {
-                IAlleleBeeSpecies s = (IAlleleBeeSpecies) template[0];
-                if (uid.equals(s.getUID())) return s;
-            }
-        }
-        return null;
+        ensureCaches();
+        return uidSpeciesCache != null ? uidSpeciesCache.get(uid) : null;
     }
 
     private static boolean isAscii(String s) {
@@ -451,24 +494,11 @@ public class BeeBreedingHelper {
      * 返回的 MutationData 中 parent1/parent2/result 均为 UID 字符串。
      */
     public static List<MutationData> getMutationsForUID(String uid) {
-        List<MutationData> mutations = new ArrayList<>();
-        IBeeRoot root = getBeeRoot();
-        if (root == null) return mutations;
-
-        for (IBeeMutation mutation : root.getMutations(false)) {
-            IAllele[] resultTemplate = mutation.getTemplate();
-            if (resultTemplate.length > 0 && resultTemplate[0] instanceof IAlleleBeeSpecies) {
-                IAlleleBeeSpecies resultSpecies = (IAlleleBeeSpecies) resultTemplate[0];
-                if (uid.equals(resultSpecies.getUID())) {
-                    IAllele parent1Allele = mutation.getAllele0();
-                    IAllele parent2Allele = mutation.getAllele1();
-                    String p1 = parent1Allele != null ? parent1Allele.getUID() : "";
-                    String p2 = parent2Allele != null ? parent2Allele.getUID() : "";
-                    mutations.add(new MutationData(p1, p2, uid, mutation.getBaseChance()));
-                }
-            }
-        }
-        return mutations;
+        ensureCaches();
+        if (mutationsByUidCache == null) return new ArrayList<>();
+        List<MutationData> cached = mutationsByUidCache.get(uid);
+        // 返回副本：调用方（createBreedingChainForUID）会对结果做 removeIf，不能污染缓存
+        return cached != null ? new ArrayList<>(cached) : new ArrayList<>();
     }
 
     /**

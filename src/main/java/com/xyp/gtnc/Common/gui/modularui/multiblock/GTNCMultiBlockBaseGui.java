@@ -107,7 +107,9 @@ public class GTNCMultiBlockBaseGui<T extends MTEMultiBlockBase> extends MTEMulti
     protected ModularPanel createUpgradeTreePanel(PanelSyncManager sm, ModularPanel parent,
         PanelSyncManager mainSyncManager) {
         ItemStackHandler handler = new ItemStackHandler(16);
-        mainSyncManager.registerSlotGroup("upgradeTreeInput", 16);
+        // 槽位属于本子面板的 sync manager（sm），必须注册到 sm 而非 mainSyncManager，
+        // 否则子面板 initialize 时在容器里找不到该组 → 每次打开抛 "SlotGroup not registered"
+        sm.registerSlotGroup("upgradeTreeInput", 16);
 
         ModularPanel panel = new ModularPanel("upgradeTreePanel").relative(parent)
             .leftRelOffset(0, 4)
