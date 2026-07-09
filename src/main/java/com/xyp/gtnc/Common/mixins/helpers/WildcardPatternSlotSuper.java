@@ -29,6 +29,7 @@ public class WildcardPatternSlotSuper extends SuperMTEHatchCraftingInputME.Patte
     private ItemStack activePatternStack;
     private String activeGeneratedPatternId = "";
     private String cachedSignature;
+    private boolean cachedComputed;
     private List<ICraftingPatternDetails> cachedExpandedDetails = java.util.Collections.emptyList();
 
     public WildcardPatternSlotSuper(SuperMTEHatchCraftingInputME parent, ItemStack pattern,
@@ -64,9 +65,15 @@ public class WildcardPatternSlotSuper extends SuperMTEHatchCraftingInputME.Patte
 
     public List<ICraftingPatternDetails> getExpandedDetails(ItemStack patternStack, World world) {
         String signature = getPatternSignature(patternStack);
-        if (!signature.equals(this.cachedSignature) || this.cachedExpandedDetails.isEmpty()) {
-            this.cachedSignature = signature;
+        // 用 cachedComputed 标志判断是否已展开，而不是 cachedExpandedDetails.isEmpty()：一个展开成 0 个样板的通配符
+        // （空白/半配置、过滤器排除全部材料、无材料能满足）本身就是合法的空结果，用 isEmpty() 会把它当成「缓存没填」，
+        // 于是每次调用都重跑一遍全材料表扫描（provideCrafting 每次电网重算都调），是节点接入卡顿的固定放大器。
+        if (!this.cachedComputed || !signature.equals(this.cachedSignature)) {
             this.cachedExpandedDetails = WildcardPatternGenerator.generateAllDetails(patternStack, world);
+            // generateAllDetails 会把 WPExpandedCount 写回 patternStack 的 NBT，改变签名来源。必须在写回之后重新取签名，
+            // 否则下一次调用用的是写回前的旧签名，必然未命中、再展开一次（每个新 slot 固定 2× 展开开销）。
+            this.cachedSignature = getPatternSignature(patternStack);
+            this.cachedComputed = true;
         }
         return this.cachedExpandedDetails;
     }
