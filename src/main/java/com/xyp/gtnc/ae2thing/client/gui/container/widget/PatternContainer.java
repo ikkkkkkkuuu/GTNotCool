@@ -247,9 +247,17 @@ public class PatternContainer implements IPatternContainer, IOptionalSlotHost, I
     }
 
     private final ItemStack[] recipeCache = new ItemStack[10];
+    // Marks whether the crafting grid changed since the last getAndUpdateOutput call. Set by onContainerClosed (grid
+    // write operations) to skip the expensive 9-slot traversal + NBT comparison when detectAndSendChanges runs every
+    // tick with no actual change.
+    private boolean recipeDirty = true;
 
     public ItemStack getAndUpdateOutput() {
         if (!this.container.isCraftingMode()) return null;
+        // Fast path: if no write since last call, the cached output is still valid.
+        if (!recipeDirty && recipeCache[9] != null) {
+            return recipeCache[9];
+        }
         boolean sameRecipe = true;
         for (int i = 0; i < this.crafting.getSizeInventory(); i++) {
             if (recipeCache[i] == null && this.crafting.getStackInSlot(i) == null) continue;
@@ -272,10 +280,13 @@ public class PatternContainer implements IPatternContainer, IOptionalSlotHost, I
                 recipeCache[i] = this.crafting.getStackInSlot(i);
             }
             recipeCache[9] = is;
+            recipeDirty = false;
             return is;
         } else if (recipeCache[9] != null) {
+            recipeDirty = false;
             return recipeCache[9];
         }
+        recipeDirty = false;
         return null;
     }
 
@@ -700,6 +711,10 @@ public class PatternContainer implements IPatternContainer, IOptionalSlotHost, I
     }
 
     public void onSlotChange(Slot s) {
+        // Mark recipe dirty whenever any crafting grid slot changes, so getAndUpdateOutput knows to recompute.
+        if (s instanceof SlotFakeCraftingMatrix) {
+            recipeDirty = true;
+        }
         if (s == this.patternSlotOUT && Platform.isServer()) {
             this.container.setInverted(this.it.isInverted());
             for (final Object crafter : this.container.getCrafters()) {

@@ -100,6 +100,7 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
      * Natural (human) order for interface names: compares digit runs by numeric value so "Assembler 4" sorts before
      * "Assembler 24" instead of the plain lexicographic order that puts "24" before "4". Non-digit runs compare
      * case-insensitively, then case-sensitively as a tie-break so the ordering is stable/deterministic.
+     * Uses pre-lowercased strings from InterfaceWirelessEntry.lowerName to avoid repeated toLowerCase() calls.
      */
     protected static final Comparator<String> NATURAL_ORDER = (a, b) -> {
         int i = 0, j = 0;
@@ -127,9 +128,8 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
                 int lzDiff = (i - si) - (j - sj);
                 if (lzDiff != 0) return lzDiff;
             } else {
-                char lca = Character.toLowerCase(ca);
-                char lcb = Character.toLowerCase(cb);
-                if (lca != lcb) return lca - lcb;
+                // Both strings are already lowercase (from lowerName), so direct char comparison is case-insensitive.
+                // No need for Character.toLowerCase() here — that was the old bottleneck.
                 if (ca != cb) return ca - cb;
                 i++;
                 j++;
@@ -1088,6 +1088,7 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
 
             if (entry != null) {
                 entry.dispName = buildDispName(renameCmd.newName, renameCmd.suffix);
+                entry.lowerName = entry.dispName.toLowerCase();
             }
             masterList.isDirty = true;
         }
@@ -1275,13 +1276,17 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
                 .trim() : "";
             if (!primary.isEmpty() && matched.size() > 1) {
                 matched.sort((s1, s2) -> {
-                    int i1 = matchIndex(s1.name, primary);
-                    int i2 = matchIndex(s2.name, primary);
+                    int i1 = matchIndex(s1, primary);
+                    int i2 = matchIndex(s2, primary);
                     if (i1 != i2) return Integer.compare(i1, i2);
                     if (s1.name.length() != s2.name.length()) {
                         return Integer.compare(s1.name.length(), s2.name.length());
                     }
-                    return NATURAL_ORDER.compare(s1.name, s2.name);
+                    // Compare lowercase names (sections' entries all share the same lowerName since they're grouped by
+                    // it).
+                    String lower1 = s1.entries.isEmpty() ? "" : s1.entries.get(0).lowerName;
+                    String lower2 = s2.entries.isEmpty() ? "" : s2.entries.get(0).lowerName;
+                    return NATURAL_ORDER.compare(lower1, lower2);
                 });
             }
 
@@ -1292,10 +1297,12 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
             isDirty = false;
         }
 
-        /** 搜索词在接口名中的出现位置（大小写不敏感）；不是字面子串（如拼音匹配）时返回 MAX_VALUE 以退到长度/自然序。 */
-        private int matchIndex(String name, String query) {
-            int idx = name.toLowerCase()
-                .indexOf(query);
+        /**
+         * 搜索词在接口名中的出现位置（大小写不敏感）；不是字面子串（如拼音匹配）时返回 MAX_VALUE 以退到长度/自然序。
+         * Uses pre-lowercased lowerName to avoid repeated toLowerCase() allocation in the sort phase.
+         */
+        private int matchIndex(InterfaceWirelessSection section, String query) {
+            int idx = section.entries.isEmpty() ? -1 : section.entries.get(0).lowerName.indexOf(query);
             return idx < 0 ? Integer.MAX_VALUE : idx;
         }
 
@@ -1350,11 +1357,14 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
         }
 
         public void addEntry(InterfaceWirelessEntry entry) {
-            InterfaceWirelessSection section = sections.get(entry.dispName);
+            // sections TreeMap uses lowerName as key (NATURAL_ORDER expects lowercase), but the
+            // InterfaceWirelessSection
+            // itself still stores the original dispName for display purposes.
+            InterfaceWirelessSection section = sections.get(entry.lowerName);
 
             if (section == null) {
                 section = new InterfaceWirelessSection(entry.dispName);
-                sections.put(entry.dispName, section);
+                sections.put(entry.lowerName, section);
             }
             section.addEntry(entry);
             list.put(entry.id, entry);
@@ -1408,10 +1418,10 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
         // Sort entries within a section by the interface's own name (natural order), NOT by dispRep — dispRep is the
         // icon of the interface's first pattern output, so sorting on it let a product name (e.g. a circuit assembler's
         // output) drag that interface to the top and out of the expected name/number order. Fall back to the numeric id
-        // as a stable tie-break for identically-named interfaces.
+        // as a stable tie-break for identically-named interfaces. Uses lowerName for NATURAL_ORDER.
         Set<InterfaceWirelessEntry> visibleEntries = new TreeSet<>((e1, e2) -> {
             int byName = NATURAL_ORDER
-                .compare(e1.dispName != null ? e1.dispName : "", e2.dispName != null ? e2.dispName : "");
+                .compare(e1.lowerName != null ? e1.lowerName : "", e2.lowerName != null ? e2.lowerName : "");
             if (byName != 0) {
                 return byName;
             }
@@ -1543,6 +1553,11 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
     public class InterfaceWirelessEntry {
 
         String dispName;
+        /**
+         * Pre-lowercased dispName for case-insensitive comparisons, cached to avoid repeated toLowerCase() calls in
+         * NATURAL_ORDER (triggered on every TreeMap insertion/query) and matchIndex (sort phase in update()).
+         */
+        String lowerName;
         AppEngInternalInventory inv;
         GuiFCImgButton optionsButton;
         GuiFCImgButton renameButton;
@@ -1580,6 +1595,7 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
             boolean p2pOutput) {
             this.id = id;
             this.dispName = buildDispName(name, suffix);
+            this.lowerName = this.dispName.toLowerCase();
             this.inv = new AppEngInternalInventory(null, rows * rowSize, 1);
             this.rows = rows;
             this.rowSize = rowSize;

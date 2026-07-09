@@ -408,6 +408,14 @@ public class ContainerWirelessDualInterfaceTerminal extends ContainerMonitor
     public void onContainerClosed(EntityPlayer player) {
         super.onContainerClosed(player);
         if (this.fluidMonitor.getMonitor() != null) this.fluidMonitor.removeListener();
+        // Clean up the delegate InterfaceTerminal container: it registers listeners with the AE2 network on
+        // construction
+        // but wasn't being closed, so every terminal-open leaked a listener into the network's update broadcast list.
+        // After hours of gameplay + many terminal opens, the accumulated zombie listeners caused severe lag when
+        // connecting new nodes (AE2 broadcasts network changes to all listeners, dead or alive).
+        if (this.delegateContainer != null) {
+            this.delegateContainer.onContainerClosed(player);
+        }
     }
 
     @Override
