@@ -117,8 +117,15 @@ public class FluidMonitor implements IMEMonitorHandlerReceiver<IAEFluidStack>, I
         final IItemList<IAEFluidStack> copy = AEApi.instance()
             .storage()
             .createFluidList();
+        // Iterate the WHOLE current list (drives the MeaningfulFluidIterator that physically evicts zombies — see
+        // above), but only retain the craftable subset in the snapshot: the diff below solely detects vanished
+        // craftables, so non-craftable fluids are dead weight. On large networks this cuts the per-refresh allocation
+        // from O(all fluids) down to O(craftable fluids). Mirrors RefreshingItemMonitor.copyCraftables on the item
+        // side.
         for (final IAEFluidStack f : current) {
-            copy.addStorage(f.copy());
+            if (f.isCraftable()) {
+                copy.addStorage(f.copy());
+            }
         }
         if (this.lastSnapshot != null) {
             for (final IAEFluidStack prev : this.lastSnapshot) {
@@ -135,8 +142,13 @@ public class FluidMonitor implements IMEMonitorHandlerReceiver<IAEFluidStack>, I
 
     @Override
     public void processItemList() {
-        SPacketMEFluidInvUpdate piu = new SPacketMEFluidInvUpdate();
         this.detectExternalChanges();
+        // Allocate the update packet lazily: most ticks have no fluid changes, so building the packet up front (like
+        // the
+        // old code) burned an object per tick per open terminal. ItemMonitor.processItemList already only allocates
+        // when
+        // there's something to send — this brings the fluid side in line.
+        SPacketMEFluidInvUpdate piu = null;
         if (!this.fluids.isEmpty()) {
             final IItemList<IAEFluidStack> monitorCache = this.fluidMonitor.getStorageList();
             final IItemList<IAEItemStack> itemMonitorCache = this.itemMonitor.getStorageList();
@@ -154,6 +166,7 @@ public class FluidMonitor implements IMEMonitorHandlerReceiver<IAEFluidStack>, I
                     toSend.add(is);
                 }
             }
+            piu = new SPacketMEFluidInvUpdate();
             piu.addAll(toSend);
             this.fluids.resetStatus();
         }
@@ -169,10 +182,11 @@ public class FluidMonitor implements IMEMonitorHandlerReceiver<IAEFluidStack>, I
                     toSend.add(fs);
                 }
             }
+            if (piu == null) piu = new SPacketMEFluidInvUpdate();
             piu.addAll(toSend);
             this.craftingFluids.clear();
         }
-        if (!piu.isEmpty()) {
+        if (piu != null && !piu.isEmpty()) {
             for (final Object c : this.crafters) {
                 if (c instanceof EntityPlayer) {
                     AE2Thing.proxy.netHandler.sendTo(piu, (EntityPlayerMP) c);

@@ -116,20 +116,27 @@ public class RefreshingItemMonitor
 
     @Override
     public IItemList<IAEItemStack> refreshExternalChanges(BaseActionSource source, boolean force) {
-        if (!force && !this.shouldRefresh()) {
-            return this.lastSnapshot != null ? this.lastSnapshot : this.delegate.getStorageList();
-        }
-
+        // Consumers always want the FULL storage list (ItemMonitor.processItemList looks up absolute counts, incl.
+        // non-craftables, against it). The snapshot/diff we keep internally is ONLY the craftable subset, because the
+        // sole job of this class is catching craftables that vanished on pattern removal (AE2 never emits an event for
+        // that). Quantity changes and new/updated items already arrive live via postChange, so diffing the whole table
+        // — tens of thousands of stacks copied every few ticks — was pure waste.
         final IItemList<IAEItemStack> current = this.delegate.getStorageList();
-        this.lastRefreshTick = this.currentTick();
 
-        if (this.lastSnapshot == null) {
-            this.lastSnapshot = this.copySnapshot(current);
+        if (!force && !this.shouldRefresh()) {
             return current;
         }
 
-        final List<IAEStack<?>> changes = this.calculateChanges(this.lastSnapshot, current);
-        this.lastSnapshot = this.copySnapshot(current);
+        final IItemList<IAEItemStack> currentCraftables = this.copyCraftables(current);
+        this.lastRefreshTick = this.currentTick();
+
+        if (this.lastSnapshot == null) {
+            this.lastSnapshot = currentCraftables;
+            return current;
+        }
+
+        final List<IAEStack<?>> changes = this.calculateChanges(this.lastSnapshot, currentCraftables);
+        this.lastSnapshot = currentCraftables;
         if (!changes.isEmpty()) {
             this.notifyListeners(cast(changes), source);
         }
@@ -151,12 +158,17 @@ public class RefreshingItemMonitor
         return this.player == null ? 0 : this.player.ticksExisted;
     }
 
-    private IItemList<IAEItemStack> copySnapshot(IItemList<IAEItemStack> source) {
+    private IItemList<IAEItemStack> copyCraftables(IItemList<IAEItemStack> source) {
+        // Only the craftable subset is retained: it's typically a few hundred entries against a storage list of tens of
+        // thousands, so this is where the allocation savings come from. calculateChanges below only ever needs to know
+        // which craftables appeared/vanished, so non-craftables would be dead weight in the snapshot.
         final IItemList<IAEItemStack> copy = AEApi.instance()
             .storage()
             .createItemList();
         for (IAEItemStack stack : source) {
-            copy.addStorage(stack.copy());
+            if (stack.isCraftable()) {
+                copy.addStorage(stack.copy());
+            }
         }
         return copy;
     }

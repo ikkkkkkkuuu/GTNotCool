@@ -673,7 +673,9 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
             entry.renameButton.yPosition = viewY;
             entry.hideButton.yPosition = altHeld ? viewY : -1;
             entry.doubleButton.yPosition = viewY + 8;
-            List<String> tooltips = new ArrayList<>();
+            // Lazily allocated: only the entry the mouse actually hovers ever needs a tooltip list, so avoid a
+            // per-frame per-entry ArrayList for every on-screen interface.
+            List<String> tooltips = null;
             final int tooltipFloor = Math.max(InterfaceWirelessSection.TITLE_HEIGHT, entry.optionsButton.yPosition);
             if (altHeld) {
                 entry.hideButton.set(entry.terminalVisible ? YesNo.YES : YesNo.NO);
@@ -684,6 +686,7 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
                     pendingHideButtonTooltipX = relMouseX + guiLeft + VIEW_LEFT;
                     pendingHideButtonTooltipY = relMouseY + guiTop + HEADER_HEIGHT + 1;
                 } else if (entry.doubleButton.getMouseIn() && relMouseY >= tooltipFloor) {
+                    tooltips = new ArrayList<>();
                     Collections.addAll(
                         tooltips,
                         entry.doubleButton.getMessage()
@@ -699,15 +702,17 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
                 toRender.drawButton(mc, relMouseX, relMouseY);
                 entry.doubleButton.drawButton(mc, relMouseX, relMouseY);
                 if (toRender.getMouseIn() && relMouseY >= tooltipFloor) {
+                    tooltips = new ArrayList<>();
                     tooltips.add(toRender.getMessage());
                 } else if (entry.doubleButton.getMouseIn() && relMouseY >= tooltipFloor) {
+                    tooltips = new ArrayList<>();
                     Collections.addAll(
                         tooltips,
                         entry.doubleButton.getMessage()
                             .split("\\n"));
                 }
             }
-            if (!tooltips.isEmpty()) {
+            if (tooltips != null && !tooltips.isEmpty()) {
                 // draw a tooltip
                 GL11.glTranslatef(0f, 0f, TOOLTIP_Z);
                 GL11.glDisable(GL11.GL_SCISSOR_TEST);
@@ -746,12 +751,21 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
                     // Render the pattern's output. Use the AE stack so fluid outputs render with their
                     // fluid texture + a single amount overlay (drawing iep.getOutput() directly would show
                     // the fluid-drop item icon AND a second aeRenderItem overlay — the doubled amount).
-                    final IAEStack<?> displayStack;
-                    if (stack.getItem() instanceof final ItemEncodedPattern iep) {
-                        IAEStack<?> outputAE = iep.getOutputAE(stack);
-                        displayStack = outputAE != null ? outputAE : AEItemStack.create(stack);
-                    } else {
-                        displayStack = AEItemStack.create(stack);
+                    // Cached per slot (see displayCache): rebuilding this every frame for every slot was the terminal's
+                    // biggest per-frame cost. The cache is invalidated whenever the slot's item changes.
+                    IAEStack<?> displayStack = (entry.displayCache != null && slotIdx < entry.displayCache.length)
+                        ? entry.displayCache[slotIdx]
+                        : null;
+                    if (displayStack == null) {
+                        if (stack.getItem() instanceof final ItemEncodedPattern iep) {
+                            IAEStack<?> outputAE = iep.getOutputAE(stack);
+                            displayStack = outputAE != null ? outputAE : AEItemStack.create(stack);
+                        } else {
+                            displayStack = AEItemStack.create(stack);
+                        }
+                        if (entry.displayCache != null && slotIdx < entry.displayCache.length) {
+                            entry.displayCache[slotIdx] = displayStack;
+                        }
                     }
 
                     GL11.glPushMatrix();
@@ -1441,17 +1455,22 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
             String output = GuiBaseInterfaceWireless.this.searchFieldOutputs.getText()
                 .toLowerCase();
 
+            // Only resolve the molecular-assembler representative stack when the "assemblers only" filter is on, and
+            // only once per refresh instead of once per entry: it's a constant (independent of the entry) and the AE2
+            // API chain + Optional + ItemStack allocation is pure waste on the common (filter-off) path, which used to
+            // run for every interface entry on every dirty refresh.
+            final ItemStack moleAss = onlyMolecularAssemblers ? AEApi.instance()
+                .definitions()
+                .blocks()
+                .molecularAssembler()
+                .maybeStack(1)
+                .orNull() : null;
+
             for (InterfaceWirelessEntry entry : entries) {
                 if (!entry.online || entry.p2pOutput) continue;
                 if (!entry.terminalVisible && !showHidden) continue;
-                var moleAss = AEApi.instance()
-                    .definitions()
-                    .blocks()
-                    .molecularAssembler()
-                    .maybeStack(1);
                 entry.dispY = -9999;
-                if (onlyMolecularAssemblers
-                    && (!moleAss.isPresent() || !Platform.isSameItem(moleAss.get(), entry.dispRep))) {
+                if (onlyMolecularAssemblers && (moleAss == null || !Platform.isSameItem(moleAss, entry.dispRep))) {
                     continue;
                 }
                 if (AEConfig.instance.showOnlyInterfacesWithFreeSlotsInInterfaceTerminal
@@ -1547,6 +1566,14 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
         int numItems = 0;
         /** Should recipe be filtered out/grayed out? */
         boolean[] filteredRecipes;
+        /**
+         * Lazily-built render stack per slot, parallel to {@code inv}. drawEntry used to rebuild these every frame for
+         * every non-empty slot (AEItemStack.create + ItemEncodedPattern.getOutputAE NBT parse) — hundreds of
+         * allocations/parses per frame with a terminal full of interfaces. The result only changes when the slot's item
+         * changes, so we cache it and invalidate at the single write point (setItemInSlot). A null entry means "not yet
+         * computed": a non-empty slot always resolves to a non-null stack, so null is unambiguous.
+         */
+        private IAEStack<?>[] displayCache;
         private int hoveredSlotIdx = -1;
 
         InterfaceWirelessEntry(long id, String name, String suffix, int rows, int rowSize, boolean online,
@@ -1572,6 +1599,7 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
             this.guiHeight = 18 * rows + 1;
             this.brokenRecipes = new Boolean[rows * rowSize];
             this.filteredRecipes = new boolean[rows * rowSize];
+            this.displayCache = new IAEStack<?>[rows * rowSize];
         }
 
         InterfaceWirelessEntry setLocation(int x, int y, int z, int dim, int side) {
@@ -1604,6 +1632,7 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
             // filteredRecipes[slotIdx] up to rows*rowSize, so a stale (smaller) array from a previous size
             // ArrayIndexOutOfBounds-crashes when an interface grows rows, and leaves dangling state when it shrinks.
             filteredRecipes = new boolean[newSize];
+            displayCache = new IAEStack<?>[newSize];
             numItems = 0;
 
             for (int i = 0; i < inv.getSizeInventory(); ++i) {
@@ -1633,6 +1662,10 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
                 final int newHasItem = stack != null ? 1 : 0;
 
                 inv.setInventorySlotContents(idx, stack);
+                // Invalidate the cached render stack for this slot; drawEntry recomputes it lazily on next draw.
+                if (displayCache != null && idx < displayCache.length) {
+                    displayCache[idx] = null;
+                }
                 // Update item count
                 numItems += newHasItem - oldHasItem;
                 assert numItems >= 0;
