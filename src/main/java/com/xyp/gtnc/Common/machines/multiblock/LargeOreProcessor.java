@@ -29,7 +29,9 @@ import com.xyp.gtnc.Loader.BlockLoader;
 import com.xyp.gtnc.Loader.GTNCRecipeMaps;
 import com.xyp.gtnc.utils.StructureUtils;
 
+import gregtech.api.enums.StoneType;
 import gregtech.api.enums.Textures;
+import gregtech.api.interfaces.IOreMaterial;
 import gregtech.api.interfaces.ITexture;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
@@ -42,6 +44,8 @@ import gregtech.api.structure.error.StructureError;
 import gregtech.api.util.GTRecipe;
 import gregtech.api.util.GTUtility;
 import gregtech.api.util.MultiblockTooltipBuilder;
+import gregtech.common.ores.OreInfo;
+import gregtech.common.ores.OreManager;
 
 public class LargeOreProcessor extends MTEEnhancedMultiBlockBase<LargeOreProcessor> implements ISurvivalConstructable {
 
@@ -178,6 +182,23 @@ public class LargeOreProcessor extends MTEEnhancedMultiBlockBase<LargeOreProcess
                 .notUnificated(true)
                 .find();
 
+            // GT5U 594 ore rework: world ores are the new GTBlockOre split per stone
+            // type (Stone/Moon/Mars/... each with its own oreXxx OreDict prefix). We
+            // only register recipes for the vanilla stone types, so space-dimension
+            // ores (and any variant without its own recipe) miss the direct lookup.
+            // Fall back to the material's canonical Stone ore so every ore variant of
+            // a known material processes. Direct match is tried first so rich stone
+            // types (netherrack/endstone) keep their 2x outputs.
+            if (recipe == null) {
+                ItemStack normalized = normalizeOreToStone(input);
+                if (normalized != null) {
+                    recipe = recipeMap.findRecipeQuery()
+                        .items(normalized)
+                        .notUnificated(true)
+                        .find();
+                }
+            }
+
             if (recipe != null) {
                 int parallel = Math.min(input.stackSize, MAX_PARALLEL - totalParallel);
                 if (parallel <= 0) break;
@@ -193,6 +214,26 @@ public class LargeOreProcessor extends MTEEnhancedMultiBlockBase<LargeOreProcess
         transferUnprocessedItems(inputs, outputs);
 
         return new ProcessingResult(outputs, totalParallel);
+    }
+
+    /**
+     * Resolve an ore stack to the canonical Stone-type big-ore item of the same material, or null
+     * if the stack isn't an ore of a known material. Used as a lookup fallback so ore variants that
+     * have no dedicated recipe (space-dimension stone types, small ores) still process by material.
+     */
+    private ItemStack normalizeOreToStone(ItemStack input) {
+        try (OreInfo<?> info = OreManager.getOreInfo(input)) {
+            if (info == null || info.material == null) return null;
+            try (OreInfo<IOreMaterial> stoneInfo = OreInfo.getNewInfo()) {
+                stoneInfo.material = info.material;
+                stoneInfo.stoneType = StoneType.Stone;
+                stoneInfo.isSmall = false;
+                stoneInfo.isNatural = false;
+                return OreManager.getStack(stoneInfo, 1);
+            }
+        } catch (Throwable t) {
+            return null;
+        }
     }
 
     /**

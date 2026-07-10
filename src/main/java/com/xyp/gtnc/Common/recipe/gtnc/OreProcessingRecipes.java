@@ -118,8 +118,13 @@ public class OreProcessingRecipes {
         ItemStack[] normalOutputs = getOutputs(material, false);
         ItemStack[] richOutputs = getOutputs(material, true);
 
-        // Normal stone ore
-        addRecipe(GTModHandler.getModItem("gregtech", "gt.blockores", 1, materialID), normalOutputs);
+        // Normal stone ore. Must use the unificator's canonical ore stack, NOT
+        // getModItem("gregtech","gt.blockores",...): in the GT5U 594 ore rework
+        // that name resolves to the dead BlockOresLegacy block (no OreDict entry),
+        // while real/void-mined Stone ore is now the new GTBlockOre. Registering
+        // against the legacy item keyed the recipe to an item that never appears,
+        // so Stone ores fell through unprocessed.
+        addRecipe(GTOreDictUnificator.get(OrePrefixes.ore, material, 1), normalOutputs);
 
         // Raw ore
         addRecipe(GTOreDictUnificator.get(OrePrefixes.rawOre, material, 1), normalOutputs);
