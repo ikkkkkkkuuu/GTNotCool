@@ -117,6 +117,8 @@ public abstract class LargeBoiler extends MTEEnhancedMultiBlockBase<LargeBoiler>
     public int mCountCasing;
     public int mFireboxCasing;
     private static final String STRUCTURE_PIECE_MAIN = "main";
+    /** Steam output multiplier applied to every boiler tier. Water consumption stays at the base rate. */
+    private static final int STEAM_MULTIPLIER = 100;
 
     public LargeBoiler(int aID, String aName, String aNameRegional) {
         super(aID, aName, aNameRegional);
@@ -292,10 +294,12 @@ public abstract class LargeBoiler extends MTEEnhancedMultiBlockBase<LargeBoiler>
 
                 if (depleteInput(Materials.Water.getFluid(amount))
                     || depleteInput(GTModHandler.getDistilledWater(amount))) {
+                    // Steam output is multiplied for every tier; water consumption stays at the base rate above.
+                    long outputSteam = (long) tGeneratedEU * STEAM_MULTIPLIER;
                     if (wirelessMode && ownerUUID != null) {
-                        SteamWirelessNetworkManager.addSteamToGlobalSteamMap(ownerUUID, tGeneratedEU);
+                        SteamWirelessNetworkManager.addSteamToGlobalSteamMap(ownerUUID, outputSteam);
                     } else {
-                        addOutput(Materials.Steam.getGas(tGeneratedEU));
+                        addOutput(Materials.Steam.getGas(outputSteam));
                     }
                 } else {
                     explodeMultiblock();

@@ -124,8 +124,8 @@ public class LargeSteamVoidMiner extends GTNCSteamMultiBlockBase<LargeSteamVoidM
     // Steam consumed per tick and ores produced per 20-tick cycle.
     private static final long STEAM_PER_TICK_BRONZE = 320L;
     private static final long STEAM_PER_TICK_STEEL = 640L;
-    private static final int ORE_PER_CYCLE_BRONZE = 1;
-    private static final int ORE_PER_CYCLE_STEEL = 2;
+    private static final int ORE_PER_CYCLE_BRONZE = 10;
+    private static final int ORE_PER_CYCLE_STEEL = 20;
     private static final int CYCLE_TICKS = 20;
 
     // 'B' = tiered casing + hatches, 'D' = frame, 'C' = tiered casing center
