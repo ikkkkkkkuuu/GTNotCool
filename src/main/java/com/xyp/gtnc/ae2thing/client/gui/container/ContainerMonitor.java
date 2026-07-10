@@ -270,7 +270,11 @@ public abstract class ContainerMonitor extends ContainerMEMonitorable
             if (remainder == null || remainder.stackSize != before) {
                 // Something (possibly all) was inserted into the ME network.
                 aeSlot.putStack(remainder);
-                this.detectAndSendChanges();
+                // 不在此处调 detectAndSendChanges()：空格+左键(AE2 MOVE_REGION)会在同一 tick 内对玩家背包
+                // 每个同类槽各调一次 transferStackInSlot(满背包 = 36 次)。若每次都 detectAndSendChanges，
+                // 就是 36 次全表 processItemList + super.detectAndSendChanges(遍历所有槽+ME 监视器) → 瞬时 MSPT 爆炸。
+                // 容器每 tick 本来就会自动跑一次 detectAndSendChanges 兜底：槽变更与 ME 增量(postChange 累积)
+                // 会被下一 tick 那一次合并发出(≤50ms 无感，且合并成更少的包)。原版 transferStackInSlot 同样不自调。
                 return null;
             }
             // Nothing could be stored (network full / no power) — fall through to vanilla shift behavior so the item
