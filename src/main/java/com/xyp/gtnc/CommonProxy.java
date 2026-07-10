@@ -71,6 +71,9 @@ public class CommonProxy {
         // 注册所有实体（必须在CommonProxy中，确保服务端和客户端都注册）
         EntityLoader.registerEntities();
 
+        // 注册自定义蜜蜂等位基因（无尽速度 / 不死寿命），供养蜂机写入产出蜂
+        com.xyp.gtnc.Common.machines.bee.GTNCBeeAlleles.register();
+
         com.xyp.gtnc.ae2thing.AE2Thing.init(event);
     }
 

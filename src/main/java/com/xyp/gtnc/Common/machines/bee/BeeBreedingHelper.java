@@ -1,6 +1,7 @@
 package com.xyp.gtnc.Common.machines.bee;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -20,7 +21,10 @@ import forestry.api.apiculture.IBee;
 import forestry.api.apiculture.IBeeGenome;
 import forestry.api.apiculture.IBeeMutation;
 import forestry.api.apiculture.IBeeRoot;
+import forestry.api.genetics.AlleleManager;
 import forestry.api.genetics.IAllele;
+import forestry.api.genetics.IAlleleFloat;
+import forestry.api.genetics.IAlleleInteger;
 import forestry.apiculture.genetics.alleles.AlleleEffect;
 import forestry.core.genetics.alleles.AlleleHelper;
 import forestry.core.genetics.alleles.EnumAllele;
@@ -834,6 +838,7 @@ public class BeeBreedingHelper {
      * <li>耐雨 (TOLERANT_FLYER = true)</li>
      * <li>穴居 (CAVE_DWELLING = true)</li>
      * <li>寿命最长 (Lifespan.LONGEST)</li>
+     * <li>生育能力固定为 1 (Fertility.LOW)</li>
      * <li>采蜜对象：鲜花 (Flowers.VANILLA)</li>
      * <li>活动范围：平均 (Territory.AVERAGE)</li>
      * <li>特殊效果：无 (effectNone)</li>
@@ -843,19 +848,75 @@ public class BeeBreedingHelper {
     private static void applyMaxGenome(IAllele[] template) {
         if (template == null || AlleleHelper.instance == null) return;
         AlleleHelper helper = AlleleHelper.instance;
-        helper.set(template, EnumBeeChromosome.SPEED, EnumAllele.Speed.FASTEST);
+        // 速度：优先用本 mod 自注册的「无尽」基因(数值可配)；其次取运行时注册的最高档；
+        // 都没有时回退到林业原版 FASTEST。
+        if (GTNCBeeAlleles.speedAllele != null) {
+            helper.set(template, EnumBeeChromosome.SPEED, GTNCBeeAlleles.speedAllele);
+        } else {
+            IAllele maxSpeed = findHighestValueAllele(EnumBeeChromosome.SPEED);
+            if (maxSpeed != null) {
+                helper.set(template, EnumBeeChromosome.SPEED, maxSpeed);
+            } else {
+                helper.set(template, EnumBeeChromosome.SPEED, EnumAllele.Speed.FASTEST);
+            }
+        }
         helper.set(template, EnumBeeChromosome.FLOWERING, EnumAllele.Flowering.MAXIMUM);
         helper.set(template, EnumBeeChromosome.TEMPERATURE_TOLERANCE, EnumAllele.Tolerance.BOTH_5);
         helper.set(template, EnumBeeChromosome.HUMIDITY_TOLERANCE, EnumAllele.Tolerance.BOTH_5);
         helper.set(template, EnumBeeChromosome.NOCTURNAL, true);
         helper.set(template, EnumBeeChromosome.TOLERANT_FLYER, true);
         helper.set(template, EnumBeeChromosome.CAVE_DWELLING, true);
-        helper.set(template, EnumBeeChromosome.LIFESPAN, EnumAllele.Lifespan.LONGEST);
+        // 寿命：优先用本 mod 自注册的「不死」基因(数值可配)；其次取运行时注册的最高档；
+        // 都没有时回退到林业原版 LONGEST。
+        if (GTNCBeeAlleles.lifespanAllele != null) {
+            helper.set(template, EnumBeeChromosome.LIFESPAN, GTNCBeeAlleles.lifespanAllele);
+        } else {
+            IAllele maxLifespan = findHighestValueAllele(EnumBeeChromosome.LIFESPAN);
+            if (maxLifespan != null) {
+                helper.set(template, EnumBeeChromosome.LIFESPAN, maxLifespan);
+            } else {
+                helper.set(template, EnumBeeChromosome.LIFESPAN, EnumAllele.Lifespan.LONGEST);
+            }
+        }
+        helper.set(template, EnumBeeChromosome.FERTILITY, EnumAllele.Fertility.LOW);
         helper.set(template, EnumBeeChromosome.FLOWER_PROVIDER, EnumAllele.Flowers.VANILLA);
         helper.set(template, EnumBeeChromosome.TERRITORY, EnumAllele.Territory.AVERAGE);
         if (AlleleEffect.effectNone != null) {
             helper.set(template, EnumBeeChromosome.EFFECT, AlleleEffect.effectNone);
         }
+    }
+
+    /**
+     * 在指定染色体类型上，遍历所有「运行时注册」的等位基因，返回数值最大的那个。
+     * <p>
+     * 速度(SPEED)是 {@link IAlleleFloat}、寿命(LIFESPAN)是 {@link IAlleleInteger}，
+     * 都实现了 getValue()。除林业原版 FASTEST(1.7)/LONGEST(70) 外，其它蜂类附属
+     * 模组可能注册更高档(如极速/永生)，这里按实际数值挑最高，从而始终选到全局最优。
+     *
+     * @return 数值最高的等位基因；若该染色体无任何带数值的等位基因则返回 null（调用方回退到原版枚举）。
+     */
+    private static IAllele findHighestValueAllele(EnumBeeChromosome chromosome) {
+        if (AlleleManager.alleleRegistry == null) return null;
+        Collection<IAllele> alleles = AlleleManager.alleleRegistry.getRegisteredAlleles(chromosome);
+        if (alleles == null || alleles.isEmpty()) return null;
+
+        IAllele best = null;
+        double bestValue = Double.NEGATIVE_INFINITY;
+        for (IAllele allele : alleles) {
+            double value;
+            if (allele instanceof IAlleleFloat) {
+                value = ((IAlleleFloat) allele).getValue();
+            } else if (allele instanceof IAlleleInteger) {
+                value = ((IAlleleInteger) allele).getValue();
+            } else {
+                continue;
+            }
+            if (value > bestValue) {
+                bestValue = value;
+                best = allele;
+            }
+        }
+        return best;
     }
 
     /**

@@ -101,6 +101,20 @@ public class Config {
     public static boolean enableCropGuaranteedSeedDrop = true;
     // endregion
 
+    // region Forestry 配置
+    /** 开启后，所有蜜蜂无需气候匹配(jubilance)即可产出特殊产物，普通蜂箱也能出特产。 */
+    public static boolean enableBeeAlwaysJubilant = true;
+    /**
+     * 开启后，本 mod 自行注册两个「满分」蜜蜂等位基因(速度/寿命)，
+     * 养蜂机产出的蜂会写入这两个自注册基因，数值由下面两项控制，不依赖其它蜂 mod。
+     */
+    public static boolean enableCustomBeeAlleles = true;
+    /** 自注册速度基因(名「无尽」)数值(林业原版极速=1.7，MagicBees 致盲=2.0)。 */
+    public static float customBeeSpeedValue = 10.0F;
+    /** 自注册寿命基因(名「不死」)数值，单位蜜蜂刻(林业原版最长寿=70)。 */
+    public static int customBeeLifespanValue = 6000;
+    // endregion
+
     // region 分类定义
     private static final String CATEGORY_TIME_VIAL = "Time_Vial";
     private static final String CATEGORY_GENERAL = "General";
@@ -110,6 +124,7 @@ public class Config {
     private static final String CATEGORY_QUANTUM_COMPUTER = "Quantum_Computer";
     private static final String CATEGORY_TIME_ACCELERATOR = "Time_Accelerator";
     private static final String CATEGORY_CROPSNH = "CropsNH";
+    private static final String CATEGORY_FORESTRY = "Forestry";
     // endregion
 
     // region 配置文件
@@ -364,6 +379,32 @@ public class Config {
                 CATEGORY_CROPSNH,
                 enableCropGuaranteedSeedDrop,
                 "If set to TRUE, left-clicking a mature crop always drops a seed (bypasses the resistance-based chance check).");
+
+            // Forestry 配置项
+            enableBeeAlwaysJubilant = configuration.getBoolean(
+                "enableBeeAlwaysJubilant",
+                CATEGORY_FORESTRY,
+                enableBeeAlwaysJubilant,
+                "If set to TRUE, bees always count as jubilant when producing, so specialty products drop even in a basic apiary regardless of climate.");
+            enableCustomBeeAlleles = configuration.getBoolean(
+                "enableCustomBeeAlleles",
+                CATEGORY_FORESTRY,
+                enableCustomBeeAlleles,
+                "If set to TRUE, this mod registers its own max speed/lifespan bee alleles and the bee breeder writes them into produced bees (independent of other bee mods).");
+            customBeeSpeedValue = configuration.getFloat(
+                "customBeeSpeedValue",
+                CATEGORY_FORESTRY,
+                customBeeSpeedValue,
+                0.1F,
+                1000.0F,
+                "Value of the self-registered speed allele (Forestry Fastest=1.7, MagicBees Blinding=2.0).");
+            customBeeLifespanValue = configuration.getInt(
+                "customBeeLifespanValue",
+                CATEGORY_FORESTRY,
+                customBeeLifespanValue,
+                1,
+                1000000,
+                "Value of the self-registered lifespan allele, in bee ticks (Forestry Longest=70).");
         }
 
         if (configuration.hasChanged()) {
@@ -384,5 +425,6 @@ public class Config {
         configuration
             .addCustomCategoryComment(CATEGORY_TIME_ACCELERATOR, "Configuration settings for the World Accelerator");
         configuration.addCustomCategoryComment(CATEGORY_CROPSNH, "Configuration settings for CropsNH crop growth");
+        configuration.addCustomCategoryComment(CATEGORY_FORESTRY, "Configuration settings for Forestry bees");
     }
 }
