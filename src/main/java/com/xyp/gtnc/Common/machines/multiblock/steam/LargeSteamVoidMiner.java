@@ -375,7 +375,13 @@ public class LargeSteamVoidMiner extends GTNCSteamMultiBlockBase<LargeSteamVoidM
         if (targetDimName != null && !targetDimName.isEmpty()) {
             dimName = targetDimName;
         } else {
-            ModDimensionDef worldDef = DimensionDef.getDefForWorld(getBaseMetaTileEntity().getWorld());
+            // World is not attached yet during NBT load (e.g. WorldEdit paste
+            // creates the tile before setWorldObj). getDefForWorld would NPE on
+            // world.provider — skip; onFirstTick recomputes once the world exists.
+            IGregTechTileEntity mte = getBaseMetaTileEntity();
+            World world = mte != null ? mte.getWorld() : null;
+            if (world == null) return;
+            ModDimensionDef worldDef = DimensionDef.getDefForWorld(world);
             dimName = worldDef != null ? worldDef.getDimensionName() : null;
         }
         if (dimName == null) return;

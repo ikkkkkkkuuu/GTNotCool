@@ -167,8 +167,15 @@ public class LargeOreProcessor extends MTEEnhancedMultiBlockBase<LargeOreProcess
         for (ItemStack input : inputs) {
             if (input == null || input.stackSize <= 0) continue;
 
+            // notUnificated(true) tells GT to unify the input before matching. The
+            // recipe lookup index is built from unified recipe inputs, so a raw ore
+            // variant from the bus (other stone types, small ores, cross-mod dupes)
+            // won't match the canonical stack unless we unify it here first. Without
+            // this, unmatched ores fall through to transferUnprocessedItems and get
+            // dumped back out as raw ore.
             GTRecipe recipe = recipeMap.findRecipeQuery()
                 .items(input)
+                .notUnificated(true)
                 .find();
 
             if (recipe != null) {
