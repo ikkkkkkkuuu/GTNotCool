@@ -270,11 +270,19 @@ public abstract class ContainerMonitor extends ContainerMEMonitorable
             if (remainder == null || remainder.stackSize != before) {
                 // Something (possibly all) was inserted into the ME network.
                 aeSlot.putStack(remainder);
-                // 不在此处调 detectAndSendChanges()：空格+左键(AE2 MOVE_REGION)会在同一 tick 内对玩家背包
-                // 每个同类槽各调一次 transferStackInSlot(满背包 = 36 次)。若每次都 detectAndSendChanges，
-                // 就是 36 次全表 processItemList + super.detectAndSendChanges(遍历所有槽+ME 监视器) → 瞬时 MSPT 爆炸。
-                // 容器每 tick 本来就会自动跑一次 detectAndSendChanges 兜底：槽变更与 ME 增量(postChange 累积)
-                // 会被下一 tick 那一次合并发出(≤50ms 无感，且合并成更少的包)。原版 transferStackInSlot 同样不自调。
+                // 只回传这一个被改动的玩家槽，不调用 detectAndSendChanges()。
+                // 客户端 shift 点击是本地预测的：ME 插入是服务端专属逻辑(Platform.isServer 保护)，
+                // 客户端那边 super.transferStackInSlot 不会真正移走物品，于是物品在客户端界面残留，
+                // 要到关闭 GUI 客户端重建容器才消失。这里直接把服务端的真实槽内容(remainder，通常为 null)
+                // 推给正在看的玩家即可修正。
+                // 为什么不用 detectAndSendChanges：空格+左键(AE2 MOVE_REGION)会在同一 tick 内对每个同类槽
+                // 各调一次 transferStackInSlot(满背包 = 36 次)，每次都跑全表 processItemList + 遍历所有槽+ME
+                // 监视器 → 瞬时 MSPT 爆炸。sendSlotContents 是单槽 O(1)，即使 36 次也无压力。
+                for (final Object crafter : this.crafters) {
+                    if (crafter instanceof ICrafting c) {
+                        c.sendSlotContents(this, idx, remainder);
+                    }
+                }
                 return null;
             }
             // Nothing could be stored (network full / no power) — fall through to vanilla shift behavior so the item
