@@ -139,6 +139,9 @@ public class GuiWirelessDualInterfaceTerminal extends GuiBaseInterfaceWireless i
                 panel.drawScreen(mouseX, mouseY, btn);
             }
         }
+        // 网络更新包(每 tick ~20/s)只把 view 标脏，这里在主线程按帧节流排空一次昂贵的全表重排，
+        // 避免收包线程每包都做 O(N log N) 重排拖垮 FPS，同时消除无锁读 view 的潜伏竞态。
+        this.itemPanel.flushPendingView();
         if (this.itemPanel.getRepo()
             .hasCache()) {
             try {

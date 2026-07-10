@@ -110,9 +110,9 @@ public class Config {
      */
     public static boolean enableCustomBeeAlleles = true;
     /** 自注册速度基因(名「无尽」)数值(林业原版极速=1.7，MagicBees 致盲=2.0)。 */
-    public static float customBeeSpeedValue = 10.0F;
+    public static float customBeeSpeedValue = 100.0F;
     /** 自注册寿命基因(名「不死」)数值，单位蜜蜂刻(林业原版最长寿=70)。 */
-    public static int customBeeLifespanValue = 6000;
+    public static int customBeeLifespanValue = 600000;
     // endregion
 
     // region 分类定义

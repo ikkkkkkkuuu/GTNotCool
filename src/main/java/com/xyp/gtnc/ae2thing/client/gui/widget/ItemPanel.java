@@ -552,6 +552,31 @@ public class ItemPanel implements IAEBasePanel, IGuiMonitorTerminal, IConfigMana
             if (stack instanceof IAEItemStack item && item.getItem() instanceof ItemFluidDrop) continue;
             this.repo.postUpdate(stack);
         }
+        // 性能：繁忙网络每 tick(~20/s) 都会推来一个增量更新包。若每包都立刻 updateView() 全表重排
+        // (O(N log N)，大网络几万条)，会把收包/渲染线程拖垮 → 划鼠标时持续掉帧(删 setCache 后这份重排
+        // 落在主线程上，属相对历史的性能回退)。postUpdate 只是廉价地更新后台 IItemList；重排改为置脏，
+        // 由 drawScreen 在主线程按帧节流排空(见 flushPendingView)。已显示物品的数量因 postUpdate 原地改
+        // 同一引用而仍实时更新，只有新增/移除条目的出现与排序会延迟至多一个节流周期，几乎无感。
+        this.viewDirty = true;
+    }
+
+    /** 收包置脏、主线程按帧排空的节流标记(见 postStackUpdate)。 */
+    private volatile boolean viewDirty = false;
+    private long lastViewFlushMs = 0L;
+    /** 重排最小间隔：把每 tick(~20/s) 的全表重排降到 ~5/s。 */
+    private static final long VIEW_FLUSH_INTERVAL_MS = 200L;
+
+    /**
+     * 在主线程(drawScreen)按帧调用：若收到过更新包(viewDirty)且距上次重排超过节流间隔，则执行一次
+     * 全表 updateView()+setScrollBar()。挪到主线程还顺带消除了原先收包线程(Netty)写 view、渲染线程读 view
+     * 的无锁竞态。用户主动操作(搜索/过滤/排序/滚动)不走这里，仍在各自入口直接 updateView() 保证零延迟。
+     */
+    public void flushPendingView() {
+        if (!this.viewDirty) return;
+        final long now = System.currentTimeMillis();
+        if (now - this.lastViewFlushMs < VIEW_FLUSH_INTERVAL_MS) return;
+        this.viewDirty = false;
+        this.lastViewFlushMs = now;
         this.repo.updateView();
         if (!this.repo.hasCache()) {
             this.setScrollBar();
