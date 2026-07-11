@@ -93,7 +93,7 @@ import gregtech.common.gui.modularui.multiblock.base.MTEMultiBlockBaseGui;
 
 // #tr Tooltip_LargeSteamVoidMiner_Tier
 // # Bronze: 6,400 L/cycle, 1 ore/s | Steel: 12,800 L/cycle, 2 ore/s
-// # zh_CN 青铜：6,400 L/周期，1 矿石/秒 | 钢：12,800 L/周期，2 矿石/秒
+// # zh_CN 青铜：6,400 L/周期，10 矿石/秒 | 钢：12,800 L/周期，20 矿石/秒
 
 // #tr Tooltip_LargeSteamVoidMiner_Output
 // # Ore output depends on the dimension the machine is built in

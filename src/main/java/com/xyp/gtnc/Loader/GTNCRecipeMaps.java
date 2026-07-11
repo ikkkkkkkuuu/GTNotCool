@@ -80,4 +80,26 @@ public class GTNCRecipeMaps {
         .frontend(LargeNEIFrontend::new)
         .build();
 
+    // #tr gtnc.recipe.StellarForgeRecipes
+    // # Miracle Door
+    // # zh_CN 奇迹之门
+    public static RecipeMap<RecipeMapBackend> StellarForgeRecipes = RecipeMapBuilder
+        .of("gtnc.recipe.StellarForgeRecipes")
+        .maxIO(8, 8, 1, 2)
+        .progressBar(GTUITextures.PROGRESSBAR_ARROW_MULTIPLE)
+        .neiHandlerInfo(builder -> builder.setDisplayStack(GTNCItemList.MiracleDoor.get(1)))
+        .useSpecialSlot()
+        .build();
+
+    // #tr gtnc.recipe.StellarForgeAlloySmelterRecipes
+    // # Miracle Door
+    // # zh_CN 奇迹之门
+    public static RecipeMap<RecipeMapBackend> StellarForgeAlloySmelterRecipes = RecipeMapBuilder
+        .of("gtnc.recipe.StellarForgeAlloySmelterRecipes")
+        .maxIO(10, 12, 3, 3)
+        .progressBar(GTUITextures.PROGRESSBAR_ARROW_MULTIPLE)
+        .neiHandlerInfo(builder -> builder.setDisplayStack(GTNCItemList.MiracleDoor.get(1)))
+        .useSpecialSlot()
+        .build();
+
 }

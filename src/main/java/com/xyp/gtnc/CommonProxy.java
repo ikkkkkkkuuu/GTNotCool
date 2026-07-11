@@ -62,6 +62,9 @@ public class CommonProxy {
         // 注册无线蒸汽网络事件处理器
         MinecraftForge.EVENT_BUS.register(new SteamNetworkEventHandler());
 
+        // 注册跨维度 ME 网桥频道注册表事件处理器
+        MinecraftForge.EVENT_BUS.register(new com.xyp.gtnc.Common.mebridge.MEBridgeEventHandler());
+
         // 初始化ME无线二合一接口终端（并入本mod的ae2thing移植）
         com.xyp.gtnc.ae2thing.AE2Thing.preInit(event, ScienceNotCool.instance);
     }
@@ -95,6 +98,8 @@ public class CommonProxy {
     // register server commands in this event handler (Remove if not needed)
     public void serverStarting(FMLServerStartingEvent event) {
         event.registerServerCommand(new CommandSteamNetwork());
+        // Generate Miracle Door (Stellar Forge) recipes by scanning live EBF / GTPP ABS recipe maps.
+        RecipeLoader.loadRecipesServerStarted();
     }
 
     public void complete(FMLLoadCompleteEvent event) {

@@ -2,6 +2,7 @@ package com.xyp.gtnc.Loader;
 
 import net.minecraft.util.StatCollector;
 
+import com.xyp.gtnc.Common.blocks.BlockMiracleStar;
 import com.xyp.gtnc.Common.blocks.casings.base.ItemBlockBase;
 import com.xyp.gtnc.Common.blocks.casings.base.MetaBlockBase;
 import com.xyp.gtnc.Common.blocks.casings.casing.MetaCasing;
@@ -12,6 +13,12 @@ import com.xyp.gtnc.Common.blocks.casings.glass.ItemBlockGlass;
 import com.xyp.gtnc.Common.blocks.casings.glass.MetaBlockGlass;
 import com.xyp.gtnc.Common.blocks.casings.glow.ItemBlockGlow;
 import com.xyp.gtnc.Common.blocks.casings.glow.MetaBlockGlow;
+import com.xyp.gtnc.Common.blocks.mebridge.BlockMEBridgeReceiver;
+import com.xyp.gtnc.Common.blocks.mebridge.BlockMEBridgeSender;
+import com.xyp.gtnc.Common.blocks.mebridge.ItemBlockMEBridge;
+import com.xyp.gtnc.Common.mebridge.TileMEBridgeReceiver;
+import com.xyp.gtnc.Common.mebridge.TileMEBridgeSender;
+import com.xyp.gtnc.Common.tile.TileMiracleStar;
 import com.xyp.gtnc.utils.enums.GTNCItemList;
 
 import cpw.mods.fml.common.registry.GameRegistry;
@@ -95,6 +102,13 @@ public class BlockLoader {
     /** 装配矩阵 & 量子计算机 外壳方块 (meta 4-19), textureIdOffsite=32 对应 GT5 纹理偏移 */
     public static MetaCasing metaCasing02 = new MetaCasing("MetaCasing02", (byte) 32);
 
+    /** 奇迹之门运行时中心星体渲染方块 (承载 TileMiracleStar, 由控制器动态放置/移除) */
+    public static BlockMiracleStar blockMiracleStar = new BlockMiracleStar();
+
+    /** 跨维度 ME 网桥 - 发起端 / 接收端方块 */
+    public static BlockMEBridgeSender blockMEBridgeSender = new BlockMEBridgeSender();
+    public static BlockMEBridgeReceiver blockMEBridgeReceiver = new BlockMEBridgeReceiver();
+
     /**
      * 注册所有方块到 Forge GameRegistry。
      */
@@ -107,6 +121,16 @@ public class BlockLoader {
 
         // ---- GT5 外壳方块（在构造函数中已调用 GregTechAPI.registerMachineBlock） ----
         GameRegistry.registerBlock(metaCasing02, MetaItemBlockCasing.class, metaCasing02.getUnlocalizedName());
+
+        // ---- 奇迹之门中心星体渲染方块 + TileEntity ----
+        GameRegistry.registerBlock(blockMiracleStar, "blockMiracleStar");
+        GameRegistry.registerTileEntity(TileMiracleStar.class, "tileMiracleStar");
+
+        // ---- 跨维度 ME 网桥方块 + TileEntity ----
+        GameRegistry.registerBlock(blockMEBridgeSender, ItemBlockMEBridge.class, "blockMEBridgeSender");
+        GameRegistry.registerBlock(blockMEBridgeReceiver, ItemBlockMEBridge.class, "blockMEBridgeReceiver");
+        GameRegistry.registerTileEntity(TileMEBridgeSender.class, "tileMEBridgeSender");
+        GameRegistry.registerTileEntity(TileMEBridgeReceiver.class, "tileMEBridgeReceiver");
     }
 
     /**

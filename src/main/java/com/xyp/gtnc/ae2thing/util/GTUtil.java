@@ -58,13 +58,25 @@ public class GTUtil {
                 && getConfigValue(ButtonConstants.DUAL_INTERFACE_TERMINAL_FILL_CIRCUIT)) {
                 return recipe.getRecipeName();
             }
+            if (!getConfigValue(ButtonConstants.DUAL_INTERFACE_TERMINAL_APPEND_CIRCUIT_DAMAGE)) {
+                for (OrderStack<?> stack : in) {
+                    if (stack.getStack() instanceof ItemStack is && is.stackSize == 0) {
+                        return recipe.getRecipeName();
+                    }
+                }
+                return recipe.getRecipeName();
+            }
+            // Append every size-0 (non-consumed) input's meta in order, so recipes carrying more than one
+            // marker (e.g. Miracle Door: programmed circuit + White Dwarf Mold) reproduce the same suffix the
+            // interface name builds ("<name> <circuit> <mold>"). Single-circuit recipes are unchanged.
+            StringBuilder name = new StringBuilder(recipe.getRecipeName());
             for (OrderStack<?> stack : in) {
                 if (stack.getStack() instanceof ItemStack is && is.stackSize == 0) {
-                    return getConfigValue(ButtonConstants.DUAL_INTERFACE_TERMINAL_APPEND_CIRCUIT_DAMAGE)
-                        ? String.format("%s %s", recipe.getRecipeName(), is.getItemDamage())
-                        : recipe.getRecipeName();
+                    name.append(' ')
+                        .append(is.getItemDamage());
                 }
             }
+            return name.toString();
         }
         return recipe.getRecipeName();
     }

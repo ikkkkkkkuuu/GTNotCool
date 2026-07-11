@@ -636,7 +636,11 @@ public enum GTNCItemList implements IItemContainer {
     TimeAcceleratorLuV,
     TimeAcceleratorZPM,
     TimeAcceleratorUV,
-    TimeAcceleratorUHV;
+    TimeAcceleratorUHV,
+
+    MiracleDoor,
+    MiracleDoorPhoton,
+    MiracleDoorMold;
 
     public static final GTNCItemList[] ENERGY_HATCH_LV = { EnergyHatchLV, EnergyHatchLV4A, EnergyHatchLV16A,
         EnergyHatchLV64A };

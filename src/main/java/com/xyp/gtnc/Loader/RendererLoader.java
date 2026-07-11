@@ -1,5 +1,6 @@
 package com.xyp.gtnc.Loader;
 
+import com.xyp.gtnc.Client.render.MiracleStarRender;
 import com.xyp.gtnc.Client.render.RenderTimeAccelerator;
 import com.xyp.gtnc.Common.entity.EntityTimeAccelerator;
 
@@ -20,5 +21,8 @@ public class RendererLoader {
         // Register Time Accelerator entity renderer
         RenderingRegistry.registerEntityRenderingHandler(EntityTimeAccelerator.class, new RenderTimeAccelerator());
 
+        // 注册奇迹之门中心星体渲染器 (TESR)
+        // Register Miracle Door center star renderer
+        new MiracleStarRender();
     }
 }

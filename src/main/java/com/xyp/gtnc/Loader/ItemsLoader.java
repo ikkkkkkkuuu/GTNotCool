@@ -82,6 +82,25 @@ public class ItemsLoader {
         // # zh_CN 生物贴片电感
         GTNCItemList.BiowareSMDInductor.set(MetaItemAdder.initItem(30));
 
+        // #tr item.MetaItem.31.name
+        // # Critical Photon
+        // # zh_CN 临界光子
+        GTNCItemList.MiracleDoorPhoton.set(
+            // #tr Tooltip_MiracleDoorPhoton_00
+            // # Fuel for the Miracle Door. Each run consumes Overclock Parameter of it.
+            // # zh_CN §d奇迹之门的燃料. 每次运行消耗超频系数颗.
+            MetaItemAdder
+                .initItem(31, new String[] { StatCollector.translateToLocal("Tooltip_MiracleDoorPhoton_00") }));
+
+        // #tr item.MetaItem.32.name
+        // # White Dwarf Mold (Ingot)
+        // # zh_CN 白矮星模具(锭)
+        GTNCItemList.MiracleDoorMold.set(
+            // #tr Tooltip_MiracleDoorMold_00
+            // # Put into input bus of the Miracle Door to cast molten metal outputs into ingots.
+            // # zh_CN §d放入奇迹之门的输入总线, 将熔融金属产出熔铸为锭.
+            MetaItemAdder.initItem(32, new String[] { StatCollector.translateToLocal("Tooltip_MiracleDoorMold_00") }));
+
         // #tr item.MetaItem.107.name
         // # 4A LV Wireless Energy Cover
         // # zh_CN 4安 LV无线能源覆盖板

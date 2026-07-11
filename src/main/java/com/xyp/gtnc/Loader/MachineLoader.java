@@ -15,6 +15,7 @@ import com.xyp.gtnc.Common.machines.multiblock.AssemblerMatrix;
 import com.xyp.gtnc.Common.machines.multiblock.GTNCDrillingRig;
 import com.xyp.gtnc.Common.machines.multiblock.GTNCGeneralChemicalFactory;
 import com.xyp.gtnc.Common.machines.multiblock.GTNCMiningRig;
+import com.xyp.gtnc.Common.machines.multiblock.GTNCMiracleDoor;
 import com.xyp.gtnc.Common.machines.multiblock.LargeCombProcessor;
 import com.xyp.gtnc.Common.machines.multiblock.LargeOreProcessor;
 import com.xyp.gtnc.Common.machines.multiblock.MTEMegaIndustrialApiary;
@@ -74,6 +75,17 @@ public class MachineLoader {
                 "AssemblerMatrix",
                 StatCollector.translateToLocal("NameAssemblerMatrix")));
         addItemTooltip(GTNCItemList.AssemblerMatrix.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        // #tr NameMiracleDoor
+        // # Miracle Door
+        // # zh_CN 奇迹之门
+        GTNCItemList.MiracleDoor.set(
+            new GTNCMiracleDoor(
+                GTNCMachineID.MIRACLE_DOOR.ID,
+                "MiracleDoor",
+                StatCollector.translateToLocal("NameMiracleDoor")));
+        addItemTooltip(GTNCItemList.MiracleDoor.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+        GTNCMiracleDoor.initStatics();
 
         // #tr NameQuantumComputer
         // # Quantum Computer

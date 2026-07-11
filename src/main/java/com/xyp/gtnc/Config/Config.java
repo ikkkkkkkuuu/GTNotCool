@@ -78,6 +78,20 @@ public class Config {
     }
     // endregion
 
+    // region MiracleDoor 配置
+    public static class MiracleDoor {
+
+        /** 合金冶炼(ABS)模式每次运行耗时，单位 tick。默认 25.6s = 512 ticks。 */
+        public static int ticksOfProcessingTimeABSMode = 512;
+        /** 恒星锻炉(EBF)模式每次运行耗时，单位 tick。默认 64s = 1280 ticks。 */
+        public static int ticksOfProcessingTimeEBFMode = 1280;
+        /** 合金冶炼(ABS)模式 EU 消耗倍率。默认 1。 */
+        public static int multiplierOfEUCostABSMode = 1;
+        /** 恒星锻炉(EBF)模式 EU 消耗倍率。默认 2。 */
+        public static int multiplierOfEUCostEBFMode = 2;
+    }
+    // endregion
+
     // region ToolBelt 配置
     public static boolean releaseToSwap = true;
     public static boolean clipMouseToCircle = true;
@@ -122,6 +136,7 @@ public class Config {
     private static final String CATEGORY_TOOL_BELT = "Tool_Belt";
     private static final String CATEGORY_ME_OUTPUT_HATCH = "ME_Output_Hatch";
     private static final String CATEGORY_QUANTUM_COMPUTER = "Quantum_Computer";
+    private static final String CATEGORY_MIRACLE_DOOR = "Miracle_Door";
     private static final String CATEGORY_TIME_ACCELERATOR = "Time_Accelerator";
     private static final String CATEGORY_CROPSNH = "CropsNH";
     private static final String CATEGORY_FORESTRY = "Forestry";
@@ -405,6 +420,36 @@ public class Config {
                 1,
                 1000000,
                 "Value of the self-registered lifespan allele, in bee ticks (Forestry Longest=70).");
+
+            // Miracle Door 配置项
+            MiracleDoor.ticksOfProcessingTimeABSMode = configuration.getInt(
+                "ticksOfProcessingTimeABSMode",
+                CATEGORY_MIRACLE_DOOR,
+                MiracleDoor.ticksOfProcessingTimeABSMode,
+                1,
+                Integer.MAX_VALUE,
+                "Fixed processing time (ticks) of a single run in Alloy Smelter mode (default 512 = 25.6s).");
+            MiracleDoor.ticksOfProcessingTimeEBFMode = configuration.getInt(
+                "ticksOfProcessingTimeEBFMode",
+                CATEGORY_MIRACLE_DOOR,
+                MiracleDoor.ticksOfProcessingTimeEBFMode,
+                1,
+                Integer.MAX_VALUE,
+                "Fixed processing time (ticks) of a single run in Stellar Forge mode (default 1280 = 64s).");
+            MiracleDoor.multiplierOfEUCostABSMode = configuration.getInt(
+                "multiplierOfEUCostABSMode",
+                CATEGORY_MIRACLE_DOOR,
+                MiracleDoor.multiplierOfEUCostABSMode,
+                1,
+                Integer.MAX_VALUE,
+                "EU cost multiplier in Alloy Smelter mode (default 1).");
+            MiracleDoor.multiplierOfEUCostEBFMode = configuration.getInt(
+                "multiplierOfEUCostEBFMode",
+                CATEGORY_MIRACLE_DOOR,
+                MiracleDoor.multiplierOfEUCostEBFMode,
+                1,
+                Integer.MAX_VALUE,
+                "EU cost multiplier in Stellar Forge mode (default 2).");
         }
 
         if (configuration.hasChanged()) {
@@ -426,5 +471,6 @@ public class Config {
             .addCustomCategoryComment(CATEGORY_TIME_ACCELERATOR, "Configuration settings for the World Accelerator");
         configuration.addCustomCategoryComment(CATEGORY_CROPSNH, "Configuration settings for CropsNH crop growth");
         configuration.addCustomCategoryComment(CATEGORY_FORESTRY, "Configuration settings for Forestry bees");
+        configuration.addCustomCategoryComment(CATEGORY_MIRACLE_DOOR, "Configuration settings for the Miracle Door");
     }
 }

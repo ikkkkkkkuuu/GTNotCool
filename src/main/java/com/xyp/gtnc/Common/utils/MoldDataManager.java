@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 import net.minecraft.item.ItemStack;
 
+import com.xyp.gtnc.utils.enums.GTNCItemList;
+
 import bartworks.system.material.Werkstoff;
 import bartworks.system.material.WerkstoffLoader;
 import gregtech.api.enums.ItemList;
@@ -25,6 +27,11 @@ public class MoldDataManager {
 
     private static ItemStack[] buildMoldArray() {
         ArrayList<ItemStack> items = new ArrayList<>();
+
+        // 奇迹之门专用白矮星模具 (熔融流体产出转固态锭)
+        if (GTNCItemList.MiracleDoorMold.hasBeenSet()) {
+            items.add(GTNCItemList.MiracleDoorMold.get(1));
+        }
 
         // 基础模具 (Shape_Mold_*)
         items.add(ItemList.Shape_Mold_Bottle.get(1));
