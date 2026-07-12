@@ -25,6 +25,7 @@ import forestry.api.genetics.AlleleManager;
 import forestry.api.genetics.IAllele;
 import forestry.api.genetics.IAlleleFloat;
 import forestry.api.genetics.IAlleleInteger;
+import forestry.api.genetics.IChromosome;
 import forestry.apiculture.genetics.alleles.AlleleEffect;
 import forestry.core.genetics.alleles.AlleleHelper;
 import forestry.core.genetics.alleles.EnumAllele;
@@ -966,10 +967,25 @@ public class BeeBreedingHelper {
         IBeeGenome genome = bee.getGenome();
 
         // 用当前激活等位基因建模板（保留物种），再把非物种染色体拉满。
+        // ⚠️ Forestry 把 EnumBeeChromosome.HUMIDITY 标为「未使用」染色体（见 core.genetics.Genome
+        // 的 unusedChromsomes），合法蜂的 chromosomes[HUMIDITY.ordinal()] 恒为 null。若对它调
+        // genome.getActiveAllele(HUMIDITY)（内部 chromosomes[ordinal].getActiveAllele()）会直接 NPE，
+        // 破坏世界蜂巢时在封包线程崩服（"Failed to handle packet" + 玩家掉线回主界面）。
+        // 因此先用蜂物种的默认模板打底（每槽都有值），再逐槽用「非 null 的」激活等位基因覆盖。
         EnumBeeChromosome[] types = EnumBeeChromosome.values();
-        IAllele[] template = new IAllele[types.length];
+        IAllele species = genome.getPrimary();
+        if (species == null) return bee; // 物种缺失，放弃处理
+        IAllele[] template = root.getTemplate(species.getUID());
+        if (template == null || template.length < types.length) return bee;
+        template = java.util.Arrays.copyOf(template, template.length); // 独立副本，避免污染注册表模板
+        IChromosome[] chromosomes = genome.getChromosomes();
         for (EnumBeeChromosome type : types) {
-            template[type.ordinal()] = genome.getActiveAllele(type);
+            int ordinal = type.ordinal();
+            if (ordinal >= chromosomes.length) continue;
+            IChromosome chromosome = chromosomes[ordinal]; // 未使用染色体（如 HUMIDITY）为 null
+            if (chromosome == null) continue;
+            IAllele active = chromosome.getActiveAllele();
+            if (active != null) template[ordinal] = active;
         }
         if (template[EnumBeeChromosome.SPECIES.ordinal()] == null) return bee; // 物种缺失，放弃处理
 

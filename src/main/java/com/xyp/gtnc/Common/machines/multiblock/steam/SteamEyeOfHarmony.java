@@ -866,6 +866,10 @@ public class SteamEyeOfHarmony extends GTNCSteamMultiBlockBase<SteamEyeOfHarmony
         BigInteger steamNeeded = BigInteger.valueOf(startEU)
             .multiply(BigInteger.valueOf((long) Math.pow(4, currentCircuitMultiplier)));
 
+        // Base steam cost is 1% of the recipe cost (round up so it never drops to 0)
+        steamNeeded = steamNeeded.add(BigInteger.valueOf(99))
+            .divide(BigInteger.valueOf(100));
+
         // Apply astral array steam discount (cumulative from upgrade tree)
         double discount = getSteamDiscount();
         if (discount > 0) {
