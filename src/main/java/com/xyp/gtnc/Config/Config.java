@@ -220,6 +220,18 @@ public class Config {
      * 故显示名可能仍是原值，但蜂的实际工作判定已按满值生效。
      */
     public static boolean enableBeeMaxEnvironment = true;
+    /**
+     * 开启后，蜂巢(野生蜂窝)被破坏掉落的蜜蜂(公主/雄蜂/附加)基因组会被<b>真正写满</b>——物种保持原样，其余
+     * 染色体全部拉满并写成纯合(可稳定遗传)。与 {@link #enableBeeMaxEnvironment} 的读时覆写不同，这里改动的是
+     * 存储的基因组 NBT，因此<b>分析仪(Beealyzer)能读到满值数字</b>、后代也能 breed true。
+     * <p>
+     * 实现方式：{@code @Inject} 在 {@code BlockBeehives.getDrops} 的返回处遍历掉落列表，对每只蜂调用
+     * {@code BeeBreedingHelper.maximizeBeeStack} 重建。这是所有蜂巢掉落的唯一出口(含 ExtraBees 等附属的
+     * IHiveDrop 实现)，一处覆盖全部。
+     * <p>
+     * <b>不波及本 mod 的蜜蜂杂交机</b>：杂交机走 createDrone/createPrincess 直接生成，完全不经过蜂巢掉落逻辑。
+     */
+    public static boolean enableBeeMaxGenomeOnHiveDrop = true;
     // endregion
 
     // region 分类定义
@@ -533,6 +545,15 @@ public class Config {
                     + "the custom Endless allele value, flowering (pollination) speed MAXIMUM (99), and flower provider "
                     + "= vanilla flowers. This is a read-time override of BeeGenome getters, so it does not alter "
                     + "stored genomes and does not affect this mod's own bee breeder (whose bees already have these maxed).");
+
+            enableBeeMaxGenomeOnHiveDrop = configuration.getBoolean(
+                "enableMaxGenomeOnHiveDrop",
+                CATEGORY_FORESTRY,
+                enableBeeMaxGenomeOnHiveDrop,
+                "If set to TRUE, bees dropped from breaking a beehive have their stored genome NBT rewritten to max "
+                    + "(species kept, all other chromosomes maxed and made homozygous, so it breeds true and shows up in "
+                    + "the Beealyzer). Unlike enableMaxEnvironment this alters the actual genome, so the analyzer displays "
+                    + "the maxed values. This mod's own bee breeder is unaffected (it never goes through hive drops).");
 
             // Thaumcraft 配置项
             disableWarpEvents = configuration.getBoolean(
