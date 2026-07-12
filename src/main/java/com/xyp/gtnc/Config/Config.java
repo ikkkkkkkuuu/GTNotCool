@@ -232,6 +232,14 @@ public class Config {
      * <b>不波及本 mod 的蜜蜂杂交机</b>：杂交机走 createDrone/createPrincess 直接生成，完全不经过蜂巢掉落逻辑。
      */
     public static boolean enableBeeMaxGenomeOnHiveDrop = true;
+    /**
+     * 开启后，普通蜂箱杂交产出的后代基因组会被<b>真正写满</b>——物种保持原样，其余染色体全部拉满并写成纯合。
+     * 与 {@link #enableBeeMaxGenomeOnHiveDrop} 是同一套写 NBT 逻辑，只是作用路径不同：这里是普通蜂箱杂交后代
+     * ({@code Bee.createOffspring} 返回处)，那里是世界蜂巢破坏掉落。开启后蜂箱杂交蜂分析仪也能读到满值、可 breed true。
+     * <p>
+     * <b>不波及本 mod 的蜜蜂杂交机</b>：杂交机走 createDrone/createPrincess 直接生成，不经过 createOffspring。
+     */
+    public static boolean enableBeeMaxGenomeOnBreed = true;
     // endregion
 
     // region 分类定义
@@ -554,6 +562,15 @@ public class Config {
                     + "(species kept, all other chromosomes maxed and made homozygous, so it breeds true and shows up in "
                     + "the Beealyzer). Unlike enableMaxEnvironment this alters the actual genome, so the analyzer displays "
                     + "the maxed values. This mod's own bee breeder is unaffected (it never goes through hive drops).");
+
+            enableBeeMaxGenomeOnBreed = configuration.getBoolean(
+                "enableMaxGenomeOnBreed",
+                CATEGORY_FORESTRY,
+                enableBeeMaxGenomeOnBreed,
+                "If set to TRUE, offspring bred in a normal apiary/bee house have their stored genome NBT rewritten to "
+                    + "max (species kept, all other chromosomes maxed and made homozygous, so it breeds true and shows "
+                    + "up in the Beealyzer). Same NBT-level change as enableMaxGenomeOnHiveDrop but for vanilla breeding "
+                    + "(Bee.createOffspring). This mod's own bee breeder is unaffected (it never goes through createOffspring).");
 
             // Thaumcraft 配置项
             disableWarpEvents = configuration.getBoolean(

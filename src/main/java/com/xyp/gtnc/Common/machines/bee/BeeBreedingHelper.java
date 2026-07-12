@@ -934,10 +934,35 @@ public class BeeBreedingHelper {
     public static ItemStack maximizeBeeStack(ItemStack stack) {
         if (!isBee(stack)) return stack;
         IBeeRoot root = getBeeRoot();
-        if (root == null || AlleleHelper.instance == null) return stack;
+        if (root == null) return stack;
 
         IBee bee = root.getMember(stack);
-        if (bee == null || bee.getGenome() == null) return stack;
+        IBee maxBee = maximizeBee(bee);
+        if (maxBee == null || maxBee == bee) return stack;
+
+        // 保留原蜂型（公主 / 雄蜂 / 蜂后）。
+        EnumBeeType type = root.getType(stack);
+        int typeOrdinal = type != null ? type.ordinal() : EnumBeeType.DRONE.ordinal();
+        ItemStack result = root.getMemberStack(maxBee, typeOrdinal);
+        return result != null ? result : stack;
+    }
+
+    /**
+     * 把一只 {@link IBee} 重建为「满基因」——物种(SPECIES)保持原样，其余染色体全部拉满并写成纯合(可稳定遗传)。
+     * <p>
+     * 是 {@link #maximizeBeeStack} 与蜂箱杂交注入（{@code MixinBeeHomozygous} 在 {@code Bee.createOffspring}
+     * 的 RETURN 处）共用的核心：前者作用于世界蜂巢掉落，后者作用于普通蜂箱杂交后代。均<b>真正改写基因组 NBT</b>，
+     * 因此分析仪能读到满值、后代能 breed true。
+     * <p>
+     * <b>杂交机隔离</b>：杂交机走 {@code createDrone/createPrincess → templateAsGenome} 直接生成，既不经蜂巢掉落也不经
+     * {@code createOffspring}，故不受这两处影响。
+     *
+     * @return 满基因蜂（保留物种，isNatural 沿用原蜂）；无法处理时返回传入的原蜂不变。
+     */
+    public static IBee maximizeBee(IBee bee) {
+        if (bee == null || bee.getGenome() == null) return bee;
+        IBeeRoot root = getBeeRoot();
+        if (root == null || AlleleHelper.instance == null) return bee;
         IBeeGenome genome = bee.getGenome();
 
         // 用当前激活等位基因建模板（保留物种），再把非物种染色体拉满。
@@ -946,20 +971,15 @@ public class BeeBreedingHelper {
         for (EnumBeeChromosome type : types) {
             template[type.ordinal()] = genome.getActiveAllele(type);
         }
-        if (template[EnumBeeChromosome.SPECIES.ordinal()] == null) return stack; // 物种缺失，放弃处理
+        if (template[EnumBeeChromosome.SPECIES.ordinal()] == null) return bee; // 物种缺失，放弃处理
 
         applyMaxGenome(template); // 只改非物种染色体，物种原样保留
 
         IBeeGenome maxGenome = root.templateAsGenome(template); // 纯合基因组
         IBee maxBee = root.getBee(null, maxGenome);
-        if (maxBee == null) return stack;
-        maxBee.setIsNatural(true);
-
-        // 保留原蜂型（公主 / 雄蜂 / 蜂后）。
-        EnumBeeType type = root.getType(stack);
-        int typeOrdinal = type != null ? type.ordinal() : EnumBeeType.DRONE.ordinal();
-        ItemStack result = root.getMemberStack(maxBee, typeOrdinal);
-        return result != null ? result : stack;
+        if (maxBee == null) return bee;
+        maxBee.setIsNatural(bee.isNatural());
+        return maxBee;
     }
 
     /**
