@@ -1097,9 +1097,14 @@ public class QuantumComputer extends MTETooltipMultiBlockBase
     }
 
     public int getUsedParallel() {
-        usedParallel = cpus.stream()
-            .mapToInt(CraftingCPUCluster::getCoProcessors)
+        // 每个虚拟 CPU 都被赋予全额 maximumParallel 加速器（每单独立满额、各自满速运行），
+        // 直接累加 getCoProcessors() 会随下单数线性增长（下 2 单显示 200%）。
+        // 功能上多单确实各自跑满，这里仅把显示封顶到整机上限，避免出现 >100% 的误导数字。
+        // 用 long 累加避免多个满额 CPU 的 int 求和溢出成负数。
+        long sum = cpus.stream()
+            .mapToLong(CraftingCPUCluster::getCoProcessors)
             .sum();
+        usedParallel = (int) Math.min(sum, maximumParallel);
         return usedParallel;
     }
 

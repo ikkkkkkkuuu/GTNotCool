@@ -127,7 +127,7 @@ public class QuantumComputerGui extends MTEMultiBlockBaseGui<QuantumComputer> {
                         "Info_QuantumComputer_02",
                         Utils.shortFormat(maximumStorageSyncer.getLongValue()),
                         usedStorageSyncer.getLongValue(),
-                        formatPercent(usedParallelSyncer.getIntValue(), maximumStorageSyncer.getLongValue())))
+                        formatPercent(usedStorageSyncer.getLongValue(), maximumStorageSyncer.getLongValue())))
                     .asWidget()
                     .textAlign(Alignment.CenterLeft)
                     .color(Color.WHITE.main)
