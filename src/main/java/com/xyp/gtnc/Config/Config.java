@@ -58,6 +58,15 @@ public class Config {
         "com.xyp.gtnc.Common.machines.multiblock.AssemblerMatrix",
         "com.xyp.gtnc.Common.machines.multiblock.SingularityDataHub",
         "com.xyp.gtnc.Common.machines.multiblock.QuantumComputer" };
+    /**
+     * 世界加速器 (MTETimeAccelerator) TE 模式下,单个 tick 内加速所有目标机器的总时间预算(毫秒)。
+     * <p>
+     * 加速循环每调用一次 {@code updateEntity()} 就检查是否超预算,一旦超过就立即结束本 tick 的加速——
+     * 没跑完的加速次数作废。蒸汽单方块机器的每次 tick 很贵(配方查询/排气),约 128 次就吃满原来写死的 25ms,
+     * 于是设成 128 倍以上也跑不满,表现为"128 以上无额外加速"。调高此值可让高倍率真正生效,
+     * <b>代价是重负载时更吃服务器 tick 时间(可能掉 TPS)</b>。默认 50ms。
+     */
+    public static int timeAcceleratorTickBudgetMs = 50;
     // endregion
 
     // region VeinMiningPickaxe 配置
@@ -492,6 +501,18 @@ public class Config {
                 "TileEntity class-name prefixes skipped by the World Accelerator in TE mode. "
                     + "Any tile whose full class name starts with one of these is not accelerated. "
                     + "Default excludes AE2 (appeng.) and AE2FC (com.glodblock.github.) to avoid severe lag from ticking ME network blocks.");
+
+            timeAcceleratorTickBudgetMs = configuration.getInt(
+                "tickBudgetMs",
+                CATEGORY_TIME_ACCELERATOR,
+                timeAcceleratorTickBudgetMs,
+                1,
+                1000,
+                "Per-tick time budget (ms) the World Accelerator spends accelerating all target machines in TE mode. "
+                    + "The acceleration loop aborts for this tick once it exceeds this budget, discarding remaining "
+                    + "iterations. Steam single-block machines have expensive ticks (recipe lookup / venting), so the "
+                    + "old hardcoded 25ms only fit about 128 iterations, making speeds above 128x ineffective. Raise "
+                    + "this to let high multipliers actually run, at the cost of more server tick time (possible TPS drop). Default 50.");
 
             // CropsNH 配置项
             enableCropInstantGrowth = configuration.getBoolean(

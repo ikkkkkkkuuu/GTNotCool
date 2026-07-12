@@ -310,7 +310,13 @@ public class MTETimeAccelerator extends MTETieredMachineBlock {
         int tZ = pBaseMetaTileEntity.getZCoord();
         int radius = mMode == 1 ? getRadiusTierOverride() : 1;
 
-        final long tMaxTime = System.nanoTime() + 25_000_000;
+        // Per-tick time budget for accelerating ALL target machines. Steam single-block machines are expensive
+        // per updateEntity (recipe lookup + venting on each completed process, which happens many times per real
+        // tick under high multipliers), so the old hardcoded 25ms filled up at ~128 calls — setting the multiplier
+        // above 128 had no visible effect. Now configurable (see Config.timeAcceleratorTickBudgetMs) so high
+        // multipliers can actually run to completion, at the cost of more server tick time under load.
+        final long tMaxTime = System.nanoTime()
+            + (long) com.xyp.gtnc.Config.Config.timeAcceleratorTickBudgetMs * 1_000_000L;
         final int iterations = mAccelerateStatic[getSpeedTierOverride()];
 
         for (int xi = tX - radius; xi <= tX + radius; xi++) {
