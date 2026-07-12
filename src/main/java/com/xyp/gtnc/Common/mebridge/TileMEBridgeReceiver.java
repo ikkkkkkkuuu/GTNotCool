@@ -188,6 +188,10 @@ public class TileMEBridgeReceiver extends TileMEBridgeBase implements IGuiHolder
 
     // region MUI2 GUI
 
+    // 【务必保留 @SideOnly(CLIENT)】本方块会接入 AE 网络,AE2 的 NetworkEventBus.readClass 在并网时会对本 tile 调
+    // getMethods(),JVM 借此解析每个 public 方法的返回类型。createScreen 返回的 ModularScreen 是纯客户端类,
+    // 专用服务端由 SideTransformer 拒绝加载 → NoClassDefFoundError → 并网即崩服。接口里该方法本身就带
+    // @SideOnly(CLIENT) 会被服务端剥离,重写时必须原样带上,服务端才不会扫到这个客户端返回类型。
     @Override
     @cpw.mods.fml.relauncher.SideOnly(cpw.mods.fml.relauncher.Side.CLIENT)
     public com.cleanroommc.modularui.screen.ModularScreen createScreen(PosGuiData data, ModularPanel mainPanel) {
