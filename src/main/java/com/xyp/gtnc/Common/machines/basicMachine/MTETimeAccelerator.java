@@ -325,12 +325,17 @@ public class MTETimeAccelerator extends MTETieredMachineBlock {
                     // Skip blacklisted tiles (e.g. AE2 network blocks) — repeatedly ticking them lags hard
                     if (isBlacklisted(tTile)) continue;
 
-                    // Refund EU for all accelerated ticks except the last,
-                    // so each machine only pays normal energy cost.
+                    // Refund EU *and* steam for all accelerated ticks except the last, so each machine only
+                    // pays normal running cost. Steam machines burn mStoredSteam (not EU) as their process gate
+                    // (drainEnergyForProcess); refunding only EU let them truly drain N steam per real tick, so
+                    // above ~128x they run dry mid-loop, fail the drain, stutter, and stop advancing — looking
+                    // like "no acceleration". Refunding steam too keeps them running at any multiplier.
                     for (int j = 0; j < iterations - 1; j++) {
                         long savedEU = getGTEU(tTile);
+                        long savedSteam = getGTSteam(tTile);
                         tTile.updateEntity();
                         restoreGTEU(tTile, savedEU);
+                        restoreGTSteam(tTile, savedSteam);
                         if (System.nanoTime() > tMaxTime) return;
                     }
                     // Last tick runs normally — consumes normal energy
@@ -343,6 +348,17 @@ public class MTETimeAccelerator extends MTETieredMachineBlock {
 
     private static long getGTEU(TileEntity tTile) {
         return tTile instanceof IGregTechTileEntity gtTE ? gtTE.getStoredEU() : -1;
+    }
+
+    private static long getGTSteam(TileEntity tTile) {
+        return tTile instanceof IGregTechTileEntity gtTE ? gtTE.getStoredSteam() : -1;
+    }
+
+    private static void restoreGTSteam(TileEntity tTile, long savedSteam) {
+        if (savedSteam < 0) return;
+        IGregTechTileEntity gtTE = (IGregTechTileEntity) tTile;
+        long current = gtTE.getStoredSteam();
+        if (current < savedSteam) gtTE.increaseStoredSteam(savedSteam - current, true);
     }
 
     /**
