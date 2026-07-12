@@ -971,21 +971,17 @@ public class BeeBreedingHelper {
         // 的 unusedChromsomes），合法蜂的 chromosomes[HUMIDITY.ordinal()] 恒为 null。若对它调
         // genome.getActiveAllele(HUMIDITY)（内部 chromosomes[ordinal].getActiveAllele()）会直接 NPE，
         // 破坏世界蜂巢时在封包线程崩服（"Failed to handle packet" + 玩家掉线回主界面）。
-        // 因此先用蜂物种的默认模板打底（每槽都有值），再逐槽用「非 null 的」激活等位基因覆盖。
+        // 因此直接读 genome.getChromosomes() 逐槽取激活等位基因，跳过 null 染色体（HUMIDITY 位置留 null，
+        // SpeciesRoot.templateAsChromosomes 对 template 里的 null 项本就跳过，不影响构造）。
         EnumBeeChromosome[] types = EnumBeeChromosome.values();
-        IAllele species = genome.getPrimary();
-        if (species == null) return bee; // 物种缺失，放弃处理
-        IAllele[] template = root.getTemplate(species.getUID());
-        if (template == null || template.length < types.length) return bee;
-        template = java.util.Arrays.copyOf(template, template.length); // 独立副本，避免污染注册表模板
         IChromosome[] chromosomes = genome.getChromosomes();
+        IAllele[] template = new IAllele[types.length];
         for (EnumBeeChromosome type : types) {
             int ordinal = type.ordinal();
             if (ordinal >= chromosomes.length) continue;
             IChromosome chromosome = chromosomes[ordinal]; // 未使用染色体（如 HUMIDITY）为 null
             if (chromosome == null) continue;
-            IAllele active = chromosome.getActiveAllele();
-            if (active != null) template[ordinal] = active;
+            template[ordinal] = chromosome.getActiveAllele();
         }
         if (template[EnumBeeChromosome.SPECIES.ordinal()] == null) return bee; // 物种缺失，放弃处理
 
