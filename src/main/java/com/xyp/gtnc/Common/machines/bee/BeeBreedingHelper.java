@@ -847,6 +847,15 @@ public class BeeBreedingHelper {
      * 模板由 {@code getTemplate()} 返回的独立副本（Arrays.copyOf），可安全就地修改。
      */
     private static void applyMaxGenome(IAllele[] template) {
+        applyMaxGenome(template, false);
+    }
+
+    /**
+     * @param mortal true = 凡蜂模式（寿命夭折 + 生育保持原本）：世界蜂巢掉落 / 普通蜂箱杂交走此路径；
+     *               false = 满基因模式（寿命不死 + 生育固定 LOW）：本 mod 杂交机 createDrone/createPrincess 走此路径。
+     *               其余染色体（速度/授粉/温湿度/夜行/耐雨/穴居/采蜜/领地/效果）两种模式一致，全部拉满。
+     */
+    private static void applyMaxGenome(IAllele[] template, boolean mortal) {
         if (template == null || AlleleHelper.instance == null) return;
         AlleleHelper helper = AlleleHelper.instance;
         // 速度：优先用本 mod 自注册的「无尽」基因(数值可配)；其次取运行时注册的最高档；
@@ -867,19 +876,24 @@ public class BeeBreedingHelper {
         helper.set(template, EnumBeeChromosome.NOCTURNAL, true);
         helper.set(template, EnumBeeChromosome.TOLERANT_FLYER, true);
         helper.set(template, EnumBeeChromosome.CAVE_DWELLING, true);
-        // 寿命：优先用本 mod 自注册的「不死」基因(数值可配)；其次取运行时注册的最高档；
-        // 都没有时回退到林业原版 LONGEST。
-        if (GTNCBeeAlleles.lifespanAllele != null) {
-            helper.set(template, EnumBeeChromosome.LIFESPAN, GTNCBeeAlleles.lifespanAllele);
+        if (mortal) {
+            // 凡蜂：寿命夭折(最短)、生育保持原本(不覆写)。世界蜂巢掉落与普通蜂箱杂交走此。
+            helper.set(template, EnumBeeChromosome.LIFESPAN, EnumAllele.Lifespan.SHORTEST);
         } else {
-            IAllele maxLifespan = findHighestValueAllele(EnumBeeChromosome.LIFESPAN);
-            if (maxLifespan != null) {
-                helper.set(template, EnumBeeChromosome.LIFESPAN, maxLifespan);
+            // 满基因：寿命优先用本 mod 自注册的「不死」基因(数值可配)；其次运行时注册最高档；都没有回退原版 LONGEST。
+            if (GTNCBeeAlleles.lifespanAllele != null) {
+                helper.set(template, EnumBeeChromosome.LIFESPAN, GTNCBeeAlleles.lifespanAllele);
             } else {
-                helper.set(template, EnumBeeChromosome.LIFESPAN, EnumAllele.Lifespan.LONGEST);
+                IAllele maxLifespan = findHighestValueAllele(EnumBeeChromosome.LIFESPAN);
+                if (maxLifespan != null) {
+                    helper.set(template, EnumBeeChromosome.LIFESPAN, maxLifespan);
+                } else {
+                    helper.set(template, EnumBeeChromosome.LIFESPAN, EnumAllele.Lifespan.LONGEST);
+                }
             }
+            // 生育：固定 LOW(1 只)。
+            helper.set(template, EnumBeeChromosome.FERTILITY, EnumAllele.Fertility.LOW);
         }
-        helper.set(template, EnumBeeChromosome.FERTILITY, EnumAllele.Fertility.LOW);
         helper.set(template, EnumBeeChromosome.FLOWER_PROVIDER, EnumAllele.Flowers.VANILLA);
         helper.set(template, EnumBeeChromosome.TERRITORY, EnumAllele.Territory.AVERAGE);
         if (AlleleEffect.effectNone != null) {
@@ -985,7 +999,7 @@ public class BeeBreedingHelper {
         }
         if (template[EnumBeeChromosome.SPECIES.ordinal()] == null) return bee; // 物种缺失，放弃处理
 
-        applyMaxGenome(template); // 只改非物种染色体，物种原样保留
+        applyMaxGenome(template, true); // 凡蜂模式：寿命夭折+生育原值。世界蜂巢掉落/普通蜂箱杂交走此，物种原样保留
 
         IBeeGenome maxGenome = root.templateAsGenome(template); // 纯合基因组
         IBee maxBee = root.getBee(null, maxGenome);
