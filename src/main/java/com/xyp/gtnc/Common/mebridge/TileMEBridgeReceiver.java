@@ -188,6 +188,10 @@ public class TileMEBridgeReceiver extends TileMEBridgeBase implements IGuiHolder
 
     // region MUI2 GUI
 
+    // 【务必保留 @SideOnly(CLIENT)】本方块会接入 AE 网络,AE2 的 NetworkEventBus.readClass 在并网时会对本 tile 调
+    // getMethods(),JVM 借此解析每个 public 方法的返回类型。createScreen 返回的 ModularScreen 是纯客户端类,
+    // 专用服务端由 SideTransformer 拒绝加载 → NoClassDefFoundError → 并网即崩服。接口里该方法本身就带
+    // @SideOnly(CLIENT) 会被服务端剥离,重写时必须原样带上,服务端才不会扫到这个客户端返回类型。
     @Override
     @cpw.mods.fml.relauncher.SideOnly(cpw.mods.fml.relauncher.Side.CLIENT)
     public com.cleanroommc.modularui.screen.ModularScreen createScreen(PosGuiData data, ModularPanel mainPanel) {
@@ -205,8 +209,16 @@ public class TileMEBridgeReceiver extends TileMEBridgeBase implements IGuiHolder
         StringSyncValue connectedSync = new StringSyncValue(() -> isConnected() ? "1" : "0", v -> {});
         syncManager.syncValue("connected", connectedSync);
 
-        // 频道列表面板(服务端构建,注册表在服务端有数据),点开时按当前注册表快照重建。
-        IPanelHandler listPanel = syncManager.syncedPanel("channelList", true, this::createChannelListPanel);
+        // 频道列表数据(只读,服务端 → 客户端)。MEBridgeChannelManager 是纯服务端注册表,客户端那份恒为空;
+        // 弹出列表面板的 factory 在两端都会跑,若客户端直接读注册表则列表永远是空的(只能手动输入)。
+        // 故把服务端注册表编码成字符串随 GUI 同步下来,两端都用这份同步串重建列表 → 客户端能看到频道,
+        // 且两端 widget 树一致(InteractionSyncHandler 靠索引路由点击,树必须一致)。
+        StringSyncValue listSync = new StringSyncValue(this::encodeChannelList, v -> {});
+        syncManager.syncValue("channelList_data", listSync);
+
+        // 频道列表弹出面板:两端用同步下来的 listSync 重建。
+        IPanelHandler listPanel = syncManager
+            .syncedPanel("channelList", true, (sm, ph) -> createChannelListPanel(sm, ph, listSync));
 
         return ModularPanel.defaultPanel("mebridge_receiver", 180, 78)
             // #tr gui.mebridge.receiver.title
@@ -254,40 +266,74 @@ public class TileMEBridgeReceiver extends TileMEBridgeBase implements IGuiHolder
                     .pos(8, 58));
     }
 
-    /** 频道列表弹出面板:列出全局所有频道,点击即选中并连接。服务端构建,快照当前注册表。 */
-    public ModularPanel createChannelListPanel(PanelSyncManager syncManager, IPanelHandler panelHandler) {
-        List<MEBridgeChannelInfo> channels = MEBridgeChannelManager.snapshot();
+    // 频道列表编码用的分隔符:用控制字符,几乎不会出现在玩家写的频道名里。
+    // 记录间用 \n,字段间用 。字段顺序:name、online(0/1)、x、y、z、dim。
+    private static final String LIST_RECORD_SEP = "\n";
+    private static final String LIST_FIELD_SEP = "";
 
+    /** 服务端把当前注册表编码成一个字符串,随 listSync 同步给客户端。客户端调用返回空串(注册表恒空,不影响)。 */
+    private String encodeChannelList() {
+        List<MEBridgeChannelInfo> channels = MEBridgeChannelManager.snapshot();
+        StringBuilder sb = new StringBuilder();
+        for (MEBridgeChannelInfo info : channels) {
+            if (info.name == null || info.name.isEmpty()) continue;
+            if (sb.length() > 0) sb.append(LIST_RECORD_SEP);
+            sb.append(info.name)
+                .append(LIST_FIELD_SEP)
+                .append(info.isOnline() ? '1' : '0')
+                .append(LIST_FIELD_SEP)
+                .append(info.x)
+                .append(LIST_FIELD_SEP)
+                .append(info.y)
+                .append(LIST_FIELD_SEP)
+                .append(info.z)
+                .append(LIST_FIELD_SEP)
+                .append(info.dim);
+        }
+        return sb.toString();
+    }
+
+    /** 频道列表弹出面板:两端都从同步下来的 listSync 字符串重建,保证 widget 树一致。 */
+    public ModularPanel createChannelListPanel(PanelSyncManager syncManager, IPanelHandler panelHandler,
+        StringSyncValue listSync) {
         Flow column = Flow.column()
             .coverChildrenHeight()
             .width(156);
-        for (MEBridgeChannelInfo info : channels) {
-            final String name = info.name;
-            final boolean online = info.isOnline();
-            String label = (online ? "§a●§r " : "§7○§r ") + name;
-            column.child(
-                new ButtonWidget<>().width(156)
-                    .height(16)
-                    .marginBottom(1)
-                    .overlay(IKey.str(label))
-                    .syncHandler(new InteractionSyncHandler().setOnMousePressed(md -> {
-                        if (!md.isClient()) {
-                            setChannelName(name);
-                            markDirty();
-                        }
-                    }))
-                    .tooltip(
-                        t -> t.addLine(
-                            IKey.str(
-                                StatCollector.translateToLocal("gui.mebridge.channel.pos") + " "
-                                    + info.x
-                                    + ", "
-                                    + info.y
-                                    + ", "
-                                    + info.z
-                                    + " (dim "
-                                    + info.dim
-                                    + ")"))));
+
+        String data = listSync.getValue();
+        if (data != null && !data.isEmpty()) {
+            for (String record : data.split(LIST_RECORD_SEP, -1)) {
+                if (record.isEmpty()) continue;
+                String[] f = record.split(LIST_FIELD_SEP, -1);
+                if (f.length < 6) continue;
+                final String name = f[0];
+                final boolean online = "1".equals(f[1]);
+                final String x = f[2], y = f[3], z = f[4], dim = f[5];
+                String label = (online ? "§a●§r " : "§7○§r ") + name;
+                column.child(
+                    new ButtonWidget<>().width(156)
+                        .height(16)
+                        .marginBottom(1)
+                        .overlay(IKey.str(label))
+                        .syncHandler(new InteractionSyncHandler().setOnMousePressed(md -> {
+                            if (!md.isClient()) {
+                                setChannelName(name);
+                                markDirty();
+                            }
+                        }))
+                        .tooltip(
+                            t -> t.addLine(
+                                IKey.str(
+                                    StatCollector.translateToLocal("gui.mebridge.channel.pos") + " "
+                                        + x
+                                        + ", "
+                                        + y
+                                        + ", "
+                                        + z
+                                        + " (dim "
+                                        + dim
+                                        + ")"))));
+            }
         }
         ListWidget<?, ?> list = new ListWidget<>().size(160, 100)
             .child(column);
