@@ -69,7 +69,12 @@ public class LateMixinsLoader implements ILateMixinLoader {
         }
 
         if (loadedMods.contains(MOD_FORESTRY)) {
-            addAll(list, "Forestry.MixinBee", "Forestry.MixinBeeHomozygous", "Forestry.MixinBeeGenomeEnvironment");
+            addAll(
+                list,
+                "Forestry.MixinBee",
+                "Forestry.MixinBeeHomozygous",
+                "Forestry.MixinBeeGenomeEnvironment",
+                "Forestry.MixinBlockBeehives");
         }
 
         if (loadedMods.contains(MOD_THAUMCRAFT)) {

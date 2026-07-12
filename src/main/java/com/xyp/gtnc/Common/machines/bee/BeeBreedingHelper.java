@@ -920,6 +920,69 @@ public class BeeBreedingHelper {
     }
 
     /**
+     * 把一只蜜蜂 ItemStack 就地重建为「满基因」——物种(SPECIES)保持原样，其余染色体全部拉满
+     * （速度/授粉/温湿度耐性/夜行/耐雨/穴居/寿命/生育/采蜜对象/领地/效果），并写成纯合(可稳定遗传)。
+     * <p>
+     * 与 {@code createDrone}/{@code createPrincess} 同一套逻辑（{@code applyMaxGenome} + {@code templateAsGenome}），
+     * 区别是模板取自传入蜂的 <b>当前激活等位基因</b>（保留物种），而非固定物种模板。
+     * 这是<b>真正改写基因组 NBT</b>：分析仪能读到满值、后代能 breed true。
+     * <p>
+     * 供蜂巢掉落 mixin（{@code MixinBlockBeehives}）调用。杂交机不经此路径，天然隔离。
+     *
+     * @return 满基因蜂 ItemStack（保留原蜂型 公主/雄蜂/蜂后）；无法处理时返回原 stack 不变。
+     */
+    public static ItemStack maximizeBeeStack(ItemStack stack) {
+        if (!isBee(stack)) return stack;
+        IBeeRoot root = getBeeRoot();
+        if (root == null) return stack;
+
+        IBee bee = root.getMember(stack);
+        IBee maxBee = maximizeBee(bee);
+        if (maxBee == null || maxBee == bee) return stack;
+
+        // 保留原蜂型（公主 / 雄蜂 / 蜂后）。
+        EnumBeeType type = root.getType(stack);
+        int typeOrdinal = type != null ? type.ordinal() : EnumBeeType.DRONE.ordinal();
+        ItemStack result = root.getMemberStack(maxBee, typeOrdinal);
+        return result != null ? result : stack;
+    }
+
+    /**
+     * 把一只 {@link IBee} 重建为「满基因」——物种(SPECIES)保持原样，其余染色体全部拉满并写成纯合(可稳定遗传)。
+     * <p>
+     * 是 {@link #maximizeBeeStack} 与蜂箱杂交注入（{@code MixinBeeHomozygous} 在 {@code Bee.createOffspring}
+     * 的 RETURN 处）共用的核心：前者作用于世界蜂巢掉落，后者作用于普通蜂箱杂交后代。均<b>真正改写基因组 NBT</b>，
+     * 因此分析仪能读到满值、后代能 breed true。
+     * <p>
+     * <b>杂交机隔离</b>：杂交机走 {@code createDrone/createPrincess → templateAsGenome} 直接生成，既不经蜂巢掉落也不经
+     * {@code createOffspring}，故不受这两处影响。
+     *
+     * @return 满基因蜂（保留物种，isNatural 沿用原蜂）；无法处理时返回传入的原蜂不变。
+     */
+    public static IBee maximizeBee(IBee bee) {
+        if (bee == null || bee.getGenome() == null) return bee;
+        IBeeRoot root = getBeeRoot();
+        if (root == null || AlleleHelper.instance == null) return bee;
+        IBeeGenome genome = bee.getGenome();
+
+        // 用当前激活等位基因建模板（保留物种），再把非物种染色体拉满。
+        EnumBeeChromosome[] types = EnumBeeChromosome.values();
+        IAllele[] template = new IAllele[types.length];
+        for (EnumBeeChromosome type : types) {
+            template[type.ordinal()] = genome.getActiveAllele(type);
+        }
+        if (template[EnumBeeChromosome.SPECIES.ordinal()] == null) return bee; // 物种缺失，放弃处理
+
+        applyMaxGenome(template); // 只改非物种染色体，物种原样保留
+
+        IBeeGenome maxGenome = root.templateAsGenome(template); // 纯合基因组
+        IBee maxBee = root.getBee(null, maxGenome);
+        if (maxBee == null) return bee;
+        maxBee.setIsNatural(bee.isNatural());
+        return maxBee;
+    }
+
+    /**
      * 创建指定品种的雄蜂 ItemStack。
      * 优先按 UID 查找，其次按名称查找。
      */

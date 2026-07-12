@@ -4,10 +4,14 @@ import java.util.Random;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import com.xyp.gtnc.Common.machines.bee.BeeBreedingHelper;
 import com.xyp.gtnc.Config.Config;
 
+import forestry.api.apiculture.IBee;
 import forestry.api.genetics.IAllele;
 import forestry.api.genetics.IChromosome;
 import forestry.apiculture.genetics.Bee;
@@ -49,5 +53,26 @@ public abstract class MixinBeeHomozygous {
         }
         // 用激活等位基因构造纯合染色体（单参构造器令 primary == secondary）。
         return new Chromosome(active);
+    }
+
+    /**
+     * 普通蜂箱杂交后代<b>真正写满基因 NBT</b>：在 {@code createOffspring} 返回处，把后代 {@link IBee} 用
+     * {@link BeeBreedingHelper#maximizeBee} 重建为满基因（保留物种、其余染色体拉满并纯合）。这样蜂箱杂交出来的蜂
+     * 分析仪能读到满值、后代能 breed true，与世界蜂巢掉落（{@code MixinBlockBeehives}）表现一致。
+     * <p>
+     * <b>杂交机隔离</b>：本 mod 蜜蜂杂交机走 {@code createDrone/createPrincess → templateAsGenome} 直接生成，
+     * 完全不经过 {@code createOffspring}，故不受影响。
+     * <p>
+     * 由 {@link Config#enableBeeMaxGenomeOnBreed} 控制，默认开启。
+     */
+    @Inject(method = "createOffspring", at = @At("RETURN"), cancellable = true, remap = false, require = 1)
+    private void gtnc$maxGenomeOffspring(CallbackInfoReturnable<IBee> cir) {
+        if (!Config.enableBeeMaxGenomeOnBreed) return;
+        IBee offspring = cir.getReturnValue();
+        if (offspring == null) return;
+        IBee maxed = BeeBreedingHelper.maximizeBee(offspring);
+        if (maxed != offspring) {
+            cir.setReturnValue(maxed);
+        }
     }
 }
