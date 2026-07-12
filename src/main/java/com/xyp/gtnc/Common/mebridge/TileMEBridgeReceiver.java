@@ -293,6 +293,17 @@ public class TileMEBridgeReceiver extends TileMEBridgeBase implements IGuiHolder
         return sb.toString();
     }
 
+    /**
+     * 按频道名分配一个稳定的 Minecraft 颜色码(§1–§9、§a–§e,共 13 色),用于在列表里区分不同网络。
+     * 跳过 §0(黑,难读)、§f(白,与默认色无区分)。同名频道每次返回同色。
+     */
+    private static String gtnc$channelColor(String name) {
+        // 十六进制色码字符集:1..9 a..e(去掉 0 黑、f 白)
+        final char[] palette = { '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e' };
+        int idx = Math.floorMod(name.hashCode(), palette.length);
+        return "§" + palette[idx];
+    }
+
     /** 频道列表弹出面板:两端都从同步下来的 listSync 字符串重建,保证 widget 树一致。 */
     public ModularPanel createChannelListPanel(PanelSyncManager syncManager, IPanelHandler panelHandler,
         StringSyncValue listSync) {
@@ -309,7 +320,10 @@ public class TileMEBridgeReceiver extends TileMEBridgeBase implements IGuiHolder
                 final String name = f[0];
                 final boolean online = "1".equals(f[1]);
                 final String x = f[2], y = f[3], z = f[4], dim = f[5];
-                String label = (online ? "§a●§r " : "§7○§r ") + name;
+                // 每个网络(频道)按名字哈希分配一个稳定的专属颜色,圆点和名字都用它上色,
+                // 从而一眼区分不同网络;在线/离线继续用实心●/空心○区分。
+                String color = gtnc$channelColor(name);
+                String label = color + (online ? "●" : "○") + " " + name + "§r";
                 column.child(
                     new ButtonWidget<>().width(156)
                         .height(16)
