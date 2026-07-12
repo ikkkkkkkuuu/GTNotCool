@@ -189,6 +189,7 @@ public class TileMEBridgeReceiver extends TileMEBridgeBase implements IGuiHolder
     // region MUI2 GUI
 
     @Override
+    @cpw.mods.fml.relauncher.SideOnly(cpw.mods.fml.relauncher.Side.CLIENT)
     public com.cleanroommc.modularui.screen.ModularScreen createScreen(PosGuiData data, ModularPanel mainPanel) {
         return new com.cleanroommc.modularui.screen.ModularScreen(com.xyp.gtnc.ScienceNotCool.MODID, mainPanel);
     }
