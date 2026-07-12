@@ -115,6 +115,67 @@ public class Config {
     public static boolean enableCropGuaranteedSeedDrop = true;
     // endregion
 
+    // region Thaumcraft 配置
+    /**
+     * 开启后，禁止神秘时代(Thaumcraft)的「扭曲事件」发生——不再随机施加负面药水效果、
+     * 生成心灵蜘蛛/古神守卫、召唤迷雾、发送幻觉聊天、强制解锁古神研究。
+     * <p>
+     * 实现方式：重定向 {@code WarpEvents.checkWarpEvent} 中触发事件的随机判定
+     * ({@code rand.nextInt(100)})，使触发条件恒不成立，从而跳过整个事件块；
+     * 而方法末尾的临时扭曲衰减({@code addWarpTemp(-1)})照常执行，
+     * <b>扭曲值(perm/temp/sticky)完全不受影响</b>。
+     */
+    public static boolean disableWarpEvents = true;
+    /**
+     * 开启后，解锁全部研究——{@code ResearchManager.isResearchComplete} 对任意研究键恒返回 true。
+     * <b>默认关闭</b>：这会让研究笔记本 GUI 误判全部研究已完成、显示异常，故有风险。
+     * 只想省去研究小游戏而保留 GUI 的话，用 {@link #tcFreeResearchAspects}（研究点不消耗）即可。
+     */
+    public static boolean tcUnlockAllResearch = false;
+    /**
+     * 开启后，研究点数（aspects/观察点）永不因研究消耗而减少——重定向 {@code PlayerKnowledge.addAspectPool}
+     * 的负增量（扣减）分支，使其不生效。研究台的六边形拼图小游戏因此永远够点，等效"研究免费"，且不破坏 GUI。
+     */
+    public static boolean tcFreeResearchAspects = true;
+    /**
+     * 开启后，坩埚（Crucible）不再产生通量污染——{@code TileCrucible.spill()} 在 HEAD 取消。
+     * spill 是坩埚溢出/失衡时生成通量气/通量泥（进而涨 warp/taint）的唯一来源，取消它即"注魔零污染"的坩埚侧。
+     */
+    public static boolean tcCrucibleNoFlux = true;
+    /**
+     * 开启后，注魔祭坛（Infusion Matrix）注魔时不失稳——每个 craftCycle 开头把 {@code instability} 归零。
+     * 失稳只会引发掉物/爆炸/闪电/涨 warp 等负面事件（含注魔侧的通量生成），合成进度本身与失稳无关，
+     * 故归零后合成照常完成、但绝不触发坏事件。
+     */
+    public static boolean tcInfusionNoInstability = true;
+    /**
+     * 开启后，从 vis 网络抽取魔力永远成功且不消耗节点存量——{@code VisNetHandler.drainVis} 在 HEAD 直接返回请求量。
+     * 等效"节点不衰减 + vis 无限"：任何需要 vis 的操作都拿得到，且节点/中继不掉存量。
+     */
+    public static boolean tcInfiniteVis = true;
+    // endregion
+
+    // region Applied Energistics 2 配置
+    /**
+     * 开启后，AE2 网络无视频道(channel)限制——所有需要频道的设备(总线/接口/终端等)一律获得频道，
+     * 相当于把 AE2 原生的「无频道模式」局部打开。
+     * <p>
+     * 实现方式：重定向 rv3-977 中计算频道上限的两处(且仅这两处)对
+     * {@code AEConfig.isFeatureEnabled(AEFeature.Channels)} 的调用，令其返回 {@code false}：
+     * <ul>
+     * <li>{@code GridNode.getCompressedChannelsIndex()}——有控制器网络，返回 index 3 →
+     * {@code getMaxChannels()} = {@code CHANNEL_COUNT[3]} = {@code Integer.MAX_VALUE}；</li>
+     * <li>{@code PathGridCache.calculateAdHocChannels()}——无控制器(ad-hoc)网络，上限取 {@code Integer.MAX_VALUE}。</li>
+     * </ul>
+     * 不去全局翻转该 feature 开关，因为 {@code BlockStorageReshuffle} 用它 gate 方块<b>注册</b>，
+     * 全局关闭会导致该方块消失；这里只改频道计数点。
+     * <p>
+     * 幂等：若 AE2 配置本就关闭了 Channels 功能(已是无限频道)，{@code isFeatureEnabled} 本就返回 false，
+     * 重定向无副作用。GTNH 默认开启频道,因此默认情况下这确实解除了限制。
+     */
+    public static boolean disableAE2ChannelLimit = true;
+    // endregion
+
     // region Forestry 配置
     /** 开启后，所有蜜蜂无需气候匹配(jubilance)即可产出特殊产物，普通蜂箱也能出特产。 */
     public static boolean enableBeeAlwaysJubilant = true;
@@ -127,6 +188,38 @@ public class Config {
     public static float customBeeSpeedValue = 100.0F;
     /** 自注册寿命基因(名「不死」)数值，单位蜜蜂刻(林业原版最长寿=70)。 */
     public static int customBeeLifespanValue = 600000;
+    /**
+     * 开启后，普通蜂箱杂交产出的后代只出纯合子（每条染色体的两条等位基因相同），不出杂合子。
+     * <p>
+     * 重定向 {@code Bee.createOffspring} 内对 {@code Chromosome.inheritChromosome} 的调用：原版从两个亲本
+     * 各随机取一条等位基因凑成 {@code (choice1, choice2)}，两者不同即杂合子；这里改为两条都用 {@code choice1}，
+     * 于是后代每条染色体必为纯合。物种(SPECIES)染色体照常继承（杂交/突变逻辑不受影响，只是变纯合）。
+     * <p>
+     * 只作用于 {@code Bee.createOffspring} 这一处调用——本 mod 的蜜蜂杂交机走「模板法」
+     * ({@code applyMaxGenome} + {@code templateAsGenome})直接生成纯合基因组，不经过 {@code inheritChromosome}，
+     * 因此其产出的蜜蜂基因完全不受本开关影响。
+     */
+    public static boolean enableBeeHomozygousOffspring = true;
+    /**
+     * 开启后，所有蜜蜂（野生、蜂巢掉落、原版蜂箱杂交、村民蜂等一切来源）读取基因组时，环境/产出相关性状一律拉满：
+     * <ul>
+     * <li>温度耐性/湿度耐性 = ±5（BOTH_5）</li>
+     * <li>夜行性(nocturnal) / 穴居(caveDwelling) = true</li>
+     * <li>工作速度(speed) = 本 mod 自注册的「无尽」基因值（{@link #customBeeSpeedValue}），未注册时回退原值</li>
+     * <li>授粉速度(flowering) = 99（MAXIMUM）</li>
+     * <li>采蜜对象(flowerProvider) = 鲜花（vanilla flowers，UID {@code forestry.flowersVanilla}）</li>
+     * </ul>
+     * 于是任何蜂在任意气候、夜间、地下都能工作，且速度/授粉/采蜜对象统一。
+     * <p>
+     * 实现方式：{@code @Inject} 覆写 {@code BeeGenome} 的对应 getter
+     * （{@code getToleranceTemp/getToleranceHumid/getNocturnal/getCaveDwelling/getSpeed/getFlowering/getFlowerProvider}）的返回值。
+     * 这是<b>读时覆写</b>，不改动存储的基因组 NBT。
+     * <p>
+     * <b>不波及本 mod 的蜜蜂杂交机</b>：杂交机产出的蜂这些项本就已是满值（applyMaxGenome 设 BOTH_5/无尽/MAXIMUM/vanilla 等），
+     * getter 返回值与覆写值一致，对其零影响。注意：beealyzer/分析仪的 tooltip 直读 allele 名、不走这些 getter，
+     * 故显示名可能仍是原值，但蜂的实际工作判定已按满值生效。
+     */
+    public static boolean enableBeeMaxEnvironment = true;
     // endregion
 
     // region 分类定义
@@ -140,6 +233,8 @@ public class Config {
     private static final String CATEGORY_TIME_ACCELERATOR = "Time_Accelerator";
     private static final String CATEGORY_CROPSNH = "CropsNH";
     private static final String CATEGORY_FORESTRY = "Forestry";
+    private static final String CATEGORY_THAUMCRAFT = "Thaumcraft";
+    private static final String CATEGORY_AE2 = "Applied_Energistics_2";
     // endregion
 
     // region 配置文件
@@ -421,6 +516,78 @@ public class Config {
                 1000000,
                 "Value of the self-registered lifespan allele, in bee ticks (Forestry Longest=70).");
 
+            enableBeeHomozygousOffspring = configuration.getBoolean(
+                "enableHomozygousOffspring",
+                CATEGORY_FORESTRY,
+                enableBeeHomozygousOffspring,
+                "If set to TRUE, vanilla apiary/alveary breeding only produces homozygous offspring (both alleles of "
+                    + "every chromosome are identical), so no hybrids are ever bred. This mod's own bee breeder is "
+                    + "unaffected (it builds bees from templates, not via Chromosome.inheritChromosome).");
+
+            enableBeeMaxEnvironment = configuration.getBoolean(
+                "enableMaxEnvironment",
+                CATEGORY_FORESTRY,
+                enableBeeMaxEnvironment,
+                "If set to TRUE, every bee (wild, hive-dropped, vanilla-bred, any source) reads maxed traits at "
+                    + "runtime: temperature/humidity tolerance BOTH_5 (+/-5), nocturnal, cave-dwelling, work speed = "
+                    + "the custom Endless allele value, flowering (pollination) speed MAXIMUM (99), and flower provider "
+                    + "= vanilla flowers. This is a read-time override of BeeGenome getters, so it does not alter "
+                    + "stored genomes and does not affect this mod's own bee breeder (whose bees already have these maxed).");
+
+            // Thaumcraft 配置项
+            disableWarpEvents = configuration.getBoolean(
+                "disableWarpEvents",
+                CATEGORY_THAUMCRAFT,
+                disableWarpEvents,
+                "If set to TRUE, Thaumcraft warp events (debuff potions, mind spiders, eldritch guardians, "
+                    + "fog, hallucination messages, forced eldritch research) never trigger. "
+                    + "The warp value itself (perm/temp/sticky) is left completely unchanged, including its normal temp decay.");
+
+            tcUnlockAllResearch = configuration.getBoolean(
+                "unlockAllResearch",
+                CATEGORY_THAUMCRAFT,
+                tcUnlockAllResearch,
+                "If set to TRUE, every research counts as complete (isResearchComplete always returns true). "
+                    + "Note: this can confuse the research-notebook GUI. To just skip the research minigame instead, use freeResearchAspects.");
+
+            tcFreeResearchAspects = configuration.getBoolean(
+                "freeResearchAspects",
+                CATEGORY_THAUMCRAFT,
+                tcFreeResearchAspects,
+                "If set to TRUE, research aspect points are never consumed (the negative/reduce branch of PlayerKnowledge.addAspectPool is suppressed), "
+                    + "so the research-table hex minigame always has enough points. Does not break the GUI.");
+
+            tcCrucibleNoFlux = configuration.getBoolean(
+                "crucibleNoFlux",
+                CATEGORY_THAUMCRAFT,
+                tcCrucibleNoFlux,
+                "If set to TRUE, the Crucible never spills flux (TileCrucible.spill is cancelled). "
+                    + "spill is the only source of flux gas/goo from crucible overflow, so this is the crucible side of zero-pollution alchemy.");
+
+            tcInfusionNoInstability = configuration.getBoolean(
+                "infusionNoInstability",
+                CATEGORY_THAUMCRAFT,
+                tcInfusionNoInstability,
+                "If set to TRUE, the Infusion Matrix never becomes unstable (instability is forced to 0 each craft cycle). "
+                    + "Instability only causes negative events (item ejection, explosions, lightning, warp, flux); crafting progress is independent, so crafting still completes normally.");
+
+            tcInfiniteVis = configuration.getBoolean(
+                "infiniteVis",
+                CATEGORY_THAUMCRAFT,
+                tcInfiniteVis,
+                "If set to TRUE, draining vis from the network always succeeds and never depletes node reserves (VisNetHandler.drainVis returns the full requested amount). "
+                    + "Equivalent to infinite vis + nodes that never decay.");
+
+            // Applied Energistics 2 配置项
+            disableAE2ChannelLimit = configuration.getBoolean(
+                "disableChannelLimit",
+                CATEGORY_AE2,
+                disableAE2ChannelLimit,
+                "If set to TRUE, AE2 networks ignore channel limits: every channel-requiring device always gets a channel "
+                    + "(equivalent to locally enabling AE2's built-in no-channels mode). "
+                    + "This only affects channel counting; nothing is registered or unregistered. "
+                    + "Idempotent: if AE2's own Channels feature is already disabled, this changes nothing.");
+
             // Miracle Door 配置项
             MiracleDoor.ticksOfProcessingTimeABSMode = configuration.getInt(
                 "ticksOfProcessingTimeABSMode",
@@ -472,5 +639,7 @@ public class Config {
         configuration.addCustomCategoryComment(CATEGORY_CROPSNH, "Configuration settings for CropsNH crop growth");
         configuration.addCustomCategoryComment(CATEGORY_FORESTRY, "Configuration settings for Forestry bees");
         configuration.addCustomCategoryComment(CATEGORY_MIRACLE_DOOR, "Configuration settings for the Miracle Door");
+        configuration.addCustomCategoryComment(CATEGORY_THAUMCRAFT, "Configuration settings for Thaumcraft");
+        configuration.addCustomCategoryComment(CATEGORY_AE2, "Configuration settings for Applied Energistics 2");
     }
 }
