@@ -64,9 +64,9 @@ public class Config {
      * 加速循环每调用一次 {@code updateEntity()} 就检查是否超预算,一旦超过就立即结束本 tick 的加速——
      * 没跑完的加速次数作废。蒸汽单方块机器的每次 tick 很贵(配方查询/排气),约 128 次就吃满原来写死的 25ms,
      * 于是设成 128 倍以上也跑不满,表现为"128 以上无额外加速"。调高此值可让高倍率真正生效,
-     * <b>代价是重负载时更吃服务器 tick 时间(可能掉 TPS)</b>。默认 50ms。
+     * <b>代价是重负载时更吃服务器 tick 时间(可能掉 TPS)</b>。默认 80ms。
      */
-    public static int timeAcceleratorTickBudgetMs = 50;
+    public static int timeAcceleratorTickBudgetMs = 80;
     // endregion
 
     // region VeinMiningPickaxe 配置
@@ -512,7 +512,7 @@ public class Config {
                     + "The acceleration loop aborts for this tick once it exceeds this budget, discarding remaining "
                     + "iterations. Steam single-block machines have expensive ticks (recipe lookup / venting), so the "
                     + "old hardcoded 25ms only fit about 128 iterations, making speeds above 128x ineffective. Raise "
-                    + "this to let high multipliers actually run, at the cost of more server tick time (possible TPS drop). Default 50.");
+                    + "this to let high multipliers actually run, at the cost of more server tick time (possible TPS drop). Default 80.");
 
             // CropsNH 配置项
             enableCropInstantGrowth = configuration.getBoolean(
