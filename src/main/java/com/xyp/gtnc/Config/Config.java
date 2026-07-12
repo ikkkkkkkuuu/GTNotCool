@@ -249,6 +249,15 @@ public class Config {
      * <b>不波及本 mod 的蜜蜂杂交机</b>：杂交机走 createDrone/createPrincess 直接生成，不经过 createOffspring。
      */
     public static boolean enableBeeMaxGenomeOnBreed = true;
+    /**
+     * 诱变框架杂交(突变)成功率乘数。插入蜂箱/蜂房框架槽后，把突变成功率乘以此值(默认 1.8 = +80%)。
+     * 只对有框架槽的蜂箱生效，不影响本 mod 的蜜蜂杂交机。
+     */
+    public static float mutagenicFrameMutationMultiplier = 1.8F;
+    /**
+     * 诱变框架的基因衰变系数(累乘，1.0 = 不变，0.0 = 完全不衰变)。默认 0。
+     */
+    public static float mutagenicFrameGeneticDecay = 0.0F;
     // endregion
 
     // region 分类定义
@@ -592,6 +601,23 @@ public class Config {
                     + "max (species kept, all other chromosomes maxed and made homozygous, so it breeds true and shows "
                     + "up in the Beealyzer). Same NBT-level change as enableMaxGenomeOnHiveDrop but for vanilla breeding "
                     + "(Bee.createOffspring). This mod's own bee breeder is unaffected (it never goes through createOffspring).");
+
+            mutagenicFrameMutationMultiplier = configuration.getFloat(
+                "mutagenicFrameMutationMultiplier",
+                CATEGORY_FORESTRY,
+                mutagenicFrameMutationMultiplier,
+                0.0F,
+                1000.0F,
+                "Mutation (breeding) chance multiplier applied by the Mutagenic Frame when placed in an apiary/alveary "
+                    + "frame slot. 1.8 = +80% success rate. Multiplies with vanilla mutation chance. Other frame "
+                    + "modifiers (territory/lifespan/production/flowering) are left neutral.");
+            mutagenicFrameGeneticDecay = configuration.getFloat(
+                "mutagenicFrameGeneticDecay",
+                CATEGORY_FORESTRY,
+                mutagenicFrameGeneticDecay,
+                0.0F,
+                1.0F,
+                "Genetic decay modifier applied by the Mutagenic Frame (multiplicative, 1.0 = unchanged, 0.0 = no decay).");
 
             // Thaumcraft 配置项
             disableWarpEvents = configuration.getBoolean(

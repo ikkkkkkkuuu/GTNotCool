@@ -29,6 +29,12 @@ public class CraftingTableRecipes {
                 .maybeStack(1)
                 .orNull() });
 
+        // 诱变框架配方：验证框架(Forestry) 中心 + 四周高算力芯片I
+        GameRegistry.addRecipe(
+            new ItemStack(ItemsLoader.mutagenicFrame),
+            new Object[] { " A ", "ABA", " A ", 'A', GTNCItemList.ChipTier1.get(1), 'B',
+                GameRegistry.findItemStack("Forestry", "frameProven", 1) });
+
         GTModHandler.addCraftingRecipe(
             GTNCItemList.SteamEyeOfHarmony.get(1),
             new Object[] { "ABA", "BCB", "ABA",

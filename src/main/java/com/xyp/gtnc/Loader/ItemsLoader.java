@@ -6,6 +6,7 @@ import net.minecraft.util.StatCollector;
 import com.gtnewhorizon.gtnhlib.util.numberformatting.NumberFormatUtil;
 import com.xyp.gtnc.Client.GTNCCreativeTabs;
 import com.xyp.gtnc.Common.items.MetaItemAdder;
+import com.xyp.gtnc.Common.items.bee.MutagenicFrameItem;
 import com.xyp.gtnc.Common.items.tools.VeinMiningPickaxe;
 import com.xyp.gtnc.Common.items.wildcard.WildcardPatternItem;
 import com.xyp.gtnc.utils.enums.GTNCItemList;
@@ -24,6 +25,9 @@ public class ItemsLoader {
     // 通配样板符
     public static Item wildcardPattern;
 
+    // 诱变框架（+80% 杂交成功率）
+    public static Item mutagenicFrame;
+
     // MetaItem 系统
     public static Item metaItem;
 
@@ -38,6 +42,9 @@ public class ItemsLoader {
         wildcardPattern = new WildcardPatternItem();
         GameRegistry.registerItem(wildcardPattern, WildcardPatternItem.ITEM_NAME);
 
+        // 注册诱变框架（+80% 杂交成功率、不衰变、永不磨损）
+        mutagenicFrame = new MutagenicFrameItem();
+        GameRegistry.registerItem(mutagenicFrame, MutagenicFrameItem.ITEM_NAME);
     }
 
     public static void registryMetaItems() {
