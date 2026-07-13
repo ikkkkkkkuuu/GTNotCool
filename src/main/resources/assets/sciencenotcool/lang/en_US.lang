@@ -108,6 +108,7 @@ gui.wildcardpattern.add_string=+Name
 gui.wildcardpattern.save=Save
 gui.wildcardpattern.empty_hint=Add a component below
 itemBase.null.name=Null Item
+item.endless_frame.name=Endless Frame
 item.mutagenic_frame.name=Mutagenic Frame
 item.VeinMiningPickaxe.name=Vein Mining Pickaxe
 Tooltip_VeinMiningPickaxe_00=Range: %d

@@ -6,6 +6,7 @@ import net.minecraft.util.StatCollector;
 import com.gtnewhorizon.gtnhlib.util.numberformatting.NumberFormatUtil;
 import com.xyp.gtnc.Client.GTNCCreativeTabs;
 import com.xyp.gtnc.Common.items.MetaItemAdder;
+import com.xyp.gtnc.Common.items.bee.EndlessFrameItem;
 import com.xyp.gtnc.Common.items.bee.MutagenicFrameItem;
 import com.xyp.gtnc.Common.items.tools.VeinMiningPickaxe;
 import com.xyp.gtnc.Common.items.wildcard.WildcardPatternItem;
@@ -25,8 +26,11 @@ public class ItemsLoader {
     // 通配样板符
     public static Item wildcardPattern;
 
-    // 诱变框架（+80% 杂交成功率）
+    // 诱变框架（杂交成功率倍增）
     public static Item mutagenicFrame;
+
+    // 无尽框架（寿命无限 + 高产量，宇宙彩虹材质）
+    public static Item endlessFrame;
 
     // MetaItem 系统
     public static Item metaItem;
@@ -45,6 +49,10 @@ public class ItemsLoader {
         // 注册诱变框架（+80% 杂交成功率、不衰变、永不磨损）
         mutagenicFrame = new MutagenicFrameItem();
         GameRegistry.registerItem(mutagenicFrame, MutagenicFrameItem.ITEM_NAME);
+
+        // 注册无尽框架（寿命无限 + 产量×30、不杂交、不衰变、永不磨损，宇宙彩虹材质）
+        endlessFrame = new EndlessFrameItem();
+        GameRegistry.registerItem(endlessFrame, EndlessFrameItem.ITEM_NAME);
     }
 
     public static void registryMetaItems() {

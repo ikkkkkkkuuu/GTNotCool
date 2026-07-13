@@ -35,6 +35,12 @@ public class CraftingTableRecipes {
             new Object[] { " A ", "ABA", " A ", 'A', GTNCItemList.ChipTier1.get(1), 'B',
                 GameRegistry.findItemStack("Forestry", "frameProven", 1) });
 
+        // 无尽框架配方：诱变框架中心 + 四周高算力芯片III
+        GameRegistry.addRecipe(
+            new ItemStack(ItemsLoader.endlessFrame),
+            new Object[] { " A ", "ABA", " A ", 'A', GTNCItemList.ChipTier3.get(1), 'B',
+                new ItemStack(ItemsLoader.mutagenicFrame) });
+
         GTModHandler.addCraftingRecipe(
             GTNCItemList.SteamEyeOfHarmony.get(1),
             new Object[] { "ABA", "BCB", "ABA",

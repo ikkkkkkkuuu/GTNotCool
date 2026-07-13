@@ -20,7 +20,8 @@ import forestry.api.apiculture.IHiveFrame;
  * <li><b>突变(杂交)成功率 ×{@link Config#mutagenicFrameMutationMultiplier}</b>(GT++ = 5.0)；</li>
  * <li><b>寿命 ×{@link Config#mutagenicFrameLifespanModifier}</b>(GT++ = 0.0001)——蜂后寿命被砍到近乎为零，
  * 几乎瞬死、疯狂重滚后代。<b>这才是诱变框架"出杂交快"的真正原因</b>：单次突变判定概率只 ×5，但繁殖循环数暴涨，突变哗哗地出；</li>
- * <li>产量 ×{@link Config#mutagenicFrameProductionModifier}(GT++ = 9.0)、基因衰变 ×{@link Config#mutagenicFrameGeneticDecay}(GT++ = 1.0)。</li>
+ * <li>产量 ×{@link Config#mutagenicFrameProductionModifier}(GT++ = 9.0)、基因衰变
+ * ×{@link Config#mutagenicFrameGeneticDecay}(GT++ = 1.0)。</li>
  * </ul>
  * <p>
  * 原理：{@link IHiveFrame#getBeeModifier()} 返回的 {@link IBeeModifier} 会被 {@code BeeHousingModifier} 累乘进

@@ -272,6 +272,29 @@ public class Config {
      * 诱变框架耐久(可用次数)。默认 0 = 永不磨损(GT++ 原版为 3，用 3 次即损坏)。
      */
     public static int mutagenicFrameMaxDamage = 0;
+
+    /**
+     * 无尽框架寿命倍率(累乘，1.0 = 不变)。默认 1000000.0——远大于 1，使 {@code age()} 里的 ageModifier=1/此值
+     * 趋近 0，蜂后几乎不掉血，等效"寿命无限"。与诱变框架相反(那个砍到近零求瞬死)，这个拉到极大求长生，
+     * 适合当纯产物框架用(蜂后长期驻留、稳定产出)。
+     */
+    public static float endlessFrameLifespanModifier = 1000000.0F;
+    /**
+     * 无尽框架产量倍率(加法累加进 {@code BeeHousingModifier.getProductionModifier})。默认 30.0。
+     */
+    public static float endlessFrameProductionModifier = 30.0F;
+    /**
+     * 无尽框架突变(杂交)成功率乘数。默认 0.0——完全不杂交突变(纯产物框架，保持蜂种不变)。
+     */
+    public static float endlessFrameMutationMultiplier = 0.0F;
+    /**
+     * 无尽框架基因衰变系数(累乘，1.0 = 不变，0.0 = 完全不衰变)。默认 0.0——完全不衰变。
+     */
+    public static float endlessFrameGeneticDecay = 0.0F;
+    /**
+     * 无尽框架耐久(可用次数)。默认 0 = 永不磨损(耐久不变)。
+     */
+    public static int endlessFrameMaxDamage = 0;
     // endregion
 
     // region 分类定义
@@ -657,6 +680,47 @@ public class Config {
                 Integer.MAX_VALUE,
                 "Durability (number of uses) of the Mutagenic Frame. Default 0 = never wears out "
                     + "(GT++ MUTAGENIC frame = 3, breaks after 3 uses).");
+
+            endlessFrameLifespanModifier = configuration.getFloat(
+                "endlessFrameLifespanModifier",
+                CATEGORY_FORESTRY,
+                endlessFrameLifespanModifier,
+                0.0F,
+                Float.MAX_VALUE,
+                "Lifespan modifier applied by the Endless Frame (multiplicative). Default 1000000.0, far above 1, so "
+                    + "the ageModifier (1/this) approaches 0 and the queen barely ages, effectively an infinite "
+                    + "lifespan. Opposite of the Mutagenic Frame (which slashes it to near-zero for instant death). "
+                    + "Meant as a pure production frame (queen stays resident, produces steadily).");
+            endlessFrameProductionModifier = configuration.getFloat(
+                "endlessFrameProductionModifier",
+                CATEGORY_FORESTRY,
+                endlessFrameProductionModifier,
+                0.0F,
+                1000.0F,
+                "Production modifier applied by the Endless Frame (additive into BeeHousingModifier). Default 30.0.");
+            endlessFrameMutationMultiplier = configuration.getFloat(
+                "endlessFrameMutationMultiplier",
+                CATEGORY_FORESTRY,
+                endlessFrameMutationMultiplier,
+                0.0F,
+                1000.0F,
+                "Mutation (breeding) chance multiplier applied by the Endless Frame. Default 0.0 = no breeding "
+                    + "mutation at all (pure production frame, keeps the bee species unchanged).");
+            endlessFrameGeneticDecay = configuration.getFloat(
+                "endlessFrameGeneticDecay",
+                CATEGORY_FORESTRY,
+                endlessFrameGeneticDecay,
+                0.0F,
+                10.0F,
+                "Genetic decay modifier applied by the Endless Frame (multiplicative, 1.0 = unchanged, 0.0 = no decay). "
+                    + "Default 0.0 = no genetic decay.");
+            endlessFrameMaxDamage = configuration.getInt(
+                "endlessFrameMaxDamage",
+                CATEGORY_FORESTRY,
+                endlessFrameMaxDamage,
+                0,
+                Integer.MAX_VALUE,
+                "Durability (number of uses) of the Endless Frame. Default 0 = never wears out.");
 
             // Thaumcraft 配置项
             disableWarpEvents = configuration.getBoolean(
