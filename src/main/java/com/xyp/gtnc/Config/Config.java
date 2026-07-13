@@ -250,14 +250,28 @@ public class Config {
      */
     public static boolean enableBeeMaxGenomeOnBreed = true;
     /**
-     * 诱变框架杂交(突变)成功率乘数。插入蜂箱/蜂房框架槽后，把突变成功率乘以此值(默认 1.8 = +80%)。
-     * 只对有框架槽的蜂箱生效，不影响本 mod 的蜜蜂杂交机。
+     * 诱变框架突变(杂交)成功率乘数。插入蜂箱/蜂房框架槽后，把突变成功率乘以此值。
+     * 默认 10.0(GT++ 原版 MUTAGENIC 框架为 5.0)。只对有框架槽的蜂箱生效，不影响本 mod 的蜜蜂杂交机。
      */
-    public static float mutagenicFrameMutationMultiplier = 1.8F;
+    public static float mutagenicFrameMutationMultiplier = 10.0F;
     /**
-     * 诱变框架的基因衰变系数(累乘，1.0 = 不变，0.0 = 完全不衰变)。默认 0。
+     * 诱变框架寿命倍率(累乘，1.0 = 不变)。GT++ 原版为 0.0001——蜂后寿命被砍到近乎为零，插上去几乎瞬死、
+     * 疯狂重滚后代。<b>这才是诱变框架"出杂交快"的真正原因</b>：单次突变判定概率只 ×5，但繁殖循环数(单位时间
+     * 滚后代的次数)暴涨几个数量级，突变哗哗地出。数值越低越猛。
+     */
+    public static float mutagenicFrameLifespanModifier = 0.0001F;
+    /**
+     * 诱变框架产量倍率。GT++ 原版为 9.0。
+     */
+    public static float mutagenicFrameProductionModifier = 9.0F;
+    /**
+     * 诱变框架基因衰变系数(累乘，1.0 = 不变，0.0 = 完全不衰变)。默认 0.0——完全不衰变(GT++ 原版为 1.0 中性)。
      */
     public static float mutagenicFrameGeneticDecay = 0.0F;
+    /**
+     * 诱变框架耐久(可用次数)。默认 0 = 永不磨损(GT++ 原版为 3，用 3 次即损坏)。
+     */
+    public static int mutagenicFrameMaxDamage = 0;
     // endregion
 
     // region 分类定义
@@ -609,15 +623,40 @@ public class Config {
                 0.0F,
                 1000.0F,
                 "Mutation (breeding) chance multiplier applied by the Mutagenic Frame when placed in an apiary/alveary "
-                    + "frame slot. 1.8 = +80% success rate. Multiplies with vanilla mutation chance. Other frame "
-                    + "modifiers (territory/lifespan/production/flowering) are left neutral.");
+                    + "frame slot. GT++ MUTAGENIC frame = 5.0. Multiplies with vanilla mutation chance.");
+            mutagenicFrameLifespanModifier = configuration.getFloat(
+                "mutagenicFrameLifespanModifier",
+                CATEGORY_FORESTRY,
+                mutagenicFrameLifespanModifier,
+                0.0F,
+                1000.0F,
+                "Lifespan modifier applied by the Mutagenic Frame (multiplicative). GT++ MUTAGENIC frame = 0.0001, "
+                    + "which slashes queen lifespan to near-zero so she dies almost instantly and re-rolls offspring "
+                    + "over and over. THIS is why the frame produces mutations fast: not the per-roll chance (only x5), "
+                    + "but the huge increase in breeding cycles per unit time. Lower = faster. 1.0 = unchanged.");
+            mutagenicFrameProductionModifier = configuration.getFloat(
+                "mutagenicFrameProductionModifier",
+                CATEGORY_FORESTRY,
+                mutagenicFrameProductionModifier,
+                0.0F,
+                1000.0F,
+                "Production modifier applied by the Mutagenic Frame. GT++ MUTAGENIC frame = 9.0.");
             mutagenicFrameGeneticDecay = configuration.getFloat(
                 "mutagenicFrameGeneticDecay",
                 CATEGORY_FORESTRY,
                 mutagenicFrameGeneticDecay,
                 0.0F,
-                1.0F,
-                "Genetic decay modifier applied by the Mutagenic Frame (multiplicative, 1.0 = unchanged, 0.0 = no decay).");
+                10.0F,
+                "Genetic decay modifier applied by the Mutagenic Frame (multiplicative, 1.0 = unchanged, 0.0 = no decay). "
+                    + "Default 0.0 = no genetic decay (GT++ MUTAGENIC frame = 1.0 neutral).");
+            mutagenicFrameMaxDamage = configuration.getInt(
+                "mutagenicFrameMaxDamage",
+                CATEGORY_FORESTRY,
+                mutagenicFrameMaxDamage,
+                0,
+                Integer.MAX_VALUE,
+                "Durability (number of uses) of the Mutagenic Frame. Default 0 = never wears out "
+                    + "(GT++ MUTAGENIC frame = 3, breaks after 3 uses).");
 
             // Thaumcraft 配置项
             disableWarpEvents = configuration.getBoolean(
