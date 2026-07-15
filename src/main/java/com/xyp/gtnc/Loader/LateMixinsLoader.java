@@ -54,14 +54,18 @@ public class LateMixinsLoader implements ILateMixinLoader {
             addAll(
                 list,
                 "Gregtech.GTMetaTools",
-                "Gregtech.MixinElectricBlastFurnace",
                 "Gregtech.HatchOutputBusMEMixin",
                 "Gregtech.HatchOutputMEMixin",
                 "Gregtech.MEOutputHatchCapacityMixin",
                 "Gregtech.MixinMTEBasicMachineFacing",
                 "Gregtech.ModifySomeConfigs",
                 "Gregtech.MixinMTEAssemblyLine",
-                "Gregtech.MixinMTEAdvAssLine");
+                "Gregtech.MixinMTEAdvAssLine",
+                "CutCorners.RecipeSpeedMixin",
+                "CutCorners.BasicMachineOutputMixin",
+                "CutCorners.FurnaceBackendMixin",
+                "CutCorners.SteamFurnaceBronzeMixin",
+                "CutCorners.SteamFurnaceSteelMixin");
         }
 
         if (loadedMods.contains(MOD_CROPSNH)) {
