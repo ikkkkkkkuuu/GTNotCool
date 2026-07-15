@@ -20,6 +20,7 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLLoadCompleteEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.event.FMLServerStartedEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import gregtech.api.util.FakeCleanroom;
@@ -96,6 +97,11 @@ public class CommonProxy {
         event.registerServerCommand(new CommandSteamNetwork());
         // Generate Miracle Door (Stellar Forge) recipes by scanning live EBF / GTPP ABS recipe maps.
         RecipeLoader.loadRecipesServerStarted();
+    }
+
+    // 服务器启动完成后（晚于 VendingMachine 在 serverStarting 里的 loadDatabase）注入本 mod 的无条件交易。
+    public void serverStarted(FMLServerStartedEvent event) {
+        com.xyp.gtnc.Common.vending.VMTradeRegistry.injectAll();
     }
 
     public void complete(FMLLoadCompleteEvent event) {
