@@ -18,6 +18,10 @@ dependencies {
     implementation("io.github.legacymoddingmc:unimixins:0.3.1:dev")
     implementation("com.github.GTNewHorizons:CropsNH:2.0.70:dev")
 
+    // dreamcraft(NewHorizonsCoreMod)——货币硬币物品(dreamcraft:CoinXXX)的来源。
+    // 仅 compileOnly：它是整合包核心 coremod，在精简开发环境里跑 PostLoad 会因引用缺失 mod 的物品而崩
+    // (如 MechanicalArmorRecipes 的奥术配方材料解析为 null)，故不进运行时。硬币支付逻辑在完整整合包里正常，
+    // 只是无法在本地 runClient 验证。
     compileOnlyApi("com.github.GTNewHorizons:NewHorizonsCoreMod:2.8.279:dev")
     implementation("com.github.GTNewHorizons:Avaritia:1.97:dev")
     implementation("com.github.GTNewHorizons:Avaritiaddons:1.9.4-GTNH:dev")
@@ -36,6 +40,9 @@ dependencies {
     compileOnlyApi("com.github.GTNewHorizons:InventoryBogoSorter:1.3.29-GTNH:dev")
     compileOnlyApi("com.github.GTNewHorizons:EnhancedLootBags:1.3.4:dev")
     compileOnlyApi("com.github.GTNewHorizons:Chisel:2.17.26-GTNH:dev")
+    // 自动贩卖机(Neko Vending Machine)——GTNH nexus 上 group 为 com.cubefury.vendingmachine(非 GTNewHorizons)。
+    // 用 devOnlyNonPublishable：编译期可引用其类、开发运行期加载,但不打进本 mod 发布 jar(它是独立 mod)。
+    devOnlyNonPublishable("com.cubefury.vendingmachine:VendingMachine:0.4.87:dev")
     devOnlyNonPublishable("com.github.GTNewHorizons:NotEnoughEnergistics:1.7.30:dev")
     runtimeOnlyNonPublishable("com.github.GTNewHorizons:ServerUtilities:2.3.0:dev")
     devOnlyNonPublishable("com.github.GTNewHorizons:BlockRenderer6343:1.4.14:dev")
