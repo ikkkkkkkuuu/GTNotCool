@@ -5,7 +5,6 @@ import net.minecraft.item.ItemStack;
 
 import com.cubefury.vendingmachine.trade.CurrencyType;
 import com.cubefury.vendingmachine.trade.TradeCategory;
-import com.xyp.gtnc.Common.machines.bee.BeeBreedingHelper;
 import com.xyp.gtnc.utils.enums.GTNCItemList;
 
 import cpw.mods.fml.common.registry.GameRegistry;
@@ -190,7 +189,7 @@ public final class GTNCVendingTrades {
 
         // ── 蜜蜂页（BEES）──────────────────────────────────
         // 30 养蜂员币 → 1 勇者雄蜂，冷却 30 分钟
-        ItemStack valiantDrone = BeeBreedingHelper.createDrone("forestry.speciesValiant");
+        ItemStack valiantDrone = vanillaDrone("forestry.speciesValiant");
         if (valiantDrone != null) {
             VMTradeRegistry.group(
                 "bees_valiant_drone",
@@ -203,7 +202,7 @@ public final class GTNCVendingTrades {
         }
 
         // 30 养蜂员币 → 1 坚定雄蜂，冷却 30 分钟
-        ItemStack steadfastDrone = BeeBreedingHelper.createDrone("forestry.speciesSteadfast");
+        ItemStack steadfastDrone = vanillaDrone("forestry.speciesSteadfast");
         if (steadfastDrone != null) {
             VMTradeRegistry.group(
                 "bees_steadfast_drone",
@@ -216,7 +215,7 @@ public final class GTNCVendingTrades {
         }
 
         // 30 养蜂员币 → 1 僧侣雄蜂（forestry.speciesMonastic），冷却 30 分钟
-        ItemStack monasticDrone = BeeBreedingHelper.createDrone("forestry.speciesMonastic");
+        ItemStack monasticDrone = vanillaDrone("forestry.speciesMonastic");
         if (monasticDrone != null) {
             VMTradeRegistry.group(
                 "bees_monastic_drone",
@@ -229,7 +228,7 @@ public final class GTNCVendingTrades {
         }
 
         // 30 养蜂员币 → 1 末影雄蜂（Forestry END 分支 ENDED，UID 用 enum 名 → forestry.speciesEnded），冷却 30 分钟
-        ItemStack endedDrone = BeeBreedingHelper.createDrone("forestry.speciesEnded");
+        ItemStack endedDrone = vanillaDrone("forestry.speciesEnded");
         if (endedDrone != null) {
             VMTradeRegistry.group(
                 "bees_ended_drone",
@@ -271,10 +270,27 @@ public final class GTNCVendingTrades {
         return stack.isPresent() ? stack.get() : null;
     }
 
+    /**
+     * 创建「原版模板雄蜂」ItemStack：物种基因取自 Forestry 原版模板，<b>不经过</b>本 mod 杂交机的
+     * {@code applyMaxGenome}（速度无尽/寿命不死/生育固定那套满基因）。因此卖出的是普通雄蜂——
+     * 其 NBT 是原版基因，只会被「读时拉满环境」的 mixin（{@code MixinBeeGenomeEnvironment} 等）影响，
+     * 与杂交机产出的满基因 NBT 蜂不同。root/物种/模板缺失时返回 null（跳过该交易）。
+     */
+    private static ItemStack vanillaDrone(String speciesUID) {
+        forestry.api.apiculture.IBeeRoot root = forestry.api.apiculture.BeeManager.beeRoot;
+        if (root == null) return null;
+        forestry.api.genetics.IAllele[] template = root.getTemplate(speciesUID);
+        if (template == null) return null;
+        forestry.api.apiculture.IBeeGenome genome = root.templateAsGenome(template);
+        forestry.api.apiculture.IBee bee = root.getBee(null, genome);
+        if (bee == null) return null;
+        return root.getMemberStack(bee, forestry.api.apiculture.EnumBeeType.DRONE.ordinal());
+    }
+
     /** 按注册名取 GT 方块的 ItemStack；方块缺失返回 null（跳过该交易）。 */
     private static ItemStack gtBlock(String name, int meta) {
         Block block = GameRegistry.findBlock("gregtech", name);
         if (block == null) return null;
-        return new ItemStack(block, 1, meta);
+        return new ItemStack(block, 6, meta);
     }
 }
