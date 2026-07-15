@@ -27,6 +27,25 @@ public class Config {
     public static boolean enableAlwaysDisplayWailaAverageNS = true;
     public static boolean enableAlwaysDisplayNEIOriginalVoltage = true;
 
+    // region CutCorners 配方提速配置（仿 GTNH-CutCorners）
+    /**
+     * 配方时长修改模式：0=不修改 / 1=固定时长 / 2=倍率。
+     * <p>
+     * 全局作用于所有走 {@code RecipeMapBackend.compileRecipe} 注册的 GT 配方(即绝大多数 GT 机器)，
+     * 在配方注册时改写 {@code GTRecipe.mDuration}。由 {@code CutCorners.RecipeSpeedMixin} 应用。
+     */
+    public static int recipeSpeedMode = 2;
+    /** mode=1(固定时长)时生效：所有配方时长固定为此 tick 数。 */
+    public static int recipeSpeedFixedDuration = 1;
+    /** mode=2(倍率)时生效：配方时长 × 此倍率(如 0.4 = 减少 60%)。结果至少为 1 tick。 */
+    public static float recipeSpeedMultiplier = 0.1F;
+    /**
+     * 开启后，单方块基础机器(MTEBasicMachine)自动输出流体时一次性全部输出，而非每次上限 1 桶(1000 mB)。
+     * 配合高速产出，避免流体在机器内积压。由 {@code CutCorners.BasicMachineOutputMixin} 应用。
+     */
+    public static boolean recipeSpeedFullFluidOutput = true;
+    // endregion
+
     // region TimeAccelerator 配置
     /**
      * 世界加速器 (MTETimeAccelerator) TE 模式下跳过加速的 TileEntity 黑名单。
@@ -311,6 +330,7 @@ public class Config {
     private static final String CATEGORY_FORESTRY = "Forestry";
     private static final String CATEGORY_THAUMCRAFT = "Thaumcraft";
     private static final String CATEGORY_AE2 = "Applied_Energistics_2";
+    private static final String CATEGORY_CUT_CORNERS = "CutCorners";
     // endregion
 
     // region 配置文件
@@ -676,10 +696,58 @@ public class Config {
                 1,
                 Integer.MAX_VALUE,
                 "恒星锻炉(EBF)模式的 EU 消耗倍率。默认 2。");
+
+            // CutCorners 配方提速配置项
+            recipeSpeedMode = configuration.getInt(
+                "mode",
+                CATEGORY_CUT_CORNERS,
+                recipeSpeedMode,
+                0,
+                2,
+                "配方时长修改模式(全局作用于绝大多数 GT 机器，在配方注册时改写时长)。\n" + "0 = 不修改\n"
+                    + "1 = 固定时长：所有配方时长固定为 fixedDuration tick\n"
+                    + "2 = 倍率：配方时长 × multiplier(如 0.4 = 减少 60%)");
+            recipeSpeedFixedDuration = configuration.getInt(
+                "fixedDuration",
+                CATEGORY_CUT_CORNERS,
+                recipeSpeedFixedDuration,
+                1,
+                Integer.MAX_VALUE,
+                "mode=1(固定时长)时生效：所有配方时长固定为此 tick 数。");
+            recipeSpeedMultiplier = configuration.getFloat(
+                "multiplier",
+                CATEGORY_CUT_CORNERS,
+                recipeSpeedMultiplier,
+                0.0001F,
+                Float.MAX_VALUE,
+                "mode=2(倍率)时生效：配方时长 × 此倍率(如 0.4 = 减少 60%)。结果至少为 1 tick。");
+            recipeSpeedFullFluidOutput = configuration.getBoolean(
+                "fullFluidOutput",
+                CATEGORY_CUT_CORNERS,
+                recipeSpeedFullFluidOutput,
+                "开启后，单方块机器自动输出流体时一次抽干内部储罐(原版每次上限 1000mB)，配合高速产出避免输出堵塞。");
         }
 
         if (configuration.hasChanged()) {
             configuration.save();
+        }
+    }
+
+    /**
+     * 按 CutCorners 配方提速配置计算修改后的配方时长。供 {@code CutCorners.RecipeSpeedMixin} 在配方注册时调用。
+     *
+     * @param original 原始配方时长(tick)
+     * @return 修改后的时长；mode=0 时原样返回；结果至少为 1 tick。
+     */
+    public static int getModifiedRecipeDuration(int original) {
+        switch (recipeSpeedMode) {
+            case 1:
+                return Math.max(1, recipeSpeedFixedDuration);
+            case 2:
+                return Math.max(1, (int) (original * recipeSpeedMultiplier));
+            case 0:
+            default:
+                return original;
         }
     }
 
@@ -695,5 +763,6 @@ public class Config {
         configuration.addCustomCategoryComment(CATEGORY_MIRACLE_DOOR, "奇迹之门的配置设置");
         configuration.addCustomCategoryComment(CATEGORY_THAUMCRAFT, "神秘时代(Thaumcraft)的配置设置");
         configuration.addCustomCategoryComment(CATEGORY_AE2, "应用能源2(Applied Energistics 2)的配置设置");
+        configuration.addCustomCategoryComment(CATEGORY_CUT_CORNERS, "配方提速(仿 GTNH-CutCorners)的配置设置");
     }
 }

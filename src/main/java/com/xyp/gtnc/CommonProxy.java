@@ -8,6 +8,7 @@ import com.xyp.gtnc.Common.items.toolbelt.common.BeltGuiHandler;
 import com.xyp.gtnc.Common.machines.hatch.SuperMTEHatchCraftingInputME;
 import com.xyp.gtnc.Common.machines.multiblock.AssemblerMatrix;
 import com.xyp.gtnc.Common.packet.NetWorkHandler;
+import com.xyp.gtnc.Common.vending.VMTradeRegistry;
 import com.xyp.gtnc.Loader.BlockLoader;
 import com.xyp.gtnc.Loader.ItemsLoader;
 import com.xyp.gtnc.Loader.MachineLoader;
@@ -101,7 +102,7 @@ public class CommonProxy {
 
     // 服务器启动完成后（晚于 VendingMachine 在 serverStarting 里的 loadDatabase）注入本 mod 的无条件交易。
     public void serverStarted(FMLServerStartedEvent event) {
-        com.xyp.gtnc.Common.vending.VMTradeRegistry.injectAll();
+        VMTradeRegistry.injectAll();
     }
 
     public void complete(FMLLoadCompleteEvent event) {
