@@ -27,24 +27,6 @@ public class Config {
     public static boolean enableAlwaysDisplayWailaAverageNS = true;
     public static boolean enableAlwaysDisplayNEIOriginalVoltage = true;
 
-    // region TimeVial 配置
-    public static boolean enableTimeVial = true;
-    public static boolean enableBlockMode = true;
-    public static int accelerateBlockInterval = 2;
-    public static boolean enableLogInfo = false;
-    public static boolean limitOneTimeVial = true;
-    public static float timeVialDiscountValue = 0.9965F;
-    public static float defaultTimeVialVolumeValue = 0.5F;
-    public static boolean enableTimeAcceleratorBoost = true;
-    public static boolean enableAccelerateGregTechMachine = true;
-    public static float accelerateGregTechMachineDiscount = 0.8F;
-    public static boolean enableResetRemainingTime = false;
-    public static boolean disableShiftModification = false;
-    public static int timeVialInitialRate = 32;
-    public static int timeVialMaxAcceleration = 1024;
-    public static int timeVialBaseDuration = 18000;
-    // endregion
-
     // region TimeAccelerator 配置
     /**
      * 世界加速器 (MTETimeAccelerator) TE 模式下跳过加速的 TileEntity 黑名单。
@@ -104,7 +86,7 @@ public class Config {
     // region ToolBelt 配置
     public static boolean releaseToSwap = true;
     public static boolean clipMouseToCircle = true;
-    public static boolean allowClickOutsideBounds = true;
+    public static boolean allowClickOutsideBounds = false;
     public static boolean displayEmptySlots = true;
     public static boolean minecraftHasNoCircles = false;
     public static float radialDeadzoneOffset = 8.0f;
@@ -250,6 +232,26 @@ public class Config {
      */
     public static boolean enableBeeMaxGenomeOnBreed = true;
     /**
+     * 开启后，普通蜂箱/蜂房杂交<b>忽略突变的「维度限制」</b>——即不再要求蜂箱处于某个特定维度(如末地/下界/太空)
+     * 才能杂交出对应蜜蜂。
+     * <p>
+     * 实现方式：redirect Forestry {@code Mutation.getChance} 与 GT {@code GTBeeMutation.getBasicChance} 遍历突变
+     * 条件时对 {@code IMutationCondition.getChance} 的调用，命中 GT 的 {@code DimensionMutationCondition} 时视为满足
+     * (返回 1)。作用域用 {@code genome0 instanceof IBeeGenome} 锁死在蜜蜂，不影响树木/蝴蝶育种。
+     * <p>
+     * <b>不影响本 mod 的蜜蜂杂交机</b>：杂交机走模板法直接生成，不经过突变条件判定。
+     */
+    public static boolean enableBeeIgnoreDimensionMutation = true;
+    /**
+     * 开启后，普通蜂箱/蜂房杂交<b>忽略「蜂箱正下方需放特定方块/运行中的 GT 机器」这一类要求</b>。
+     * <p>
+     * 覆盖三种条件：Forestry 的 {@code MutationConditionRequiresResource} / {@code MutationConditionRequiresResourceOreDict}
+     * (正下方需特定方块 / 矿辞条目)与 GT 的 {@code ActiveGTMachineMutationCondition}(正下方需一台运行中的 GT 机器)。
+     * <p>
+     * 实现方式同 {@link #enableBeeIgnoreDimensionMutation}，同样只作用蜜蜂、不影响树木/蝴蝶与本 mod 杂交机。
+     */
+    public static boolean enableBeeIgnoreResourceMutation = true;
+    /**
      * 诱变框架突变(杂交)成功率乘数。插入蜂箱/蜂房框架槽后，把突变成功率乘以此值。
      * 默认 10.0(GT++ 原版 MUTAGENIC 框架为 5.0)。只对有框架槽的蜂箱生效，不影响本 mod 的蜜蜂杂交机。
      */
@@ -298,7 +300,6 @@ public class Config {
     // endregion
 
     // region 分类定义
-    private static final String CATEGORY_TIME_VIAL = "Time_Vial";
     private static final String CATEGORY_GENERAL = "General";
     private static final String CATEGORY_VEIN_MINER_PICKAXE = "Vein_Miner_Pickaxe";
     private static final String CATEGORY_TOOL_BELT = "Tool_Belt";
@@ -322,105 +323,6 @@ public class Config {
     static {
         categoryInit();
         {
-            // Time Vial 配置项
-            enableTimeVial = configuration
-                .getBoolean("enableTimeVial", CATEGORY_TIME_VIAL, enableTimeVial, "Enable Time Vial item");
-
-            enableBlockMode = configuration.getBoolean(
-                "enableBlockMode",
-                CATEGORY_TIME_VIAL,
-                enableBlockMode,
-                "Enable Block Mode for time acceleration");
-
-            enableLogInfo = configuration
-                .getBoolean("enableLogInfo", CATEGORY_TIME_VIAL, enableLogInfo, "Enable debug log info");
-
-            limitOneTimeVial = configuration.getBoolean(
-                "limitOneTimeVial",
-                CATEGORY_TIME_VIAL,
-                limitOneTimeVial,
-                "Limit player to only one Time Vial (merges time from multiple vials)");
-
-            defaultTimeVialVolumeValue = configuration.getFloat(
-                "defaultTimeVialVolume",
-                CATEGORY_TIME_VIAL,
-                defaultTimeVialVolumeValue,
-                0.0F,
-                5.0F,
-                "Set time vial sound volume");
-
-            timeVialDiscountValue = configuration.getFloat(
-                "timeVialDiscountValue",
-                CATEGORY_TIME_VIAL,
-                timeVialDiscountValue,
-                0.0F,
-                1.0F,
-                "Set time vial discount value for acceleration cost");
-
-            enableTimeAcceleratorBoost = configuration.getBoolean(
-                "enableTimeAcceleratorBoost",
-                CATEGORY_TIME_VIAL,
-                enableTimeAcceleratorBoost,
-                "Enable Time Accelerator Boost (boost to 256X instead of 128X)");
-
-            enableAccelerateGregTechMachine = configuration.getBoolean(
-                "enableAccelerateGregTechMachine",
-                CATEGORY_TIME_VIAL,
-                enableAccelerateGregTechMachine,
-                "Enable Accelerate GregTech Machine");
-
-            accelerateGregTechMachineDiscount = configuration.getFloat(
-                "accelerateGregTechMachineDiscount",
-                CATEGORY_TIME_VIAL,
-                accelerateGregTechMachineDiscount,
-                0.0F,
-                1.0F,
-                "Accelerate GregTech Machine cost discount");
-
-            enableResetRemainingTime = configuration.getBoolean(
-                "enableResetRemainingTime",
-                CATEGORY_TIME_VIAL,
-                enableResetRemainingTime,
-                "Enable Reset Remaining Time when applying Time Vial acceleration");
-
-            disableShiftModification = configuration.getBoolean(
-                "disableShiftModification",
-                CATEGORY_TIME_VIAL,
-                disableShiftModification,
-                "Disable shift key modification for GT mode");
-
-            accelerateBlockInterval = configuration.getInt(
-                "accelerateBlockInterval",
-                CATEGORY_TIME_VIAL,
-                accelerateBlockInterval,
-                2,
-                200,
-                "Accelerate Block update interval (ticks)");
-
-            timeVialInitialRate = configuration.getInt(
-                "timeVialInitialRate",
-                CATEGORY_TIME_VIAL,
-                timeVialInitialRate,
-                1,
-                64,
-                "Initial acceleration rate for Time Vial (default: 8, boosted: 16)");
-
-            timeVialMaxAcceleration = configuration.getInt(
-                "timeVialMaxAcceleration",
-                CATEGORY_TIME_VIAL,
-                timeVialMaxAcceleration,
-                4,
-                1024,
-                "Maximum acceleration rate for Time Vial (default: 256, boosted: 512)");
-
-            timeVialBaseDuration = configuration.getInt(
-                "timeVialBaseDuration",
-                CATEGORY_TIME_VIAL,
-                timeVialBaseDuration,
-                100,
-                7200,
-                "Base duration in ticks for Time Vial acceleration (default: 1200 = 60 seconds)");
-
             // Vein Miner Pickaxe 配置项
             VeinMinerPickaxe.maxAmount = configuration.getInt(
                 "maxAmount",
@@ -428,34 +330,23 @@ public class Config {
                 VeinMinerPickaxe.maxAmount,
                 1,
                 Integer.MAX_VALUE,
-                "Set maximum number of chained blocks for Vein Mining Pickaxe");
+                "连锁采矿镐一次连锁开采的最大方块数");
 
-            VeinMinerPickaxe.maxRange = configuration.getInt(
-                "maxRange",
-                CATEGORY_VEIN_MINER_PICKAXE,
-                VeinMinerPickaxe.maxRange,
-                0,
-                128,
-                "Set maximum block distance for Vein Mining Pickaxe");
+            VeinMinerPickaxe.maxRange = configuration
+                .getInt("maxRange", CATEGORY_VEIN_MINER_PICKAXE, VeinMinerPickaxe.maxRange, 0, 128, "连锁采矿镐的最大连锁距离(方块)");
 
             // Tool Belt 配置项
             // #tr config.toolbelt.releaseToSwap
             // # Release To Swap
             // # zh_CN 释放按键交换物品
-            releaseToSwap = configuration.getBoolean(
-                "releaseToSwap",
-                CATEGORY_TOOL_BELT,
-                releaseToSwap,
-                "If set to TRUE, releasing the menu key will activate the swap.");
+            releaseToSwap = configuration
+                .getBoolean("releaseToSwap", CATEGORY_TOOL_BELT, releaseToSwap, "开启后,松开菜单键即触发物品交换。");
 
             // #tr config.toolbelt.clipMouseToCircle
             // # Clip Mouse To Circle
             // # zh_CN 鼠标限制在圆圈内
-            clipMouseToCircle = configuration.getBoolean(
-                "clipMouseToCircle",
-                CATEGORY_TOOL_BELT,
-                clipMouseToCircle,
-                "If set to TRUE, the radial menu will try to prevent the mouse from leaving the outer circle.");
+            clipMouseToCircle = configuration
+                .getBoolean("clipMouseToCircle", CATEGORY_TOOL_BELT, clipMouseToCircle, "开启后,环形菜单会尽量阻止鼠标移出外圈。");
 
             // #tr config.toolbelt.allowClickOutsideBounds
             // # Allow Click Outside Bounds
@@ -464,25 +355,19 @@ public class Config {
                 "allowClickOutsideBounds",
                 CATEGORY_TOOL_BELT,
                 allowClickOutsideBounds,
-                "If set to TRUE, the radial menu will allow clicking outside the outer circle.");
+                "开启后,环形菜单允许在外圈之外点击。");
 
             // #tr config.toolbelt.displayEmptySlots
             // # Display Empty Slots
             // # zh_CN 显示空槽位
-            displayEmptySlots = configuration.getBoolean(
-                "displayEmptySlots",
-                CATEGORY_TOOL_BELT,
-                displayEmptySlots,
-                "If set to TRUE, always display all slots even when empty.");
+            displayEmptySlots = configuration
+                .getBoolean("displayEmptySlots", CATEGORY_TOOL_BELT, displayEmptySlots, "开启后,即使槽位为空也始终显示所有槽位。");
 
             // #tr config.toolbelt.minecraftHasNoCircles
             // # Minecraft Has No Circles
             // # zh_CN 使用方形菜单
-            minecraftHasNoCircles = configuration.getBoolean(
-                "minecraftHasNoCircles",
-                CATEGORY_TOOL_BELT,
-                minecraftHasNoCircles,
-                "If set to TRUE, the radial menu will be drawn as squares.");
+            minecraftHasNoCircles = configuration
+                .getBoolean("minecraftHasNoCircles", CATEGORY_TOOL_BELT, minecraftHasNoCircles, "开启后,环形菜单绘制为方形。");
 
             // #tr config.toolbelt.radialDeadzoneOffset
             // # Radial Deadzone Offset
@@ -493,20 +378,14 @@ public class Config {
                 radialDeadzoneOffset,
                 0.0f,
                 30.0f,
-                "Extra deadzone pixels added to the center of the radial menu.");
+                "环形菜单中心额外增加的死区像素数。");
 
             // ME Output Hatch 配置项
-            OutPutHatchMEEnable = configuration.getBoolean(
-                "OutPutHatchMEEnable",
-                CATEGORY_ME_OUTPUT_HATCH,
-                OutPutHatchMEEnable,
-                "Enable infinite capacity for ME Fluid Output Hatch");
+            OutPutHatchMEEnable = configuration
+                .getBoolean("OutPutHatchMEEnable", CATEGORY_ME_OUTPUT_HATCH, OutPutHatchMEEnable, "开启 ME 流体输出仓的无限容量。");
 
-            OutPutBusMEEnable = configuration.getBoolean(
-                "OutPutBusMEEnable",
-                CATEGORY_ME_OUTPUT_HATCH,
-                OutPutBusMEEnable,
-                "Enable infinite capacity for ME Item Output Bus");
+            OutPutBusMEEnable = configuration
+                .getBoolean("OutPutBusMEEnable", CATEGORY_ME_OUTPUT_HATCH, OutPutBusMEEnable, "开启 ME 物品输出总线的无限容量。");
 
             // Quantum Computer 配置项
             QuantumComputer.maxMultiblockSize = configuration.getInt(
@@ -515,7 +394,7 @@ public class Config {
                 QuantumComputer.maxMultiblockSize,
                 3,
                 64,
-                "Maximum edge length of the Quantum Computer multiblock cube (minimum 3)");
+                "量子计算机多方块立方体的最大边长(最小 3)。");
 
             QuantumComputer.maxMultiThreader = configuration.getInt(
                 "maxMultiThreader",
@@ -523,7 +402,7 @@ public class Config {
                 QuantumComputer.maxMultiThreader,
                 0,
                 Integer.MAX_VALUE,
-                "Maximum number of Multi-Threader blocks per Quantum Computer");
+                "每台量子计算机可容纳的多线程器方块最大数量。");
 
             QuantumComputer.maxDataEntangler = configuration.getInt(
                 "maxDataEntangler",
@@ -531,22 +410,21 @@ public class Config {
                 QuantumComputer.maxDataEntangler,
                 0,
                 Integer.MAX_VALUE,
-                "Maximum number of Data Entangler blocks per Quantum Computer");
+                "每台量子计算机可容纳的数据纠缠器方块最大数量。");
 
             QuantumComputer.enableDebugMode = configuration.getBoolean(
                 "enableDebugMode",
                 CATEGORY_QUANTUM_COMPUTER,
                 QuantumComputer.enableDebugMode,
-                "Enable Quantum Computer structure-check debug logging");
+                "开启量子计算机结构检查的调试日志。");
 
             // Time Accelerator 配置项
             timeAcceleratorTileBlacklist = configuration.getStringList(
                 "tileBlacklist",
                 CATEGORY_TIME_ACCELERATOR,
                 timeAcceleratorTileBlacklist,
-                "TileEntity class-name prefixes skipped by the World Accelerator in TE mode. "
-                    + "Any tile whose full class name starts with one of these is not accelerated. "
-                    + "Default excludes AE2 (appeng.) and AE2FC (com.glodblock.github.) to avoid severe lag from ticking ME network blocks.");
+                "世界加速器 TE 模式下跳过加速的 TileEntity 类名前缀列表。" + "凡完整类名以列表中任一前缀开头的方块都不会被加速。"
+                    + "默认排除 AE2(appeng.)与 AE2FC(com.glodblock.github.)，因为反复 tick ME 网络方块会造成严重卡顿。");
 
             timeAcceleratorTickBudgetMs = configuration.getInt(
                 "tickBudgetMs",
@@ -554,90 +432,98 @@ public class Config {
                 timeAcceleratorTickBudgetMs,
                 1,
                 1000,
-                "Per-tick time budget (ms) the World Accelerator spends accelerating all target machines in TE mode. "
-                    + "The acceleration loop aborts for this tick once it exceeds this budget, discarding remaining "
-                    + "iterations. Steam single-block machines have expensive ticks (recipe lookup / venting), so the "
-                    + "old hardcoded 25ms only fit about 128 iterations, making speeds above 128x ineffective. Raise "
-                    + "this to let high multipliers actually run, at the cost of more server tick time (possible TPS drop). Default 80.");
+                "世界加速器 TE 模式下，单个 tick 内加速所有目标机器的总时间预算(毫秒)。" + "加速循环一旦超过此预算就立即结束本 tick 的加速，未跑完的加速次数作废。"
+                    + "蒸汽单方块机器每次 tick 很贵(配方查询/排气)，旧的写死 25ms 只够约 128 次，"
+                    + "导致 128 倍以上无额外加速。调高此值可让高倍率真正生效，代价是重负载时更吃服务器 tick 时间(可能掉 TPS)。默认 80。");
 
             // CropsNH 配置项
             enableCropInstantGrowth = configuration.getBoolean(
                 "enableInstantGrowth",
                 CATEGORY_CROPSNH,
                 enableCropInstantGrowth,
-                "If set to TRUE, crop sticks reach full maturity on their very next growth tick (instant growth).");
+                "开启后，作物棒在下一次生长判定时直接完全成熟(瞬间成熟)。");
             enableCropMaxStats = configuration.getBoolean(
                 "enableMaxStats",
                 CATEGORY_CROPSNH,
                 enableCropMaxStats,
-                "If set to TRUE, every seed is created with maxed-out growth/gain/resistance stats (31/31/31).");
+                "开启后，所有生成的种子的生长/产量/抗性三项属性都拉满(31/31/31)。");
             enableCropGuaranteedSeedDrop = configuration.getBoolean(
                 "enableGuaranteedSeedDrop",
                 CATEGORY_CROPSNH,
                 enableCropGuaranteedSeedDrop,
-                "If set to TRUE, left-clicking a mature crop always drops a seed (bypasses the resistance-based chance check).");
+                "开启后，左键收获成熟作物必定掉落种子(绕过基于抗性的概率判定)。");
 
             // Forestry 配置项
             enableBeeAlwaysJubilant = configuration.getBoolean(
                 "enableBeeAlwaysJubilant",
                 CATEGORY_FORESTRY,
                 enableBeeAlwaysJubilant,
-                "If set to TRUE, bees always count as jubilant when producing, so specialty products drop even in a basic apiary regardless of climate.");
+                "开启后，所有蜜蜂产出时一律视为「气候满足(jubilant)」，因此普通蜂箱无论气候如何都能掉落特殊产物。");
             enableCustomBeeAlleles = configuration.getBoolean(
                 "enableCustomBeeAlleles",
                 CATEGORY_FORESTRY,
                 enableCustomBeeAlleles,
-                "If set to TRUE, this mod registers its own max speed/lifespan bee alleles and the bee breeder writes them into produced bees (independent of other bee mods).");
+                "开启后，本模组自行注册满值的速度/寿命蜜蜂等位基因，养蜂机会把它们写入产出的蜂中(不依赖其它蜂类模组)。");
             customBeeSpeedValue = configuration.getFloat(
                 "customBeeSpeedValue",
                 CATEGORY_FORESTRY,
                 customBeeSpeedValue,
                 0.1F,
                 1000.0F,
-                "Value of the self-registered speed allele (Forestry Fastest=1.7, MagicBees Blinding=2.0).");
+                "自注册速度等位基因的数值(林业原版最快=1.7，MagicBees 致盲=2.0)。");
             customBeeLifespanValue = configuration.getInt(
                 "customBeeLifespanValue",
                 CATEGORY_FORESTRY,
                 customBeeLifespanValue,
                 1,
                 1000000,
-                "Value of the self-registered lifespan allele, in bee ticks (Forestry Longest=70).");
+                "自注册寿命等位基因的数值，单位为蜜蜂刻(林业原版最长寿=70)。");
 
             enableBeeHomozygousOffspring = configuration.getBoolean(
                 "enableHomozygousOffspring",
                 CATEGORY_FORESTRY,
                 enableBeeHomozygousOffspring,
-                "If set to TRUE, vanilla apiary/alveary breeding only produces homozygous offspring (both alleles of "
-                    + "every chromosome are identical), so no hybrids are ever bred. This mod's own bee breeder is "
-                    + "unaffected (it builds bees from templates, not via Chromosome.inheritChromosome).");
+                "开启后，普通蜂箱/蜂房杂交只产出纯合子后代(每条染色体的两条等位基因都相同)，因此永远不会育出杂合子。"
+                    + "本模组自己的蜜蜂杂交机不受影响(它走模板法生成蜂，不经过 Chromosome.inheritChromosome)。");
 
             enableBeeMaxEnvironment = configuration.getBoolean(
                 "enableMaxEnvironment",
                 CATEGORY_FORESTRY,
                 enableBeeMaxEnvironment,
-                "If set to TRUE, every bee (wild, hive-dropped, vanilla-bred, any source) reads maxed traits at "
-                    + "runtime: temperature/humidity tolerance BOTH_5 (+/-5), nocturnal, cave-dwelling, work speed = "
-                    + "the custom Endless allele value, flowering (pollination) speed MAXIMUM (99), and flower provider "
-                    + "= vanilla flowers. This is a read-time override of BeeGenome getters, so it does not alter "
-                    + "stored genomes and does not affect this mod's own bee breeder (whose bees already have these maxed).");
+                "开启后，所有蜜蜂(野生、蜂巢掉落、原版杂交、任意来源)在运行时读取的性状一律拉满：" + "温度/湿度耐性 BOTH_5(±5)、夜行、穴居、工作速度=自注册的「无尽」基因值、"
+                    + "授粉速度 MAXIMUM(99)、采蜜对象=原版鲜花。这是对 BeeGenome getter 的读时覆写，"
+                    + "不改动存储的基因组，也不影响本模组自己的蜜蜂杂交机(其产出的蜂本就已是满值)。");
 
             enableBeeMaxGenomeOnHiveDrop = configuration.getBoolean(
                 "enableMaxGenomeOnHiveDrop",
                 CATEGORY_FORESTRY,
                 enableBeeMaxGenomeOnHiveDrop,
-                "If set to TRUE, bees dropped from breaking a beehive have their stored genome NBT rewritten to max "
-                    + "(species kept, all other chromosomes maxed and made homozygous, so it breeds true and shows up in "
-                    + "the Beealyzer). Unlike enableMaxEnvironment this alters the actual genome, so the analyzer displays "
-                    + "the maxed values. This mod's own bee breeder is unaffected (it never goes through hive drops).");
+                "开启后，破坏蜂巢掉落的蜜蜂其存储的基因组 NBT 会被真正改写为满值" + "(保留物种，其余染色体全部拉满并写成纯合，因此能稳定遗传且分析仪可读出)。"
+                    + "与 enableMaxEnvironment 不同，这里改的是实际基因组，故分析仪能显示满值数字。"
+                    + "本模组自己的蜜蜂杂交机不受影响(它从不经过蜂巢掉落)。");
 
             enableBeeMaxGenomeOnBreed = configuration.getBoolean(
                 "enableMaxGenomeOnBreed",
                 CATEGORY_FORESTRY,
                 enableBeeMaxGenomeOnBreed,
-                "If set to TRUE, offspring bred in a normal apiary/bee house have their stored genome NBT rewritten to "
-                    + "max (species kept, all other chromosomes maxed and made homozygous, so it breeds true and shows "
-                    + "up in the Beealyzer). Same NBT-level change as enableMaxGenomeOnHiveDrop but for vanilla breeding "
-                    + "(Bee.createOffspring). This mod's own bee breeder is unaffected (it never goes through createOffspring).");
+                "开启后，普通蜂箱/蜂房杂交产出的后代其存储的基因组 NBT 会被真正改写为满值" + "(保留物种，其余染色体全部拉满并写成纯合，因此能稳定遗传且分析仪可读出)。"
+                    + "与 enableMaxGenomeOnHiveDrop 是同一套 NBT 级改动，只是作用于原版杂交(Bee.createOffspring)。"
+                    + "本模组自己的蜜蜂杂交机不受影响(它从不经过 createOffspring)。");
+
+            enableBeeIgnoreDimensionMutation = configuration.getBoolean(
+                "enableBeeIgnoreDimensionMutation",
+                CATEGORY_FORESTRY,
+                enableBeeIgnoreDimensionMutation,
+                "开启后，普通蜂箱/蜂房杂交忽略突变的「维度限制」(GT 的 DimensionMutationCondition)，" + "因此原本需要特定维度(末地/下界/太空等)才能育出的蜂可以在任意维度杂交。"
+                    + "仅作用于蜜蜂突变(不影响树木/蝴蝶)，也不影响本模组自己的蜜蜂杂交机。");
+
+            enableBeeIgnoreResourceMutation = configuration.getBoolean(
+                "enableBeeIgnoreResourceMutation",
+                CATEGORY_FORESTRY,
+                enableBeeIgnoreResourceMutation,
+                "开启后，普通蜂箱/蜂房杂交忽略「蜂箱正下方需放特定方块 / 需一台运行中的 GT 机器」这一类要求"
+                    + "(Forestry 的 MutationConditionRequiresResource/OreDict 与 GT 的 ActiveGTMachineMutationCondition)。"
+                    + "仅作用于蜜蜂突变(不影响树木/蝴蝶)，也不影响本模组自己的蜜蜂杂交机。");
 
             mutagenicFrameMutationMultiplier = configuration.getFloat(
                 "mutagenicFrameMutationMultiplier",
@@ -645,41 +531,37 @@ public class Config {
                 mutagenicFrameMutationMultiplier,
                 0.0F,
                 1000.0F,
-                "Mutation (breeding) chance multiplier applied by the Mutagenic Frame when placed in an apiary/alveary "
-                    + "frame slot. GT++ MUTAGENIC frame = 5.0. Multiplies with vanilla mutation chance.");
+                "诱变框架插入蜂箱/蜂房框架槽后施加的突变(杂交)成功率乘数。GT++ 原版 MUTAGENIC 框架=5.0，与原版突变率相乘。");
             mutagenicFrameLifespanModifier = configuration.getFloat(
                 "mutagenicFrameLifespanModifier",
                 CATEGORY_FORESTRY,
                 mutagenicFrameLifespanModifier,
                 0.0F,
                 1000.0F,
-                "Lifespan modifier applied by the Mutagenic Frame (multiplicative). GT++ MUTAGENIC frame = 0.0001, "
-                    + "which slashes queen lifespan to near-zero so she dies almost instantly and re-rolls offspring "
-                    + "over and over. THIS is why the frame produces mutations fast: not the per-roll chance (only x5), "
-                    + "but the huge increase in breeding cycles per unit time. Lower = faster. 1.0 = unchanged.");
+                "诱变框架的寿命倍率(累乘)。GT++ 原版 MUTAGENIC 框架=0.0001——把蜂后寿命砍到近乎为零，"
+                    + "插上去几乎瞬死、疯狂重滚后代。这才是诱变框架「出杂交快」的真正原因：单次突变判定概率只 ×5，"
+                    + "但单位时间的繁殖循环数暴涨。数值越低越快，1.0=不变。");
             mutagenicFrameProductionModifier = configuration.getFloat(
                 "mutagenicFrameProductionModifier",
                 CATEGORY_FORESTRY,
                 mutagenicFrameProductionModifier,
                 0.0F,
                 1000.0F,
-                "Production modifier applied by the Mutagenic Frame. GT++ MUTAGENIC frame = 9.0.");
+                "诱变框架的产量倍率。GT++ 原版 MUTAGENIC 框架=9.0。");
             mutagenicFrameGeneticDecay = configuration.getFloat(
                 "mutagenicFrameGeneticDecay",
                 CATEGORY_FORESTRY,
                 mutagenicFrameGeneticDecay,
                 0.0F,
                 10.0F,
-                "Genetic decay modifier applied by the Mutagenic Frame (multiplicative, 1.0 = unchanged, 0.0 = no decay). "
-                    + "Default 0.0 = no genetic decay (GT++ MUTAGENIC frame = 1.0 neutral).");
+                "诱变框架的基因衰变系数(累乘，1.0=不变，0.0=完全不衰变)。默认 0.0=完全不衰变(GT++ 原版 MUTAGENIC 框架=1.0 中性)。");
             mutagenicFrameMaxDamage = configuration.getInt(
                 "mutagenicFrameMaxDamage",
                 CATEGORY_FORESTRY,
                 mutagenicFrameMaxDamage,
                 0,
                 Integer.MAX_VALUE,
-                "Durability (number of uses) of the Mutagenic Frame. Default 0 = never wears out "
-                    + "(GT++ MUTAGENIC frame = 3, breaks after 3 uses).");
+                "诱变框架的耐久(可用次数)。默认 0=永不磨损(GT++ 原版 MUTAGENIC 框架=3，用 3 次即损坏)。");
 
             endlessFrameLifespanModifier = configuration.getFloat(
                 "endlessFrameLifespanModifier",
@@ -687,94 +569,83 @@ public class Config {
                 endlessFrameLifespanModifier,
                 0.0F,
                 Float.MAX_VALUE,
-                "Lifespan modifier applied by the Endless Frame (multiplicative). Default 1000000.0, far above 1, so "
-                    + "the ageModifier (1/this) approaches 0 and the queen barely ages, effectively an infinite "
-                    + "lifespan. Opposite of the Mutagenic Frame (which slashes it to near-zero for instant death). "
-                    + "Meant as a pure production frame (queen stays resident, produces steadily).");
+                "无尽框架的寿命倍率(累乘)。默认 1000000.0，远大于 1，使 ageModifier(=1/此值)趋近 0，"
+                    + "蜂后几乎不掉血，等效「寿命无限」。与诱变框架相反(那个砍到近零求瞬死)，这个拉到极大求长生，"
+                    + "适合当纯产物框架用(蜂后长期驻留、稳定产出)。");
             endlessFrameProductionModifier = configuration.getFloat(
                 "endlessFrameProductionModifier",
                 CATEGORY_FORESTRY,
                 endlessFrameProductionModifier,
                 0.0F,
                 1000.0F,
-                "Production modifier applied by the Endless Frame (additive into BeeHousingModifier). Default 30.0.");
+                "无尽框架的产量倍率(加法累加进 BeeHousingModifier)。默认 30.0。");
             endlessFrameMutationMultiplier = configuration.getFloat(
                 "endlessFrameMutationMultiplier",
                 CATEGORY_FORESTRY,
                 endlessFrameMutationMultiplier,
                 0.0F,
                 1000.0F,
-                "Mutation (breeding) chance multiplier applied by the Endless Frame. Default 0.0 = no breeding "
-                    + "mutation at all (pure production frame, keeps the bee species unchanged).");
+                "无尽框架的突变(杂交)成功率乘数。默认 0.0=完全不杂交突变(纯产物框架，保持蜂种不变)。");
             endlessFrameGeneticDecay = configuration.getFloat(
                 "endlessFrameGeneticDecay",
                 CATEGORY_FORESTRY,
                 endlessFrameGeneticDecay,
                 0.0F,
                 10.0F,
-                "Genetic decay modifier applied by the Endless Frame (multiplicative, 1.0 = unchanged, 0.0 = no decay). "
-                    + "Default 0.0 = no genetic decay.");
+                "无尽框架的基因衰变系数(累乘，1.0=不变，0.0=完全不衰变)。默认 0.0=完全不衰变。");
             endlessFrameMaxDamage = configuration.getInt(
                 "endlessFrameMaxDamage",
                 CATEGORY_FORESTRY,
                 endlessFrameMaxDamage,
                 0,
                 Integer.MAX_VALUE,
-                "Durability (number of uses) of the Endless Frame. Default 0 = never wears out.");
+                "无尽框架的耐久(可用次数)。默认 0=永不磨损。");
 
             // Thaumcraft 配置项
             disableWarpEvents = configuration.getBoolean(
                 "disableWarpEvents",
                 CATEGORY_THAUMCRAFT,
                 disableWarpEvents,
-                "If set to TRUE, Thaumcraft warp events (debuff potions, mind spiders, eldritch guardians, "
-                    + "fog, hallucination messages, forced eldritch research) never trigger. "
-                    + "The warp value itself (perm/temp/sticky) is left completely unchanged, including its normal temp decay.");
+                "开启后，神秘时代的「扭曲事件」永不触发(负面药水、心灵蜘蛛、古神守卫、迷雾、幻觉聊天、强制解锁古神研究)。" + "扭曲值本身(永久/临时/黏滞)完全不受影响，包括其正常的临时衰减。");
 
             tcUnlockAllResearch = configuration.getBoolean(
                 "unlockAllResearch",
                 CATEGORY_THAUMCRAFT,
                 tcUnlockAllResearch,
-                "If set to TRUE, every research counts as complete (isResearchComplete always returns true). "
-                    + "Note: this can confuse the research-notebook GUI. To just skip the research minigame instead, use freeResearchAspects.");
+                "开启后，所有研究都视为已完成(isResearchComplete 恒返回 true)。"
+                    + "注意：这会让研究笔记本 GUI 显示异常。若只想跳过研究小游戏，请改用 freeResearchAspects。");
 
             tcFreeResearchAspects = configuration.getBoolean(
                 "freeResearchAspects",
                 CATEGORY_THAUMCRAFT,
                 tcFreeResearchAspects,
-                "If set to TRUE, research aspect points are never consumed (the negative/reduce branch of PlayerKnowledge.addAspectPool is suppressed), "
-                    + "so the research-table hex minigame always has enough points. Does not break the GUI.");
+                "开启后，研究点数永不消耗(抑制 PlayerKnowledge.addAspectPool 的扣减分支)，" + "研究台的六边形拼图小游戏永远够点。不破坏 GUI。");
 
             tcCrucibleNoFlux = configuration.getBoolean(
                 "crucibleNoFlux",
                 CATEGORY_THAUMCRAFT,
                 tcCrucibleNoFlux,
-                "If set to TRUE, the Crucible never spills flux (TileCrucible.spill is cancelled). "
-                    + "spill is the only source of flux gas/goo from crucible overflow, so this is the crucible side of zero-pollution alchemy.");
+                "开启后，坩埚永不产生通量污染(取消 TileCrucible.spill)。" + "spill 是坩埚溢出产生通量气/通量泥的唯一来源，这是「注魔零污染」的坩埚侧。");
 
             tcInfusionNoInstability = configuration.getBoolean(
                 "infusionNoInstability",
                 CATEGORY_THAUMCRAFT,
                 tcInfusionNoInstability,
-                "If set to TRUE, the Infusion Matrix never becomes unstable (instability is forced to 0 each craft cycle). "
-                    + "Instability only causes negative events (item ejection, explosions, lightning, warp, flux); crafting progress is independent, so crafting still completes normally.");
+                "开启后，注魔祭坛注魔时永不失稳(每个合成周期把 instability 归零)。" + "失稳只引发负面事件(掉物/爆炸/闪电/涨扭曲/通量)；合成进度与失稳无关，故合成照常完成。");
 
             tcInfiniteVis = configuration.getBoolean(
                 "infiniteVis",
                 CATEGORY_THAUMCRAFT,
                 tcInfiniteVis,
-                "If set to TRUE, draining vis from the network always succeeds and never depletes node reserves (VisNetHandler.drainVis returns the full requested amount). "
-                    + "Equivalent to infinite vis + nodes that never decay.");
+                "开启后，从 vis 网络抽取魔力永远成功且不消耗节点存量(VisNetHandler.drainVis 直接返回请求量)。" + "等效「vis 无限 + 节点永不衰减」。");
 
             // Applied Energistics 2 配置项
             disableAE2ChannelLimit = configuration.getBoolean(
                 "disableChannelLimit",
                 CATEGORY_AE2,
                 disableAE2ChannelLimit,
-                "If set to TRUE, AE2 networks ignore channel limits: every channel-requiring device always gets a channel "
-                    + "(equivalent to locally enabling AE2's built-in no-channels mode). "
-                    + "This only affects channel counting; nothing is registered or unregistered. "
-                    + "Idempotent: if AE2's own Channels feature is already disabled, this changes nothing.");
+                "开启后，AE2 网络无视频道限制：所有需要频道的设备一律获得频道(等效局部打开 AE2 原生的「无频道模式」)。" + "只影响频道计数，不注册/注销任何方块。"
+                    + "幂等：若 AE2 本就关闭了频道功能，此项无副作用。");
 
             // Miracle Door 配置项
             MiracleDoor.ticksOfProcessingTimeABSMode = configuration.getInt(
@@ -783,28 +654,28 @@ public class Config {
                 MiracleDoor.ticksOfProcessingTimeABSMode,
                 1,
                 Integer.MAX_VALUE,
-                "Fixed processing time (ticks) of a single run in Alloy Smelter mode (default 512 = 25.6s).");
+                "合金冶炼(ABS)模式单次运行的固定耗时(tick)。默认 512 = 25.6 秒。");
             MiracleDoor.ticksOfProcessingTimeEBFMode = configuration.getInt(
                 "ticksOfProcessingTimeEBFMode",
                 CATEGORY_MIRACLE_DOOR,
                 MiracleDoor.ticksOfProcessingTimeEBFMode,
                 1,
                 Integer.MAX_VALUE,
-                "Fixed processing time (ticks) of a single run in Stellar Forge mode (default 1280 = 64s).");
+                "恒星锻炉(EBF)模式单次运行的固定耗时(tick)。默认 1280 = 64 秒。");
             MiracleDoor.multiplierOfEUCostABSMode = configuration.getInt(
                 "multiplierOfEUCostABSMode",
                 CATEGORY_MIRACLE_DOOR,
                 MiracleDoor.multiplierOfEUCostABSMode,
                 1,
                 Integer.MAX_VALUE,
-                "EU cost multiplier in Alloy Smelter mode (default 1).");
+                "合金冶炼(ABS)模式的 EU 消耗倍率。默认 1。");
             MiracleDoor.multiplierOfEUCostEBFMode = configuration.getInt(
                 "multiplierOfEUCostEBFMode",
                 CATEGORY_MIRACLE_DOOR,
                 MiracleDoor.multiplierOfEUCostEBFMode,
                 1,
                 Integer.MAX_VALUE,
-                "EU cost multiplier in Stellar Forge mode (default 2).");
+                "恒星锻炉(EBF)模式的 EU 消耗倍率。默认 2。");
         }
 
         if (configuration.hasChanged()) {
@@ -813,21 +684,16 @@ public class Config {
     }
 
     private static void categoryInit() {
-        configuration.addCustomCategoryComment(CATEGORY_TIME_VIAL, "Configuration settings for Time Vial items");
-        configuration.addCustomCategoryComment(CATEGORY_GENERAL, "General configuration settings");
-        configuration
-            .addCustomCategoryComment(CATEGORY_VEIN_MINER_PICKAXE, "Configuration settings for Vein Mining Pickaxe");
-        configuration.addCustomCategoryComment(CATEGORY_TOOL_BELT, "Configuration settings for Tool Belt");
-        configuration
-            .addCustomCategoryComment(CATEGORY_ME_OUTPUT_HATCH, "Configuration settings for ME Output Hatch and Bus");
-        configuration
-            .addCustomCategoryComment(CATEGORY_QUANTUM_COMPUTER, "Configuration settings for the Quantum Computer");
-        configuration
-            .addCustomCategoryComment(CATEGORY_TIME_ACCELERATOR, "Configuration settings for the World Accelerator");
-        configuration.addCustomCategoryComment(CATEGORY_CROPSNH, "Configuration settings for CropsNH crop growth");
-        configuration.addCustomCategoryComment(CATEGORY_FORESTRY, "Configuration settings for Forestry bees");
-        configuration.addCustomCategoryComment(CATEGORY_MIRACLE_DOOR, "Configuration settings for the Miracle Door");
-        configuration.addCustomCategoryComment(CATEGORY_THAUMCRAFT, "Configuration settings for Thaumcraft");
-        configuration.addCustomCategoryComment(CATEGORY_AE2, "Configuration settings for Applied Energistics 2");
+        configuration.addCustomCategoryComment(CATEGORY_GENERAL, "通用配置设置");
+        configuration.addCustomCategoryComment(CATEGORY_VEIN_MINER_PICKAXE, "连锁挖矿镐的配置设置");
+        configuration.addCustomCategoryComment(CATEGORY_TOOL_BELT, "工具腰带的配置设置");
+        configuration.addCustomCategoryComment(CATEGORY_ME_OUTPUT_HATCH, "ME 输出仓/输出总线的配置设置");
+        configuration.addCustomCategoryComment(CATEGORY_QUANTUM_COMPUTER, "量子计算机的配置设置");
+        configuration.addCustomCategoryComment(CATEGORY_TIME_ACCELERATOR, "世界加速器的配置设置");
+        configuration.addCustomCategoryComment(CATEGORY_CROPSNH, "CropsNH 作物生长的配置设置");
+        configuration.addCustomCategoryComment(CATEGORY_FORESTRY, "林业(Forestry)蜜蜂的配置设置");
+        configuration.addCustomCategoryComment(CATEGORY_MIRACLE_DOOR, "奇迹之门的配置设置");
+        configuration.addCustomCategoryComment(CATEGORY_THAUMCRAFT, "神秘时代(Thaumcraft)的配置设置");
+        configuration.addCustomCategoryComment(CATEGORY_AE2, "应用能源2(Applied Energistics 2)的配置设置");
     }
 }
