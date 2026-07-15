@@ -3,10 +3,7 @@ package com.xyp.gtnc.Loader;
 import net.minecraftforge.client.MinecraftForgeClient;
 
 import com.xyp.gtnc.Client.render.MiracleStarRender;
-import com.xyp.gtnc.Client.render.RenderTimeAccelerator;
-import com.xyp.gtnc.Common.entity.EntityTimeAccelerator;
 
-import cpw.mods.fml.client.registry.RenderingRegistry;
 import fox.spiteful.avaritia.render.CosmicItemRenderer;
 
 /**
@@ -20,10 +17,6 @@ public class RendererLoader {
      * Register all client-side renderers
      */
     public static void registerRenderers() {
-        // 注册时间加速器实体渲染器
-        // Register Time Accelerator entity renderer
-        RenderingRegistry.registerEntityRenderingHandler(EntityTimeAccelerator.class, new RenderTimeAccelerator());
-
         // 注册奇迹之门中心星体渲染器 (TESR)
         // Register Miracle Door center star renderer
         new MiracleStarRender();

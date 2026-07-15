@@ -9,7 +9,6 @@ import com.xyp.gtnc.Common.machines.hatch.SuperMTEHatchCraftingInputME;
 import com.xyp.gtnc.Common.machines.multiblock.AssemblerMatrix;
 import com.xyp.gtnc.Common.packet.NetWorkHandler;
 import com.xyp.gtnc.Loader.BlockLoader;
-import com.xyp.gtnc.Loader.EntityLoader;
 import com.xyp.gtnc.Loader.ItemsLoader;
 import com.xyp.gtnc.Loader.MachineLoader;
 import com.xyp.gtnc.Loader.RecipeLoader;
@@ -71,9 +70,6 @@ public class CommonProxy {
 
     // load "Do your mod setup. Build whatever data structures you care about. Register recipes." (Remove if not needed)
     public void init(FMLInitializationEvent event) {
-        // 注册所有实体（必须在CommonProxy中，确保服务端和客户端都注册）
-        EntityLoader.registerEntities();
-
         // 注册自定义蜜蜂等位基因（无尽速度 / 不死寿命），供养蜂机写入产出蜂
         com.xyp.gtnc.Common.machines.bee.GTNCBeeAlleles.register();
 
