@@ -3,8 +3,8 @@ package com.xyp.gtnc.ae2thing.client.gui.container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
-import com.glodblock.github.common.item.ItemFluidDrop;
 import com.glodblock.github.common.item.ItemFluidPacket;
+import com.xyp.gtnc.Common.compat.FluidDropCompat;
 import com.xyp.gtnc.ae2thing.inventory.IPatternTerminal;
 
 import appeng.container.slot.SlotFake;
@@ -30,7 +30,8 @@ public interface IPatternContainer {
     void doubleStacks(int value);
 
     default int getStackSize(ItemStack stack) {
-        if (stack.getItem() instanceof ItemFluidDrop) {
+        // [液滴分类] 可迁原生：仅读液滴在样板编辑槽的数量供加减倍操作,属样板内容编辑不参与合成计算
+        if (FluidDropCompat.isFluidDrop(stack.getItem())) {
             return stack.stackSize;
         } else if (stack.getItem() instanceof ItemFluidPacket) {
             return (int) ItemFluidPacket.getFluidAmount(stack);
@@ -65,7 +66,8 @@ public interface IPatternContainer {
             ItemStack st = s.getStack();
             if (st != null) {
                 if (mult < 0) {
-                    if (st.getItem() instanceof ItemFluidDrop) {
+                    // [液滴分类] 可迁原生：缩小样板编辑槽内液滴数量,属样板内容编辑不参与合成计算
+                    if (FluidDropCompat.isFluidDrop(st.getItem())) {
                         st.stackSize /= Math.abs(mult);
                     } else if (st.getItem() instanceof ItemFluidPacket) {
                         ItemFluidPacket.setFluidAmount(st, ItemFluidPacket.getFluidAmount(st) / Math.abs(mult));
@@ -73,7 +75,8 @@ public interface IPatternContainer {
                         st.stackSize /= Math.abs(mult);
                     }
                 } else {
-                    if (st.getItem() instanceof ItemFluidDrop) {
+                    // [液滴分类] 可迁原生：样板槽数量放大时按液滴类型改 stackSize,属样板内容编辑不参与合成
+                    if (FluidDropCompat.isFluidDrop(st.getItem())) {
                         st.stackSize *= mult;
                     } else if (st.getItem() instanceof ItemFluidPacket) {
                         ItemFluidPacket.setFluidAmount(st, ItemFluidPacket.getFluidAmount(st) * mult);

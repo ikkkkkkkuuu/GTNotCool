@@ -9,7 +9,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.ForgeDirection;
 
-import com.glodblock.github.common.item.ItemFluidDrop;
+import com.xyp.gtnc.Common.compat.FluidDropCompat;
 import com.xyp.gtnc.ae2thing.api.Constants;
 import com.xyp.gtnc.ae2thing.api.WirelessObject;
 import com.xyp.gtnc.ae2thing.inventory.IPatternTerminal;
@@ -232,7 +232,8 @@ public class WirelessDualInterfaceTerminalInventory extends WirelessTerminal imp
         List<ItemStack> fluids = new ArrayList<>();
         for (ItemStack is : this.craftingEx) {
             if (is == null) continue;
-            if (is.getItem() instanceof ItemFluidDrop) {
+            // [液滴分类] 可迁原生：仅判定是否液滴以在样板编辑网格内做物品/流体分组排序,纯 GUI 整理不参与合成
+            if (FluidDropCompat.isFluidDrop(is.getItem())) {
                 fluids.add(is);
             } else {
                 items.add(is);
@@ -319,9 +320,9 @@ public class WirelessDualInterfaceTerminalInventory extends WirelessTerminal imp
                     for (int i = 0; i < getCraftingInternalInventory().getSizeInventory() && i < inItems.length; i++) {
                         final IAEItemStack item = inItems[i];
                         if (item != null) {
-                            if (item.getItem() instanceof ItemFluidDrop && !this.isCraftingRecipe()) {
-                                ItemStack fluidDrop = ItemFluidDrop
-                                    .newStack(ItemFluidDrop.getFluidStack(item.getItemStack()));
+                            // [液滴分类] 可迁原生：把已编码样板的输入项回填到编辑网格显示槽,属样板内容展示不参与合成计算
+                            if (FluidDropCompat.isFluidDrop(item.getItem()) && !this.isCraftingRecipe()) {
+                                ItemStack fluidDrop = FluidDropCompat.newStack(FluidDropCompat.getFluidStack(item.getItemStack()));
                                 getCraftingInternalInventory().setInventorySlotContents(i, fluidDrop);
                             } else getCraftingInternalInventory().setInventorySlotContents(i, item.getItemStack());
                         }
@@ -331,9 +332,9 @@ public class WirelessDualInterfaceTerminalInventory extends WirelessTerminal imp
                         for (int i = 0; i < this.outputEx.getSizeInventory() && i < outItems.length; i++) {
                             final IAEItemStack item = outItems[i];
                             if (item != null) {
-                                if (item.getItem() instanceof ItemFluidDrop) {
-                                    ItemStack fluidDrop = ItemFluidDrop
-                                        .newStack(ItemFluidDrop.getFluidStack(item.getItemStack()));
+                                // [液滴分类] 可迁原生：把已编码样板的输出项回填到编辑网格显示槽,属样板内容展示不参与合成计算
+                                if (FluidDropCompat.isFluidDrop(item.getItem())) {
+                                    ItemStack fluidDrop = FluidDropCompat.newStack(FluidDropCompat.getFluidStack(item.getItemStack()));
                                     this.outputEx.setInventorySlotContents(i, fluidDrop);
                                 } else this.outputEx.setInventorySlotContents(i, item.getItemStack());
                             }
@@ -342,9 +343,9 @@ public class WirelessDualInterfaceTerminalInventory extends WirelessTerminal imp
                         for (int i = 0; i < outItems.length && i < 8; i++) {
                             final IAEItemStack item = outItems[i];
                             if (item != null) {
-                                if (item.getItem() instanceof ItemFluidDrop) {
-                                    ItemStack fluidDrop = ItemFluidDrop
-                                        .newStack(ItemFluidDrop.getFluidStack(item.getItemStack()));
+                                // [液滴分类] 可迁原生：把已编码样板的输出项回填到编辑网格显示槽,属样板内容展示不参与合成计算
+                                if (FluidDropCompat.isFluidDrop(item.getItem())) {
+                                    ItemStack fluidDrop = FluidDropCompat.newStack(FluidDropCompat.getFluidStack(item.getItemStack()));
                                     this.outputEx.setInventorySlotContents(i >= 4 ? 12 + i : i, fluidDrop);
                                 } else this.outputEx.setInventorySlotContents(i >= 4 ? 12 + i : i, item.getItemStack());
                             }

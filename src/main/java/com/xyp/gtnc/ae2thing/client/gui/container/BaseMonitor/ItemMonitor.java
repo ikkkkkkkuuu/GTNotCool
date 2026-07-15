@@ -7,7 +7,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.ICrafting;
 
-import com.glodblock.github.common.item.ItemFluidDrop;
+import com.xyp.gtnc.Common.compat.FluidDropCompat;
 import com.xyp.gtnc.ae2thing.AE2Thing;
 import com.xyp.gtnc.ae2thing.common.storage.RefreshableStorageMonitor;
 import com.xyp.gtnc.ae2thing.network.SPacketMEItemInvUpdate;
@@ -76,7 +76,9 @@ public class ItemMonitor implements IMEMonitorHandlerReceiver<IAEItemStack>, IPr
     }
 
     private void fluidHandler(IAEItemStack send) {
-        if (this.fluidMonitorObject != null && send.getStackSize() == 0 && send.getItem() instanceof ItemFluidDrop) {
+        // [液滴分类] 可迁原生：识别可合成液滴条目转交流体监视器标记可合成态,属显示分流不参与合成计算
+        if (this.fluidMonitorObject != null && send.getStackSize() == 0
+            && FluidDropCompat.isFluidDrop(send.getItem())) {
             this.fluidMonitorObject.addItemCraftingFluid(send);
         }
     }

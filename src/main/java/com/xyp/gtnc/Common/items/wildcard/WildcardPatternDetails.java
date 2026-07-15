@@ -6,7 +6,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 
-import com.glodblock.github.common.item.ItemFluidDrop;
+import com.xyp.gtnc.Common.compat.FluidDropCompat;
 
 import appeng.api.networking.crafting.ICraftingPatternDetails;
 import appeng.api.storage.data.IAEItemStack;
@@ -111,7 +111,8 @@ public class WildcardPatternDetails implements ICraftingPatternDetails {
             if (stack != null) {
                 fluidStack = GTUtility.getFluidFromDisplayStack(stack);
                 if (fluidStack == null) {
-                    fluidStack = ItemFluidDrop.getFluidStack(stack);
+                    // [液滴分类] 必须留液滴：convertToAeStacks 把输入转成 AE 栈供合成引擎计算，需识别液滴流体输入
+                    fluidStack = FluidDropCompat.getFluidStack(stack);
                 }
             }
             if (fluidStack != null) {

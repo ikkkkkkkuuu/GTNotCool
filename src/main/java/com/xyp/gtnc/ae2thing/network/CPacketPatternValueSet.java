@@ -8,7 +8,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.fluids.FluidStack;
 
-import com.glodblock.github.common.item.ItemFluidDrop;
+import com.xyp.gtnc.Common.compat.FluidDropCompat;
 import com.xyp.gtnc.ae2thing.client.gui.container.ContainerPatternValueAmount;
 import com.xyp.gtnc.ae2thing.client.gui.container.IPatternValueContainer;
 import com.xyp.gtnc.ae2thing.inventory.InventoryHandler;
@@ -83,13 +83,15 @@ public class CPacketPatternValueSet implements IMessage {
                         if (slot instanceof SlotFake) {
                             ItemStack stack = slot.getStack()
                                 .copy();
-                            if (ItemFluidDrop.isFluidStack(stack)) {
-                                FluidStack fluidStack = ItemFluidDrop.getFluidStack(stack);
+                            // [液滴分类] 可迁原生：仅把用户设定的数量写回样板编码槽(SlotFake)供显示/编辑,非构造合成请求
+                            if (FluidDropCompat.isFluidStack(stack)) {
+                                FluidStack fluidStack = FluidDropCompat.getFluidStack(stack);
                                 if (fluidStack != null) {
                                     fluidStack = fluidStack.copy();
                                     fluidStack.amount = message.amount;
                                 }
-                                slot.putStack(ItemFluidDrop.newStack(fluidStack));
+                                // [液滴分类] 可迁原生：样板槽液滴仅为槽位显示,数量编辑后重建的显示物
+                                slot.putStack(FluidDropCompat.newStack(fluidStack));
                             } else {
                                 stack.stackSize = message.amount;
                                 slot.putStack(stack);

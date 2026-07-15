@@ -9,12 +9,12 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.fluids.FluidStack;
 
-import com.glodblock.github.common.item.ItemFluidDrop;
 import com.glodblock.github.common.item.ItemFluidEncodedPattern;
 import com.glodblock.github.common.item.ItemFluidPacket;
 import com.glodblock.github.loader.ItemAndBlockHolder;
 import com.glodblock.github.util.FluidPatternDetails;
 import com.glodblock.github.util.Util;
+import com.xyp.gtnc.Common.compat.FluidDropCompat;
 import com.xyp.gtnc.ae2thing.api.Constants;
 import com.xyp.gtnc.ae2thing.client.gui.container.slot.SlotEncodedPatternInput;
 import com.xyp.gtnc.ae2thing.client.gui.container.slot.SlotReplaceFake;
@@ -123,7 +123,8 @@ public class ContainerPatternModifier extends AEBaseContainer implements IPatter
 
     private boolean hasFluidPatternStack(IAEItemStack[] stacks) {
         for (IAEItemStack stack : stacks) {
-            if (stack != null && ItemFluidDrop.isFluidStack(stack.getItemStack())) {
+            // [液滴分类] 可迁原生：仅判定样板数组内是否含流体以选择编码分支,不参与合成计算
+            if (stack != null && FluidDropCompat.isFluidStack(stack.getItemStack())) {
                 return true;
             }
         }
@@ -235,15 +236,17 @@ public class ContainerPatternModifier extends AEBaseContainer implements IPatter
                 if ((details.isCraftable() && target != null
                     && details.isValidItemForSlot(i, target, this.getPlayerInv().player.worldObj))
                     || (!details.isCraftable() && target != null)) {
-                    if (ItemFluidDrop.isFluidStack(target)) {
-                        IAEItemStack fluidDrop = ItemFluidDrop.newAeStack(ItemFluidDrop.getFluidStack(target));
+                    // [液滴分类] 可迁原生：替换样板配料时把流体转成液滴写回样板输入/输出数组,属样板重编码不参与合成计算
+                    if (FluidDropCompat.isFluidStack(target)) {
+                        IAEItemStack fluidDrop = FluidDropCompat.newAeStack(FluidDropCompat.getFluidStack(target));
                         if (fluidDrop != null) {
                             fluidDrop.setStackSize(item.getStackSize());
                         }
                         results[i] = fluidDrop;
                         continue;
+                        // [液滴分类] 可迁原生：替换样板配料时把流体包转成液滴写回样板数组,属样板重编码不参与合成计算
                     } else if (Util.isFluidPacket(target)) {
-                        IAEItemStack fluidDrop = ItemFluidDrop.newAeStack(ItemFluidPacket.getFluidStack(target));
+                        IAEItemStack fluidDrop = FluidDropCompat.newAeStack(ItemFluidPacket.getFluidStack(target));
                         if (fluidDrop != null) {
                             fluidDrop.setStackSize(item.getStackSize());
                         }

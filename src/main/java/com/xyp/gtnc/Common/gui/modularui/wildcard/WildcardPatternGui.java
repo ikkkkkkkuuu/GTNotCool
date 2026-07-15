@@ -419,7 +419,8 @@ public class WildcardPatternGui {
         net.minecraftforge.fluids.FluidStack fluid = gregtech.api.util.GTUtility.getFluidFromDisplayStack(stack);
         if (fluid != null && fluid.getFluid() != null) {
             if (fluid.amount <= 0) fluid.amount = 1000;
-            return com.glodblock.github.common.item.ItemFluidDrop.newStack(fluid);
+            // [液滴分类] 必须留液滴：把固定流体转成 ItemFluidDrop 存入样板，合成 CPU 才能识别为流体请求
+            return com.xyp.gtnc.Common.compat.FluidDropCompat.newStack(fluid);
         }
         return stack;
     }

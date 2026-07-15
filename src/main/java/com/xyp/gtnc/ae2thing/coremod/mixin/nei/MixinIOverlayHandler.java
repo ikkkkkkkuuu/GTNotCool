@@ -11,7 +11,7 @@ import net.minecraftforge.fluids.FluidStack;
 
 import org.spongepowered.asm.mixin.Mixin;
 
-import com.glodblock.github.common.item.ItemFluidDrop;
+import com.xyp.gtnc.Common.compat.FluidDropCompat;
 import com.xyp.gtnc.ae2thing.api.AE2ThingAPI;
 import com.xyp.gtnc.ae2thing.client.gui.widget.IGuiMonitor;
 import com.xyp.gtnc.ae2thing.nei.AEItemOverlayState;
@@ -78,8 +78,9 @@ public interface MixinIOverlayHandler extends IOverlayHandler {
                 FluidStack fs = StackInfo.getFluid(stack.item);
                 IAEItemStack item;
                 if (fs != null) {
-                    item = displayFluid ? AEItemStack.create(ItemFluidDrop.newDisplayStack(fs))
-                        : ItemFluidDrop.newAeStack(fs);
+                    // [液滴分类] 可迁原生：转液滴仅用于 list.findPrecise 判定配方原料是否在库/可合成(点亮 overlay 按钮),不构造合成请求
+                    item = displayFluid ? AEItemStack.create(FluidDropCompat.newDisplayStack(fs))
+                        : FluidDropCompat.newAeStack(fs);
                 } else {
                     item = AEItemStack.create(stack.item);
                 }

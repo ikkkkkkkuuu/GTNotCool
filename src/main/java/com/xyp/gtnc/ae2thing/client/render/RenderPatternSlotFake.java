@@ -9,8 +9,8 @@ import net.minecraft.item.ItemStack;
 
 import org.lwjgl.opengl.GL11;
 
-import com.glodblock.github.common.item.ItemFluidDrop;
 import com.glodblock.github.common.item.ItemFluidPacket;
+import com.xyp.gtnc.Common.compat.FluidDropCompat;
 import com.xyp.gtnc.ae2thing.client.gui.IGuiDrawSlot;
 import com.xyp.gtnc.ae2thing.client.gui.container.slot.SlotPatternFake;
 import com.xyp.gtnc.ae2thing.util.Ae2ReflectClient;
@@ -51,10 +51,12 @@ public class RenderPatternSlotFake implements ISlotRender {
             if (iDisplayRepo instanceof ItemRepo repo) {
                 IItemList<IAEStack<?>> list = Ae2ReflectClient.getList(repo);
                 IAEItemStack what = stack;
-                if (stack.getItem() instanceof ItemFluidDrop) {
+                // [液滴分类] 可迁原生：仅用于在展示列表查找该流体以决定是否绘制可合成叠加图标,属显示
+                if (FluidDropCompat.isFluidDrop(stack.getItem())) {
                     what = stack;
                 } else if (stack.getItem() instanceof ItemFluidPacket) {
-                    what = AEItemStack.create(ItemFluidDrop.newDisplayStack(ItemFluidPacket.getFluidStack(stack)));
+                    // [液滴分类] 可迁原生：构造展示液滴仅供 findPrecise 匹配展示列表画角标,不参与合成
+                    what = AEItemStack.create(FluidDropCompat.newDisplayStack(ItemFluidPacket.getFluidStack(stack)));
                 }
                 IAEStack<?> storedItem = list.findPrecise(what);
                 if (storedItem != null && storedItem.isCraftable()) {

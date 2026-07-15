@@ -6,7 +6,7 @@ import java.util.List;
 import net.minecraft.client.resources.I18n;
 
 import com.glodblock.github.client.gui.GuiFluidInterface;
-import com.glodblock.github.common.item.ItemFluidDrop;
+import com.xyp.gtnc.Common.compat.FluidDropCompat;
 import com.xyp.gtnc.ae2thing.util.Util;
 
 import appeng.api.storage.data.IAEItemStack;
@@ -35,7 +35,8 @@ public class CoreModHooksClient {
     public static String getModId(final IAEItemStack is) {
         if (cache.containsKey(is) && cache.get(is).modId != null) {
             return cache.get(is).modId;
-        } else if (is.getItem() instanceof ItemFluidDrop) {
+            // [液滴分类] 可迁原生：仅判定是否液滴以取其 modId 供 tooltip 显示,不参与合成
+        } else if (FluidDropCompat.isFluidDrop(is.getItem())) {
             String id = Util.getModId(is);
             putCache(is, id, null, null);
             return id;
@@ -48,7 +49,8 @@ public class CoreModHooksClient {
         if (o instanceof IAEItemStack is) {
             if (cache.containsKey(is) && cache.get(is).name != null) {
                 return cache.get(is).name;
-            } else if (is.getItem() instanceof ItemFluidDrop) {
+                // [液滴分类] 可迁原生：仅判定是否液滴以取其显示名,纯 GUI 显示不参与合成
+            } else if (FluidDropCompat.isFluidDrop(is.getItem())) {
                 String name = Util.getDisplayName(is);
                 putCache(is, null, name, null);
                 return name;

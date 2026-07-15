@@ -9,7 +9,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.ICrafting;
 
-import com.glodblock.github.common.item.ItemFluidDrop;
+import com.xyp.gtnc.Common.compat.FluidDropCompat;
 import com.xyp.gtnc.ae2thing.AE2Thing;
 import com.xyp.gtnc.ae2thing.network.SPacketMEFluidInvUpdate;
 
@@ -155,7 +155,8 @@ public class FluidMonitor implements IMEMonitorHandlerReceiver<IAEFluidStack>, I
             for (final IAEFluidStack is : this.fluids) {
                 IAEFluidStack send = monitorCache.findPrecise(is);
                 if (send != null) {
-                    IAEItemStack item = itemMonitorCache.findPrecise(ItemFluidDrop.newAeStack(send));
+                    // [液滴分类] 可迁原生：用液滴键在物品缓存里查同物以拷贝可合成态到流体显示,纯显示同步不参与合成
+                    IAEItemStack item = itemMonitorCache.findPrecise(FluidDropCompat.newAeStack(send));
                     if (item != null) {
                         send = send.copy();
                         send.setCraftable(item.isCraftable());
@@ -174,7 +175,8 @@ public class FluidMonitor implements IMEMonitorHandlerReceiver<IAEFluidStack>, I
             final IItemList<IAEFluidStack> monitorCache = this.fluidMonitor.getStorageList();
             for (IAEItemStack is : this.craftingFluids) {
                 is.setStackSize(1);
-                IAEFluidStack fs = ItemFluidDrop.getAeFluidStack(is);
+                // [液滴分类] 可迁原生：把可合成液滴项还原为流体栈推给流体面板显示,纯显示不参与合成计算
+                IAEFluidStack fs = FluidDropCompat.getAeFluidStack(is);
                 if (fs == null) continue;
                 if (monitorCache.findPrecise(fs) == null) {
                     fs.setStackSize(0);
@@ -204,7 +206,8 @@ public class FluidMonitor implements IMEMonitorHandlerReceiver<IAEFluidStack>, I
             List<IAEFluidStack> toSend = new ArrayList<>();
             for (final IAEFluidStack is : monitorCache) {
                 final IAEFluidStack send = is.copy();
-                IAEItemStack fluidDrop = itemMonitorCache.findPrecise(ItemFluidDrop.newAeStack(is));
+                // [液滴分类] 可迁原生：用液滴键在物品缓存里查同物以拷贝可合成态到流体条目,初始化列表显示不参与合成
+                IAEItemStack fluidDrop = itemMonitorCache.findPrecise(FluidDropCompat.newAeStack(is));
                 if (fluidDrop != null) {
                     send.setCraftable(fluidDrop.isCraftable());
                 }

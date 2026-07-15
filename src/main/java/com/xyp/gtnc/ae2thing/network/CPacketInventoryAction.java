@@ -12,7 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 
-import com.glodblock.github.common.item.ItemFluidDrop;
+import com.xyp.gtnc.Common.compat.FluidDropCompat;
 import com.xyp.gtnc.ae2thing.inventory.InventoryHandler;
 import com.xyp.gtnc.ae2thing.inventory.gui.GuiType;
 import com.xyp.gtnc.ae2thing.inventory.item.WirelessTerminal;
@@ -115,7 +115,8 @@ public class CPacketInventoryAction implements IMessage {
                                     message.stack = ais;
                                 }
                             }
-                            if(message.stack != null && message.stack.getItem() instanceof ItemFluidDrop){
+                            // [液滴分类] 必须留液滴：AUTO_CRAFT 分支,把流体伪装成液滴物设为合成目标(setTargetStack)下单,CraftingJobV2 只认 IAEItemStack
+                            if(message.stack != null && FluidDropCompat.isFluidDrop(message.stack.getItem())){
                                 ItemStack is = message.stack.getItemStack().copy();
                                 NBTTagCompound data = is.getTagCompound();
                                 // A fluid_drop built from a craftable fluid may have no NBT tag; guard against NPE.

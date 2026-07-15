@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.glodblock.github.common.item.ItemFluidDrop;
+import com.xyp.gtnc.Common.compat.FluidDropCompat;
 import com.xyp.gtnc.ae2thing.api.AE2ThingAPI;
 import com.xyp.gtnc.ae2thing.client.gui.widget.IGuiMonitor;
 import com.xyp.gtnc.ae2thing.client.render.RenderHelper;
@@ -76,7 +76,8 @@ public abstract class MixinGuiContainerManager {
             IItemList<IAEStack<?>> list = Ae2ReflectClient.getList((ItemRepo) repo);
             FluidStack fs = StackInfo.getFluid(stack);
             if (fs != null) {
-                stack = displayFluid ? ItemFluidDrop.newDisplayStack(fs) : ItemFluidDrop.newStack(fs);
+                // [液滴分类] 可迁原生：把 NEI 鼠标悬停的流体转成液滴仅为 list.findPrecise 查库存/画 tooltip,不下单合成
+                stack = displayFluid ? FluidDropCompat.newDisplayStack(fs) : FluidDropCompat.newStack(fs);
             }
             IAEStack<?> found = list.findPrecise(
                 ae2Thing$lastStack != null && Platform.isSameItemPrecise(ae2Thing$lastStack, stack)

@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 
-import com.glodblock.github.common.item.ItemFluidDrop;
+import com.xyp.gtnc.Common.compat.FluidDropCompat;
 
 import gregtech.api.enums.FluidState;
 import gregtech.api.enums.Materials;
@@ -73,7 +73,8 @@ public final class WildcardMaterials {
         if (state == null || !isRealMaterial(material) || amount <= 0) return null;
         FluidStack fluid = getMaterialFluid(material, state, amount);
         if (fluid == null || fluid.getFluid() == null) return null;
-        return ItemFluidDrop.newStack(fluid);
+        // [液滴分类] 必须留液滴：产出 ItemFluidDrop 作为样板流体请求，CPU 靠 instanceof 识别下单
+        return FluidDropCompat.newStack(fluid);
     }
 
     /**
@@ -82,7 +83,8 @@ public final class WildcardMaterials {
      */
     public static ItemStack toDisplayStack(ItemStack stack) {
         if (stack == null) return null;
-        FluidStack fluid = ItemFluidDrop.getFluidStack(stack);
+        // [液滴分类] 可迁原生：仅把流体转成 GT 显示物品用于 GUI 图标，不参与合成
+        FluidStack fluid = FluidDropCompat.getFluidStack(stack);
         if (fluid != null && fluid.getFluid() != null) {
             ItemStack display = gregtech.api.util.GTUtility.getFluidDisplayStack(fluid, true);
             if (display != null) {
