@@ -24,8 +24,8 @@ import net.minecraftforge.fluids.IFluidContainerItem;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
-import com.glodblock.github.common.item.ItemFluidDrop;
 import com.glodblock.github.util.Util;
+import com.xyp.gtnc.Common.compat.FluidDropCompat;
 import com.xyp.gtnc.ae2thing.client.gui.container.slot.SlotPatternFake;
 import com.xyp.gtnc.ae2thing.client.gui.container.widget.IWidgetPatternContainer;
 import com.xyp.gtnc.ae2thing.client.gui.container.widget.PatternContainer;
@@ -219,16 +219,19 @@ public class ContainerWirelessDualInterfaceTerminal extends ContainerMonitor
                         switch (action) {
                             case PICKUP_OR_SET_DOWN -> {
                                 fluid = Util.getFluidFromItem(stack);
-                                slot.putStack(ItemFluidDrop.newStack(fluid));
+                                // [液滴分类] 可迁原生：把容器流体放入样板编辑显示槽,属样板内容编辑不参与合成计算
+                                slot.putStack(FluidDropCompat.newStack(fluid));
                             }
                             case SPLIT_OR_PLACE_SINGLE -> {
                                 fluid = Util.getFluidFromItem(Util.copyStackWithSize(stack, 1));
-                                FluidStack origin = ItemFluidDrop.getFluidStack(slot.getStack());
+                                // [液滴分类] 可迁原生：读取样板槽内已有液滴的流体以合并数量,属样板内容编辑不参与合成计算
+                                FluidStack origin = FluidDropCompat.getFluidStack(slot.getStack());
                                 if (fluid != null && fluid.equals(origin)) {
                                     fluid.amount += origin.amount;
                                     if (fluid.amount <= 0) fluid = null;
                                 }
-                                slot.putStack(ItemFluidDrop.newStack(fluid));
+                                // [液滴分类] 可迁原生：把合并后的流体写回样板槽显示,属样板内容编辑不参与合成计算
+                                slot.putStack(FluidDropCompat.newStack(fluid));
                             }
                         }
                         if (fluid == null) {

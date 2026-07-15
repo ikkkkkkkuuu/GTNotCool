@@ -15,7 +15,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
-import com.glodblock.github.common.item.ItemFluidDrop;
+import com.xyp.gtnc.Common.compat.FluidDropCompat;
 import com.xyp.gtnc.ae2thing.AE2Thing;
 import com.xyp.gtnc.ae2thing.client.gui.BaseMEGui;
 import com.xyp.gtnc.ae2thing.client.gui.IGuiMonitorTerminal;
@@ -358,14 +358,15 @@ public class ItemPanel implements IAEBasePanel, IGuiMonitorTerminal, IConfigMana
             // ItemFluidDrop and opens the fluid autocraft. Item stacks pass through unchanged.
             IAEItemStack craftStack = stack;
             if (craftStack == null && aeStack instanceof IAEFluidStack afs && afs.getFluidStack() != null) {
-                // A craftable fluid reports stackSize/amount 0, and ItemFluidDrop.newStack returns null when
+                // A craftable fluid reports stackSize/amount 0, and FluidDropCompat.newStack returns null when
                 // amount <= 0. Copy the FluidStack and bump the amount to >= 1 so we get a valid drop item to
                 // carry as the craft target (the amount here is only a transport placeholder; the real craft
                 // quantity is chosen in the craft-amount GUI).
                 net.minecraftforge.fluids.FluidStack fs = afs.getFluidStack()
                     .copy();
                 if (fs.amount <= 0) fs.amount = 1;
-                craftStack = AEItemStack.create(ItemFluidDrop.newStack(fs));
+                // [液滴分类] 必须留液滴：AUTO_CRAFT 下单目标,流体须伪装成液滴物品才能被 CraftingJobV2 计算
+                craftStack = AEItemStack.create(FluidDropCompat.newStack(fs));
             }
             this.inventorySlots.setTargetStack(craftStack);
             AE2Thing.proxy.netHandler.sendToServer(
@@ -376,7 +377,8 @@ public class ItemPanel implements IAEBasePanel, IGuiMonitorTerminal, IConfigMana
                     -2,
                     craftStack));
         } else if (action != null) {
-            if (stack != null && stack.getItem() instanceof ItemFluidDrop) stack = null;
+            // [液滴分类] 可迁原生：非合成动作时把液滴置空(避免当普通物品处理),纯交互过滤不参与合成
+            if (stack != null && FluidDropCompat.isFluidDrop(stack.getItem())) stack = null;
             this.inventorySlots.setTargetStack(stack);
             final PacketMonitorableAction p = new PacketMonitorableAction(action, -1);
             NetworkHandler.instance.sendToServer(p);
@@ -549,7 +551,8 @@ public class ItemPanel implements IAEBasePanel, IGuiMonitorTerminal, IConfigMana
     @Override
     public void postStackUpdate(List<? extends IAEStack<?>> list) {
         for (IAEStack<?> stack : list) {
-            if (stack instanceof IAEItemStack item && item.getItem() instanceof ItemFluidDrop) continue;
+            // [液滴分类] 可迁原生：物品面板视图更新时跳过液滴(流体走独立面板),纯显示分流不参与合成
+            if (stack instanceof IAEItemStack item && FluidDropCompat.isFluidDrop(item.getItem())) continue;
             this.repo.postUpdate(stack);
         }
         // 性能：繁忙网络每 tick(~20/s) 都会推来一个增量更新包。若每包都立刻 updateView() 全表重排

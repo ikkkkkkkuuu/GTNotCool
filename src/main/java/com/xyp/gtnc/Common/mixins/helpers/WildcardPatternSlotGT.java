@@ -8,7 +8,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.fluids.FluidStack;
 
-import com.glodblock.github.common.item.ItemFluidDrop;
+import com.xyp.gtnc.Common.compat.FluidDropCompat;
 import com.xyp.gtnc.Common.items.wildcard.WildcardPatternGenerator;
 
 import appeng.api.networking.crafting.ICraftingPatternDetails;
@@ -424,8 +424,9 @@ public class WildcardPatternSlotGT extends MTEHatchCraftingInputME.PatternSlot<M
         if (stack == null) return null;
         FluidStack result = GTUtility.getFluidFromDisplayStack(stack);
         if (result != null) return result;
-        if (stack.getItem() instanceof ItemFluidDrop) {
-            return ItemFluidDrop.getFluidStack(stack);
+        // [液滴分类] 可迁原生：仅从样板输入读出流体用于与已存库存比对(数量校验)，不构造合成请求
+        if (FluidDropCompat.isFluidDrop(stack.getItem())) {
+            return FluidDropCompat.getFluidStack(stack);
         }
         return null;
     }

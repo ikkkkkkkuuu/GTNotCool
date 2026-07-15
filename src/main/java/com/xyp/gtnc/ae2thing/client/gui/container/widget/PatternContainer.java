@@ -19,12 +19,12 @@ import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 
-import com.glodblock.github.common.item.ItemFluidDrop;
 import com.glodblock.github.common.item.ItemFluidEncodedPattern;
 import com.glodblock.github.common.item.ItemFluidPacket;
 import com.glodblock.github.loader.ItemAndBlockHolder;
 import com.glodblock.github.util.FluidPatternDetails;
 import com.glodblock.github.util.Util;
+import com.xyp.gtnc.Common.compat.FluidDropCompat;
 import com.xyp.gtnc.ae2thing.api.Constants;
 import com.xyp.gtnc.ae2thing.client.gui.container.ContainerWirelessDualInterfaceTerminal;
 import com.xyp.gtnc.ae2thing.client.gui.container.IPatternContainer;
@@ -606,8 +606,9 @@ public class PatternContainer implements IPatternContainer, IOptionalSlotHost, I
     @Nullable
     private static IAEFluidStack toAEFluidStack(ItemStack stack) {
         FluidStack fs = null;
-        if (stack.getItem() instanceof ItemFluidDrop) {
-            fs = ItemFluidDrop.getFluidStack(stack);
+        // [液滴分类] 可迁原生：把样板槽物品转为 AE 流体栈供样板编码显示,属样板内容不参与合成计算
+        if (FluidDropCompat.isFluidDrop(stack.getItem())) {
+            fs = FluidDropCompat.getFluidStack(stack);
         } else if (stack.getItem() instanceof ItemFluidDisplay) {
             if (stack.getTagCompound() != null) {
                 Fluid fluid = FluidRegistry.getFluid(stack.getItemDamage());
@@ -623,7 +624,8 @@ public class PatternContainer implements IPatternContainer, IOptionalSlotHost, I
 
     private static boolean isAnyFluidItem(ItemStack stack) {
         if (stack == null) return false;
-        return stack.getItem() instanceof ItemFluidDrop || stack.getItem() instanceof ItemFluidDisplay
+        // [液滴分类] 可迁原生：仅判定样板槽物品是否任意流体形态,用于编码分流不参与合成计算
+        return FluidDropCompat.isFluidDrop(stack.getItem()) || stack.getItem() instanceof ItemFluidDisplay
             || stack.getItem() instanceof ItemFluidPacket;
     }
 

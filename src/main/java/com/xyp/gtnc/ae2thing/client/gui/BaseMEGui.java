@@ -20,8 +20,8 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
-import com.glodblock.github.common.item.ItemFluidDrop;
 import com.glodblock.github.util.Util;
+import com.xyp.gtnc.Common.compat.FluidDropCompat;
 import com.xyp.gtnc.ae2thing.AE2Thing;
 import com.xyp.gtnc.ae2thing.api.AE2ThingAPI;
 import com.xyp.gtnc.ae2thing.client.gui.widget.IGuiSelection;
@@ -105,11 +105,13 @@ public abstract class BaseMEGui extends AEBaseGui implements IGuiSelection {
                 ItemStack cs = player.inventory.getItemStack();
                 IAEItemStack item = slot.getAEStack() instanceof IAEItemStack ais ? ais : null;
                 if (ctrlDown == 0) {
+                    // [液滴分类] 可迁原生：仅判定槽内是否液滴+取其流体量做容器灌装,属存储操作不参与合成
                     if (item != null && item.getItem() != null
-                        && item.getItem() instanceof ItemFluidDrop
+                        && FluidDropCompat.isFluidDrop(item.getItem())
                         && item.getStackSize() != 0) {
-                        if (cs == null || isEmptyContainer(cs, ItemFluidDrop.getAeFluidStack(item))) {
-                            IAEFluidStack fluid = ItemFluidDrop.getAeFluidStack(item);
+                        // [液滴分类] 可迁原生：取液滴对应流体判定空容器/发流体更新包,存储读取不参与合成
+                        if (cs == null || isEmptyContainer(cs, FluidDropCompat.getAeFluidStack(item))) {
+                            IAEFluidStack fluid = FluidDropCompat.getAeFluidStack(item);
                             AE2Thing.proxy.netHandler.sendToServer(new CPacketFluidUpdate(fluid, isShiftKeyDown()));
                             return true;
                         }
@@ -118,10 +120,11 @@ public abstract class BaseMEGui extends AEBaseGui implements IGuiSelection {
                     AE2Thing.proxy.netHandler.sendToServer(new CPacketFluidUpdate(null, isShiftKeyDown()));
                     return true;
                 }
+                // [液滴分类] 可迁原生：仅判定是否液滴以拦截创造中键取物,交互路由不参与合成
                 if (mouseButton == 3 && player.capabilities.isCreativeMode
                     && item != null
                     && !item.isCraftable()
-                    && item.getItem() instanceof ItemFluidDrop) {
+                    && FluidDropCompat.isFluidDrop(item.getItem())) {
                     return false;
                 }
             } catch (Exception e) {

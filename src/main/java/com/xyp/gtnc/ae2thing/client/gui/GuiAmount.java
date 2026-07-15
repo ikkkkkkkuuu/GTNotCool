@@ -9,7 +9,7 @@ import net.minecraft.item.ItemStack;
 
 import org.lwjgl.input.Keyboard;
 
-import com.glodblock.github.common.item.ItemFluidDrop;
+import com.xyp.gtnc.Common.compat.FluidDropCompat;
 import com.xyp.gtnc.ae2thing.api.adapter.terminal.IGuiCraftAmount;
 import com.xyp.gtnc.ae2thing.inventory.InventoryHandler;
 import com.xyp.gtnc.ae2thing.inventory.gui.GuiType;
@@ -244,8 +244,9 @@ public abstract class GuiAmount extends AEBaseGui implements IGuiDrawSlot, IGuiC
             // The server keeps the craft target as an ItemFluidDrop IAEItemStack (needed for the actual
             // crafting job). Rendering that item stack draws a blank item icon, so for DISPLAY ONLY convert
             // it back to its IAEFluidStack, which draws the proper fluid texture + amount.
-            if (display instanceof IAEItemStack ais && ais.getItem() instanceof ItemFluidDrop) {
-                IAEFluidStack fluid = ItemFluidDrop.getAeFluidStack(ais);
+            // [液滴分类] 可迁原生：仅为显示把液滴还原成流体渲染,不参与合成计算(合成目标仍由服务端保留液滴)
+            if (display instanceof IAEItemStack ais && FluidDropCompat.isFluidDrop(ais.getItem())) {
+                IAEFluidStack fluid = FluidDropCompat.getAeFluidStack(ais);
                 if (fluid != null) {
                     display = fluid;
                 }

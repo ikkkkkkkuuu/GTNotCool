@@ -36,3 +36,6 @@ addon.late.local.gradle
 addon.late.local.gradle.kts
 layout.json
 /test/
+
+# Claude 临时笔记
+.claude-notes/

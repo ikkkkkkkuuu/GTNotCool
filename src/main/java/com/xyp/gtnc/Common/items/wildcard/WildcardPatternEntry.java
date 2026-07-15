@@ -15,7 +15,7 @@ import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
 
-import com.glodblock.github.common.item.ItemFluidDrop;
+import com.xyp.gtnc.Common.compat.FluidDropCompat;
 
 import appeng.util.Platform;
 import cpw.mods.fml.common.registry.GameRegistry;
@@ -93,8 +93,9 @@ public class WildcardPatternEntry {
         }
 
         // 检测是否为旧版AE2FC流体drop(ItemFluidDrop) - 兼容性保留
-        if (stack != null && stack.getItem() instanceof ItemFluidDrop) {
-            FluidStack fluidStack = ItemFluidDrop.getFluidStack(stack);
+        // [液滴分类] 可迁原生：仅解析输入堆读出流体信息以填充条目(matcher/amount)，不构造合成请求
+        if (stack != null && FluidDropCompat.isFluidDrop(stack.getItem())) {
+            FluidStack fluidStack = FluidDropCompat.getFluidStack(stack);
             if (fluidStack != null && fluidStack.getFluid() != null) {
                 entry.amount = fluidStack.amount;
                 FluidParseResult parsed = parseFluidName(fluidStack);
@@ -284,7 +285,8 @@ public class WildcardPatternEntry {
         if (isFluid()) {
             ItemStack stored = this.displayStack != null ? this.displayStack : this.stack;
             if (stored != null) {
-                FluidStack fluid = ItemFluidDrop.getFluidStack(stored);
+                // [液滴分类] 可迁原生：仅取出流体转成 GT 显示物品用于 GUI 图标渲染，无合成计算
+                FluidStack fluid = FluidDropCompat.getFluidStack(stored);
                 if (fluid != null) {
                     ItemStack display = GTUtility.getFluidDisplayStack(fluid, true);
                     if (display != null) {
@@ -1118,7 +1120,8 @@ public class WildcardPatternEntry {
         }
 
         // 使用AE2FC的ItemFluidDrop,CPU通过instanceof ItemFluidDrop识别流体并请求AE流体存储
-        return ItemFluidDrop.newStack(fluidStack);
+        // [液滴分类] 必须留液滴：产出参与展开样板/构造合成请求，CPU 靠 ItemFluidDrop 识别流体下单
+        return FluidDropCompat.newStack(fluidStack);
     }
 
     /**

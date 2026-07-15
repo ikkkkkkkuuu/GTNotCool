@@ -7,7 +7,7 @@ import java.util.function.Predicate;
 import net.minecraft.inventory.Slot;
 import net.minecraftforge.fluids.FluidStack;
 
-import com.glodblock.github.common.item.ItemFluidDrop;
+import com.xyp.gtnc.Common.compat.FluidDropCompat;
 import com.xyp.gtnc.ae2thing.client.gui.IGuiDrawSlot;
 
 import appeng.api.storage.data.IAEItemStack;
@@ -16,13 +16,16 @@ public class RenderFluidDrop implements ISlotRender {
 
     @Override
     public Predicate<Slot> get() {
-        return slot -> slot.getStack()
-            .getItem() instanceof ItemFluidDrop;
+        // [液滴分类] 可迁原生：仅判定槽位是否为流体以决定是否走本渲染器，属图标渲染
+        return slot -> FluidDropCompat.isFluidDrop(
+            slot.getStack()
+                .getItem());
     }
 
     @Override
     public boolean drawSlot(Slot slot, IAEItemStack stack, IGuiDrawSlot draw, boolean display) {
-        FluidStack fluidStack = ItemFluidDrop.getFluidStack(slot.getStack());
+        // [液滴分类] 可迁原生：取流体仅用于绘制流体图标，属渲染显示
+        FluidStack fluidStack = FluidDropCompat.getFluidStack(slot.getStack());
         if (fluidStack == null || fluidStack.getFluid() == null) return true;
         draw.drawWidget(slot.xDisplayPosition, slot.yDisplayPosition, fluidStack.getFluid());
         aeRenderItem.setAeStack(stack);

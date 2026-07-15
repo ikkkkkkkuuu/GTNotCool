@@ -4,7 +4,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.FluidStack;
 
-import com.glodblock.github.common.item.ItemFluidDrop;
+import com.xyp.gtnc.Common.compat.FluidDropCompat;
 import com.xyp.gtnc.Common.items.wildcard.model.IWildcardIOComponent;
 
 import gregtech.api.enums.Materials;
@@ -44,7 +44,8 @@ public final class SimpleIOComponent implements IWildcardIOComponent {
     public void setStack(ItemStack stack) {
         this.stack = stack == null ? null : stack.copy();
         if (stack != null) {
-            FluidStack fluid = ItemFluidDrop.getFluidStack(stack);
+            // [液滴分类] 可迁原生：仅读出流体量初始化 amount，不构造合成请求
+            FluidStack fluid = FluidDropCompat.getFluidStack(stack);
             if (fluid != null) {
                 this.amount = Math.max(1L, fluid.amount);
             } else {
@@ -67,17 +68,20 @@ public final class SimpleIOComponent implements IWildcardIOComponent {
 
     /** 是否为流体（ItemFluidDrop）。 */
     public boolean isFluid() {
-        return stack != null && ItemFluidDrop.getFluidStack(stack) != null;
+        // [液滴分类] 可迁原生：仅判定该组件是否为流体，纯查询，不参与合成
+        return stack != null && FluidDropCompat.getFluidStack(stack) != null;
     }
 
     @Override
     public ItemStack apply(Materials material) {
         if (stack == null) return null;
-        FluidStack fluid = ItemFluidDrop.getFluidStack(stack);
+        // [液滴分类] 必须留液滴：apply() 产出的堆用于展开样板参与合成，读流体是为重建下单用的 ItemFluidDrop
+        FluidStack fluid = FluidDropCompat.getFluidStack(stack);
         if (fluid != null) {
             FluidStack copy = fluid.copy();
             copy.amount = (int) Math.max(1L, Math.min(Integer.MAX_VALUE, amount));
-            return ItemFluidDrop.newStack(copy);
+            // [液滴分类] 必须留液滴：重建 ItemFluidDrop 作为样板展开后的流体请求，CPU 靠它识别下单
+            return FluidDropCompat.newStack(copy);
         }
         ItemStack result = stack.copy();
         result.stackSize = (int) Math.max(1L, Math.min(Integer.MAX_VALUE, amount));

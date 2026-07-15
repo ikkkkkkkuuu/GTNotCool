@@ -10,8 +10,8 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 
-import com.glodblock.github.common.item.ItemFluidDrop;
 import com.glodblock.github.common.item.ItemFluidPacket;
+import com.xyp.gtnc.Common.compat.FluidDropCompat;
 import com.xyp.gtnc.ae2thing.client.gui.IGuiDrawSlot;
 
 import appeng.api.storage.data.IAEItemStack;
@@ -24,8 +24,9 @@ public class RenderFluidPacketPatternSlot implements ISlotRender {
     public Predicate<Slot> get() {
         return slot -> {
             ItemStack stack = slot.getStack();
+            // [液滴分类] 可迁原生：判定样板槽是否为流体以决定渲染方式，属图标渲染
             return stack != null
-                && (stack.getItem() instanceof ItemFluidPacket || stack.getItem() instanceof ItemFluidDrop);
+                && (stack.getItem() instanceof ItemFluidPacket || FluidDropCompat.isFluidDrop(stack.getItem()));
         };
     }
 
@@ -33,8 +34,9 @@ public class RenderFluidPacketPatternSlot implements ISlotRender {
     public boolean drawSlot(Slot slot, IAEItemStack stack, IGuiDrawSlot draw, boolean display) {
         FluidStack fluidStack = null;
         ItemStack itemStack = stack.getItemStack();
-        if (itemStack.getItem() instanceof ItemFluidDrop) {
-            fluidStack = ItemFluidDrop.getFluidStack(itemStack);
+        // [液滴分类] 可迁原生：取流体仅用于绘制样板槽流体图标与数量,属渲染显示
+        if (FluidDropCompat.isFluidDrop(itemStack.getItem())) {
+            fluidStack = FluidDropCompat.getFluidStack(itemStack);
         } else if (itemStack.getItem() instanceof ItemFluidPacket) {
             fluidStack = ItemFluidPacket.getFluidStack(itemStack);
         }

@@ -8,7 +8,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 
-import com.glodblock.github.common.item.ItemFluidDrop;
+import com.xyp.gtnc.Common.compat.FluidDropCompat;
 import com.xyp.gtnc.ae2thing.api.Constants;
 import com.xyp.gtnc.ae2thing.nei.object.OrderStack;
 import com.xyp.gtnc.ae2thing.network.CPacketTransferRecipe;
@@ -34,7 +34,8 @@ public interface IPatternTerminalAdapter {
                 if (stack.getStack() instanceof ItemStack) {
                     stack1 = ((ItemStack) stack.getStack()).copy();
                 } else if (supportFluid() && stack.getStack() instanceof FluidStack) {
-                    stack1 = ItemFluidDrop.newStack((FluidStack) stack.getStack());
+                    // [液滴分类] 可迁原生：把配方流体填入样板编辑槽,属样板内容装载不参与合成计算
+                    stack1 = FluidDropCompat.newStack((FluidStack) stack.getStack());
                 } else {
                     AELog.warn(new UnsupportedOperationException("Trying to get an unsupported item!"));
                     continue;

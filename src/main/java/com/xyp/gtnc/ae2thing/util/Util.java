@@ -24,9 +24,9 @@ import net.minecraftforge.fluids.IFluidContainerItem;
 import org.lwjgl.input.Mouse;
 
 import com.glodblock.github.client.gui.FCGuiTextField;
-import com.glodblock.github.common.item.ItemFluidDrop;
 import com.glodblock.github.common.item.ItemFluidPacket;
 import com.mojang.authlib.GameProfile;
+import com.xyp.gtnc.Common.compat.FluidDropCompat;
 import com.xyp.gtnc.ae2thing.api.AE2ThingAPI;
 import com.xyp.gtnc.ae2thing.api.Constants;
 import com.xyp.gtnc.ae2thing.client.gui.IGuiMonitorTerminal;
@@ -312,8 +312,9 @@ public class Util {
     }
 
     public static String getModId(IAEItemStack item) {
-        if (item.getItem() instanceof ItemFluidDrop) {
-            FluidStack fs = ItemFluidDrop.getFluidStack(item.getItemStack());
+        // [液滴分类] 可迁原生：仅为取 modId 读取流体，属查询/显示，未参与合成计算
+        if (FluidDropCompat.isFluidDrop(item.getItem())) {
+            FluidStack fs = FluidDropCompat.getFluidStack(item.getItemStack());
             if (fs == null) return GameRegistry.findUniqueIdentifierFor(item.getItem()).modId;
             return getFluidModID(fs.getFluid());
         }
@@ -330,8 +331,10 @@ public class Util {
     }
 
     public static boolean isFluidPacket(ItemStack stack) {
-        return stack != null && (stack.getItem() instanceof ItemFluidPacket || stack.getItem() instanceof ItemFluidDrop
-            || stack.getItem() instanceof gregtech.common.items.ItemFluidDisplay);
+        // [液滴分类] 可迁原生：仅做流体类型判定的谓词，未参与合成计算
+        return stack != null
+            && (stack.getItem() instanceof ItemFluidPacket || FluidDropCompat.isFluidDrop(stack.getItem())
+                || stack.getItem() instanceof gregtech.common.items.ItemFluidDisplay);
     }
 
     @Nonnull
