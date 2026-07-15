@@ -68,13 +68,20 @@ public class LateMixinsLoader implements ILateMixinLoader {
             addAll(list, "CropsNH.MixinTileEntityCropSticks", "CropsNH.MixinSeedStats");
         }
 
+        // GT 蜜蜂突变的「取消维度/下方方块限制」——目标类是 GT 的 GTBeeMutation，且引用 Forestry 的
+        // IMutationCondition，故需 gregtech 与 Forestry 同时加载才注册。
+        if (loadedMods.contains(MOD_GREGTECH) && loadedMods.contains(MOD_FORESTRY)) {
+            addAll(list, "Gregtech.MixinGTBeeMutation");
+        }
+
         if (loadedMods.contains(MOD_FORESTRY)) {
             addAll(
                 list,
                 "Forestry.MixinBee",
                 "Forestry.MixinBeeHomozygous",
                 "Forestry.MixinBeeGenomeEnvironment",
-                "Forestry.MixinBlockBeehives");
+                "Forestry.MixinBlockBeehives",
+                "Forestry.MixinMutationConditions");
         }
 
         if (loadedMods.contains(MOD_THAUMCRAFT)) {
