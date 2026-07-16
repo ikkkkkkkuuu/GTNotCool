@@ -109,6 +109,10 @@ public class BlockLoader {
     public static BlockMEBridgeSender blockMEBridgeSender = new BlockMEBridgeSender();
     public static BlockMEBridgeReceiver blockMEBridgeReceiver = new BlockMEBridgeReceiver();
 
+    /** 建筑生成器方块 + 放大外壳用的像素方块 */
+    public static com.xyp.gtnc.Common.building.BlockBuildingGenerator blockBuildingGenerator = new com.xyp.gtnc.Common.building.BlockBuildingGenerator();
+    public static com.xyp.gtnc.Common.building.BlockPixel blockPixel = new com.xyp.gtnc.Common.building.BlockPixel();
+
     /**
      * 注册所有方块到 Forge GameRegistry。
      */
@@ -131,6 +135,12 @@ public class BlockLoader {
         GameRegistry.registerBlock(blockMEBridgeReceiver, ItemBlockMEBridge.class, "blockMEBridgeReceiver");
         GameRegistry.registerTileEntity(TileMEBridgeSender.class, "tileMEBridgeSender");
         GameRegistry.registerTileEntity(TileMEBridgeReceiver.class, "tileMEBridgeReceiver");
+
+        // ---- 建筑生成器 + 像素方块 ----
+        GameRegistry.registerBlock(blockBuildingGenerator, "blockBuildingGenerator");
+        GameRegistry.registerBlock(blockPixel, "blockPixel");
+        GameRegistry
+            .registerTileEntity(com.xyp.gtnc.Common.building.TileBuildingGenerator.class, "tileBuildingGenerator");
     }
 
     /**

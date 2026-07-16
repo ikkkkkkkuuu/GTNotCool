@@ -85,7 +85,8 @@ public class LateMixinsLoader implements ILateMixinLoader {
                 "Forestry.MixinBeeHomozygous",
                 "Forestry.MixinBeeGenomeEnvironment",
                 "Forestry.MixinBlockBeehives",
-                "Forestry.MixinMutationConditions");
+                "Forestry.MixinMutationConditions",
+                "Forestry.MixinSecondPrincess");
         }
 
         if (loadedMods.contains(MOD_THAUMCRAFT)) {

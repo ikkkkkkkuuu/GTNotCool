@@ -271,6 +271,17 @@ public class Config {
      */
     public static boolean enableBeeIgnoreResourceMutation = true;
     /**
+     * 开启后，普通蜂箱/蜂房杂交<b>必定额外产出第二只公主蜂</b>(总计 2 只公主)。雄蜂产出不受影响，
+     * 仍按原版基因/生育力决定数量。
+     * <p>
+     * 实现方式：redirect Forestry {@code BeekeepingLogic.spawnOffspring} 内对
+     * {@code PluginApiculture.getSecondPrincessChance()} 的调用，开关开启时恒返回 100(=100% 触发第二只公主)。
+     * 原版该几率默认 0(仅可在 Forestry 配置里调)。此逻辑只加公主、完全不碰 {@code spawnDrones}。
+     * <p>
+     * <b>不影响本 mod 的蜜蜂杂交机</b>：杂交机走模板法直接生成，不经过 {@code spawnOffspring}。
+     */
+    public static boolean enableBeeAlwaysSecondPrincess = true;
+    /**
      * 诱变框架突变(杂交)成功率乘数。插入蜂箱/蜂房框架槽后，把突变成功率乘以此值。
      * 默认 10.0(GT++ 原版 MUTAGENIC 框架为 5.0)。只对有框架槽的蜂箱生效，不影响本 mod 的蜜蜂杂交机。
      */
@@ -544,6 +555,14 @@ public class Config {
                 "开启后，普通蜂箱/蜂房杂交忽略「蜂箱正下方需放特定方块 / 需一台运行中的 GT 机器」这一类要求"
                     + "(Forestry 的 MutationConditionRequiresResource/OreDict 与 GT 的 ActiveGTMachineMutationCondition)。"
                     + "仅作用于蜜蜂突变(不影响树木/蝴蝶)，也不影响本模组自己的蜜蜂杂交机。");
+
+            enableBeeAlwaysSecondPrincess = configuration.getBoolean(
+                "enableBeeAlwaysSecondPrincess",
+                CATEGORY_FORESTRY,
+                enableBeeAlwaysSecondPrincess,
+                "开启后，普通蜂箱/蜂房杂交每次都额外产出第二只公主蜂(共 2 只)。"
+                    + "实现方式：redirect Forestry 的 PluginApiculture.getSecondPrincessChance 恒返回 100(=100% 触发第二只公主)。"
+                    + "只影响公主蜂数量，雄蜂产出仍随原版基因(fertility)不变；也不影响本模组自己的蜜蜂杂交机。");
 
             mutagenicFrameMutationMultiplier = configuration.getFloat(
                 "mutagenicFrameMutationMultiplier",

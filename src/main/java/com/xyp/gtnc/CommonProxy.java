@@ -66,6 +66,13 @@ public class CommonProxy {
         // 注册跨维度 ME 网桥频道注册表事件处理器
         MinecraftForge.EVENT_BUS.register(new com.xyp.gtnc.Common.mebridge.MEBridgeEventHandler());
 
+        // 注册建筑生成器持久化世界事件处理器（World/ChunkWatch 在 MinecraftForge bus，ServerTick 在 FML bus，两边都注册）
+        com.xyp.gtnc.Common.building.PixelBuildingEventHandler pixelHandler = new com.xyp.gtnc.Common.building.PixelBuildingEventHandler();
+        MinecraftForge.EVENT_BUS.register(pixelHandler);
+        cpw.mods.fml.common.FMLCommonHandler.instance()
+            .bus()
+            .register(pixelHandler);
+
         // 初始化ME无线二合一接口终端（并入本mod的ae2thing移植）
         com.xyp.gtnc.ae2thing.AE2Thing.preInit(event, ScienceNotCool.instance);
     }

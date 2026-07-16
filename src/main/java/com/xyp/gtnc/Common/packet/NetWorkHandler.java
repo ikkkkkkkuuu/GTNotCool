@@ -37,6 +37,24 @@ public class NetWorkHandler {
             id++,
             Side.SERVER);
 
+        // 建筑生成器网络包
+        // Building Generator packets
+        registerMessage(
+            com.xyp.gtnc.Common.packet.building.MessagePlacePixels.class,
+            com.xyp.gtnc.Common.packet.building.MessagePlacePixels.Handler.class,
+            id++,
+            Side.SERVER);
+        registerMessage(
+            com.xyp.gtnc.Common.packet.building.MessageUndoBuilding.class,
+            com.xyp.gtnc.Common.packet.building.MessageUndoBuilding.Handler.class,
+            id++,
+            Side.SERVER);
+        registerMessage(
+            com.xyp.gtnc.Common.packet.building.MessageSyncPixelColors.class,
+            com.xyp.gtnc.Common.packet.building.MessageSyncPixelColors.Handler.class,
+            id++,
+            Side.CLIENT);
+
     }
 
     /**
