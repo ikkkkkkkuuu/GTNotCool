@@ -48,6 +48,42 @@ public class EndlessFrameItem extends Item implements IHiveFrame, ICosmicRenderI
 
     private final IBeeModifier beeModifier = new EndlessFrameBeeModifier();
 
+    /**
+     * 判断某个 {@link IBeeModifier} 是否来自无尽框架。{@code BeekeepingLogic.spawnOffspring} 拿到的
+     * {@code IBeeHousing.getBeeModifiers()} 会把每个插入框架的 modifier 聚合进去，mixin 遍历它调用本方法即可
+     * 判断蜂箱里是否插了无尽框架，从而决定是否抑制第二只公主蜂。
+     * <p>
+     * 覆盖两条路径：
+     * <ul>
+     * <li><b>原生蜂箱 (Forestry Apiary)</b>：直接把框架的 {@code getBeeModifier()} 加进迭代器，故迭代到的就是
+     * {@link EndlessFrameBeeModifier} 本体，{@code instanceof} 快速命中。</li>
+     * <li><b>Extra Bees 蜂箱组框架外壳</b>：框架被 {@code binnie...FrameComponentModifier} <b>包装</b>后加入
+     * ({@code AlvearyController.getBeeModifiers()} 里出现的是 wrapper，不是本类)，{@code instanceof} 失效；但 wrapper
+     * 会把 {@code getLifespanModifier/getMutationModifier} 转发给框架自己的 modifier。</li>
+     * </ul>
+     * 因此 fallback 用<b>行为指纹</b>识别：无尽框架的寿命倍率 = {@link Config#endlessFrameLifespanModifier}(默认 1e6)
+     * 且突变倍率 = {@link Config#endlessFrameMutationMultiplier}(默认 0) 这一组合在所有框架里独一无二，无论直连还是
+     * 经 wrapper 转发都成立。传 null 基因组安全(本类 getter 忽略入参)；对不忽略入参的其它 modifier 用 try/catch 兜底。
+     * <p>
+     * <b>注意</b>：指纹依赖上面两个配置项保持「反常值」(极大寿命 + 零突变)。若用户把它们改成中性值(如寿命 1.0)，
+     * 蜂箱组里的指纹识别可能失准；此时可用全局开关 {@code enableBeeAlwaysSecondPrincess} 关闭本特性。原生蜂箱不受影响
+     * (走 instanceof)。
+     */
+    public static boolean isEndlessFrameModifier(IBeeModifier modifier) {
+        if (modifier == null) return false;
+        // 快速路径：原生蜂箱直接加入本 modifier 本体。
+        if (modifier instanceof EndlessFrameBeeModifier) return true;
+        // Fallback：Extra Bees 蜂箱组的框架外壳把本 modifier 包成 FrameComponentModifier，instanceof 失效，
+        // 改用行为指纹(寿命 + 突变倍率)识别，wrapper 会把这两个 getter 转发到本 modifier。
+        try {
+            float lifespan = modifier.getLifespanModifier(null, null, 1.0f);
+            float mutation = modifier.getMutationModifier(null, null, 1.0f);
+            return lifespan == Config.endlessFrameLifespanModifier && mutation == Config.endlessFrameMutationMultiplier;
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
     private IIcon cosmicMask;
 
     public EndlessFrameItem() {
