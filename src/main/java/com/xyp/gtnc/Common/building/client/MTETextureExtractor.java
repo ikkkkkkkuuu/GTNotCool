@@ -134,19 +134,20 @@ public final class MTETextureExtractor {
             }
             if (collected.isEmpty()) return null;
 
-            // 按序 alpha 合成（先底层后上层）。
-            int W = -1, H = -1;
-            int[] acc = null;
+            // 画布尺寸取各层最大值：材质包可能把不同层贴图改成不同分辨率（如底层 casing 32x、overlay 16x），
+            // 早期实现「尺寸不等就丢层」会静默扔掉 overlay → 只剩底图 → 看起来是普通方块。改为把每层最近邻缩放到
+            // 统一画布再合成，任何分辨率组合都不丢层。
+            int W = 0, H = 0;
             for (LayerPixels lp : collected) {
-                if (acc == null) {
-                    W = lp.w;
-                    H = lp.h;
-                    acc = new int[W * H];
-                }
-                if (lp.w != W || lp.h != H) continue;
-                blend(acc, lp.argb, W, H);
+                if (lp.w > W) W = lp.w;
+                if (lp.h > H) H = lp.h;
             }
-            if (acc == null) return null;
+            if (W <= 0 || H <= 0) return null;
+            int[] acc = new int[W * H];
+            for (LayerPixels lp : collected) {
+                int[] scaled = (lp.w == W && lp.h == H) ? lp.argb : scaleNearest(lp.argb, lp.w, lp.h, W, H);
+                blend(acc, scaled, W, H);
+            }
             int[] out = new int[W * H];
             for (int i = 0; i < out.length; i++) {
                 int a = (acc[i] >>> 24) & 0xFF;
@@ -267,5 +268,18 @@ public final class MTETextureExtractor {
 
     private static int clamp(int v) {
         return v < 0 ? 0 : (v > 255 ? 255 : v);
+    }
+
+    /** 最近邻把 0xAARRGGBB 像素数组从 sw×sh 缩放到 dw×dh（保 alpha，供不同分辨率层统一画布合成）。 */
+    private static int[] scaleNearest(int[] src, int sw, int sh, int dw, int dh) {
+        int[] dst = new int[dw * dh];
+        for (int y = 0; y < dh; y++) {
+            int sy = y * sh / dh;
+            for (int x = 0; x < dw; x++) {
+                int sx = x * sw / dw;
+                dst[y * dw + x] = src[sy * sw + sx];
+            }
+        }
+        return dst;
     }
 }
