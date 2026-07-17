@@ -205,6 +205,12 @@ public class OreProcessingRecipes {
             // Crushed ore → same outputs as normal ore
             processIntermediateForm(material, OrePrefixes.crushed, m -> getOutputs(m, false));
 
+            // Purified crushed ore (washed) → same full ore outputs
+            processIntermediateForm(material, OrePrefixes.crushedPurified, m -> getOutputs(m, false));
+
+            // Centrifuged crushed ore → same full ore outputs
+            processIntermediateForm(material, OrePrefixes.crushedCentrifuged, m -> getOutputs(m, false));
+
             // Impure dust → main dust * 6
             processIntermediateForm(material, OrePrefixes.dustImpure, m -> new ItemStack[] { getDustStack(m, 6) });
 
@@ -306,6 +312,8 @@ public class OreProcessingRecipes {
 
                 // Intermediate products
                 processWerkstoffIntermediate(werkstoff, OrePrefixes.crushed, outputs);
+                processWerkstoffIntermediate(werkstoff, OrePrefixes.crushedPurified, outputs);
+                processWerkstoffIntermediate(werkstoff, OrePrefixes.crushedCentrifuged, outputs);
                 processWerkstoffIntermediate(werkstoff, OrePrefixes.dustImpure, werkstoff.get(OrePrefixes.dust, 6));
                 processWerkstoffIntermediate(werkstoff, OrePrefixes.dustPure, werkstoff.get(OrePrefixes.dust, 7));
             }
