@@ -21,6 +21,14 @@ public class CentrifugeRecipes {
             .duration(40)
             .eut(30)
             .addTo(Ce);
+
+        // 4 钨蜂窝 → 4 钨粉
+        GTRecipeBuilder.builder()
+            .itemInputs(GTBees.combs.getStackForType(CombType.TUNGSTEN, 4))
+            .itemOutputs(GTOreDictUnificator.get(OrePrefixes.dust, Materials.Tungsten, 4))
+            .duration(40)
+            .eut(30)
+            .addTo(Ce);
     }
 
 }
