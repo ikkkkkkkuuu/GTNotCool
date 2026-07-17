@@ -62,15 +62,7 @@ public class BlockPixel extends Block {
         return PixelColorStore.get(dim, x, y, z);
     }
 
-    /** 破坏不掉落任何东西(纯装饰外壳,靠生成器撤销清除)。 */
-    @Override
-    public int quantityDropped(java.util.Random rand) {
-        return 0;
-    }
-
-    /** 无关联物品(拿不到方块)。 */
-    @Override
-    public net.minecraft.item.Item getItemDropped(int meta, java.util.Random rand, int fortune) {
-        return null;
-    }
+    // 破坏掉落自身、可重新放置：玩家挖掉一格像素方块后能拿在手里、填回原位。
+    // 颜色不随破坏清除（服务端 PixelBuildingData + 客户端 PixelColorStore 都保留该坐标的 RGB），
+    // 故放回原位时 colorMultiplier 自动查回原本颜色；放到没有颜色记录的新位置则渲染为白色。
 }

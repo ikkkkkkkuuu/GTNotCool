@@ -22,7 +22,10 @@ import cpw.mods.fml.relauncher.SideOnly;
  * 每像素方块按原方块该面材质的对应像素上色，内部中空。
  * <p>
  * <b>交互</b>：右键打开 MUI2 GUI（{@link TileBuildingGenerator}）——放入机器物品、调旋转/偏移、看 3D 预览、
- * 点保存生成、点撤销还原。破坏方块时自动撤销其已生成的建筑，避免残留。
+ * 点保存生成、点撤销还原。
+ * <p>
+ * <b>破坏生成器 = 放弃管理权，建筑永久保留</b>：破坏时<b>不</b>撤销已生成的建筑（颜色记录也保留），
+ * 建筑作为永久像素方块群留存世界。若要整体还原，须在生成器<b>仍在时</b>用 GUI 撤销按钮；破坏后只能逐块手动拆。
  */
 public class BlockBuildingGenerator extends Block {
 
@@ -78,12 +81,6 @@ public class BlockBuildingGenerator extends Block {
         return true;
     }
 
-    @Override
-    public void breakBlock(World world, int x, int y, int z, Block block, int meta) {
-        // 破坏生成器时，撤销它生成的建筑（避免孤儿像素方块残留）。
-        if (!world.isRemote) {
-            PixelBuildingManager.undoAt(world, x, y, z);
-        }
-        super.breakBlock(world, x, y, z, block, meta);
-    }
+    // 破坏生成器不撤销建筑：建筑永久保留（颜色记录随 PixelBuildingData 持久化，与生成器存亡无关）。
+    // 整体撤销须在生成器仍在时用 GUI 撤销按钮。
 }
