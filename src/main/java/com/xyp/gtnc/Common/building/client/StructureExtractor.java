@@ -9,8 +9,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
 
-import org.joml.Vector3f;
-
 import com.gtnewhorizon.gtnhlib.util.CoordinatePacker;
 import com.gtnewhorizon.structurelib.alignment.constructable.IConstructable;
 import com.gtnewhorizon.structurelib.alignment.constructable.IConstructableProvider;
@@ -166,13 +164,17 @@ public final class StructureExtractor {
 
     /** 遍历伪世界方块，归一化到局部坐标。 */
     private static Result collect(TrackedDummyWorld world) {
-        Vector3f min = world.getMinPos();
-        Vector3f size = world.getSize();
-        int minX = (int) min.x, minY = (int) min.y, minZ = (int) min.z;
-        int sx = (int) size.x, sy = (int) size.y, sz = (int) size.z;
-        if (sx <= 0 || sy <= 0 || sz <= 0) return null;
+        // 注意：不用 world.getMinPos()/getSize()。那两者由 setBlock 里的 Math.min/max 单调累积，
+        // 方块被放下又清掉时不会回缩，会把包围盒撑大（→ 线框比实际大）。这里直接从最终 blockMap
+        // 的真实方块算包围盒，保证「线框尺寸」与「实际放置的 cells」严格同源、绝不偏差。
+        int minX = Integer.MAX_VALUE, minY = Integer.MAX_VALUE, minZ = Integer.MAX_VALUE;
+        int maxX = Integer.MIN_VALUE, maxY = Integer.MIN_VALUE, maxZ = Integer.MIN_VALUE;
 
-        List<Cell> cells = new ArrayList<>();
+        // 先收集所有非空方块的绝对坐标（连同 block/meta/tile），同时求真实包围盒。
+        List<int[]> raw = new ArrayList<>(); // {x,y,z}
+        List<Block> blocks = new ArrayList<>();
+        List<Integer> metas = new ArrayList<>();
+        List<IGregTechTileEntity> tiles = new ArrayList<>();
         for (long packed : world.blockMap.keySet()) {
             int x = CoordinatePacker.unpackX(packed);
             int y = CoordinatePacker.unpackY(packed);
@@ -182,7 +184,24 @@ public final class StructureExtractor {
             int meta = world.getBlockMetadata(x, y, z);
             TileEntity te = world.getTileEntity(x, y, z);
             IGregTechTileEntity gt = te instanceof IGregTechTileEntity g ? g : null;
-            cells.add(new Cell(x - minX, y - minY, z - minZ, block, meta, gt));
+            raw.add(new int[] { x, y, z });
+            blocks.add(block);
+            metas.add(meta);
+            tiles.add(gt);
+            if (x < minX) minX = x;
+            if (y < minY) minY = y;
+            if (z < minZ) minZ = z;
+            if (x > maxX) maxX = x;
+            if (y > maxY) maxY = y;
+            if (z > maxZ) maxZ = z;
+        }
+        if (raw.isEmpty()) return null;
+
+        int sx = maxX - minX + 1, sy = maxY - minY + 1, sz = maxZ - minZ + 1;
+        List<Cell> cells = new ArrayList<>(raw.size());
+        for (int i = 0; i < raw.size(); i++) {
+            int[] p = raw.get(i);
+            cells.add(new Cell(p[0] - minX, p[1] - minY, p[2] - minZ, blocks.get(i), metas.get(i), tiles.get(i)));
         }
         return new Result(cells, sx, sy, sz, PLACE_X - minX, PLACE_Y - minY, PLACE_Z - minZ);
     }
