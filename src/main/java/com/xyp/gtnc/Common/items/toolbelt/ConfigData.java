@@ -22,7 +22,6 @@ public class ConfigData {
 
     // 从主 Config 类引用配置值（使用字段而非方法）
     public static boolean releaseToSwap = true;
-    public static boolean clipMouseToCircle = true;
     public static boolean allowClickOutsideBounds = true;
     public static boolean displayEmptySlots = true;
     public static boolean minecraftHasNoCircles = false;
@@ -38,7 +37,6 @@ public class ConfigData {
      */
     public static void syncFromMainConfig() {
         releaseToSwap = Config.releaseToSwap;
-        clipMouseToCircle = Config.clipMouseToCircle;
         allowClickOutsideBounds = Config.allowClickOutsideBounds;
         displayEmptySlots = Config.displayEmptySlots;
         minecraftHasNoCircles = Config.minecraftHasNoCircles;

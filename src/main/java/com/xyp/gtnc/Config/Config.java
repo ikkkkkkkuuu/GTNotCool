@@ -104,7 +104,6 @@ public class Config {
 
     // region ToolBelt 配置
     public static boolean releaseToSwap = true;
-    public static boolean clipMouseToCircle = true;
     public static boolean allowClickOutsideBounds = false;
     public static boolean displayEmptySlots = true;
     public static boolean minecraftHasNoCircles = false;
@@ -373,20 +372,14 @@ public class Config {
             releaseToSwap = configuration
                 .getBoolean("releaseToSwap", CATEGORY_TOOL_BELT, releaseToSwap, "开启后,松开菜单键即触发物品交换。");
 
-            // #tr config.toolbelt.clipMouseToCircle
-            // # Clip Mouse To Circle
-            // # zh_CN 鼠标限制在圆圈内
-            clipMouseToCircle = configuration
-                .getBoolean("clipMouseToCircle", CATEGORY_TOOL_BELT, clipMouseToCircle, "开启后,环形菜单会尽量阻止鼠标移出外圈。");
-
             // #tr config.toolbelt.allowClickOutsideBounds
             // # Allow Click Outside Bounds
-            // # zh_CN 允许点击边界外
+            // # zh_CN 允许点击死区关闭菜单
             allowClickOutsideBounds = configuration.getBoolean(
                 "allowClickOutsideBounds",
                 CATEGORY_TOOL_BELT,
                 allowClickOutsideBounds,
-                "开启后,环形菜单允许在外圈之外点击。");
+                "开启后,在环形菜单中心死区内点击也会关闭菜单。");
 
             // #tr config.toolbelt.displayEmptySlots
             // # Display Empty Slots
