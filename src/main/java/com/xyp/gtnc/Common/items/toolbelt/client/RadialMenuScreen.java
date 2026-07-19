@@ -1,15 +1,17 @@
 package com.xyp.gtnc.Common.items.toolbelt.client;
 
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.StatCollector;
 
+import org.lwjgl.BufferUtils;
+import org.lwjgl.input.Cursor;
 import org.lwjgl.input.Mouse;
 
 import com.xyp.gtnc.Common.items.toolbelt.ConfigData;
@@ -137,26 +139,20 @@ public class RadialMenuScreen extends GuiScreen {
     }
 
     @Override
-    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        // Clamp the OS cursor to the radial ring every render frame (not just every tick)
-        // so the cursor cannot visually leave the circle.
-        if (menu.isReady()) {
-            ScaledResolution sr = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight);
-            float scale = sr.getScaleFactor();
-            int screenCenterX = mc.displayWidth / 2;
-            int screenCenterY = mc.displayHeight / 2;
-            // LWJGL Mouse: X from left, Y from bottom
-            float dx = Mouse.getX() - screenCenterX;
-            float dy = (mc.displayHeight - Mouse.getY()) - screenCenterY; // convert to Y-from-top
-            float dist = (float) Math.sqrt(dx * dx + dy * dy);
-            float radiusPx = 60f * scale; // radiusOut (60 GUI px) in screen pixels
-            if (dist > radiusPx && dist > 0f) {
-                int cx = (int) (screenCenterX + dx / dist * radiusPx);
-                int cy = (int) (screenCenterY + dy / dist * radiusPx);
-                Mouse.setCursorPosition(cx, mc.displayHeight - cy); // back to LWJGL Y-from-bottom
-            }
-        }
+    public void initGui() {
+        super.initGui();
+        // Hide the OS cursor while the radial menu is open so it doesn't visually
+        // escape the ring. Restored in onGuiClosed().
+        try {
+            IntBuffer buf = BufferUtils.createIntBuffer(1);
+            buf.put(0)
+                .rewind();
+            Mouse.setNativeCursor(new Cursor(1, 1, 0, 0, 1, buf, null));
+        } catch (Exception ignored) {}
+    }
 
+    @Override
+    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         super.drawScreen(mouseX, mouseY, partialTicks);
 
         ItemStack inHand = mc.thePlayer.getHeldItem();
@@ -224,6 +220,10 @@ public class RadialMenuScreen extends GuiScreen {
     public void onGuiClosed() {
         super.onGuiClosed();
         KeyBindManager.consumeKey(KeyBindManager.openToolMenuKeybind);
+        // Restore the default OS cursor
+        try {
+            Mouse.setNativeCursor(null);
+        } catch (Exception ignored) {}
     }
 
     public boolean trySwap(int slotNumber, ItemStack stackSwapped) {
