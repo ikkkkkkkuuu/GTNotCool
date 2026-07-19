@@ -35,8 +35,8 @@ import appeng.api.util.IConfigManager;
 import appeng.tile.inventory.AppEngInternalInventory;
 import appeng.tile.inventory.IAEAppEngInventory;
 import appeng.tile.inventory.InvOperation;
+import appeng.util.AEStackTypeFilter;
 import appeng.util.ConfigManager;
-import appeng.util.MonitorableTypeFilter;
 import appeng.util.Platform;
 import it.unimi.dsi.fastutil.objects.Reference2BooleanMap;
 
@@ -56,7 +56,7 @@ public class WirelessDualInterfaceTerminalInventory extends WirelessTerminal imp
     protected boolean beSubstitute = false;
     protected int activePage = 0;
     private Util.DimensionalCoordSide tile;
-    private final MonitorableTypeFilter typeFilters = new MonitorableTypeFilter();
+    private final AEStackTypeFilter typeFilters = new AEStackTypeFilter();
 
     public WirelessDualInterfaceTerminalInventory(WirelessObject obj) {
         super(obj);
@@ -414,7 +414,7 @@ public class WirelessDualInterfaceTerminalInventory extends WirelessTerminal imp
 
     @Override
     public Reference2BooleanMap<IAEStackType<?>> getTypeFilter(EntityPlayer player) {
-        return this.typeFilters.getFilters(player);
+        return this.typeFilters.getFiltersMap();
     }
 
     @Override

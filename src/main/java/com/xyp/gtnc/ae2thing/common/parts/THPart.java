@@ -50,9 +50,9 @@ import appeng.parts.AEBasePart;
 import appeng.tile.inventory.AppEngInternalInventory;
 import appeng.tile.inventory.IAEAppEngInventory;
 import appeng.tile.inventory.InvOperation;
+import appeng.util.AEStackTypeFilter;
 import appeng.util.ConfigManager;
 import appeng.util.IConfigManagerHost;
-import appeng.util.MonitorableTypeFilter;
 import appeng.util.Platform;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -72,7 +72,7 @@ public abstract class THPart extends AEBasePart implements IPowerChannelState, I
 
     private final IConfigManager cm = new ConfigManager(this);
     private final AppEngInternalInventory viewCell = new AppEngInternalInventory(this, 5);
-    private final MonitorableTypeFilter typeFilters = new MonitorableTypeFilter();
+    private final AEStackTypeFilter typeFilters = new AEStackTypeFilter();
 
     public THPart(final ItemStack is) {
         this(is, false);
@@ -162,7 +162,7 @@ public abstract class THPart extends AEBasePart implements IPowerChannelState, I
 
     @Override
     public Reference2BooleanMap<IAEStackType<?>> getTypeFilter(EntityPlayer player) {
-        return this.typeFilters.getFilters(player);
+        return this.typeFilters.getFiltersMap();
     }
 
     @Override

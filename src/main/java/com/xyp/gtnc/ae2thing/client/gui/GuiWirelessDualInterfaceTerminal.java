@@ -47,8 +47,8 @@ import appeng.container.slot.SlotFakeCraftingMatrix;
 import appeng.container.slot.SlotPatternTerm;
 import appeng.container.slot.SlotRestrictedInput;
 import appeng.core.localization.GuiText;
+import appeng.util.AEStackTypeFilter;
 import appeng.util.IConfigManagerHost;
-import appeng.util.MonitorableTypeFilter;
 import it.unimi.dsi.fastutil.objects.Reference2BooleanMap;
 
 public class GuiWirelessDualInterfaceTerminal extends GuiBaseInterfaceWireless implements IWidgetGui, IGuiDrawSlot,
@@ -69,7 +69,7 @@ public class GuiWirelessDualInterfaceTerminal extends GuiBaseInterfaceWireless i
         super(inventoryPlayer, te);
         container = (ContainerWirelessDualInterfaceTerminal) this.inventorySlots;
         this.typeFilter = new TypeFilterWidget(this.inventorySlots.windowId);
-        this.typeFilter.setFilters(MonitorableTypeFilter.createDefaultMap());
+        this.typeFilter.setFilters(new AEStackTypeFilter().getFiltersMap());
         this.itemPanel = new ItemPanel(this, container, this.configSrc, this);
         this.panels.add(new PatternPanel(this, container));
         this.panels.add(this.itemPanel);

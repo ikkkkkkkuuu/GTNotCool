@@ -32,6 +32,7 @@ import com.xyp.gtnc.utils.world.steam.SteamWirelessNetworkManager;
 
 import gregtech.api.enums.GTValues;
 import gregtech.api.enums.Materials;
+import gregtech.api.interfaces.IIconContainer;
 import gregtech.api.interfaces.IOutputBus;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.logic.ProcessingLogic;
@@ -894,5 +895,25 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
     @Override
     protected MTEMultiBlockBaseGui<?> getGui() {
         return new GTNCSteamMultiBlockBaseGui(this);
+    }
+
+    /**
+     * GT5U 5.09.54 added this abstract method to MTESteamMultiBlockBase. Return null for no glow overlay when
+     * inactive; subclasses can override to provide a texture.
+     */
+    @Nullable
+    @Override
+    protected IIconContainer getInactiveGlowOverlay() {
+        return null;
+    }
+
+    /**
+     * GT5U 5.09.54 added this abstract method to MTESteamMultiBlockBase. Return null for no glow overlay when
+     * active; subclasses can override to provide a texture.
+     */
+    @Nullable
+    @Override
+    protected IIconContainer getActiveGlowOverlay() {
+        return null;
     }
 }

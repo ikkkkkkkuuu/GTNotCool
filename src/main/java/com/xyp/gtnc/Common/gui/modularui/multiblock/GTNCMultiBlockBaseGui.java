@@ -344,14 +344,14 @@ public class GTNCMultiBlockBaseGui<T extends MTEMultiBlockBase> extends MTEMulti
     // ============================================================
 
     @Override
-    protected IWidget createVoidExcessButton(PanelSyncManager syncManager) {
+    protected ButtonWidget<?> createVoidExcessButton(PanelSyncManager syncManager) {
         return ((ButtonWidget<?>) super.createVoidExcessButton(syncManager)).size(16)
             .background(GTNCGuiTextures.BUTTON_CELESTIAL_32x32)
             .tooltipShowUpTimer(TOOLTIP_DELAY);
     }
 
     @Override
-    protected IWidget createInputSeparationButton(PanelSyncManager syncManager) {
+    protected ToggleButton createInputSeparationButton(PanelSyncManager syncManager) {
         return ((ToggleButton) super.createInputSeparationButton(syncManager)).size(16)
             .background(GTNCGuiTextures.BUTTON_CELESTIAL_32x32)
             .selectedBackground(GTNCGuiTextures.BUTTON_CELESTIAL_32x32)
@@ -365,7 +365,7 @@ public class GTNCMultiBlockBaseGui<T extends MTEMultiBlockBase> extends MTEMulti
     }
 
     @Override
-    protected IWidget createBatchModeButton(PanelSyncManager syncManager) {
+    protected ToggleButton createBatchModeButton(PanelSyncManager syncManager) {
         return ((ToggleButton) super.createBatchModeButton(syncManager)).size(16)
             .background(GTNCGuiTextures.BUTTON_CELESTIAL_32x32)
             .selectedBackground(GTNCGuiTextures.BUTTON_CELESTIAL_32x32)
@@ -379,9 +379,9 @@ public class GTNCMultiBlockBaseGui<T extends MTEMultiBlockBase> extends MTEMulti
     }
 
     @Override
-    protected IWidget createLockToSingleRecipeButton(PanelSyncManager syncManager) {
+    protected ToggleButton createLockToSingleRecipeButton(PanelSyncManager syncManager) {
         if (!usesLockToSingleRecipeButton()) {
-            return new Widget<>();
+            return new ToggleButton();
         }
         return ((ToggleButton) super.createLockToSingleRecipeButton(syncManager)).size(16)
             .background(GTNCGuiTextures.BUTTON_CELESTIAL_32x32)
@@ -412,11 +412,6 @@ public class GTNCMultiBlockBaseGui<T extends MTEMultiBlockBase> extends MTEMulti
             }
         }
         return button;
-    }
-
-    @Override
-    protected IWidget createPowerPanelButton(PanelSyncManager syncManager, ModularPanel parent) {
-        return new Widget<>();
     }
 
     @Override
