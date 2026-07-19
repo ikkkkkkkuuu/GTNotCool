@@ -56,7 +56,7 @@ public class GenericRadialMenu extends Gui {
         }
 
         float diff = animTarget - animProgress;
-        animProgress += diff * 0.2f; // Smooth animation
+        animProgress += diff * 0.4f; // Smooth animation
 
         if (Math.abs(diff) < 0.001f) {
             animProgress = animTarget;
