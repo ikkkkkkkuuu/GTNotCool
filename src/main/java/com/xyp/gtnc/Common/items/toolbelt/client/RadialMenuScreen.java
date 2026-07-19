@@ -56,10 +56,15 @@ public class RadialMenuScreen extends GuiScreen {
 
             @Override
             public void onClickOutside() {
-                close();
+                if (ConfigData.allowClickOutsideBounds) {
+                    close();
+                }
             }
         };
 
+        // #tr text.toolbelt.insert
+        // # Insert
+        // # zh_CN 放入
         this.insertMenuItem = new TextRadialMenuItem(menu, StatCollector.translateToLocal("text.toolbelt.insert")) {
 
             @Override

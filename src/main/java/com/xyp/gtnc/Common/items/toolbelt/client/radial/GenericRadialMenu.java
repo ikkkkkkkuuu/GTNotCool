@@ -97,6 +97,22 @@ public class GenericRadialMenu extends Gui {
         float startAngle = -90.0f; // Start from top
         float anglePerItem = 360.0f / visibleCount;
 
+        // Clamp effective mouse position to circle boundary for hover detection.
+        // This does NOT move the actual OS cursor; it only affects which wedge is
+        // highlighted so that moving outside the ring doesn't deselect all items.
+        int effectiveMouseX = mouseX;
+        int effectiveMouseY = mouseY;
+        if (ConfigData.clipMouseToCircle) {
+            float dx = mouseX - centerX;
+            float dy = mouseY - centerY;
+            float dist = (float) Math.sqrt(dx * dx + dy * dy);
+            float effectiveRadius = radiusOut * animProgress;
+            if (dist > effectiveRadius && dist > 0) {
+                effectiveMouseX = (int) (centerX + dx / dist * effectiveRadius);
+                effectiveMouseY = (int) (centerY + dy / dist * effectiveRadius);
+            }
+        }
+
         // Draw full-screen dark background overlay behind the radial menu
         drawDarkOverlay(sr, centerX, centerY, radiusOut);
 
@@ -111,8 +127,8 @@ public class GenericRadialMenu extends Gui {
             float angle = startAngle + anglePerItem * visibleIndex;
 
             if (isPointInWedge(
-                mouseX,
-                mouseY,
+                effectiveMouseX,
+                effectiveMouseY,
                 centerX,
                 centerY,
                 radiusIn * animProgress,

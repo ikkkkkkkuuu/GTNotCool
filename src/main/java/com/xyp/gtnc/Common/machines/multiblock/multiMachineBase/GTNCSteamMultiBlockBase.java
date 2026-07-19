@@ -898,22 +898,16 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
     }
 
     /**
-     * GT5U 5.09.54 added this abstract method to MTESteamMultiBlockBase. Return null for no glow overlay when
-     * inactive; subclasses can override to provide a texture.
+     * GT5U 5.09.54 made these methods required (non-null). Fall back to the machine's own inactive/active
+     * overlay so the renderer doesn't NPE. Subclasses with a dedicated glow texture can override.
      */
-    @Nullable
     @Override
     protected IIconContainer getInactiveGlowOverlay() {
-        return null;
+        return getInactiveOverlay();
     }
 
-    /**
-     * GT5U 5.09.54 added this abstract method to MTESteamMultiBlockBase. Return null for no glow overlay when
-     * active; subclasses can override to provide a texture.
-     */
-    @Nullable
     @Override
     protected IIconContainer getActiveGlowOverlay() {
-        return null;
+        return getActiveOverlay();
     }
 }
