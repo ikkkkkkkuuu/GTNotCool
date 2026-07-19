@@ -1,15 +1,17 @@
 package com.xyp.gtnc.Common.items.toolbelt.client;
 
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.StatCollector;
 
+import org.lwjgl.BufferUtils;
+import org.lwjgl.input.Cursor;
 import org.lwjgl.input.Mouse;
 
 import com.xyp.gtnc.Common.items.toolbelt.ConfigData;
@@ -103,33 +105,6 @@ public class RadialMenuScreen extends GuiScreen {
 
         menu.tick();
 
-        // Physically constrain the OS cursor to the radial menu circle.
-        // Mouse.setCursorPosition uses screen pixels with Y measured from the bottom.
-        if (ConfigData.clipMouseToCircle && menu.isReady()) {
-            ScaledResolution sr = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight);
-            float scale = sr.getScaleFactor();
-            int screenCenterX = mc.displayWidth / 2;
-            int screenCenterY = mc.displayHeight / 2;
-
-            int rawX = Mouse.getX(); // pixels from left
-            int rawY = Mouse.getY(); // pixels from bottom (LWJGL convention)
-            // Convert LWJGL Y (from bottom) → screen Y (from top)
-            int screenX = rawX;
-            int screenY = mc.displayHeight - rawY;
-
-            float dx = screenX - screenCenterX;
-            float dy = screenY - screenCenterY;
-            float dist = (float) Math.sqrt(dx * dx + dy * dy);
-            // radiusOut is 60 GUI-scaled pixels; convert to real screen pixels
-            float radiusPx = 60f * scale;
-            if (dist > radiusPx && dist > 0f) {
-                float clampedX = screenCenterX + dx / dist * radiusPx;
-                float clampedY = screenCenterY + dy / dist * radiusPx;
-                // Convert screen Y (from top) back to LWJGL Y (from bottom)
-                Mouse.setCursorPosition((int) clampedX, mc.displayHeight - (int) clampedY);
-            }
-        }
-
         // When animation is fully closed, remove the GUI screen
         if (menu.isClosed()) {
             Minecraft.getMinecraft()
@@ -164,7 +139,25 @@ public class RadialMenuScreen extends GuiScreen {
     }
 
     @Override
+    public void initGui() {
+        super.initGui();
+        // Centre cursor once on open so initial mouse position is the menu centre.
+        Mouse.setCursorPosition(mc.displayWidth / 2, mc.displayHeight / 2);
+        // Hide the OS cursor — selection is shown via wedge highlight, not a pointer.
+        try {
+            IntBuffer buf = BufferUtils.createIntBuffer(1);
+            buf.put(0)
+                .rewind();
+            Mouse.setNativeCursor(new Cursor(1, 1, 0, 0, 1, buf, null));
+        } catch (Exception ignored) {}
+    }
+
+    @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+        // Pass MC's mouse coords straight to the menu. GenericRadialMenu uses the
+        // angle from the menu centre for selection (no upper-radius limit), so the
+        // cursor never needs to be within the ring — any direction past the deadzone
+        // selects the corresponding wedge.
         super.drawScreen(mouseX, mouseY, partialTicks);
 
         ItemStack inHand = mc.thePlayer.getHeldItem();
@@ -232,6 +225,10 @@ public class RadialMenuScreen extends GuiScreen {
     public void onGuiClosed() {
         super.onGuiClosed();
         KeyBindManager.consumeKey(KeyBindManager.openToolMenuKeybind);
+        // Restore the default OS cursor
+        try {
+            Mouse.setNativeCursor(null);
+        } catch (Exception ignored) {}
     }
 
     public boolean trySwap(int slotNumber, ItemStack stackSwapped) {
