@@ -5,9 +5,12 @@ import java.util.List;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.StatCollector;
+
+import org.lwjgl.input.Mouse;
 
 import com.xyp.gtnc.Common.items.toolbelt.ConfigData;
 import com.xyp.gtnc.Common.items.toolbelt.ToolBeltData;
@@ -99,6 +102,33 @@ public class RadialMenuScreen extends GuiScreen {
         super.updateScreen();
 
         menu.tick();
+
+        // Physically constrain the OS cursor to the radial menu circle.
+        // Mouse.setCursorPosition uses screen pixels with Y measured from the bottom.
+        if (ConfigData.clipMouseToCircle && menu.isReady()) {
+            ScaledResolution sr = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight);
+            float scale = sr.getScaleFactor();
+            int screenCenterX = mc.displayWidth / 2;
+            int screenCenterY = mc.displayHeight / 2;
+
+            int rawX = Mouse.getX(); // pixels from left
+            int rawY = Mouse.getY(); // pixels from bottom (LWJGL convention)
+            // Convert LWJGL Y (from bottom) → screen Y (from top)
+            int screenX = rawX;
+            int screenY = mc.displayHeight - rawY;
+
+            float dx = screenX - screenCenterX;
+            float dy = screenY - screenCenterY;
+            float dist = (float) Math.sqrt(dx * dx + dy * dy);
+            // radiusOut is 60 GUI-scaled pixels; convert to real screen pixels
+            float radiusPx = 60f * scale;
+            if (dist > radiusPx && dist > 0f) {
+                float clampedX = screenCenterX + dx / dist * radiusPx;
+                float clampedY = screenCenterY + dy / dist * radiusPx;
+                // Convert screen Y (from top) back to LWJGL Y (from bottom)
+                Mouse.setCursorPosition((int) clampedX, mc.displayHeight - (int) clampedY);
+            }
+        }
 
         // When animation is fully closed, remove the GUI screen
         if (menu.isClosed()) {
