@@ -32,14 +32,6 @@ public class RadialMenuScreen extends GuiScreen {
     private boolean keyCycleBeforeL = false;
     private boolean keyCycleBeforeR = false;
 
-    // Virtual cursor offset from screen centre, in GUI pixels.
-    // Tracked via absolute-position delta (getX/getY relative to pinned centre)
-    // rather than getDX/getDY to avoid the counter-delta that setCursorPosition injects.
-    private float virtualX = 0;
-    private float virtualY = 0;
-    // Sensitivity multiplier: 1.0 = 1 GUI-px per screen-px moved.
-    private static final float SENSITIVITY = 1.5f;
-
     private boolean needsRecheckStacks = true;
     private final List<ItemStackRadialMenuItem> cachedMenuItems = new ArrayList<>();
     private final TextRadialMenuItem insertMenuItem;
@@ -149,11 +141,9 @@ public class RadialMenuScreen extends GuiScreen {
     @Override
     public void initGui() {
         super.initGui();
-        virtualX = 0;
-        virtualY = 0;
-        // Pin the real cursor to screen centre so it never drifts to the edge.
+        // Centre cursor once on open so initial mouse position is the menu centre.
         Mouse.setCursorPosition(mc.displayWidth / 2, mc.displayHeight / 2);
-        // Hide the OS cursor.
+        // Hide the OS cursor — selection is shown via wedge highlight, not a pointer.
         try {
             IntBuffer buf = BufferUtils.createIntBuffer(1);
             buf.put(0)
@@ -164,44 +154,11 @@ public class RadialMenuScreen extends GuiScreen {
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        // --- Virtual cursor: absolute-position delta approach ----------------
-        // We pinned the real cursor to screen centre at the end of the previous frame.
-        // Current Mouse.getX/Y reflects where the user moved it since then, so
-        // delta = current - centre is the actual user movement this frame.
-        // We THEN re-pin (before reading again next frame) to prevent screen-edge stall.
-        // Using getX/Y instead of getDX/getDY avoids the spurious counter-delta that
-        // setCursorPosition injects into the getDX/getDY event queue.
-        net.minecraft.client.gui.ScaledResolution sr = new net.minecraft.client.gui.ScaledResolution(
-            mc,
-            mc.displayWidth,
-            mc.displayHeight);
-        float scale = sr.getScaleFactor();
-        int cx = mc.displayWidth / 2;
-        int cy = mc.displayHeight / 2;
-
-        // Raw screen-pixel delta since last frame (LWJGL Y is from bottom, so flip).
-        int rawDX = Mouse.getX() - cx;
-        int rawDY = -(Mouse.getY() - cy); // flip: LWJGL up = positive, GUI down = positive
-
-        // Re-pin cursor to centre NOW so next frame starts clean.
-        Mouse.setCursorPosition(cx, cy);
-
-        // PUBG style: direct position mapping. virtualX/Y = where the cursor IS,
-        // not a running total of how far it has travelled. Moving the mouse right
-        // immediately puts the virtual cursor to the right; moving back re-centres.
-        virtualX = rawDX * SENSITIVITY / scale;
-        virtualY = rawDY * SENSITIVITY / scale;
-        float radiusOut = 60f;
-        float dist = (float) Math.sqrt(virtualX * virtualX + virtualY * virtualY);
-        if (dist > radiusOut) {
-            virtualX = virtualX / dist * radiusOut;
-            virtualY = virtualY / dist * radiusOut;
-        }
-
-        int effectiveMouseX = sr.getScaledWidth() / 2 + (int) virtualX;
-        int effectiveMouseY = sr.getScaledHeight() / 2 + (int) virtualY;
-
-        super.drawScreen(effectiveMouseX, effectiveMouseY, partialTicks);
+        // Pass MC's mouse coords straight to the menu. GenericRadialMenu uses the
+        // angle from the menu centre for selection (no upper-radius limit), so the
+        // cursor never needs to be within the ring — any direction past the deadzone
+        // selects the corresponding wedge.
+        super.drawScreen(mouseX, mouseY, partialTicks);
 
         ItemStack inHand = mc.thePlayer.getHeldItem();
         if (inHand != null && !ConfigData.isItemStackAllowed(inHand)) return;
@@ -239,7 +196,7 @@ public class RadialMenuScreen extends GuiScreen {
             needsRecheckStacks = false;
         }
 
-        menu.draw(effectiveMouseX, effectiveMouseY, partialTicks);
+        menu.draw(mouseX, mouseY, partialTicks);
     }
 
     /**

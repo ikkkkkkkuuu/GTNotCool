@@ -97,27 +97,13 @@ public class GenericRadialMenu extends Gui {
         float startAngle = -90.0f; // Start from top
         float anglePerItem = 360.0f / visibleCount;
 
-        // Clamp effective mouse position to circle boundary for hover detection.
-        // This does NOT move the actual OS cursor; it only affects which wedge is
-        // highlighted so that moving outside the ring doesn't deselect all items.
-        int effectiveMouseX = mouseX;
-        int effectiveMouseY = mouseY;
-        if (ConfigData.clipMouseToCircle) {
-            float dx = mouseX - centerX;
-            float dy = mouseY - centerY;
-            float dist = (float) Math.sqrt(dx * dx + dy * dy);
-            float effectiveRadius = radiusOut * animProgress;
-            if (dist > effectiveRadius && dist > 0) {
-                effectiveMouseX = (int) (centerX + dx / dist * effectiveRadius);
-                effectiveMouseY = (int) (centerY + dy / dist * effectiveRadius);
-            }
-        }
-
         // Draw full-screen dark background overlay behind the radial menu
         drawDarkOverlay(sr, centerX, centerY, radiusOut);
 
         // === PHASE 1: Detect hover BEFORE drawing wedges ===
-        // This ensures wedge colors are correct on the current frame (no 1-frame delay)
+        // Angle-only selection: any mouse position past the deadzone selects the
+        // wedge in that direction. No upper-radius limit — the cursor never needs
+        // to be inside the ring.
         itemHovering = null;
         int visibleIndex = 0;
         for (int i = 0; i < menuItems.size(); i++) {
@@ -127,12 +113,11 @@ public class GenericRadialMenu extends Gui {
             float angle = startAngle + anglePerItem * visibleIndex;
 
             if (isPointInWedge(
-                effectiveMouseX,
-                effectiveMouseY,
+                mouseX,
+                mouseY,
                 centerX,
                 centerY,
                 radiusIn * animProgress,
-                radiusOut * animProgress,
                 angle - anglePerItem / 2,
                 angle + anglePerItem / 2)) {
                 itemHovering = item;
@@ -298,18 +283,17 @@ public class GenericRadialMenu extends Gui {
         tessellator.draw();
     }
 
-    private boolean isPointInWedge(int px, int py, float cx, float cy, float rIn, float rOut, float startAngle,
-        float endAngle) {
+    private boolean isPointInWedge(int px, int py, float cx, float cy, float rIn, float startAngle, float endAngle) {
         float dx = px - cx;
         float dy = py - cy;
         float dist = (float) Math.sqrt(dx * dx + dy * dy);
 
-        // Apply deadzone offset to inner radius
+        // Only deadzone check — no upper limit. Any direction past the inner radius
+        // selects the wedge at that angle (angle-only selection).
         float effectiveRIn = rIn + ConfigData.radialDeadzoneOffset;
-        if (dist < effectiveRIn || dist > rOut) return false;
+        if (dist < effectiveRIn) return false;
 
         float angle = (float) Math.toDegrees(Math.atan2(dy, dx));
-        // Normalize angles
         startAngle = normalizeAngle(startAngle);
         endAngle = normalizeAngle(endAngle);
         angle = normalizeAngle(angle);
