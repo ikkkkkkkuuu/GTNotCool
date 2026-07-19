@@ -192,7 +192,6 @@ public class SuperMTEHatchCraftingInputSlave extends MTEHatchInputBus
         return getMaster() != null ? getMaster().getSharedItems() : GTValues.emptyItemStackArray;
     }
 
-    @Override
     public boolean justUpdated() {
         return getMaster() != null && getMaster().justUpdated();
     }

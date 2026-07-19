@@ -31,7 +31,7 @@ public abstract class HatchOutputBusMEMixin {
 
     @Shadow(remap = false)
     @Final
-    private MTEHatchOutputMEBase<IAEItemStack, ?, ?> provider;
+    private MTEHatchOutputMEBase<IAEItemStack> provider;
 
     /**
      * @author eyeofharmonybuffer

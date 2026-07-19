@@ -38,7 +38,6 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.enums.SoundResource;
 import gregtech.api.interfaces.IIconContainer;
-import gregtech.api.interfaces.fluid.IFluidStore;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.implementations.MTEHatch;
@@ -411,20 +410,35 @@ public class LargeSteamDistillationTower extends GTNCSteamMultiBlockBase<LargeSt
         return tt;
     }
 
-    @Override
-    public List<? extends IFluidStore> getFluidOutputSlots(FluidStack[] toOutput) {
-        return getFluidOutputSlotsByLayer(toOutput, mOutputHatchesByLayer);
+    /** Inlined replacement for the removed static dumpFluid from GT5U 5.09.52. */
+    private static boolean dumpFluidLocal(List<gregtech.api.metatileentity.implementations.MTEHatchOutput> hatches,
+        net.minecraftforge.fluids.FluidStack fluid, boolean restrictive) {
+        for (gregtech.api.metatileentity.implementations.MTEHatchOutput hatch : gregtech.api.util.GTUtility
+            .filterValidMTEs(hatches)) {
+            if (!hatch.canStoreFluid(fluid)) continue;
+            int filled = hatch.fill(fluid, false);
+            if (filled >= fluid.amount) {
+                hatch.fill(fluid, true);
+                return true;
+            } else if (filled > 0) {
+                fluid.amount -= hatch.fill(fluid, true);
+            }
+        }
+        return false;
     }
 
     @Override
-    protected void addFluidOutputs(FluidStack[] outputFluids) {
+    protected boolean addFluidOutputs(FluidStack[] outputFluids) {
+        boolean dumped = false;
         for (int i = 0; i < outputFluids.length && i < mOutputHatchesByLayer.size(); i++) {
             final FluidStack fluidStack = outputFluids[i];
             if (fluidStack == null) continue;
             FluidStack tStack = fluidStack.copy();
-            if (!dumpFluid(mOutputHatchesByLayer.get(i), tStack, true))
-                dumpFluid(mOutputHatchesByLayer.get(i), tStack, false);
+            if (!dumpFluidLocal(mOutputHatchesByLayer.get(i), tStack, true))
+                dumpFluidLocal(mOutputHatchesByLayer.get(i), tStack, false);
+            dumped = true;
         }
+        return dumped;
     }
 
     @Override

@@ -31,7 +31,7 @@ public abstract class HatchOutputMEMixin {
 
     @Shadow(remap = false)
     @Final
-    private MTEHatchOutputMEBase<IAEFluidStack, ?, ?> provider;
+    private MTEHatchOutputMEBase<IAEFluidStack> provider;
 
     /**
      * @author eyeofharmonybuffer

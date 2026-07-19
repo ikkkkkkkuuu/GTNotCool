@@ -4,7 +4,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 
 import com.xyp.gtnc.ae2thing.AE2Thing;
-import com.xyp.gtnc.ae2thing.client.render.RenderBlockExIOPort;
 import com.xyp.gtnc.ae2thing.common.tabs.AE2ThingTabs;
 import com.xyp.gtnc.ae2thing.common.tile.TileExIOPort;
 import com.xyp.gtnc.ae2thing.loader.IRegister;
@@ -12,6 +11,7 @@ import com.xyp.gtnc.ae2thing.util.NameConst;
 
 import appeng.block.AEBaseItemBlock;
 import appeng.block.storage.BlockIOPort;
+import appeng.client.render.blocks.RenderIOPort;
 import appeng.core.features.ActivityState;
 import appeng.core.features.BlockStackSrc;
 import appeng.tile.AEBaseTile;
@@ -54,8 +54,8 @@ public class BlockExIOPort extends BlockIOPort implements IRegister<BlockExIOPor
 
     @Override
     @SideOnly(Side.CLIENT)
-    protected RenderBlockExIOPort getRenderer() {
-        return new RenderBlockExIOPort();
+    protected RenderIOPort getRenderer() {
+        return new RenderIOPort();
     }
 
     public ItemStack stack() {

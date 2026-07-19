@@ -759,7 +759,7 @@ public class SuperMTEHatchCraftingInputME extends MTEHatchInputBus
         }
         if (manualSlots.length() > 0) {
             try {
-                suffix.append(String.format(Gregtech.machines.cibManualSlotsSuffixFormat, manualSlots));
+                suffix.append(String.format(Gregtech.machines.itemSlotsSuffixFormat, manualSlots));
             } catch (IllegalFormatException ignored) {}
         }
 
@@ -1244,7 +1244,6 @@ public class SuperMTEHatchCraftingInputME extends MTEHatchInputBus
         }
     }
 
-    @Override
     public boolean justUpdated() {
         boolean ret = justHadNewItems;
         justHadNewItems = false;

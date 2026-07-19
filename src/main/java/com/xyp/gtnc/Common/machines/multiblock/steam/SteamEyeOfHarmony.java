@@ -1031,6 +1031,23 @@ public class SteamEyeOfHarmony extends GTNCSteamMultiBlockBase<SteamEyeOfHarmony
         ejectionHelper.commit();
     }
 
+    /** Inlined replacement for the removed static dumpFluid from GT5U 5.09.52. */
+    private static boolean dumpFluidLocal(List<gregtech.api.metatileentity.implementations.MTEHatchOutput> hatches,
+        net.minecraftforge.fluids.FluidStack fluid, boolean restrictive) {
+        for (gregtech.api.metatileentity.implementations.MTEHatchOutput hatch : gregtech.api.util.GTUtility
+            .filterValidMTEs(hatches)) {
+            if (!hatch.canStoreFluid(fluid)) continue;
+            int filled = hatch.fill(fluid, false);
+            if (filled >= fluid.amount) {
+                hatch.fill(fluid, true);
+                return true;
+            } else if (filled > 0) {
+                fluid.amount -= hatch.fill(fluid, true);
+            }
+        }
+        return false;
+    }
+
     private void outputFluidToAENetwork(List<FluidStackLong> fluids) {
         if (fluids == null || fluids.isEmpty()) return;
 
@@ -1041,12 +1058,12 @@ public class SteamEyeOfHarmony extends GTNCSteamMultiBlockBase<SteamEyeOfHarmony
             while (amount >= Integer.MAX_VALUE) {
                 net.minecraftforge.fluids.FluidStack tmpFluid = fluidStackLong.fluidStack.copy();
                 tmpFluid.amount = Integer.MAX_VALUE;
-                dumpFluid(mOutputHatches, tmpFluid, false);
+                dumpFluidLocal(mOutputHatches, tmpFluid, false);
                 amount -= Integer.MAX_VALUE;
             }
             net.minecraftforge.fluids.FluidStack tmpFluid = fluidStackLong.fluidStack.copy();
             tmpFluid.amount = (int) amount;
-            dumpFluid(mOutputHatches, tmpFluid, false);
+            dumpFluidLocal(mOutputHatches, tmpFluid, false);
         }
     }
 
