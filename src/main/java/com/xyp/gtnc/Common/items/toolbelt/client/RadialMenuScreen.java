@@ -33,10 +33,12 @@ public class RadialMenuScreen extends GuiScreen {
     private boolean keyCycleBeforeR = false;
 
     // Virtual cursor offset from screen centre, in GUI pixels.
-    // Accumulated from mouse deltas so the real cursor position (which stays
-    // pinned to the screen centre) is never used directly.
+    // Tracked via absolute-position delta (getX/getY relative to pinned centre)
+    // rather than getDX/getDY to avoid the counter-delta that setCursorPosition injects.
     private float virtualX = 0;
     private float virtualY = 0;
+    // Sensitivity multiplier: 1.0 = 1 GUI-px per screen-px moved.
+    private static final float SENSITIVITY = 1.5f;
 
     private boolean needsRecheckStacks = true;
     private final List<ItemStackRadialMenuItem> cachedMenuItems = new ArrayList<>();
@@ -162,18 +164,31 @@ public class RadialMenuScreen extends GuiScreen {
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        // --- Virtual cursor: accumulate relative mouse deltas ----------------
-        // Mouse.getDX/getDY() give pixels moved since last poll; LWJGL Y is
-        // inverted (positive = up), so we negate it for GUI-space (positive = down).
+        // --- Virtual cursor: absolute-position delta approach ----------------
+        // We pinned the real cursor to screen centre at the end of the previous frame.
+        // Current Mouse.getX/Y reflects where the user moved it since then, so
+        // delta = current - centre is the actual user movement this frame.
+        // We THEN re-pin (before reading again next frame) to prevent screen-edge stall.
+        // Using getX/Y instead of getDX/getDY avoids the spurious counter-delta that
+        // setCursorPosition injects into the getDX/getDY event queue.
         net.minecraft.client.gui.ScaledResolution sr = new net.minecraft.client.gui.ScaledResolution(
             mc,
             mc.displayWidth,
             mc.displayHeight);
         float scale = sr.getScaleFactor();
-        virtualX += Mouse.getDX() / scale;
-        virtualY -= Mouse.getDY() / scale; // flip LWJGL Y
+        int cx = mc.displayWidth / 2;
+        int cy = mc.displayHeight / 2;
 
-        // Clamp virtual cursor to the outer ring radius (60 GUI px).
+        // Raw screen-pixel delta since last frame (LWJGL Y is from bottom, so flip).
+        int rawDX = Mouse.getX() - cx;
+        int rawDY = -(Mouse.getY() - cy); // flip: LWJGL up = positive, GUI down = positive
+
+        // Re-pin cursor to centre NOW so next frame starts clean.
+        Mouse.setCursorPosition(cx, cy);
+
+        // Convert to GUI pixels and apply sensitivity, then clamp to ring radius.
+        virtualX += rawDX * SENSITIVITY / scale;
+        virtualY += rawDY * SENSITIVITY / scale;
         float radiusOut = 60f;
         float dist = (float) Math.sqrt(virtualX * virtualX + virtualY * virtualY);
         if (dist > radiusOut) {
@@ -181,11 +196,6 @@ public class RadialMenuScreen extends GuiScreen {
             virtualY = virtualY / dist * radiusOut;
         }
 
-        // Re-pin the real cursor to centre every frame so it can never reach
-        // the screen edge and stall the delta stream.
-        Mouse.setCursorPosition(mc.displayWidth / 2, mc.displayHeight / 2);
-
-        // Convert virtual offset to absolute GUI coords for the menu.
         int effectiveMouseX = sr.getScaledWidth() / 2 + (int) virtualX;
         int effectiveMouseY = sr.getScaledHeight() / 2 + (int) virtualY;
 
