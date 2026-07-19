@@ -186,9 +186,11 @@ public class RadialMenuScreen extends GuiScreen {
         // Re-pin cursor to centre NOW so next frame starts clean.
         Mouse.setCursorPosition(cx, cy);
 
-        // Convert to GUI pixels and apply sensitivity, then clamp to ring radius.
-        virtualX += rawDX * SENSITIVITY / scale;
-        virtualY += rawDY * SENSITIVITY / scale;
+        // PUBG style: direct position mapping. virtualX/Y = where the cursor IS,
+        // not a running total of how far it has travelled. Moving the mouse right
+        // immediately puts the virtual cursor to the right; moving back re-centres.
+        virtualX = rawDX * SENSITIVITY / scale;
+        virtualY = rawDY * SENSITIVITY / scale;
         float radiusOut = 60f;
         float dist = (float) Math.sqrt(virtualX * virtualX + virtualY * virtualY);
         if (dist > radiusOut) {
