@@ -120,6 +120,7 @@ gui.wildcardpattern.empty_hint=点下方按钮添加组件
 itemBase.null.name=空物品
 item.endless_frame.name=无尽框架
 item.mutagenic_frame.name=诱变框架
+text.toolbelt.insert=放入
 item.VeinMiningPickaxe.name=矿脉挖掘镐
 Tooltip_VeinMiningPickaxe_00=范围: %d
 Tooltip_VeinMiningPickaxe_01=数量: %d

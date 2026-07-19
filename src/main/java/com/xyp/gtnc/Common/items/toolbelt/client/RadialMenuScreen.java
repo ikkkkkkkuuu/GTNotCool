@@ -32,6 +32,12 @@ public class RadialMenuScreen extends GuiScreen {
     private boolean keyCycleBeforeL = false;
     private boolean keyCycleBeforeR = false;
 
+    // Virtual cursor offset from screen centre, in GUI pixels.
+    // Accumulated from mouse deltas so the real cursor position (which stays
+    // pinned to the screen centre) is never used directly.
+    private float virtualX = 0;
+    private float virtualY = 0;
+
     private boolean needsRecheckStacks = true;
     private final List<ItemStackRadialMenuItem> cachedMenuItems = new ArrayList<>();
     private final TextRadialMenuItem insertMenuItem;
@@ -141,8 +147,11 @@ public class RadialMenuScreen extends GuiScreen {
     @Override
     public void initGui() {
         super.initGui();
-        // Hide the OS cursor while the radial menu is open so it doesn't visually
-        // escape the ring. Restored in onGuiClosed().
+        virtualX = 0;
+        virtualY = 0;
+        // Pin the real cursor to screen centre so it never drifts to the edge.
+        Mouse.setCursorPosition(mc.displayWidth / 2, mc.displayHeight / 2);
+        // Hide the OS cursor.
         try {
             IntBuffer buf = BufferUtils.createIntBuffer(1);
             buf.put(0)
@@ -153,7 +162,34 @@ public class RadialMenuScreen extends GuiScreen {
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        super.drawScreen(mouseX, mouseY, partialTicks);
+        // --- Virtual cursor: accumulate relative mouse deltas ----------------
+        // Mouse.getDX/getDY() give pixels moved since last poll; LWJGL Y is
+        // inverted (positive = up), so we negate it for GUI-space (positive = down).
+        net.minecraft.client.gui.ScaledResolution sr = new net.minecraft.client.gui.ScaledResolution(
+            mc,
+            mc.displayWidth,
+            mc.displayHeight);
+        float scale = sr.getScaleFactor();
+        virtualX += Mouse.getDX() / scale;
+        virtualY -= Mouse.getDY() / scale; // flip LWJGL Y
+
+        // Clamp virtual cursor to the outer ring radius (60 GUI px).
+        float radiusOut = 60f;
+        float dist = (float) Math.sqrt(virtualX * virtualX + virtualY * virtualY);
+        if (dist > radiusOut) {
+            virtualX = virtualX / dist * radiusOut;
+            virtualY = virtualY / dist * radiusOut;
+        }
+
+        // Re-pin the real cursor to centre every frame so it can never reach
+        // the screen edge and stall the delta stream.
+        Mouse.setCursorPosition(mc.displayWidth / 2, mc.displayHeight / 2);
+
+        // Convert virtual offset to absolute GUI coords for the menu.
+        int effectiveMouseX = sr.getScaledWidth() / 2 + (int) virtualX;
+        int effectiveMouseY = sr.getScaledHeight() / 2 + (int) virtualY;
+
+        super.drawScreen(effectiveMouseX, effectiveMouseY, partialTicks);
 
         ItemStack inHand = mc.thePlayer.getHeldItem();
         if (inHand != null && !ConfigData.isItemStackAllowed(inHand)) return;
@@ -191,7 +227,7 @@ public class RadialMenuScreen extends GuiScreen {
             needsRecheckStacks = false;
         }
 
-        menu.draw(mouseX, mouseY, partialTicks);
+        menu.draw(effectiveMouseX, effectiveMouseY, partialTicks);
     }
 
     /**
