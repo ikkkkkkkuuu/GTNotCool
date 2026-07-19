@@ -31,6 +31,7 @@ import com.gtnewhorizons.modularui.api.widget.IWidgetBuilder;
 import com.gtnewhorizons.modularui.api.widget.Widget;
 import com.gtnewhorizons.modularui.common.widget.ButtonWidget;
 import com.gtnewhorizons.modularui.common.widget.FakeSyncWidget;
+import com.xyp.gtnc.Common.machines.hatch.SuperMTEHatchCraftingInputME;
 
 import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
@@ -367,6 +368,66 @@ public abstract class GTNCWirelessBase<T extends GTNCWirelessBase<T>> extends MT
 
     public boolean showModeInWaila() {
         return supportsMachineModeSwitch();
+    }
+
+    /**
+     * Push the controller's current recipe map onto every {@link SuperMTEHatchCraftingInputME} in this multiblock.
+     * <p>
+     * The Super Crafting Input hatch derives its AE2 interface-terminal name from the recipe map's category key (e.g.
+     * "Assembler"), captured via {@link SuperMTEHatchCraftingInputME#setControllerRecipeMap}. GT5 only wires that up
+     * at structure-form time, so a mode switch (which flips {@link #getRecipeMap()} to a different map) would leave the
+     * hatch pointing at the stale map and the terminal name frozen. Re-pushing here keeps the name in sync — AE2's
+     * {@code ContainerInterfaceTerminal} polls {@code getRawName()} each tick and fires a rename packet once it
+     * changes.
+     */
+    protected void refreshCraftingInputHatchRecipeMaps() {
+        for (var dualInputHatch : mDualInputHatches) {
+            if (dualInputHatch instanceof SuperMTEHatchCraftingInputME craftingInput) {
+                craftingInput.setControllerRecipeMap(getRecipeMap());
+            }
+        }
+    }
+
+    /**
+     * Feed the controller's current recipe map to a Super Crafting Input hatch as it's added on structure form. Our
+     * hatch is an {@link gregtech.common.tileentities.machines.IDualInputHatch} stored in {@code mDualInputHatches};
+     * GT5's add-to-machine paths return on that branch WITHOUT setting {@code mRecipeMap}, so the hatch would otherwise
+     * fall back to the machine icon name ("Miracle Door") instead of the recipe-category name.
+     * <p>
+     * Called from BOTH {@link #addToMachineList} and {@link #addInputBusToMachineList}: the hatch reaches
+     * {@code mDualInputHatches} through whichever adder the concrete machine wires to its {@code InputBus} element
+     * (GTNCMiracleDoor uses {@code addToMachineList}), so both must be hooked or the name only appears after the first
+     * mode switch.
+     */
+    private void captureCraftingInputHatchRecipeMap(final IGregTechTileEntity aTileEntity) {
+        if (aTileEntity != null
+            && aTileEntity.getMetaTileEntity() instanceof SuperMTEHatchCraftingInputME craftingInput) {
+            craftingInput.setControllerRecipeMap(getRecipeMap());
+        }
+    }
+
+    @Override
+    public boolean addToMachineList(final IGregTechTileEntity aTileEntity, final int aBaseCasingIndex) {
+        boolean result = super.addToMachineList(aTileEntity, aBaseCasingIndex);
+        captureCraftingInputHatchRecipeMap(aTileEntity);
+        return result;
+    }
+
+    @Override
+    public boolean addInputBusToMachineList(final IGregTechTileEntity aTileEntity, final int aBaseCasingIndex) {
+        boolean result = super.addInputBusToMachineList(aTileEntity, aBaseCasingIndex);
+        captureCraftingInputHatchRecipeMap(aTileEntity);
+        return result;
+    }
+
+    /**
+     * On mode switch, re-sync the crafting-input hatches to the new recipe map so the AE2 interface-terminal name
+     * follows the selected mode (e.g. Miracle Door "Alloy Smelter" <-> "Stellar Forge").
+     */
+    @Override
+    public void setMachineMode(int index) {
+        super.setMachineMode(index);
+        refreshCraftingInputHatchRecipeMaps();
     }
 
     // endregion

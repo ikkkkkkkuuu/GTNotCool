@@ -1272,8 +1272,14 @@ public class GuiBaseInterfaceWireless extends BaseMEGui implements IDropToFillTe
             // 有名称搜索时，让"更贴合搜索词"的接口靠前：优先按搜索词在接口名中的出现位置
             // （前缀/精确匹配 index=0 排最前，如搜"组装机"时"组装机"排在"电路组装机"之前），
             // 再按名字长度，最后回退 NATURAL_ORDER。无搜索词时保持 TreeMap 的自然序。
-            String primary = list.length > 0 ? list[0].toLowerCase()
-                .trim() : "";
+            //
+            // 使用完整搜索文本（而非仅 list[0]）作为 matchIndex 的查询键：当自动填充整个 section
+            // 名（如"组装机 2 32"）时，list[0]="组装机" 对所有同类 section 的 matchIndex 都是 0，
+            // 导致退化到 NATURAL_ORDER 而非精确命中优先。完整文本可区分"2 32"(index=4)与
+            // "1 32"(index=-1→MAX_VALUE)，保持对单词/单数字搜索的原有行为不变。
+            String primary = GuiBaseInterfaceWireless.this.searchFieldNames.getText()
+                .toLowerCase()
+                .trim();
             if (!primary.isEmpty() && matched.size() > 1) {
                 matched.sort((s1, s2) -> {
                     int i1 = matchIndex(s1, primary);
