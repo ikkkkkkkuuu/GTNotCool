@@ -9,6 +9,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import com.xyp.gtnc.Common.machines.hatch.SuperMTEHatchCraftingInputME;
+
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
 import gregtech.api.recipe.RecipeMap;
@@ -16,13 +18,13 @@ import gregtech.common.tileentities.machines.IDualInputHatch;
 import gregtech.common.tileentities.machines.MTEHatchCraftingInputME;
 
 /**
- * 在原版 {@link MTEHatchCraftingInputME} 上填充并刷新 {@code mRecipeMap} 以便
- * {@link MTEHatchCraftingInputMENameMixin} 可以读取它以显示正确的配方类别名称。
+ * Populate and refresh the recipe map on both {@link MTEHatchCraftingInputME} (vanilla) and
+ * {@link SuperMTEHatchCraftingInputME} (custom) so their AE2 interface-terminal names reflect the
+ * controller's current recipe map and update on mode switches.
  * <p>
- * GT5U从不在制作输入舱口设置{@code mRecipeMap}——所有明确设置的地方
- * {@code继续} 经过 {@code MTEHatchCraftingInputME}。两个注入点覆盖了两个常见的加法器路径
- * （机器将输入总线元素连接到它们偏好的那一个），加上一个{@code setMachineMode}钩子
- * 当控制器切换模式时推送新映射，保持AE2接口-终端名称同步。
+ * GT5U never sets {@code mRecipeMap} on crafting-input hatches; {@code SuperMTEHatchCraftingInputME}
+ * uses a separate {@code controllerRecipeMap} field set only by GTNC/Steam base classes — so neither
+ * hatch gets its map populated on vanilla controllers without this mixin.
  */
 @Mixin(value = MTEMultiBlockBase.class, remap = false)
 public abstract class MTEHatchCraftingInputMEMultiBlockNameMixin {
@@ -49,24 +51,31 @@ public abstract class MTEHatchCraftingInputMEMultiBlockNameMixin {
 
     private void gtnc$feedRecipeMap(IGregTechTileEntity aTileEntity) {
         if (aTileEntity == null) return;
-        if (aTileEntity.getMetaTileEntity() instanceof MTEHatchCraftingInputME hatch) {
-            RecipeMap<?> map = getRecipeMap();
-            if (map != null) hatch.mRecipeMap = map;
+        RecipeMap<?> map = getRecipeMap();
+        if (map == null) return;
+        if (aTileEntity.getMetaTileEntity() instanceof SuperMTEHatchCraftingInputME superHatch) {
+            // SuperHatch uses controllerRecipeMap (separate from mRecipeMap) for its getRawName logic.
+            superHatch.setControllerRecipeMap(map);
+        } else if (aTileEntity.getMetaTileEntity() instanceof MTEHatchCraftingInputME hatch) {
+            hatch.mRecipeMap = map;
         }
     }
 
     // ── mode switch ──────────────────────────────────────────────────────────
 
     /**
-     * After {@code setMachineMode} updates {@code machineMode}, push the new {@link #getRecipeMap()} to every
-     * vanilla crafting-input hatch so AE2's container detects the raw-name change and fires a rename packet.
+     * After {@code setMachineMode} updates {@code machineMode}, push the new {@link #getRecipeMap()} to
+     * every crafting-input hatch (both vanilla and custom) so AE2's container detects the raw-name change
+     * and fires a rename packet.
      */
     @Inject(method = "setMachineMode", at = @At("TAIL"))
     private void gtnc$refreshRecipeMapOnModeSwitch(int index, CallbackInfo ci) {
         RecipeMap<?> map = getRecipeMap();
         if (map == null) return;
         for (IDualInputHatch hatch : mDualInputHatches) {
-            if (hatch instanceof MTEHatchCraftingInputME craftingHatch) {
+            if (hatch instanceof SuperMTEHatchCraftingInputME superHatch) {
+                superHatch.setControllerRecipeMap(map);
+            } else if (hatch instanceof MTEHatchCraftingInputME craftingHatch) {
                 craftingHatch.mRecipeMap = map;
             }
         }
