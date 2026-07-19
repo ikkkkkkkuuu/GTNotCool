@@ -39,6 +39,8 @@ public class LateMixinsLoader implements ILateMixinLoader {
                 "AppliedEnergistics.DualityInterfaceMixin",
                 "AppliedEnergistics.ItemEncodedPatternMixin",
                 "AppliedEnergistics.MTEHatchCraftingInputMEMixin",
+                "AppliedEnergistics.MTEHatchCraftingInputMENameMixin",
+                "AppliedEnergistics.MTEHatchCraftingInputMEMultiBlockNameMixin",
                 "AppliedEnergistics.PatternMultiplierHelperMixin",
                 "AppliedEnergistics.SuperMTEHatchCraftingInputMEMixin",
                 "AppliedEnergistics.AccessorTaskProgress",

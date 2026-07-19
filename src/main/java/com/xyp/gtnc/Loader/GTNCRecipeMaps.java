@@ -82,7 +82,7 @@ public class GTNCRecipeMaps {
 
     // #tr gtnc.recipe.StellarForgeRecipes
     // # Miracle Door
-    // # zh_CN 奇迹之门
+    // # zh_CN 恒星锻炉
     public static RecipeMap<RecipeMapBackend> StellarForgeRecipes = RecipeMapBuilder
         .of("gtnc.recipe.StellarForgeRecipes")
         .maxIO(8, 8, 1, 2)
@@ -93,7 +93,7 @@ public class GTNCRecipeMaps {
 
     // #tr gtnc.recipe.StellarForgeAlloySmelterRecipes
     // # Miracle Door
-    // # zh_CN 奇迹之门
+    // # zh_CN 恒星锻炉:合金冶炼
     public static RecipeMap<RecipeMapBackend> StellarForgeAlloySmelterRecipes = RecipeMapBuilder
         .of("gtnc.recipe.StellarForgeAlloySmelterRecipes")
         .maxIO(10, 12, 3, 3)
