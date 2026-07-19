@@ -60,6 +60,9 @@ public class RadialMenuScreen extends GuiScreen {
             }
         };
 
+        // #tr text.toolbelt.insert
+        // # Insert
+        // # zh_CN 放入
         this.insertMenuItem = new TextRadialMenuItem(menu, StatCollector.translateToLocal("text.toolbelt.insert")) {
 
             @Override
