@@ -56,7 +56,9 @@ public class RadialMenuScreen extends GuiScreen {
 
             @Override
             public void onClickOutside() {
-                close();
+                if (ConfigData.allowClickOutsideBounds) {
+                    close();
+                }
             }
         };
 
