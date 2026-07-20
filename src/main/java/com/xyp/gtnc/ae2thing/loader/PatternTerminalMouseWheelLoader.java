@@ -2,13 +2,16 @@ package com.xyp.gtnc.ae2thing.loader;
 
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fluids.FluidStack;
 
+import com.xyp.gtnc.Common.compat.FluidDropCompat;
 import com.xyp.gtnc.ae2thing.api.AE2ThingAPI;
 import com.xyp.gtnc.ae2thing.api.Constants;
 import com.xyp.gtnc.ae2thing.api.adapter.pattern.FCPatternTerminal;
 import com.xyp.gtnc.ae2thing.api.adapter.pattern.IRecipeHandler;
 import com.xyp.gtnc.ae2thing.api.adapter.pattern.THDualInterfacePatternTerminal;
 import com.xyp.gtnc.ae2thing.client.gui.container.ContainerWirelessDualInterfaceTerminal;
+import com.xyp.gtnc.ae2thing.nei.object.OrderStack;
 
 import appeng.container.implementations.ContainerPatternTerm;
 import appeng.container.implementations.ContainerPatternTermEx;
@@ -17,20 +20,38 @@ import appeng.util.Platform;
 
 public class PatternTerminalMouseWheelLoader implements Runnable {
 
+    /**
+     * 把滚轮换料应用到样板编辑槽：把持有 {@code in} 的槽整体替换成 {@code out}。
+     * {@code in}/{@code out} 可能是物品（{@link ItemStack}）也可能是流体（{@link FluidStack}，
+     * 由客户端流体切换分支下发）。流体分支按流体类型比对槽内的 AE2FC 液滴，命中后换成目标流体液滴。
+     */
+    private static void applySwap(IInventory inv, OrderStack<?> inOrder, OrderStack<?> outOrder) {
+        Object inStack = inOrder.getStack();
+        Object outStack = outOrder.getStack();
+        if (inStack instanceof FluidStack inFluid && outStack instanceof FluidStack outFluid) {
+            for (int i = 0; i < inv.getSizeInventory(); i++) {
+                FluidStack slotFluid = FluidDropCompat.getFluidStack(inv.getStackInSlot(i));
+                if (slotFluid != null && slotFluid.getFluid() == inFluid.getFluid()) {
+                    // [液滴分类] 可迁原生：样板内容装载（滚轮换料切等价流体），不参与合成计算
+                    FluidStack replacement = new FluidStack(outFluid.getFluid(), slotFluid.amount);
+                    inv.setInventorySlotContents(i, FluidDropCompat.newStack(replacement));
+                }
+            }
+        } else if (inStack instanceof ItemStack in && outStack instanceof ItemStack out) {
+            for (int i = 0; i < inv.getSizeInventory(); i++) {
+                if (Platform.isSameItemPrecise(inv.getStackInSlot(i), in)) {
+                    inv.setInventorySlotContents(i, out);
+                }
+            }
+        }
+    }
+
     @Override
     public void run() {
         IRecipeHandler handler = (container, inputs, outputs, identifier, adapter, message) -> {
             if (container instanceof IAEAppEngInventory inventory) {
-                ItemStack in = (ItemStack) inputs.get(0)
-                    .getStack();
-                ItemStack out = (ItemStack) outputs.get(0)
-                    .getStack();
                 IInventory inv = adapter.getInventoryByName(container, adapter.getCraftingInvName());
-                for (int i = 0; i < inv.getSizeInventory(); i++) {
-                    if (Platform.isSameItemPrecise(inv.getStackInSlot(i), in)) {
-                        inv.setInventorySlotContents(i, out);
-                    }
-                }
+                applySwap(inv, inputs.get(0), outputs.get(0));
                 container.onCraftMatrixChanged(inv);
                 inventory.saveChanges();
             }
@@ -43,20 +64,12 @@ public class PatternTerminalMouseWheelLoader implements Runnable {
                 Constants.NEI_MOUSE_WHEEL,
                 (container, inputs, outputs, identifier, adapter, message) -> {
                     if (container instanceof ContainerWirelessDualInterfaceTerminal c) {
-                        ItemStack in = (ItemStack) inputs.get(0)
-                            .getStack();
-                        ItemStack out = (ItemStack) outputs.get(0)
-                            .getStack();
                         IInventory inv = adapter.getInventoryByName(
                             container,
                             c.getContainer()
                                 .getPatternTerminal()
                                 .isCraftingRecipe() ? Constants.CRAFTING : Constants.CRAFTING_EX);
-                        for (int i = 0; i < inv.getSizeInventory(); i++) {
-                            if (Platform.isSameItemPrecise(inv.getStackInSlot(i), in)) {
-                                inv.setInventorySlotContents(i, out);
-                            }
-                        }
+                        applySwap(inv, inputs.get(0), outputs.get(0));
                         container.onCraftMatrixChanged(inv);
                         c.saveChanges();
                     }
