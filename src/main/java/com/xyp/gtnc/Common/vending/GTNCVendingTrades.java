@@ -10,6 +10,7 @@ import com.xyp.gtnc.utils.enums.GTNCItemList;
 import cpw.mods.fml.common.registry.GameRegistry;
 import gregtech.api.enums.Materials;
 import gregtech.api.enums.OrePrefixes;
+import gregtech.api.util.GTModHandler;
 import gregtech.api.util.GTOreDictUnificator;
 
 /**
@@ -68,6 +69,32 @@ public final class GTNCVendingTrades {
                 VMTradeBuilder.of(deoxidizedCasing.copy())
                     .costCoin(CurrencyType.TECHNICIAN, 10)
                     .give(deoxidizedCasing.copy()));
+        }
+
+        // 10 技术员币 → 1 ae2fc me二合一接口 无冷却
+        ItemStack dualInterface = GTModHandler.getModItem("ae2fc", "fluid_interface", 1);
+        if (dualInterface != null) {
+            VMTradeRegistry.group(
+                "components_ae2fc_fluid_interface",
+                TradeCategory.COMPONENTS,
+                -1,
+                -1,
+                VMTradeBuilder.of(dualInterface.copy())
+                    .costCoin(CurrencyType.TECHNICIAN, 10)
+                    .give(dualInterface.copy()));
+        }
+
+        // 10 技术员币 → 1 me终端 无冷却
+        ItemStack meTerminal = GTModHandler.getModItem("appliedenergistics2", "item.ItemMultiPart", 1, 380);
+        if (meTerminal != null) {
+            VMTradeRegistry.group(
+                "components_ae_me_terminal",
+                TradeCategory.COMPONENTS,
+                -1,
+                -1,
+                VMTradeBuilder.of(meTerminal.copy())
+                    .costCoin(CurrencyType.TECHNICIAN, 10)
+                    .give(meTerminal.copy()));
         }
 
         // 64 技术员币 → 64 空白样板（AE2 blankPattern），冷却 15 分钟

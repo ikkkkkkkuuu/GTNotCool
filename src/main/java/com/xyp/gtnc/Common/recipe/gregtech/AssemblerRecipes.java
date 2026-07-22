@@ -14,12 +14,14 @@ import static gregtech.api.util.GTRecipeBuilder.SECONDS;
 import net.minecraft.item.ItemStack;
 
 import com.xyp.gtnc.utils.enums.GTNCItemList;
+import com.xyp.gtnc.utils.enums.ModList;
 import com.xyp.gtnc.utils.item.ItemUtils;
 
 import gregtech.api.enums.GTValues;
 import gregtech.api.enums.ItemList;
 import gregtech.api.enums.Materials;
 import gregtech.api.enums.OrePrefixes;
+import gregtech.api.enums.TierEU;
 import gregtech.api.recipe.RecipeMap;
 import gregtech.api.recipe.RecipeMaps;
 import gregtech.api.util.GTModHandler;
@@ -31,6 +33,32 @@ public class AssemblerRecipes {
 
     public static void loadRecipes() {
         RecipeMap<?> As = RecipeMaps.assemblerRecipes;
+
+        // 贴片二极管
+        if (ModList.NewHorizonsCoreMod.isModLoaded()) {
+            GTValues.RA.stdBuilder()
+                .itemInputs(
+                    GTOreDictUnificator.get(OrePrefixes.wireFine, Materials.Platinum, 16),
+                    ItemList.GalliumArsenideCrystal.get(1L))
+                .circuit(3)
+                .itemOutputs(ItemList.Circuit_Parts_DiodeSMD.get(64L))
+                .fluidInputs(Materials.Polyethylene.getMolten(576L))
+                .duration(30 * SECONDS)
+                .eut(TierEU.RECIPE_LV)
+                .addTo(As);
+        }
+
+        // 二极管
+        GTValues.RA.stdBuilder()
+            .itemInputs(
+                ItemList.GalliumArsenideCrystal.get(1L),
+                GTOreDictUnificator.get(OrePrefixes.wireFine, Materials.Copper, 16))
+            .itemOutputs(ItemList.Circuit_Parts_Diode.get(16))
+            .fluidInputs(Materials.Polyethylene.getMolten(576))
+            .circuit(4)
+            .duration(3 * SECONDS)
+            .eut(RECIPE_LV)
+            .addTo(As);
 
         // 虚空蒸汽采矿场
         GTValues.RA.stdBuilder()
@@ -46,7 +74,7 @@ public class AssemblerRecipes {
             .itemOutputs(GTNCItemList.LargeSteamVoidMiner.get(1))
             .circuit(1)
             .eut(RECIPE_MV)
-            .duration(20 * 60)
+            .duration(SECONDS * 60)
             .addTo(As);
 
         // 矿机平台
@@ -64,7 +92,7 @@ public class AssemblerRecipes {
             .itemOutputs(GTNCItemList.MiningRig.get(1))
             .circuit(2)
             .eut(RECIPE_HV)
-            .duration(20 * 60 * 5)
+            .duration(SECONDS * 60 * 5)
             .addTo(As);
 
         // 钻井平台
@@ -82,7 +110,7 @@ public class AssemblerRecipes {
             .itemOutputs(GTNCItemList.DrillingRig.get(1))
             .circuit(1)
             .eut(RECIPE_HV)
-            .duration(20 * 60 * 5)
+            .duration(SECONDS * 60 * 5)
             .addTo(As);
 
         // 通用化工厂
@@ -96,7 +124,7 @@ public class AssemblerRecipes {
             .itemOutputs(GTNCItemList.GeneralChemicalFactory.get(1))
             .fluidInputs(Materials.Polytetrafluoroethylene.getMolten(2304))
             .eut(RECIPE_EV)
-            .duration(20 * 15)
+            .duration(SECONDS * 15)
             .addTo(As);
 
         // chipTier1
@@ -109,7 +137,7 @@ public class AssemblerRecipes {
             .fluidInputs(Materials.Polyethylene.getMolten(9216))
             .circuit(24)
             .eut(RECIPE_MV)
-            .duration(20 * 15)
+            .duration(SECONDS * 15)
             .addTo(As);
 
         // chipTier2
@@ -122,7 +150,7 @@ public class AssemblerRecipes {
             .fluidInputs(Materials.Polyethylene.getMolten(9216))
             .circuit(24)
             .eut(RECIPE_HV)
-            .duration(20 * 20)
+            .duration(20 * SECONDS)
             .addTo(As);
 
         // chipTier3
@@ -135,7 +163,7 @@ public class AssemblerRecipes {
             .fluidInputs(Materials.Polyethylene.getMolten(9216))
             .circuit(24)
             .eut(RECIPE_EV)
-            .duration(20 * 20)
+            .duration(20 * SECONDS)
             .addTo(As);
 
         // chipTier4
@@ -148,7 +176,7 @@ public class AssemblerRecipes {
             .fluidInputs(Materials.Polyethylene.getMolten(9216))
             .circuit(24)
             .eut(RECIPE_IV)
-            .duration(20 * 20)
+            .duration(20 * SECONDS)
             .addTo(As);
 
         // chipTier5
@@ -161,7 +189,7 @@ public class AssemblerRecipes {
             .fluidInputs(Materials.Polyethylene.getMolten(9216))
             .circuit(24)
             .eut(RECIPE_LuV)
-            .duration(20 * 20)
+            .duration(20 * SECONDS)
             .addTo(As);
 
         // chipTier6
@@ -174,7 +202,7 @@ public class AssemblerRecipes {
             .fluidInputs(Materials.Polyethylene.getMolten(9216))
             .circuit(24)
             .eut(RECIPE_ZPM)
-            .duration(20 * 20)
+            .duration(20 * SECONDS)
             .addTo(As);
 
         // chipTier7
@@ -187,7 +215,7 @@ public class AssemblerRecipes {
             .fluidInputs(Materials.Polyethylene.getMolten(9216))
             .circuit(24)
             .eut(RECIPE_UHV)
-            .duration(20 * 20)
+            .duration(20 * SECONDS)
             .addTo(As);
 
         // 坩埚
@@ -202,7 +230,7 @@ public class AssemblerRecipes {
             .fluidInputs(Materials.Steel.getMolten(1152))
             .itemOutputs(GTNCItemList.LargeSteamCrucibleSteel.get(1))
             .eut(RECIPE_LV)
-            .duration(20 * 20)
+            .duration(20 * SECONDS)
             .addTo(As);
 
         // 殷钢坩埚（MV级）
@@ -217,7 +245,7 @@ public class AssemblerRecipes {
             .fluidInputs(Materials.Invar.getMolten(576))
             .itemOutputs(GTNCItemList.LargeSteamCrucibleInvar.get(1))
             .eut(RECIPE_MV)
-            .duration(20 * 20)
+            .duration(20 * SECONDS)
             .addTo(As);
 
         // 不锈钢坩埚（HV级）
@@ -232,7 +260,7 @@ public class AssemblerRecipes {
             .fluidInputs(Materials.StainlessSteel.getMolten(576))
             .itemOutputs(GTNCItemList.LargeSteamCrucibleStainless.get(1))
             .eut(RECIPE_HV)
-            .duration(20 * 20)
+            .duration(20 * SECONDS)
             .addTo(As);
 
         // 钛坩埚（EV级）
@@ -247,7 +275,7 @@ public class AssemblerRecipes {
             .fluidInputs(Materials.Titanium.getMolten(576))
             .itemOutputs(GTNCItemList.LargeSteamCrucibleTitanium.get(1))
             .eut(RECIPE_EV)
-            .duration(20 * 20)
+            .duration(20 * SECONDS)
             .addTo(As);
 
         // 钨钢坩埚（IV级）
@@ -262,7 +290,7 @@ public class AssemblerRecipes {
             .fluidInputs(Materials.TungstenSteel.getMolten(576))
             .itemOutputs(GTNCItemList.LargeSteamCrucibleTungstenSteel.get(1))
             .eut(RECIPE_IV)
-            .duration(20 * 20)
+            .duration(20 * SECONDS)
             .addTo(As);
 
         // 蒸汽蜜蜂
@@ -273,7 +301,7 @@ public class AssemblerRecipes {
                 GTOreDictUnificator.get(OrePrefixes.plate, Materials.Steel, 2),
                 GTUtility.getIntegratedCircuit(24))
             .itemOutputs(GTNCItemList.LargeSteamBeeBreeder.get(1))
-            .duration(100)
+            .duration(5 * SECONDS)
             .eut(32)
             .addTo(As);
 
@@ -285,7 +313,7 @@ public class AssemblerRecipes {
                 GTOreDictUnificator.get(OrePrefixes.plate, Materials.Copper, 2),
                 GTUtility.getIntegratedCircuit(24))
             .itemOutputs(GTNCItemList.MegaIndustrialApiary.get(1))
-            .duration(100)
+            .duration(5 * SECONDS)
             .eut(32)
             .addTo(As);
 
@@ -297,7 +325,7 @@ public class AssemblerRecipes {
                 GTOreDictUnificator.get(OrePrefixes.plate, Materials.Bronze, 2),
                 GTUtility.getIntegratedCircuit(24))
             .itemOutputs(GTNCItemList.LargeSteamCombProcessor.get(1))
-            .duration(100)
+            .duration(5 * SECONDS)
             .eut(32)
             .addTo(As);
 
@@ -309,7 +337,7 @@ public class AssemblerRecipes {
                 GTOreDictUnificator.get(OrePrefixes.plate, Materials.Aluminium, 2))
             .circuit(22)
             .itemOutputs(GTNCItemList.SuperMTEHatchCraftingInputBusME.get(1))
-            .duration(100)
+            .duration(5 * SECONDS)
             .eut(32)
             .addTo(As);
 
@@ -321,7 +349,7 @@ public class AssemblerRecipes {
                 GTOreDictUnificator.get(OrePrefixes.plate, Materials.Aluminium, 2))
             .circuit(21)
             .itemOutputs(GTNCItemList.SuperMTEHatchCraftingInputME.get(1))
-            .duration(100)
+            .duration(5 * SECONDS)
             .eut(32)
             .addTo(As);
 
@@ -333,7 +361,7 @@ public class AssemblerRecipes {
                 GTOreDictUnificator.get(OrePrefixes.plate, Materials.Aluminium, 2))
             .circuit(23)
             .itemOutputs(GTNCItemList.SuperMTEHatchCraftingInputSlave.get(1))
-            .duration(100)
+            .duration(5 * SECONDS)
             .eut(32)
             .addTo(As);
 
@@ -345,7 +373,7 @@ public class AssemblerRecipes {
                 GTOreDictUnificator.get(OrePrefixes.circuit, Materials.LV, 4))
             .circuit(24)
             .itemOutputs(GTNCItemList.SingularityDataHub.get(1))
-            .duration(200)
+            .duration(5 * SECONDS)
             .eut(32)
             .addTo(As);
 
@@ -357,7 +385,7 @@ public class AssemblerRecipes {
                 GTOreDictUnificator.get(OrePrefixes.circuit, Materials.LV, 4))
             .circuit(24)
             .itemOutputs(GTNCItemList.VaultPortHatch.get(1))
-            .duration(200)
+            .duration(5 * SECONDS)
             .eut(32)
             .addTo(As);
 
@@ -389,8 +417,18 @@ public class AssemblerRecipes {
         GTRecipeBuilder.builder()
             .itemInputs(ItemList.Hatch_Input_Bus_ME.get(1))
             .itemOutputs(ItemList.Hatch_Input_Bus_ME_Advanced.get(1))
-            .duration(200)
-            .eut(30)
+            .circuit(1)
+            .duration(SECONDS)
+            .eut(RECIPE_LV)
+            .addTo(As);
+
+        // me流体存储输入仓 (ME输入总线 → me流体存储输入仓)
+        GTRecipeBuilder.builder()
+            .itemInputs(ItemList.Hatch_Input_Bus_ME.get(1))
+            .itemOutputs(ItemList.Hatch_Input_ME_Advanced.get(1))
+            .circuit(2)
+            .duration(SECONDS)
+            .eut(RECIPE_LV)
             .addTo(As);
 
         // T4 无人机
@@ -403,9 +441,9 @@ public class AssemblerRecipes {
                 GTOreDictUnificator.get(OrePrefixes.lens, Materials.Sapphire, 1))
             .circuit(4)
             .itemOutputs(ItemList.TierdDrone3.get(4))
-            .fluidInputs(Materials.Lubricant.getFluid(1 * INGOTS))
+            .fluidInputs(Materials.Lubricant.getFluid(INGOTS))
             .duration(10 * SECONDS)
-            .eut(32);
+            .eut(RECIPE_LV);
 
         // ME输出总线
         GTValues.RA.stdBuilder()
@@ -415,7 +453,7 @@ public class AssemblerRecipes {
                 GTModHandler.getModItem("appliedenergistics2", "item.ItemMultiMaterial", 2, 27))
             .itemOutputs(ItemList.Hatch_Output_Bus_ME.get(1L))
             .duration(6 * SECONDS)
-            .eut(128)
+            .eut(RECIPE_MV)
             .addTo(As);
         // ME输出仓
         GTValues.RA.stdBuilder()
@@ -425,7 +463,7 @@ public class AssemblerRecipes {
                 GTModHandler.getModItem("appliedenergistics2", "item.ItemMultiMaterial", 2, 27))
             .itemOutputs(ItemList.Hatch_Output_ME.get(1L))
             .duration(6 * SECONDS)
-            .eut(128)
+            .eut(RECIPE_MV)
             .addTo(As);
         // ME接口
         GTValues.RA.stdBuilder()
@@ -438,12 +476,12 @@ public class AssemblerRecipes {
             .circuit(14)
             .itemOutputs(GTModHandler.getModItem("appliedenergistics2", "tile.BlockInterface", 1))
             .duration(5 * SECONDS)
-            .eut(32)
+            .eut(RECIPE_LV)
             .addTo(As);
         // AE2 流体接口
         GTValues.RA.stdBuilder()
             .itemInputs(
-                GTOreDictUnificator.get(OrePrefixes.plate, Materials.WroughtIron, 4),
+                GTOreDictUnificator.get(OrePrefixes.plate, Materials.CastIron, 4),
                 GTOreDictUnificator.get(OrePrefixes.wireGt04, Materials.RedAlloy, 2),
                 GTOreDictUnificator.get(OrePrefixes.lens, Materials.GreenSapphire, 1),
                 GTOreDictUnificator.get(OrePrefixes.lens, Materials.Sapphire, 1),
@@ -451,7 +489,7 @@ public class AssemblerRecipes {
             .circuit(14)
             .itemOutputs(GTModHandler.getModItem("ae2fc", "fluid_interface", 1))
             .duration(5 * SECONDS)
-            .eut(32)
+            .eut(RECIPE_LV)
             .addTo(As);
         // SMD inductor贴片电感
         GTValues.RA.stdBuilder()
@@ -460,8 +498,8 @@ public class AssemblerRecipes {
                 GTOreDictUnificator.get(OrePrefixes.ring, Materials.NaquadahAlloy, 1))
             .fluidInputs(Materials.Lubricant.getFluid(1296))
             .itemOutputs(GTNCItemList.BiowareSMDInductor.get(32))
-            .duration(20)
-            .eut(2048)
+            .duration(SECONDS)
+            .eut(RECIPE_EV)
             .addTo(As);
 
         GTValues.RA.stdBuilder()
@@ -471,8 +509,8 @@ public class AssemblerRecipes {
                 GTOreDictUnificator.get(OrePrefixes.plate, Materials.Steel, 2),
                 GTUtility.getIntegratedCircuit(19))
             .itemOutputs(GTNCItemList.LargeSteamElectrolyzer.get(1))
-            .duration(100)
-            .eut(32)
+            .duration(5 * SECONDS)
+            .eut(RECIPE_LV)
             .addTo(As);
         loadcovers();
         loadEnergyHatches();
