@@ -14,14 +14,12 @@ import static gregtech.api.util.GTRecipeBuilder.SECONDS;
 import net.minecraft.item.ItemStack;
 
 import com.xyp.gtnc.utils.enums.GTNCItemList;
-import com.xyp.gtnc.utils.enums.ModList;
 import com.xyp.gtnc.utils.item.ItemUtils;
 
 import gregtech.api.enums.GTValues;
 import gregtech.api.enums.ItemList;
 import gregtech.api.enums.Materials;
 import gregtech.api.enums.OrePrefixes;
-import gregtech.api.enums.TierEU;
 import gregtech.api.recipe.RecipeMap;
 import gregtech.api.recipe.RecipeMaps;
 import gregtech.api.util.GTModHandler;
@@ -33,21 +31,6 @@ public class AssemblerRecipes {
 
     public static void loadRecipes() {
         RecipeMap<?> As = RecipeMaps.assemblerRecipes;
-
-        // 贴片二极管
-        if (ModList.NewHorizonsCoreMod.isModLoaded()) {
-            GTValues.RA.stdBuilder()
-                .itemInputs(
-                    GTOreDictUnificator.get(OrePrefixes.wireFine, Materials.Platinum, 16),
-                    ItemList.GalliumArsenideCrystal.get(1L))
-                .circuit(3)
-                .itemOutputs(ItemList.Circuit_Parts_DiodeSMD.get(64L))
-                .fluidInputs(Materials.Polyethylene.getMolten(576L))
-                .duration(30 * SECONDS)
-                .eut(TierEU.RECIPE_LV)
-                .addTo(As);
-        }
-
         // 二极管
         GTValues.RA.stdBuilder()
             .itemInputs(
