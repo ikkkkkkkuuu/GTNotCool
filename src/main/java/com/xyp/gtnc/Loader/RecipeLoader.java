@@ -4,6 +4,7 @@ import com.xyp.gtnc.Common.recipe.gregtech.AssemblerRecipes;
 import com.xyp.gtnc.Common.recipe.gregtech.AssemblingLineRecipes;
 import com.xyp.gtnc.Common.recipe.gregtech.BenderRecipes;
 import com.xyp.gtnc.Common.recipe.gregtech.CentrifugeRecipes;
+import com.xyp.gtnc.Common.recipe.gregtech.ExtruderRecipes;
 import com.xyp.gtnc.Common.recipe.gregtech.FurnaceRecipes;
 import com.xyp.gtnc.Common.recipe.gregtech.LaserEngraverRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.CombProcessingRecipes;
@@ -23,6 +24,7 @@ public class RecipeLoader {
 
     public static void loadRecipes() {
 
+        ExtruderRecipes.loadRecipes();
         AssemblingLineRecipes.loadrecipes();
         DrillingRigRecipes.loadRecipes();
         MiningRigRecipes.loadRecipes();
@@ -45,7 +47,7 @@ public class RecipeLoader {
 
     /**
      * Guards the one-time generation of the Miracle Door (Stellar Forge) recipes, which are produced by scanning live
-     * EBF / GTPP ABS recipe maps. These are the only recipes generated at {@link FMLServerStartingEvent}, which fires
+     * EBF / GTPP ABS recipe maps. These are the only recipes generated at {@link }, which fires
      * exclusively in the (dedicated) server JVM. On a client connected to a dedicated server that event never fires, so
      * without a client-side trigger the client's StellarForge recipe maps stay empty and NEI shows no recipes (only the
      * multiblock structure preview, which is registered at RecipeMap build time). The client therefore also calls this
