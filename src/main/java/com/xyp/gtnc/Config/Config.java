@@ -185,16 +185,6 @@ public class Config {
      * 等效"节点不衰减 + vis 无限"：任何需要 vis 的操作都拿得到，且节点/中继不掉存量。
      */
     public static boolean tcInfiniteVis = true;
-    /**
-     * 开启后，研究台的六边形连连看小游戏 GUI 里多出一个「一键研究」按钮，点击自动求解并落子完成研究。
-     * <p>
-     * 纯客户端求解：在网格上给空格填入<b>已发现</b>的源质，使全部主源质通过「相邻两格源质互为合成组件」的链连成一片
-     * （与 {@code ResearchManager.checkResearchCompletion} 判定同构），再复用原版 {@code PacketAspectPlaceToServer}
-     * 逐格落子，最后一子触发原生完成判定——与手动解开走完全相同的服务端路径，不新增网络包、不改服务端逻辑。
-     * <p>
-     * 前置校验：所有主源质须已发现、书写工具墨水耐久足够，否则弹提示并中止（绝不半途落子）。仍照常消耗墨水。
-     */
-    public static boolean tcResearchAutoSolve = true;
     // endregion
 
     // region Applied Energistics 2 配置
@@ -718,13 +708,6 @@ public class Config {
                 CATEGORY_THAUMCRAFT,
                 tcInfiniteVis,
                 "开启后，从 vis 网络抽取魔力永远成功且不消耗节点存量(VisNetHandler.drainVis 直接返回请求量)。" + "等效「vis 无限 + 节点永不衰减」。");
-
-            tcResearchAutoSolve = configuration.getBoolean(
-                "researchAutoSolve",
-                CATEGORY_THAUMCRAFT,
-                tcResearchAutoSolve,
-                "开启后，研究台的连连看小游戏 GUI 多出一个「一键研究」按钮，点击自动求解并落子完成研究。" + "纯客户端求解(给空格填已发现的源质使主源质连通)，复用原版放置通道逐格落子，"
-                    + "最后一子触发原生完成判定，与手动解开路径一致。主源质须已发现、墨水须充足，否则弹提示并中止。仍照常消耗墨水。");
 
             // Applied Energistics 2 配置项
             disableAE2ChannelLimit = configuration.getBoolean(
