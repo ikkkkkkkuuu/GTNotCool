@@ -17,6 +17,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.xyp.gtnc.Config.Config;
+import com.xyp.gtnc.utils.AutoResearchSolver;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -77,8 +78,10 @@ public abstract class MixinGuiResearchTableAutoSolve extends GuiContainer {
      */
     @Inject(method = "drawGuiContainerForegroundLayer", at = @At("TAIL"), require = 0)
     private void gtnc$drawAutoSolveButton(int mx, int my, CallbackInfo ci) {
-        if (!Config.tcResearchAutoSolve || this.note == null || this.note.key == null
-            || this.note.key.length() == 0 || this.note.isComplete()) {
+        if (!Config.tcResearchAutoSolve || this.note == null
+            || this.note.key == null
+            || this.note.key.length() == 0
+            || this.note.isComplete()) {
             return;
         }
         int rx = mx - this.guiLeft;
@@ -105,8 +108,11 @@ public abstract class MixinGuiResearchTableAutoSolve extends GuiContainer {
      */
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true, require = 0)
     private void gtnc$onMouseClicked(int mx, int my, int button, CallbackInfo ci) {
-        if (!Config.tcResearchAutoSolve || button != 0 || this.note == null || this.note.key == null
-            || this.note.key.length() == 0 || this.note.isComplete()) {
+        if (!Config.tcResearchAutoSolve || button != 0
+            || this.note == null
+            || this.note.key == null
+            || this.note.key.length() == 0
+            || this.note.isComplete()) {
             return;
         }
         int rx = mx - this.guiLeft;
@@ -145,8 +151,7 @@ public abstract class MixinGuiResearchTableAutoSolve extends GuiContainer {
             // #tr gui.researchtable.autosolve.noink
             // # Not enough ink to auto-solve
             // # zh_CN 墨水不足，无法一键研究
-            PlayerNotifications
-                .addNotification(StatCollector.translateToLocal("gui.researchtable.autosolve.noink"));
+            PlayerNotifications.addNotification(StatCollector.translateToLocal("gui.researchtable.autosolve.noink"));
             return;
         }
 

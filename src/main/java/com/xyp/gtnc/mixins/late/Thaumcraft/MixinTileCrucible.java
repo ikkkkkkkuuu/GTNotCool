@@ -48,9 +48,7 @@ public abstract class MixinTileCrucible {
      */
     @Redirect(
         method = "updateEntity",
-        at = @At(
-            value = "INVOKE",
-            target = "Lthaumcraft/common/tiles/TileCrucible;tagAmount()I"),
+        at = @At(value = "INVOKE", target = "Lthaumcraft/common/tiles/TileCrucible;tagAmount()I"),
         require = 2,
         remap = true)
     private int gtnc$noCrucibleDecay(TileCrucible self) {

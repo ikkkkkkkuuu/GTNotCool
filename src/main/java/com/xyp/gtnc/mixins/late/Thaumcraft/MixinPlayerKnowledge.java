@@ -50,8 +50,7 @@ public abstract class MixinPlayerKnowledge {
         at = @At("HEAD"),
         cancellable = true,
         require = 1)
-    private void gtnc$ignoreParentAspects(String player, Aspect aspect,
-        CallbackInfoReturnable<Boolean> cir) {
+    private void gtnc$ignoreParentAspects(String player, Aspect aspect, CallbackInfoReturnable<Boolean> cir) {
         if (Config.tcScanIgnoreParentAspects) {
             cir.setReturnValue(true);
         }

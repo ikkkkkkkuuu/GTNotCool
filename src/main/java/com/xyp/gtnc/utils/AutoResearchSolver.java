@@ -1,4 +1,4 @@
-package com.xyp.gtnc.mixins.late.Thaumcraft;
+package com.xyp.gtnc.utils;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -21,8 +21,11 @@ import thaumcraft.common.lib.utils.HexUtils;
  * 算法：以第一个主源质为种子求连通域，对每个尚未接入的主源质用 BFS（状态 = 格 + 该格所填源质，
  * 只走空格、只用已发现源质、每步满足组件关系）找接入连通域的最短链，落子后并入连通域并做一次泛洪
  * （顺带吸收因此变得连通的其它主源质），重复至全部连通。
+ * <p>
+ * <b>注意</b>：本类是普通逻辑类，<u>必须放在 mixin 包（{@code com.xyp.gtnc.mixins.*}）之外</u>——
+ * mixin 配置声明的包下只能放 mixin 类，普通类被直接引用会抛 {@code IllegalClassLoadError} 崩游戏。
  */
-final class AutoResearchSolver {
+public final class AutoResearchSolver {
 
     private AutoResearchSolver() {}
 
@@ -30,12 +33,12 @@ final class AutoResearchSolver {
     private static final int MAX_VISITED = 200000;
 
     /** 求解结果：需要落子的「格 key -> 源质」映射（有序）。 */
-    static final class Result {
+    public static final class Result {
 
         /** 需要填入的空格及其源质，按落子顺序排列。 */
-        final LinkedHashMap<String, Aspect> placements;
+        public final LinkedHashMap<String, Aspect> placements;
         /** true 表示所有主源质在不落任何子时就已连通（调用方需自行放一个「触发子」以引发完成判定）。 */
-        final boolean alreadyConnected;
+        public final boolean alreadyConnected;
 
         Result(LinkedHashMap<String, Aspect> placements, boolean alreadyConnected) {
             this.placements = placements;
@@ -44,7 +47,7 @@ final class AutoResearchSolver {
     }
 
     /** 求解失败原因，供上层给出针对性提示。 */
-    enum Failure {
+    public enum Failure {
         /** 某个主源质本身尚未被玩家发现——不可能连通。 */
         MAIN_ASPECT_UNDISCOVERED,
         /** 找不到把某主源质接入连通域的链（缺少可作桥梁的已发现源质，或几何上无法连通）。 */
@@ -52,10 +55,10 @@ final class AutoResearchSolver {
     }
 
     /** 求解异常：携带失败原因与相关源质（可空）。 */
-    static final class SolveException extends Exception {
+    public static final class SolveException extends Exception {
 
-        final Failure failure;
-        final Aspect aspect;
+        public final Failure failure;
+        public final Aspect aspect;
 
         SolveException(Failure failure, Aspect aspect) {
             this.failure = failure;
@@ -71,7 +74,7 @@ final class AutoResearchSolver {
      * @return 落子方案；{@link Result#placements} 为空且 {@link Result#alreadyConnected} 为 true 表示无需落子已连通
      * @throws SolveException 主源质未发现或几何/源质上无法连通
      */
-    static Result solve(ResearchNoteData note, Set<Aspect> discovered) throws SolveException {
+    public static Result solve(ResearchNoteData note, Set<Aspect> discovered) throws SolveException {
         java.util.List<String> mains = new java.util.ArrayList<String>();
         for (Map.Entry<String, HexUtils.Hex> e : note.hexes.entrySet()) {
             ResearchManager.HexEntry he = note.hexEntries.get(e.getKey());
