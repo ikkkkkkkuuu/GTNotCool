@@ -11,16 +11,17 @@ import thaumcraft.api.aspects.Aspect;
 import thaumcraft.common.lib.research.PlayerKnowledge;
 
 /**
- * 让研究点数（aspects/观察点）永不因研究消耗而减少，实现"研究免费"但不破坏研究台 GUI。
- * <p>
+ * 两个 Thaumcraft 研究/扫描 QoL 注入。
+ *
+ * <h3>研究点免费（{@link Config#tcFreeResearchAspects}）</h3>
  * {@link PlayerKnowledge#addAspectPool(String, Aspect, short)} 是研究点池的加/减入口：
- * {@code amount > 0} 时向池中加点（扫描获得），{@code amount < 0} 时扣点（研究台拼图小游戏消耗）。
- * 这里 {@code @Inject} 在 HEAD：开关开启且 {@code amount < 0}（扣减）时直接返回 {@code true}
- * ——即"扣减已成功"骗过调用方，但实际不动池子，于是研究点永远够用。
- * <p>
- * 只拦截扣减分支，加点(amount>0)照常执行，扫描仍能正常涨点、发现新 aspect。
- * <p>
- * 由 {@link Config#tcFreeResearchAspects} 控制，默认开启。
+ * {@code amount < 0} 为扣减（研究台拼图小游戏消耗）。开关开启时在 HEAD 直接返回 {@code true}
+ * ——谎报扣减成功，但实际不动池子，研究点永远够用。扫描加点(amount>0)照常执行。
+ *
+ * <h3>扫描无视父源质顺序（{@link Config#tcScanIgnoreParentAspects}）</h3>
+ * {@link PlayerKnowledge#hasDiscoveredParentAspects(String, Aspect)} 是所有复合源质被发现前的前置检查：
+ * 只有当组成该源质的两个父源质都已发现，才允许扫描/入池。开关开启时在 HEAD 恒返回 {@code true}，
+ * 从而绕过"必须按源质合成树自底向上顺序扫"的限制，任意乱序扫描均可直接发现复合源质。
  */
 @Mixin(value = PlayerKnowledge.class, remap = false)
 public abstract class MixinPlayerKnowledge {
@@ -34,6 +35,24 @@ public abstract class MixinPlayerKnowledge {
         CallbackInfoReturnable<Boolean> cir) {
         if (Config.tcFreeResearchAspects && aspect != null && amount < 0) {
             // 谎报扣减成功，但不真正减少池中点数。
+            cir.setReturnValue(true);
+        }
+    }
+
+    /**
+     * 无视父源质发现顺序——让 {@link PlayerKnowledge#hasDiscoveredParentAspects} 对任意源质恒返回 true。
+     * <p>
+     * 调用链：{@code ScanManager.validScan} 与 {@code ScanManager.completeScan} 都先调用此方法判断是否可扫描；
+     * 原版返回 false 时客户端弹"你还不了解 xxx"并取消扫描。注入后跳过父源质要求，直接放行。
+     */
+    @Inject(
+        method = "hasDiscoveredParentAspects(Ljava/lang/String;Lthaumcraft/api/aspects/Aspect;)Z",
+        at = @At("HEAD"),
+        cancellable = true,
+        require = 1)
+    private void gtnc$ignoreParentAspects(String player, Aspect aspect,
+        CallbackInfoReturnable<Boolean> cir) {
+        if (Config.tcScanIgnoreParentAspects) {
             cir.setReturnValue(true);
         }
     }
