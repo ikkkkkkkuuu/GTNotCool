@@ -7,8 +7,6 @@ import java.util.Set;
 import com.gtnewhorizon.gtnhmixins.ILateMixinLoader;
 import com.gtnewhorizon.gtnhmixins.LateMixin;
 
-import cpw.mods.fml.relauncher.FMLLaunchHandler;
-
 @LateMixin
 public class LateMixinsLoader implements ILateMixinLoader {
 
@@ -102,12 +100,6 @@ public class LateMixinsLoader implements ILateMixinLoader {
                 "Thaumcraft.MixinTileCrucible",
                 "Thaumcraft.MixinTileInfusionMatrix",
                 "Thaumcraft.MixinVisNetHandler");
-            // 研究台「一键研究」按钮的目标类 GuiResearchTable 是客户端专属类，
-            // 专用服务端不存在该类，故仅在物理客户端注册，避免服务端加载崩溃。
-            if (FMLLaunchHandler.side()
-                .isClient()) {
-                addAll(list, "Thaumcraft.MixinGuiResearchTableAutoSolve");
-            }
         }
 
         return list;
