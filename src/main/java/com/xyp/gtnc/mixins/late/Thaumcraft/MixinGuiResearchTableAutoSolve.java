@@ -7,9 +7,11 @@ import java.util.Set;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.StatCollector;
 
+import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -77,46 +79,67 @@ public abstract class MixinGuiResearchTableAutoSolve extends GuiContainer {
         return this.note != null && this.note.key != null && this.note.key.length() != 0 && !this.note.isComplete();
     }
 
+    /** 一次性日志标记，确认绘制方法确实每帧执行。 */
+    private boolean gtnc$loggedDraw = false;
+
     /**
-     * 在前景层末尾绘制「一键研究」按钮。只要研究台 GUI 打开且开关开启就<b>始终</b>绘制：
-     * 有可求解笔记时高亮可点，否则灰显（点击无效）。前景层坐标系原点即 guiLeft/guiTop，故直接用相对坐标。
+     * 在 {@code drawScreen} 末尾（整个 GUI 都画完、处于最顶层的标准 2D UI 状态）绘制「一键研究」按钮，
+     * 绝不会被物品槽/网格遮挡或被深度剔除。用<b>绝对坐标</b>（{@code guiLeft/guiTop + 相对偏移}）。
+     * 只要研究台 GUI 打开且开关开启就始终绘制：有可求解笔记时高亮可点，否则灰显。
      */
-    @Inject(method = "drawGuiContainerForegroundLayer", at = @At("TAIL"), require = 1, remap = true)
-    private void gtnc$drawAutoSolveButton(int mx, int my, CallbackInfo ci) {
+    @Inject(method = "drawScreen", at = @At("TAIL"), require = 1, remap = true)
+    private void gtnc$drawAutoSolveButton(int mx, int my, float partialTicks, CallbackInfo ci) {
         if (!Config.tcResearchAutoSolve) {
             return;
         }
+        if (!gtnc$loggedDraw) {
+            gtnc$loggedDraw = true;
+            org.apache.logging.log4j.LogManager.getLogger("sciencenotcool")
+                .info(
+                    "[AutoSolve] draw button: guiLeft={} guiTop={} at abs=({},{}) note={}",
+                    this.guiLeft,
+                    this.guiTop,
+                    this.guiLeft + BTN_X,
+                    this.guiTop + BTN_Y,
+                    this.note != null ? this.note.key : "null");
+        }
+        int x0 = this.guiLeft + BTN_X;
+        int y0 = this.guiTop + BTN_Y;
         boolean solvable = gtnc$hasSolvableNote();
-        int rx = mx - this.guiLeft;
-        int ry = my - this.guiTop;
-        boolean hover = solvable && rx >= BTN_X && rx < BTN_X + BTN_W && ry >= BTN_Y && ry < BTN_Y + BTN_H;
+        boolean hover = solvable && mx >= x0 && mx < x0 + BTN_W && my >= y0 && my < y0 + BTN_H;
         int bg;
         int border;
         int textColor;
         if (!solvable) {
-            bg = 0xC0202020;
+            bg = 0xF0202020;
             border = 0xFF555555;
-            textColor = 0xFF808080;
+            textColor = 0xFFAAAAAA;
         } else if (hover) {
-            bg = 0xC0503078;
+            bg = 0xF0503078;
             border = 0xFFB080FF;
             textColor = 0xFFFFFFFF;
         } else {
-            bg = 0xC0303030;
+            bg = 0xF0303030;
             border = 0xFF808080;
             textColor = 0xFFFFFFFF;
         }
-        Gui.drawRect(BTN_X, BTN_Y, BTN_X + BTN_W, BTN_Y + BTN_H, bg);
-        Gui.drawRect(BTN_X, BTN_Y, BTN_X + BTN_W, BTN_Y + 1, border);
-        Gui.drawRect(BTN_X, BTN_Y + BTN_H - 1, BTN_X + BTN_W, BTN_Y + BTN_H, border);
-        Gui.drawRect(BTN_X, BTN_Y, BTN_X + 1, BTN_Y + BTN_H, border);
-        Gui.drawRect(BTN_X + BTN_W - 1, BTN_Y, BTN_X + BTN_W, BTN_Y + BTN_H, border);
+        // 切到标准 2D UI 状态：关光照/深度，开混合，重置颜色，避免被前面的 3D/物品渲染状态污染。
+        GL11.glDisable(GL11.GL_LIGHTING);
+        RenderHelper.disableStandardItemLighting();
+        GL11.glDisable(GL11.GL_DEPTH_TEST);
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+        Gui.drawRect(x0, y0, x0 + BTN_W, y0 + BTN_H, bg);
+        Gui.drawRect(x0, y0, x0 + BTN_W, y0 + 1, border);
+        Gui.drawRect(x0, y0 + BTN_H - 1, x0 + BTN_W, y0 + BTN_H, border);
+        Gui.drawRect(x0, y0, x0 + 1, y0 + BTN_H, border);
+        Gui.drawRect(x0 + BTN_W - 1, y0, x0 + BTN_W, y0 + BTN_H, border);
         // #tr gui.researchtable.autosolve
         // # Auto Solve
         // # zh_CN 一键研究
         String label = StatCollector.translateToLocal("gui.researchtable.autosolve");
         FontRenderer fr = this.fontRendererObj;
-        fr.drawString(label, BTN_X + (BTN_W - fr.getStringWidth(label)) / 2, BTN_Y + 3, textColor);
+        fr.drawString(label, x0 + (BTN_W - fr.getStringWidth(label)) / 2, y0 + 3, textColor);
     }
 
     /**
