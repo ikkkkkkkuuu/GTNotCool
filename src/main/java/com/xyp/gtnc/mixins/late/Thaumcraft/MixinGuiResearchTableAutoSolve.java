@@ -76,7 +76,7 @@ public abstract class MixinGuiResearchTableAutoSolve extends GuiContainer {
      * 在前景层末尾绘制「一键研究」按钮（仅当有未完成的研究笔记时）。
      * 前景层坐标系原点即 guiLeft/guiTop，故直接用相对坐标。
      */
-    @Inject(method = "drawGuiContainerForegroundLayer", at = @At("TAIL"), require = 0)
+    @Inject(method = "drawGuiContainerForegroundLayer", at = @At("TAIL"), require = 1, remap = true)
     private void gtnc$drawAutoSolveButton(int mx, int my, CallbackInfo ci) {
         if (!Config.tcResearchAutoSolve || this.note == null
             || this.note.key == null
@@ -106,7 +106,7 @@ public abstract class MixinGuiResearchTableAutoSolve extends GuiContainer {
      * 拦截点击：命中按钮区域时跑求解器并落子，随后取消默认处理（阻止把点击透传给下面的网格/源质列表）。
      * 在 HEAD 判定命中，未命中则放行原方法。
      */
-    @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true, require = 0)
+    @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true, require = 1, remap = true)
     private void gtnc$onMouseClicked(int mx, int my, int button, CallbackInfo ci) {
         if (!Config.tcResearchAutoSolve || button != 0
             || this.note == null
