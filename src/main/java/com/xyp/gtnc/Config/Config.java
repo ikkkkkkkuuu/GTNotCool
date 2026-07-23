@@ -147,6 +147,15 @@ public class Config {
      */
     public static boolean tcFreeResearchAspects = true;
     /**
+     * 开启后，扫描源质时无视「必须先发现父源质」的顺序要求——{@code PlayerKnowledge.hasDiscoveredParentAspects}
+     * 对任意源质恒返回 {@code true}。
+     * <p>
+     * 神秘时代原本要求：复合源质(非六大基础源质)只有当组成它的两个父源质都已发现后，才能被扫描/发现，
+     * 因此拿到魔导透镜初期很多东西"扫不了"，必须按源质合成树自底向上一步步扫。开启此项后可任意乱序扫描，
+     * 复合源质直接发现、直接入池。默认开启。
+     */
+    public static boolean tcScanIgnoreParentAspects = true;
+    /**
      * 开启后，坩埚（Crucible）不再产生通量污染——{@code TileCrucible.spill()} 在 HEAD 取消。
      * spill 是坩埚溢出/失衡时生成通量气/通量泥（进而涨 warp/taint）的唯一来源，取消它即"注魔零污染"的坩埚侧。
      */
@@ -652,6 +661,13 @@ public class Config {
                 CATEGORY_THAUMCRAFT,
                 tcFreeResearchAspects,
                 "开启后，研究点数永不消耗(抑制 PlayerKnowledge.addAspectPool 的扣减分支)，" + "研究台的六边形拼图小游戏永远够点。不破坏 GUI。");
+
+            tcScanIgnoreParentAspects = configuration.getBoolean(
+                "scanIgnoreParentAspects",
+                CATEGORY_THAUMCRAFT,
+                tcScanIgnoreParentAspects,
+                "开启后，扫描源质时无视「必须先发现父源质」的顺序要求(hasDiscoveredParentAspects 恒返回 true)，"
+                    + "因此可任意乱序扫描，复合源质直接发现入池，无需按源质合成树自底向上逐个解锁。");
 
             tcCrucibleNoFlux = configuration.getBoolean(
                 "crucibleNoFlux",
