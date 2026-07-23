@@ -161,6 +161,20 @@ public class Config {
      */
     public static boolean tcCrucibleNoFlux = true;
     /**
+     * 开启后，坩埚（Crucible）内的源质不再随时间流失。
+     * <p>
+     * 原版 {@code TileCrucible.updateEntity} 有两处会让源质减少：
+     * <ul>
+     * <li><b>高温熵变</b>：坩埚够热（{@code heat > 150}）时每约 100 tick 随机侵蚀 1 个源质——复合源质被降解成其组分之一，
+     * 基础源质则直接删除并溢出（{@code spill}）。这就是"源质随时间消失"的主因。</li>
+     * <li><b>过量溢出</b>：源质总量超过上限 100（{@code tagAmount() > 100}）时每 5 tick 删随机 1 个并溢出。</li>
+     * </ul>
+     * 两处的入口条件都读 {@code this.tagAmount()}（{@code updateEntity} 内仅此两次调用）。本开关 {@code @Redirect}
+     * 这两次调用、开启时返回 0，使两个衰减分支都不进入，源质既不被侵蚀也不溢出。加热、精炼（attemptSmelt）、
+     * 计时器维护等其余逻辑完全不受影响。
+     */
+    public static boolean tcCrucibleNoDecay = true;
+    /**
      * 开启后，注魔祭坛（Infusion Matrix）注魔时不失稳——每个 craftCycle 开头把 {@code instability} 归零。
      * 失稳只会引发掉物/爆炸/闪电/涨 warp 等负面事件（含注魔侧的通量生成），合成进度本身与失稳无关，
      * 故归零后合成照常完成、但绝不触发坏事件。
@@ -684,6 +698,14 @@ public class Config {
                 CATEGORY_THAUMCRAFT,
                 tcCrucibleNoFlux,
                 "开启后，坩埚永不产生通量污染(取消 TileCrucible.spill)。" + "spill 是坩埚溢出产生通量气/通量泥的唯一来源，这是「注魔零污染」的坩埚侧。");
+
+            tcCrucibleNoDecay = configuration.getBoolean(
+                "crucibleNoDecay",
+                CATEGORY_THAUMCRAFT,
+                tcCrucibleNoDecay,
+                "开启后，坩埚内的源质不再随时间流失(重定向 updateEntity 内两处 tagAmount 判定返回 0)。"
+                    + "原版坩埚够热(heat>150)时会周期性侵蚀源质(复合降解为组分、基础直接消失并溢出通量)，"
+                    + "且源质总量超 100 时会持续溢出丢失；开启后这两处衰减均不触发。不影响加热、投料精炼等正常功能。");
 
             tcInfusionNoInstability = configuration.getBoolean(
                 "infusionNoInstability",
