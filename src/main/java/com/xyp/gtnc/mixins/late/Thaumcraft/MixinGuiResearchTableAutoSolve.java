@@ -72,23 +72,40 @@ public abstract class MixinGuiResearchTableAutoSolve extends GuiContainer {
     private static final int BTN_W = 60;
     private static final int BTN_H = 14;
 
+    /** 当前是否有可求解的未完成研究笔记（决定按钮高亮/可点，还是灰显）。 */
+    private boolean gtnc$hasSolvableNote() {
+        return this.note != null && this.note.key != null && this.note.key.length() != 0 && !this.note.isComplete();
+    }
+
     /**
-     * 在前景层末尾绘制「一键研究」按钮（仅当有未完成的研究笔记时）。
-     * 前景层坐标系原点即 guiLeft/guiTop，故直接用相对坐标。
+     * 在前景层末尾绘制「一键研究」按钮。只要研究台 GUI 打开且开关开启就<b>始终</b>绘制：
+     * 有可求解笔记时高亮可点，否则灰显（点击无效）。前景层坐标系原点即 guiLeft/guiTop，故直接用相对坐标。
      */
     @Inject(method = "drawGuiContainerForegroundLayer", at = @At("TAIL"), require = 1, remap = true)
     private void gtnc$drawAutoSolveButton(int mx, int my, CallbackInfo ci) {
-        if (!Config.tcResearchAutoSolve || this.note == null
-            || this.note.key == null
-            || this.note.key.length() == 0
-            || this.note.isComplete()) {
+        if (!Config.tcResearchAutoSolve) {
             return;
         }
+        boolean solvable = gtnc$hasSolvableNote();
         int rx = mx - this.guiLeft;
         int ry = my - this.guiTop;
-        boolean hover = rx >= BTN_X && rx < BTN_X + BTN_W && ry >= BTN_Y && ry < BTN_Y + BTN_H;
-        int bg = hover ? 0xC0503078 : 0xC0303030;
-        int border = hover ? 0xFFB080FF : 0xFF808080;
+        boolean hover = solvable && rx >= BTN_X && rx < BTN_X + BTN_W && ry >= BTN_Y && ry < BTN_Y + BTN_H;
+        int bg;
+        int border;
+        int textColor;
+        if (!solvable) {
+            bg = 0xC0202020;
+            border = 0xFF555555;
+            textColor = 0xFF808080;
+        } else if (hover) {
+            bg = 0xC0503078;
+            border = 0xFFB080FF;
+            textColor = 0xFFFFFFFF;
+        } else {
+            bg = 0xC0303030;
+            border = 0xFF808080;
+            textColor = 0xFFFFFFFF;
+        }
         Gui.drawRect(BTN_X, BTN_Y, BTN_X + BTN_W, BTN_Y + BTN_H, bg);
         Gui.drawRect(BTN_X, BTN_Y, BTN_X + BTN_W, BTN_Y + 1, border);
         Gui.drawRect(BTN_X, BTN_Y + BTN_H - 1, BTN_X + BTN_W, BTN_Y + BTN_H, border);
@@ -99,7 +116,7 @@ public abstract class MixinGuiResearchTableAutoSolve extends GuiContainer {
         // # zh_CN 一键研究
         String label = StatCollector.translateToLocal("gui.researchtable.autosolve");
         FontRenderer fr = this.fontRendererObj;
-        fr.drawStringWithShadow(label, BTN_X + (BTN_W - fr.getStringWidth(label)) / 2, BTN_Y + 3, 0xFFFFFF);
+        fr.drawString(label, BTN_X + (BTN_W - fr.getStringWidth(label)) / 2, BTN_Y + 3, textColor);
     }
 
     /**
@@ -108,11 +125,7 @@ public abstract class MixinGuiResearchTableAutoSolve extends GuiContainer {
      */
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true, require = 1, remap = true)
     private void gtnc$onMouseClicked(int mx, int my, int button, CallbackInfo ci) {
-        if (!Config.tcResearchAutoSolve || button != 0
-            || this.note == null
-            || this.note.key == null
-            || this.note.key.length() == 0
-            || this.note.isComplete()) {
+        if (!Config.tcResearchAutoSolve || button != 0 || !gtnc$hasSolvableNote()) {
             return;
         }
         int rx = mx - this.guiLeft;
