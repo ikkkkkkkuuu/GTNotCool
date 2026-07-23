@@ -161,6 +161,20 @@ public class Config {
      */
     public static boolean tcCrucibleNoFlux = true;
     /**
+     * 开启后，坩埚（Crucible）内的源质不再随时间流失。
+     * <p>
+     * 原版 {@code TileCrucible.updateEntity} 有两处会让源质减少：
+     * <ul>
+     * <li><b>高温熵变</b>：坩埚够热（{@code heat > 150}）时每约 100 tick 随机侵蚀 1 个源质——复合源质被降解成其组分之一，
+     * 基础源质则直接删除并溢出（{@code spill}）。这就是"源质随时间消失"的主因。</li>
+     * <li><b>过量溢出</b>：源质总量超过上限 100（{@code tagAmount() > 100}）时每 5 tick 删随机 1 个并溢出。</li>
+     * </ul>
+     * 两处的入口条件都读 {@code this.tagAmount()}（{@code updateEntity} 内仅此两次调用）。本开关 {@code @Redirect}
+     * 这两次调用、开启时返回 0，使两个衰减分支都不进入，源质既不被侵蚀也不溢出。加热、精炼（attemptSmelt）、
+     * 计时器维护等其余逻辑完全不受影响。
+     */
+    public static boolean tcCrucibleNoDecay = true;
+    /**
      * 开启后，注魔祭坛（Infusion Matrix）注魔时不失稳——每个 craftCycle 开头把 {@code instability} 归零。
      * 失稳只会引发掉物/爆炸/闪电/涨 warp 等负面事件（含注魔侧的通量生成），合成进度本身与失稳无关，
      * 故归零后合成照常完成、但绝不触发坏事件。
@@ -171,6 +185,16 @@ public class Config {
      * 等效"节点不衰减 + vis 无限"：任何需要 vis 的操作都拿得到，且节点/中继不掉存量。
      */
     public static boolean tcInfiniteVis = true;
+    /**
+     * 开启后，研究台的六边形连连看小游戏 GUI 里多出一个「一键研究」按钮，点击自动求解并落子完成研究。
+     * <p>
+     * 纯客户端求解：在网格上给空格填入<b>已发现</b>的源质，使全部主源质通过「相邻两格源质互为合成组件」的链连成一片
+     * （与 {@code ResearchManager.checkResearchCompletion} 判定同构），再复用原版 {@code PacketAspectPlaceToServer}
+     * 逐格落子，最后一子触发原生完成判定——与手动解开走完全相同的服务端路径，不新增网络包、不改服务端逻辑。
+     * <p>
+     * 前置校验：所有主源质须已发现、书写工具墨水耐久足够，否则弹提示并中止（绝不半途落子）。仍照常消耗墨水。
+     */
+    public static boolean tcResearchAutoSolve = true;
     // endregion
 
     // region Applied Energistics 2 配置
@@ -675,6 +699,14 @@ public class Config {
                 tcCrucibleNoFlux,
                 "开启后，坩埚永不产生通量污染(取消 TileCrucible.spill)。" + "spill 是坩埚溢出产生通量气/通量泥的唯一来源，这是「注魔零污染」的坩埚侧。");
 
+            tcCrucibleNoDecay = configuration.getBoolean(
+                "crucibleNoDecay",
+                CATEGORY_THAUMCRAFT,
+                tcCrucibleNoDecay,
+                "开启后，坩埚内的源质不再随时间流失(重定向 updateEntity 内两处 tagAmount 判定返回 0)。"
+                    + "原版坩埚够热(heat>150)时会周期性侵蚀源质(复合降解为组分、基础直接消失并溢出通量)，"
+                    + "且源质总量超 100 时会持续溢出丢失；开启后这两处衰减均不触发。不影响加热、投料精炼等正常功能。");
+
             tcInfusionNoInstability = configuration.getBoolean(
                 "infusionNoInstability",
                 CATEGORY_THAUMCRAFT,
@@ -686,6 +718,13 @@ public class Config {
                 CATEGORY_THAUMCRAFT,
                 tcInfiniteVis,
                 "开启后，从 vis 网络抽取魔力永远成功且不消耗节点存量(VisNetHandler.drainVis 直接返回请求量)。" + "等效「vis 无限 + 节点永不衰减」。");
+
+            tcResearchAutoSolve = configuration.getBoolean(
+                "researchAutoSolve",
+                CATEGORY_THAUMCRAFT,
+                tcResearchAutoSolve,
+                "开启后，研究台的连连看小游戏 GUI 多出一个「一键研究」按钮，点击自动求解并落子完成研究。" + "纯客户端求解(给空格填已发现的源质使主源质连通)，复用原版放置通道逐格落子，"
+                    + "最后一子触发原生完成判定，与手动解开路径一致。主源质须已发现、墨水须充足，否则弹提示并中止。仍照常消耗墨水。");
 
             // Applied Energistics 2 配置项
             disableAE2ChannelLimit = configuration.getBoolean(
