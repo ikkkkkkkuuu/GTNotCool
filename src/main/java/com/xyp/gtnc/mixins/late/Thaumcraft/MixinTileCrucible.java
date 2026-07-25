@@ -4,6 +4,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.xyp.gtnc.Config.Config;
@@ -14,30 +15,27 @@ import thaumcraft.common.tiles.TileCrucible;
 /**
  * 坩埚（Crucible）的两项 QoL：不产生通量污染，以及内含源质不随时间流失。
  * <p>
- * <b>零通量</b>：{@link TileCrucible#spill()} 是坩埚在标签溢出或精炼原初 aspect 时生成通量气/通量泥的唯一来源。
- * {@code @Inject} 在 HEAD 直接取消整个 spill，坩埚照常工作但绝不产生通量方块。由 {@link Config#tcCrucibleNoFlux} 控制。
+ * <b>零通量</b>：{@link TileCrucible#spill()} 是坩埚的唯一通量来源。
+ * {@code @Inject} 在 HEAD 取消整个 spill。由 {@link Config#tcCrucibleNoFlux} 控制。
  * <p>
- * <b>源质不衰减</b>：{@code updateEntity} 内有两处会让源质减少：
+ * <b>源质不衰减</b>：{@code updateEntity} 内两处衰减入口都依赖 {@code tagAmount()} 判零：
  * <ul>
- * <li>过量溢出（{@code tagAmount() > 100} 时每 5 tick 删随机 1 个并 spill）；</li>
- * <li>高温熵变（{@code heat > 150} 时每约 100 tick 删 1 个，复合降解、基础 spill）。</li>
+ * <li>过量溢出：{@code tagAmount() > 100} 时每 5 tick 删随机 1 个并 spill</li>
+ * <li>高温熵变：{@code heat > 150} 且 {@code tagAmount() > 0} 时降解复合源质/移除基础源质</li>
  * </ul>
- * 之前的 {@code @Redirect tagAmount()} 方案虽理论上应阻断 guard 条件，但实际无效。
- * 改用更彻底的 save/restore：HEAD 保存 {@code this.aspects}、TAIL 恢复，
- * 无论方法内以何种方式修改源质都会被撤销。加热、精炼、计时器等其余逻辑不受影响。
+ * {@code @Redirect tagAmount()} 在开关开启时返回 0，两处 guard 条件均不成立，衰减路径完全阻断。
+ * 加热、投料精炼（attemptSmelt）、计时器等其余逻辑完全不受影响。
  * <p>
- * <b>注意</b>：类级 {@code remap = false}，且运行时 TC jar 的 {@code updateEntity}
- * 保持 MCP 名（非 SRG 名 {@code func_145845_h}），因此 Inject 目标用 {@code updateEntity}。
+ * <b>注意</b>：类级 {@code remap = false}，当前运行时 TC jar 保持 MCP 名（非 SRG），
+ * 因此所有方法/字段名均用 MCP 名：{@code updateEntity / tagAmount / spill / aspects}。
  */
 @Mixin(value = TileCrucible.class, remap = false)
 public abstract class MixinTileCrucible {
 
-    /** 用于在 updateEntity 入口暂存源质列表 */
-    private AspectList sciencenotcool$savedAspects;
-
     @Shadow
     public AspectList aspects;
 
+    /** 取消坩埚溢出产生的通量污染 */
     @Inject(method = "spill", at = @At("HEAD"), cancellable = true, require = 1)
     private void gtnc$noCrucibleFlux(CallbackInfo ci) {
         if (Config.tcCrucibleNoFlux) {
@@ -46,27 +44,14 @@ public abstract class MixinTileCrucible {
     }
 
     /**
-     * 在 updateEntity 入口快照当前 aspects。
-     * 配合下面的 TAIL 注入实现"源质自动恢复"。
+     * 重定向 updateEntity 内所有 {@code tagAmount()} 调用。
+     * 开关开启时返回 0，使两个衰减 guard（>100 和 >0）均不成立。
      */
-    @Inject(method = "updateEntity", at = @At("HEAD"))
-    private void gtnc$snapshotAspects(CallbackInfo ci) {
-        if (Config.tcCrucibleNoDecay) {
-            this.sciencenotcool$savedAspects = this.aspects.copy();
-        }
-    }
-
-    /**
-     * 在 updateEntity 尾部恢复为入口快照，使本 tick 内的所有源质修改无效化。
-     * <p>
-     * 注意：{@code attemptSmelt} 在物品落入坩埚时独立调用（不在 updateEntity 内），
-     * 故精炼配方消耗源质不受影响。
-     */
-    @Inject(method = "updateEntity", at = @At("TAIL"))
-    private void gtnc$restoreAspects(CallbackInfo ci) {
-        if (Config.tcCrucibleNoDecay && this.sciencenotcool$savedAspects != null) {
-            this.aspects = this.sciencenotcool$savedAspects;
-            this.sciencenotcool$savedAspects = null;
-        }
+    @Redirect(
+        method = "updateEntity",
+        at = @At(value = "INVOKE", target = "Lthaumcraft/common/tiles/TileCrucible;tagAmount()I"),
+        require = 2)
+    private int gtnc$noCrucibleDecay(TileCrucible self) {
+        return Config.tcCrucibleNoDecay ? 0 : self.tagAmount();
     }
 }
