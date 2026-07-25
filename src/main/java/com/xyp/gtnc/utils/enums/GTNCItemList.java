@@ -39,6 +39,24 @@ public enum GTNCItemList implements IItemContainer {
     ChipTier6,
     ChipTier7,
 
+    CircuitResonaticULV,
+    CircuitResonaticLV,
+    CircuitResonaticMV,
+    CircuitResonaticHV,
+    CircuitResonaticEV,
+    CircuitResonaticIV,
+    CircuitResonaticLuV,
+    CircuitResonaticZPM,
+    CircuitResonaticUV,
+    CircuitResonaticUHV,
+    CircuitResonaticUEV,
+    CircuitResonaticUIV,
+    VerySimpleCircuit,
+    SimpleCircuit,
+    BasicCircuit,
+    AdvancedCircuit,
+    EliteCircuit,
+
     LargeBoilerBronze,
     LargeBoilerSteel,
     LargeBoilerTitanium,
@@ -83,6 +101,7 @@ public enum GTNCItemList implements IItemContainer {
 
     DrillingRig,
     MiningRig,
+    IndustrialArcaneAssembler,
 
     SteamTurbineLV,
     SteamTurbineMV,

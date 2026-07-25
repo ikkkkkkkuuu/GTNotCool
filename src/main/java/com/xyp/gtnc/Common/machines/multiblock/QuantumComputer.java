@@ -7,7 +7,6 @@ import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -22,6 +21,7 @@ import com.xyp.gtnc.Loader.BlockLoader;
 import com.xyp.gtnc.ScienceNotCool;
 import com.xyp.gtnc.utils.ECPUCluster;
 import com.xyp.gtnc.utils.enums.GTNCItemList;
+import com.xyp.gtnc.utils.lang.TextLocalization;
 
 import appeng.api.AEApi;
 import appeng.api.config.Actionable;
@@ -206,26 +206,26 @@ public class QuantumComputer extends MTETooltipMultiBlockBase
 
     @Override
     public String[] getStructureDescription(ItemStack itemStack) {
-        return new String[] { StatCollector.translateToLocal("Tooltip_QuantumComputer_10") };
+        return new String[] { TextLocalization.Tooltip_QuantumComputer_10 };
     }
 
     @Override
     public MultiblockTooltipBuilder createTooltip() {
         final MultiblockTooltipBuilder tt = new MultiblockTooltipBuilder();
-        tt.addMachineType(StatCollector.translateToLocal("QuantumComputerRecipeType"))
-            .addInfo(StatCollector.translateToLocal("Tooltip_QuantumComputer_00"))
-            .addInfo(StatCollector.translateToLocal("Tooltip_QuantumComputer_01"))
-            .addInfo(StatCollector.translateToLocal("Tooltip_QuantumComputer_02"))
-            .addInfo(StatCollector.translateToLocal("Tooltip_QuantumComputer_03"))
-            .addInfo(StatCollector.translateToLocal("Tooltip_QuantumComputer_04"))
-            .addInfo(StatCollector.translateToLocal("Tooltip_QuantumComputer_05"))
-            .addInfo(StatCollector.translateToLocal("Tooltip_QuantumComputer_06"))
-            .addInfo(StatCollector.translateToLocal("Tooltip_QuantumComputer_07"))
-            .addInfo(StatCollector.translateToLocal("Tooltip_QuantumComputer_08"))
-            .addInfo(StatCollector.translateToLocal("Tooltip_QuantumComputer_09"))
-            .addInfo(StatCollector.translateToLocal("Tooltip_QuantumComputer_10"))
-            .addInfo(StatCollector.translateToLocal("Tooltip_QuantumComputer_11"))
-            .addInfo(StatCollector.translateToLocal("Tooltip_QuantumComputer_12"))
+        tt.addMachineType(TextLocalization.QuantumComputerRecipeType)
+            .addInfo(TextLocalization.Tooltip_QuantumComputer_00)
+            .addInfo(TextLocalization.Tooltip_QuantumComputer_01)
+            .addInfo(TextLocalization.Tooltip_QuantumComputer_02)
+            .addInfo(TextLocalization.Tooltip_QuantumComputer_03)
+            .addInfo(TextLocalization.Tooltip_QuantumComputer_04)
+            .addInfo(TextLocalization.Tooltip_QuantumComputer_05)
+            .addInfo(TextLocalization.Tooltip_QuantumComputer_06)
+            .addInfo(TextLocalization.Tooltip_QuantumComputer_07)
+            .addInfo(TextLocalization.Tooltip_QuantumComputer_08)
+            .addInfo(TextLocalization.Tooltip_QuantumComputer_09)
+            .addInfo(TextLocalization.Tooltip_QuantumComputer_10)
+            .addInfo(TextLocalization.Tooltip_QuantumComputer_11)
+            .addInfo(TextLocalization.Tooltip_QuantumComputer_12)
             .beginVariableStructureBlock(
                 3,
                 Config.QuantumComputer.maxMultiblockSize,

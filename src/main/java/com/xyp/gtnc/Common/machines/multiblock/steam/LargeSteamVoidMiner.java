@@ -44,6 +44,7 @@ import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
 import com.xyp.gtnc.Common.gui.modularui.multiblock.steam.LargeSteamVoidMinerGui;
 import com.xyp.gtnc.Common.machines.multiblock.multiMachineBase.GTNCSteamMultiBlockBase;
+import com.xyp.gtnc.utils.lang.TextLocalization;
 import com.xyp.gtnc.utils.world.steam.SteamWirelessNetworkManager;
 
 import bwcrossmod.galacticgreg.VoidMinerUtility;
@@ -66,50 +67,6 @@ import gregtech.api.util.GTUtility;
 import gregtech.api.util.MultiblockTooltipBuilder;
 import gregtech.api.util.shutdown.ShutDownReasonRegistry;
 import gregtech.common.gui.modularui.multiblock.base.MTEMultiBlockBaseGui;
-
-// #tr NameLargeSteamVoidMiner
-// # Large Steam Void Miner
-// # zh_CN 大型蒸汽虚空采矿场
-
-// #tr LargeSteamVoidMinerRecipeType
-// # Void Miner
-// # zh_CN 虚空采矿场
-
-// #tr Tooltip_LargeSteamVoidMiner_00
-// # A steam-powered void miner that extracts ores from the void
-// # zh_CN 一台从虚空中提取矿石的蒸汽虚空采矿场
-
-// #tr Tooltip_LargeSteamVoidMiner_01
-// # Ores selected in the Controller UI or added to an Input Bus are added to the Whitelist/Blacklist
-// # zh_CN 在控制器UI中选择或添加到输入总线的矿石将加入白名单/黑名单
-
-// #tr Tooltip_LargeSteamVoidMiner_02
-// # Use the Controller UI or a screwdriver to toggle Whitelist/Blacklist
-// # zh_CN 使用控制器UI或螺丝刀切换白名单/黑名单
-
-// #tr Tooltip_LargeSteamVoidMiner_03
-// # Blacklisted or non Whitelisted Ore will be VOIDED
-// # zh_CN 黑名单内或不在白名单内的矿石将被销毁
-
-// #tr Tooltip_LargeSteamVoidMiner_Tier
-// # Bronze: 6,400 L/cycle, 1 ore/s | Steel: 12,800 L/cycle, 2 ore/s
-// # zh_CN 青铜：6,400 L/周期，10 矿石/秒 | 钢：12,800 L/周期，20 矿石/秒
-
-// #tr Tooltip_LargeSteamVoidMiner_Output
-// # Ore output depends on the dimension the machine is built in
-// # zh_CN 矿石产出取决于机器所在维度
-
-// #tr Tooltip_LargeSteamVoidMiner_Wireless
-// # Right-click front face with Screwdriver to toggle Wireless Steam Mode
-// # zh_CN GUI内切换无线蒸汽模式
-
-// #tr GT5U.chat.steam_void_miner.mode.white_list
-// # Whitelist Mode: Only selected ores will be kept
-// # zh_CN 白名单模式：仅保留选中的矿石
-
-// #tr GT5U.chat.steam_void_miner.mode.black_list
-// # Blacklist Mode: Selected ores will be voided
-// # zh_CN 黑名单模式：选中的矿石将被销毁
 
 public class LargeSteamVoidMiner extends GTNCSteamMultiBlockBase<LargeSteamVoidMiner>
     implements ISurvivalConstructable {
@@ -173,7 +130,7 @@ public class LargeSteamVoidMiner extends GTNCSteamMultiBlockBase<LargeSteamVoidM
 
     @Override
     public String getMachineType() {
-        return StatCollector.translateToLocal("LargeSteamVoidMinerRecipeType");
+        return TextLocalization.LargeSteamVoidMinerRecipeType;
     }
 
     @Override
@@ -560,23 +517,21 @@ public class LargeSteamVoidMiner extends GTNCSteamMultiBlockBase<LargeSteamVoidM
     @Override
     protected MultiblockTooltipBuilder createTooltip() {
         MultiblockTooltipBuilder tt = new MultiblockTooltipBuilder();
-        tt.addMachineType(StatCollector.translateToLocal("LargeSteamVoidMinerRecipeType"))
-            .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamVoidMiner_00"))
-            .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamVoidMiner_Tier"))
-            .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamVoidMiner_Output"))
-            .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamVoidMiner_01"))
-            .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamVoidMiner_02"))
-            .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamVoidMiner_03"))
-            .addInfo(StatCollector.translateToLocal("Tooltip_LargeSteamVoidMiner_Wireless"))
+        tt.addMachineType(TextLocalization.LargeSteamVoidMinerRecipeType)
+            .addInfo(TextLocalization.Tooltip_LargeSteamVoidMiner_00)
+            .addInfo(TextLocalization.Tooltip_LargeSteamVoidMiner_Tier)
+            .addInfo(TextLocalization.Tooltip_LargeSteamVoidMiner_Output)
+            .addInfo(TextLocalization.Tooltip_LargeSteamVoidMiner_01)
+            .addInfo(TextLocalization.Tooltip_LargeSteamVoidMiner_02)
+            .addInfo(TextLocalization.Tooltip_LargeSteamVoidMiner_03)
+            .addInfo(TextLocalization.Tooltip_LargeSteamVoidMiner_Wireless)
             .beginStructureBlock(7, 9, 7, false)
             .addController("Front center, 2nd layer")
-            .addSteamInputBus(StatCollector.translateToLocal("Tooltip_LargeSteamVoidMiner_Casing"), 1)
-            .addSteamOutputBus(StatCollector.translateToLocal("Tooltip_LargeSteamVoidMiner_Casing"), 1)
-            .addInputBus(
-                StatCollector.translateToLocal("Tooltip_LargeSteamVoidMiner_Casing") + " (Optional, for ores)",
-                1)
-            .addOutputBus(StatCollector.translateToLocal("Tooltip_LargeSteamVoidMiner_Casing"), 1)
-            .addInputHatch(StatCollector.translateToLocal("Tooltip_LargeSteamVoidMiner_Casing"), 1)
+            .addSteamInputBus(TextLocalization.Tooltip_LargeSteamVoidMiner_Casing, 1)
+            .addSteamOutputBus(TextLocalization.Tooltip_LargeSteamVoidMiner_Casing, 1)
+            .addInputBus(TextLocalization.Tooltip_LargeSteamVoidMiner_Casing + " (Optional, for ores)", 1)
+            .addOutputBus(TextLocalization.Tooltip_LargeSteamVoidMiner_Casing, 1)
+            .addInputHatch(TextLocalization.Tooltip_LargeSteamVoidMiner_Casing, 1)
             .toolTipFinisher();
         return tt;
     }

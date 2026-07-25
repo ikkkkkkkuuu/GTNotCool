@@ -17,7 +17,6 @@ dependencies {
     implementation("com.github.GTNewHorizons:GTNHLib:0.11.24:dev")
     implementation("io.github.legacymoddingmc:unimixins:0.3.1:dev")
     implementation("com.github.GTNewHorizons:CropsNH:2.0.91:dev")
-
     // dreamcraft(NewHorizonsCoreMod)——货币硬币物品(dreamcraft:CoinXXX)的来源。
     // 仅 compileOnly：它是整合包核心 coremod，在精简开发环境里跑 PostLoad 会因引用缺失 mod 的物品而崩
     // (如 MechanicalArmorRecipes 的奥术配方材料解析为 null)，故不进运行时。硬币支付逻辑在完整整合包里正常，
