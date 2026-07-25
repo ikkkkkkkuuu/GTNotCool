@@ -114,14 +114,6 @@ import gregtech.common.gui.modularui.multiblock.base.MTEMultiBlockBaseGui;
 // # Machine casing
 // # zh_CN 机器外壳
 
-// #tr BeeBreeder_missing_drone
-// # Drone pool missing required species!
-// # zh_CN 雄蜂池缺少所需品种！
-
-// #tr BeeBreeder_unreachable_target
-// # Target species unreachable from current pool!
-// # zh_CN 当前池中品种无法到达目标品种！
-
 public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeBreeder>
     implements ISurvivalConstructable {
 
