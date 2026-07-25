@@ -1,12 +1,14 @@
 package com.xyp.gtnc.Loader;
 
+import com.xyp.gtnc.Common.gui.recipe.GTNCLogoFrontend;
+import com.xyp.gtnc.Common.gui.recipe.IndustrialInfusionCraftingRecipesFrontend;
+import com.xyp.gtnc.Common.gui.recipe.StellarForgeAlloySmelterRecipesFrontend;
 import com.xyp.gtnc.utils.enums.GTNCItemList;
 
 import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.recipe.RecipeMap;
 import gregtech.api.recipe.RecipeMapBackend;
 import gregtech.api.recipe.RecipeMapBuilder;
-import gregtech.api.recipe.maps.LargeNEIFrontend;
 import gregtech.nei.formatter.SimpleSpecialValueFormatter;
 import gtPlusPlus.api.recipe.QuantumForceTransformerFrontend;
 
@@ -44,7 +46,7 @@ public class GTNCRecipeMaps {
         // # zh_CN 需要坩埚等级：%s
         .neiSpecialInfoFormatter(new SimpleSpecialValueFormatter("value.crucible_tier"))
         .progressBar(GTUITextures.PROGRESSBAR_ARROW_MULTIPLE)
-        .frontend(LargeNEIFrontend::new)
+        .frontend(GTNCLogoFrontend::new)
         .build();
 
     // #tr gtnc.recipe.GeneralChemicalFactory
@@ -54,7 +56,7 @@ public class GTNCRecipeMaps {
         .of("gtnc.recipe.GeneralChemicalFactory")
         .maxIO(12, 12, 9, 9)
         .progressBar(GTUITextures.PROGRESSBAR_ARROW_MULTIPLE)
-        .frontend(LargeNEIFrontend::new)
+        .frontend(GTNCLogoFrontend::new)
         .build();
 
     // #tr gtnc.recipe.DrillingRigRecipes
@@ -67,7 +69,7 @@ public class GTNCRecipeMaps {
         // # zh_CN 需要管道等级：%s
         .neiSpecialInfoFormatter(new SimpleSpecialValueFormatter("value.drilling_tier"))
         .progressBar(GTUITextures.PROGRESSBAR_ARROW_MULTIPLE)
-        .frontend(LargeNEIFrontend::new)
+        .frontend(GTNCLogoFrontend::new)
         .build();
 
     // #tr gtnc.recipe.MiningRigRecipes
@@ -77,7 +79,7 @@ public class GTNCRecipeMaps {
         .maxIO(1, 9, 1, 0)
         .neiSpecialInfoFormatter(new SimpleSpecialValueFormatter("value.drilling_tier"))
         .progressBar(GTUITextures.PROGRESSBAR_ARROW_MULTIPLE)
-        .frontend(LargeNEIFrontend::new)
+        .frontend(GTNCLogoFrontend::new)
         .build();
 
     // #tr gtnc.recipe.StellarForgeRecipes
@@ -87,6 +89,7 @@ public class GTNCRecipeMaps {
         .of("gtnc.recipe.StellarForgeRecipes")
         .maxIO(8, 8, 1, 2)
         .progressBar(GTUITextures.PROGRESSBAR_ARROW_MULTIPLE)
+        .frontend(GTNCLogoFrontend::new)
         .neiHandlerInfo(builder -> builder.setDisplayStack(GTNCItemList.MiracleDoor.get(1)))
         .useSpecialSlot()
         .build();
@@ -98,8 +101,34 @@ public class GTNCRecipeMaps {
         .of("gtnc.recipe.StellarForgeAlloySmelterRecipes")
         .maxIO(10, 12, 3, 3)
         .progressBar(GTUITextures.PROGRESSBAR_ARROW_MULTIPLE)
+        .frontend(StellarForgeAlloySmelterRecipesFrontend::new)
         .neiHandlerInfo(builder -> builder.setDisplayStack(GTNCItemList.MiracleDoor.get(1)))
         .useSpecialSlot()
+        .build();
+
+    // #tr gtnc.recipe.IndustrialShapedArcaneCraftingRecipes
+    // # Industrial Arcane Assembler
+    // # zh_CN 工业奥术装配室
+    public static RecipeMap<RecipeMapBackend> IndustrialShapedArcaneCraftingRecipes = RecipeMapBuilder
+        .of("gtnc.recipe.IndustrialShapedArcaneCraftingRecipes")
+        .maxIO(9, 1, 0, 0)
+        .progressBar(GTUITextures.PROGRESSBAR_ARROW_MULTIPLE)
+        .frontend(GTNCLogoFrontend::new)
+        .neiHandlerInfo(builder -> builder.setDisplayStack(GTNCItemList.IndustrialArcaneAssembler.get(1)))
+        .build();
+
+    // #tr gtnc.recipe.IndustrialInfusionCraftingRecipes
+    // # Industrial Infusion Matrix
+    // # zh_CN 工业注魔矩阵
+    public static RecipeMap<RecipeMapBackend> IndustrialInfusionCraftingRecipes = RecipeMapBuilder
+        .of("gtnc.recipe.IndustrialInfusionCraftingRecipes")
+        .maxIO(25, 1, 0, 0)
+        .progressBar(GTUITextures.PROGRESSBAR_ARROW_MULTIPLE)
+        .frontend(IndustrialInfusionCraftingRecipesFrontend::new)
+        .neiTransferRect(100, 45, 18, 72)
+        .neiHandlerInfo(
+            builder -> builder.setDisplayStack(GTNCItemList.IndustrialArcaneAssembler.get(1))
+                .setMaxRecipesPerPage(1))
         .build();
 
 }

@@ -333,4 +333,46 @@ public class TextLocalization {
     // # zh_CN 虚空采矿场
     public static final String LargeSteamVoidMinerRecipeType = TextEnums.tr("LargeSteamVoidMinerRecipeType");
 
+    // == IndustrialArcaneAssembler == //
+
+    // #tr Tooltip_IndustrialArcaneAssembler_00
+    // # Through powerful technological means, we have finally mastered the incredibly mysterious magic
+    // # zh_CN §d§o通过强大的科技手段，我们终于掌握了那无比神秘的魔法
+    public static final String Tooltip_IndustrialArcaneAssembler_00 = TextEnums
+        .tr("Tooltip_IndustrialArcaneAssembler_00");
+
+    // #tr Tooltip_IndustrialArcaneAssembler_01
+    // # Fixed parallel: 2147483647
+    // # zh_CN 固定并行为2147483647
+    public static final String Tooltip_IndustrialArcaneAssembler_01 = TextEnums
+        .tr("Tooltip_IndustrialArcaneAssembler_01");
+
+    // #tr Tooltip_IndustrialArcaneAssembler_02
+    // # Requires a Crystal-Wrapped Cosmic Neutronium Wand in the controller slot to form!
+    // # zh_CN 需要在控制器放入水晶缠绕宇宙中子态素法杖来成型！
+    public static final String Tooltip_IndustrialArcaneAssembler_02 = TextEnums
+        .tr("Tooltip_IndustrialArcaneAssembler_02");
+
+    // #tr Tooltip_EnergeticIndustrialArcaneAssembler_Casing
+    // # Any Pressure-Containment Machine Casing
+    // # zh_CN 任意压力抑制机械方块
+    public static final String Tooltip_EnergeticIndustrialArcaneAssembler_Casing = TextEnums
+        .tr("Tooltip_EnergeticIndustrialArcaneAssembler_Casing");
+
+    // #tr IndustrialArcaneAssemblerRecipeType
+    // # Industrial Arcane Assembler / Industrial Infusion Matrix
+    // # zh_CN 工业奥术装配室 / 工业注魔矩阵
+    public static final String IndustrialArcaneAssemblerRecipeType = TextEnums
+        .tr("IndustrialArcaneAssemblerRecipeType");
+
+    // #tr IndustrialArcaneAssembler_Mode_0
+    // # Industrial Arcane Assembler
+    // # zh_CN 工业奥术装配室
+    public static final String IndustrialArcaneAssembler_Mode_0 = TextEnums.tr("IndustrialArcaneAssembler_Mode_0");
+
+    // #tr IndustrialArcaneAssembler_Mode_1
+    // # Infusion Crafting
+    // # zh_CN 工业注魔矩阵
+    public static final String IndustrialArcaneAssembler_Mode_1 = TextEnums.tr("IndustrialArcaneAssembler_Mode_1");
+
 }

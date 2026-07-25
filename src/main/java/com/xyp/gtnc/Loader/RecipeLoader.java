@@ -13,8 +13,10 @@ import com.xyp.gtnc.Common.recipe.gtnc.CraftingTableRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.CrucibleRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.DrillingRigRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.GeneralChemicalFactoryRecipes;
+import com.xyp.gtnc.Common.recipe.gtnc.InfusionCraftingRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.MiningRigRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.OreProcessingRecipes;
+import com.xyp.gtnc.Common.recipe.gtnc.ShapedArcaneCraftingRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.StellarForgeRecipePool;
 import com.xyp.gtnc.Common.recipe.machine.AssemblerMatrixRecipes;
 import com.xyp.gtnc.Common.recipe.machine.MEBridgeRecipes;
@@ -25,6 +27,8 @@ public class RecipeLoader {
 
     public static void loadRecipes() {
 
+        ShapedArcaneCraftingRecipes.loadRecipes();
+        InfusionCraftingRecipes.loadRecipes();
         CircuitAssemblerRecipes.loadRecipes();
         ExtruderRecipes.loadRecipes();
         AssemblingLineRecipes.loadrecipes();

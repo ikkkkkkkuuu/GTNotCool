@@ -16,6 +16,7 @@ import com.xyp.gtnc.Common.machines.multiblock.GTNCDrillingRig;
 import com.xyp.gtnc.Common.machines.multiblock.GTNCGeneralChemicalFactory;
 import com.xyp.gtnc.Common.machines.multiblock.GTNCMiningRig;
 import com.xyp.gtnc.Common.machines.multiblock.GTNCMiracleDoor;
+import com.xyp.gtnc.Common.machines.multiblock.IndustrialArcaneAssembler;
 import com.xyp.gtnc.Common.machines.multiblock.LargeCombProcessor;
 import com.xyp.gtnc.Common.machines.multiblock.LargeOreProcessor;
 import com.xyp.gtnc.Common.machines.multiblock.MTEMegaIndustrialApiary;
@@ -86,6 +87,16 @@ public class MachineLoader {
                 StatCollector.translateToLocal("NameMiracleDoor")));
         addItemTooltip(GTNCItemList.MiracleDoor.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
         GTNCMiracleDoor.initStatics();
+
+        // #tr NameIndustrialArcaneAssembler
+        // # Industrial Arcane Assembler
+        // # zh_CN 工业奥术装配室
+        GTNCItemList.IndustrialArcaneAssembler.set(
+            new IndustrialArcaneAssembler(
+                GTNCMachineID.INDUSTRIAL_ARCANE_ASSEMBLER.ID,
+                "IndustrialArcaneAssembler",
+                StatCollector.translateToLocal("NameIndustrialArcaneAssembler")));
+        addItemTooltip(GTNCItemList.IndustrialArcaneAssembler.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
 
         // #tr NameQuantumComputer
         // # Quantum Computer

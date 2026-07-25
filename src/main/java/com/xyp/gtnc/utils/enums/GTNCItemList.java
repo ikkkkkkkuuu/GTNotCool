@@ -101,6 +101,7 @@ public enum GTNCItemList implements IItemContainer {
 
     DrillingRig,
     MiningRig,
+    IndustrialArcaneAssembler,
 
     SteamTurbineLV,
     SteamTurbineMV,

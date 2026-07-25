@@ -1,6 +1,7 @@
 package com.xyp.gtnc.utils.item;
 
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTTagCompound;
 
 import com.gtnewhorizons.modularui.api.drawable.UITexture;
@@ -8,6 +9,7 @@ import com.xyp.gtnc.utils.enums.ModList;
 
 import gregtech.api.enums.ItemList;
 import gregtech.api.enums.Materials;
+import gregtech.api.util.GTModHandler;
 
 public class ItemUtils {
 
@@ -16,7 +18,39 @@ public class ItemUtils {
         .fullImage(ModList.ScienceNotCool.ID, "gui/picture/circulation_");
 
     public static final UITexture PICTURE_GTNL_LOGO = UITexture
-        .fullImage(ModList.ScienceNotCool.ID, "gui/picture/logo");
+        .fullImage(ModList.ScienceNotCool.ID, "gui/picture/gorge_logo");
+
+    public static ItemStack getItemStack(ItemStack baseStack, String aNBTString, ItemStack aReplacement) {
+        if (baseStack == null) return aReplacement;
+        try {
+            baseStack.stackTagCompound = (NBTTagCompound) JsonToNBT.func_150315_a(aNBTString);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return baseStack;
+    }
+
+    public static ItemStack getItemStack(String aModID, String aItem, long aAmount, int aMeta, String aNBTString) {
+        ItemStack s = GTModHandler.getModItem(aModID, aItem, aAmount, aMeta);
+        try {
+            s.stackTagCompound = (NBTTagCompound) JsonToNBT.func_150315_a(aNBTString);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return s;
+    }
+
+    public static ItemStack getItemStack(String aModID, String aItem, long aAmount, int aMeta, String aNBTString,
+        ItemStack aReplacement) {
+        ItemStack itemStack = GTModHandler.getModItem(aModID, aItem, aAmount, aMeta);
+        if (itemStack == null) return aReplacement;
+        try {
+            itemStack.stackTagCompound = (NBTTagCompound) JsonToNBT.func_150315_a(aNBTString);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return itemStack;
+    }
 
     public static boolean setToolDamage(ItemStack aStack, long aDamage) {
         if (aStack == null) return false;
