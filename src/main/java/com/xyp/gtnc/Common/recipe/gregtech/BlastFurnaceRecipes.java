@@ -27,5 +27,17 @@ public class BlastFurnaceRecipes {
             .duration(250 * SECONDS)
             .eut(RECIPE_MV)
             .addTo(BFR);
+
+        GTValues.RA.stdBuilder()
+            .itemInputsUnsafe(
+                GTUtility.copyAmountUnsafe(2560, GTOreDictUnificator.get(OrePrefixes.dust, Materials.SiliconSG, 1)),
+                ItemList.GalliumArsenideCrystal.get(64))
+            .itemOutputs(ItemList.Circuit_Silicon_Ingot2.get(40))
+            .circuit(2)
+            .metadata(COIL_HEAT, 300)
+            .duration(250 * SECONDS)
+            .eut(RECIPE_MV)
+            .addTo(BFR);
+
     }
 }
