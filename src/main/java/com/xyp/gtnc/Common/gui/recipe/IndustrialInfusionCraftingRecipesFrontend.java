@@ -9,6 +9,8 @@ import org.jetbrains.annotations.NotNull;
 import com.gtnewhorizons.modularui.api.math.Pos2d;
 import com.gtnewhorizons.modularui.api.math.Size;
 import com.gtnewhorizons.modularui.api.screen.ModularWindow;
+import com.gtnewhorizons.modularui.common.widget.DrawableWidget;
+import com.xyp.gtnc.utils.item.ItemUtils;
 
 import gregtech.api.recipe.BasicUIPropertiesBuilder;
 import gregtech.api.recipe.NEIRecipePropertiesBuilder;
@@ -32,7 +34,17 @@ public class IndustrialInfusionCraftingRecipesFrontend extends GTNCLogoFrontend 
 
     @Override
     protected NEIRecipePropertiesBuilder modifyNEIProperties(NEIRecipePropertiesBuilder neiPropertiesBuilder) {
-        return neiPropertiesBuilder.recipeBackgroundSize(new Size(170, 10 + (getItemRowCount() * 18)));
+        int bgHeight = 10 + (getItemRowCount() * 18);
+        return neiPropertiesBuilder.recipeBackgroundSize(new Size(170, bgHeight))
+            .handlerInfoCreator(builder -> builder.setHeight(bgHeight + 45));
+    }
+
+    @Override
+    public void addGregTechLogo(ModularWindow.Builder builder, Pos2d windowOffset) {
+        builder.widget(
+            new DrawableWidget().setDrawable(ItemUtils.PICTURE_GTNL_LOGO)
+                .setSize(18, 18)
+                .setPos(new Pos2d(152, 63).add(windowOffset)));
     }
 
     @Override

@@ -1,23 +1,19 @@
-
 package com.xyp.gtnc.Common.recipe.gtnc;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fluids.FluidStack;
 
 import com.xyp.gtnc.Loader.GTNCRecipeMaps;
 import com.xyp.gtnc.ScienceNotCool;
 
-import gregtech.api.enums.Materials;
 import gregtech.api.enums.OrePrefixes;
-import gregtech.api.interfaces.IRecipeMap;
 import gregtech.api.objects.ItemData;
 import gregtech.api.recipe.RecipeMap;
 import gregtech.api.recipe.RecipeMaps;
@@ -30,379 +26,203 @@ import gregtech.common.items.ItemComb;
 public class CombProcessingRecipes {
 
     private static final RecipeMap<?> RM = GTNCRecipeMaps.SteamCombProcessingRecipes;
+    /** Forestry IItemBeeComb 接口，用于检测非 GT 的 Forestry 体系蜂窝 */
+    private static Class<?> forestryCombInterface;
+    private static boolean forestryChecked;
+    /** 跨源去重：同种蜂窝只保留先遇到的 */
+    private static final Set<String> seenCombs = new HashSet<>();
 
     public static void loadRecipes() {
+        seenCombs.clear();
         ScienceNotCool.LOG.info("Loading Steam Comb Processing Recipes...");
-        importFromNativeMaps();
-        ScienceNotCool.LOG.info("Loaded Steam Comb Processing Recipes");
+        int count = 0;
+        count += importFromCentrifuge();
+        count += importFromChemical();
+        count += importFromFluidExtractor();
+        ScienceNotCool.LOG.info("Loaded {} Steam Comb Processing Recipes", count);
+    }
+
+    // ==================== 离心机 → 直接复制 ====================
+
+    private static int importFromCentrifuge() {
+        Collection<GTRecipe> recipes = RecipeMaps.centrifugeRecipes.getAllRecipes();
+        int count = 0;
+        for (GTRecipe r : recipes) {
+            if (r.mInputs == null || r.mInputs.length == 0) continue;
+            if (!isComb(r.mInputs[0])) continue;
+            if (!seenCombs.add(combId(r.mInputs[0]))) continue;
+            GTRecipeBuilder.builder()
+                .itemInputs(r.mInputs[0])
+                .itemOutputs(r.mOutputs)
+                .outputChances(r.mOutputChances)
+                .fluidOutputs(r.mFluidOutputs)
+                .eut(30)
+                .duration(r.mDuration)
+                .addTo(RM);
+            count++;
+        }
+        return count;
+    }
+
+    // ==================== 化学反应釜(LCR nocell) → 去酸转粉 ====================
+
+    private static int importFromChemical() {
+        Collection<GTRecipe> recipes = RecipeMaps.multiblockChemicalReactorRecipes.getAllRecipes();
+        // 去重：同种蜂窝被不同等级酸处理时，保留产出最高者
+        Map<String, GTRecipe> best = new HashMap<>();
+        for (GTRecipe r : recipes) {
+            if (r.mInputs == null || r.mInputs.length == 0) continue;
+            if (!isComb(r.mInputs[0])) continue;
+            if (r.mFluidInputs == null || r.mFluidInputs.length == 0) continue;
+            String key = combId(r.mInputs[0]);
+            GTRecipe existing = best.get(key);
+            if (existing == null || outputPerComb(r) > outputPerComb(existing)) {
+                best.put(key, r);
+            }
+        }
+        int count = 0;
+        for (GTRecipe r : best.values()) {
+            if (!seenCombs.add(combId(r.mInputs[0]))) continue;
+            ItemStack comb = copyAmount(r.mInputs[0], 1);
+            ItemStack[] outputs = convertOutputsToDust(r.mOutputs);
+            // 配方1：粉
+            GTRecipeBuilder.builder()
+                .itemInputs(comb)
+                .itemOutputs(outputs)
+                .eut(30)
+                .duration(100)
+                .addTo(RM);
+            count++;
+            // 配方2：circuit=24 → 熔融态
+            FluidStack molten = getMolten(outputs);
+            if (molten != null) {
+                GTRecipeBuilder.builder()
+                    .itemInputs(comb)
+                    .circuit(24)
+                    .fluidOutputs(molten)
+                    .eut(30)
+                    .duration(100)
+                    .addTo(RM);
+                count++;
+            }
+        }
+        return count;
+    }
+
+    // ==================== 流体提取机 → 直接复制 ====================
+
+    private static int importFromFluidExtractor() {
+        Collection<GTRecipe> recipes = RecipeMaps.fluidExtractionRecipes.getAllRecipes();
+        int count = 0;
+        for (GTRecipe r : recipes) {
+            if (r.mInputs == null || r.mInputs.length == 0) continue;
+            if (!isComb(r.mInputs[0])) continue;
+            if (!seenCombs.add(combId(r.mInputs[0]))) continue;
+            GTRecipeBuilder.builder()
+                .itemInputs(r.mInputs[0])
+                .fluidOutputs(r.mFluidOutputs)
+                .eut(30)
+                .duration(r.mDuration)
+                .addTo(RM);
+            count++;
+        }
+        return count;
     }
 
     // ==================== helpers ====================
 
-    private static ItemStack d(Materials m, long n) {
-        return GTOreDictUnificator.get(OrePrefixes.dust, m, n);
+    private static boolean isComb(ItemStack stack) {
+        if (stack == null || stack.getItem() == null) return false;
+        Item item = stack.getItem();
+        return item instanceof ItemComb || isForestryComb(item);
     }
-
-    // ==================== import from native recipe maps ====================
-    // 通过反射扫描 RecipeMaps 和 GTPPRecipeMaps 中所有 RecipeMap 字段，
-    // 确保 GT5U、GT++、gtnhmod 等所有 mod 注册的蜂窝配方都能被同步到我们的 SteamCombProcessingRecipes。
-
-    private static void importFromNativeMaps() {
-        List<IRecipeMap> mapsToScan = new ArrayList<>();
-        collectRecipeMaps(RecipeMaps.class, mapsToScan);
-        try {
-            collectRecipeMaps(Class.forName("gtPlusPlus.api.recipe.GTPPRecipeMaps"), mapsToScan);
-        } catch (ClassNotFoundException ignored) {}
-        try {
-            collectRecipeMaps(Class.forName("gregtech.api.recipe.GTRecipeConstants"), mapsToScan);
-        } catch (ClassNotFoundException ignored) {}
-        ScienceNotCool.LOG.info("Scanning {} recipe maps for comb recipes", mapsToScan.size());
-
-        // 用反射获取 getAllRecipes，兼容非 RecipeMap 的 IRecipeMap 实现（如 UniversalChemical）
-        Method getAllRecipesMethod = null;
-        try {
-            getAllRecipesMethod = IRecipeMap.class.getMethod("getAllRecipes");
-        } catch (NoSuchMethodException e) {
-            ScienceNotCool.LOG.warn("IRecipeMap.getAllRecipes() not found, falling back to instanceof RecipeMap");
-        }
-
-        // 第一遍：按输入分组收集候选配方，重复时保留最先遇到的
-        // 同时拦截铂/超能/硅岩蜂窝配方（直接删除，由专用配方处理）
-        Map<String, GTRecipe> candidates = new LinkedHashMap<>();
-        int totalCandidates = 0;
-        int specialCount = 0;
-        List<ItemStack> platinumCombs = new ArrayList<>();
-        List<ItemStack> naquadriaCombs = new ArrayList<>();
-        List<ItemStack> naquadahCombs = new ArrayList<>();
-        List<ItemStack> iridiumCombs = new ArrayList<>();
-        List<ItemStack> osmiumCombs = new ArrayList<>();
-        for (IRecipeMap nativeMap : mapsToScan) {
-            if (nativeMap == null) continue;
-            Collection<GTRecipe> recipes = null;
-            if (getAllRecipesMethod != null) {
-                try {
-                    Object result = getAllRecipesMethod.invoke(nativeMap);
-                    if (result instanceof Collection) {
-                        @SuppressWarnings("unchecked")
-                        Collection<GTRecipe> casted = (Collection<GTRecipe>) result;
-                        recipes = casted;
-                    }
-                } catch (Exception ignored) {}
-            }
-            // 反射失败则回退到 instanceof RecipeMap
-            if (recipes == null && nativeMap instanceof RecipeMap) {
-                recipes = ((RecipeMap<?>) nativeMap).getAllRecipes();
-            }
-            if (recipes == null) continue;
-
-            int mapFound = 0;
-            for (GTRecipe recipe : recipes) {
-                if (recipe.mInputs == null || recipe.mInputs.length == 0) continue;
-                if (!hasCombInput(recipe.mInputs)) continue;
-                totalCandidates++;
-                // 铂/超能/硅岩蜂窝配方直接删除，不进入 candidates
-                if (isPlatinumCombRecipe(recipe)) {
-                    collectCombItems(recipe, platinumCombs, "Platinum", "platinum", "铂");
-                    specialCount++;
-                    continue;
-                }
-                if (isNaquadriaCombRecipe(recipe)) {
-                    collectCombItems(recipe, naquadriaCombs, "Naquadria", "超能");
-                    specialCount++;
-                    continue;
-                }
-                if (isNaquadahCombRecipe(recipe)) {
-                    collectCombItems(recipe, naquadahCombs, "Naquadah", "硅岩");
-                    specialCount++;
-                    continue;
-                }
-                if (isIridiumCombRecipe(recipe)) {
-                    collectCombItems(recipe, iridiumCombs, "Iridium", "iridium", "铱");
-                    specialCount++;
-                    continue;
-                }
-                if (isOsmiumCombRecipe(recipe)) {
-                    collectCombItems(recipe, osmiumCombs, "Osmium", "osmium", "锇");
-                    specialCount++;
-                    continue;
-                }
-                String key = recipeKey(recipe);
-                GTRecipe existing = candidates.get(key);
-                if (existing == null) {
-                    candidates.put(key, recipe);
-                    mapFound++;
-                }
-                // 重复配方直接跳过，保留先遇到的
-            }
-            if (mapFound > 0) {
-                ScienceNotCool.LOG.info("  {} -> {} candidates", nativeMap.toString(), mapFound);
-            }
-        }
-
-        // 第二遍：写入目标 RecipeMap
-        for (Map.Entry<String, GTRecipe> entry : candidates.entrySet()) {
-            copyRecipe(entry.getValue());
-        }
-        // 添加特殊配方（每种蜂窝类型合并为一条配方）
-        if (!platinumCombs.isEmpty()) {
-            addPlatinumRecipe(platinumCombs);
-        }
-        if (!naquadriaCombs.isEmpty()) {
-            addNaquadriaRecipe(naquadriaCombs);
-        }
-        if (!naquadahCombs.isEmpty()) {
-            addNaquadahRecipe(naquadahCombs);
-        }
-        if (!iridiumCombs.isEmpty()) {
-            addIridiumRecipe(iridiumCombs);
-        }
-        if (!osmiumCombs.isEmpty()) {
-            addOsmiumRecipe(osmiumCombs);
-        }
-        ScienceNotCool.LOG.info(
-            "Imported {} comb recipes ({} total candidates, {} special) into SteamCombProcessingRecipes",
-            candidates.size(),
-            totalCandidates,
-            specialCount);
-    }
-
-    private static void collectRecipeMaps(Class<?> clazz, List<IRecipeMap> out) {
-        for (Field f : clazz.getDeclaredFields()) {
-            if (!IRecipeMap.class.isAssignableFrom(f.getType())) continue;
-            try {
-                IRecipeMap map = (IRecipeMap) f.get(null);
-                if (map != null) out.add(map);
-            } catch (Exception ignored) {}
-        }
-    }
-
-    private static String recipeKey(GTRecipe recipe) {
-        StringBuilder sb = new StringBuilder();
-        for (ItemStack is : recipe.mInputs) {
-            if (is != null && is.getItem() != null) {
-                sb.append(Item.getIdFromItem(is.getItem()))
-                    .append(':')
-                    .append(is.getItemDamage())
-                    .append(';');
-            }
-        }
-        return sb.toString();
-    }
-
-    /** 多路检测：GT ItemComb + Forestry IItemBeeComb + 类名特征 */
-    private static boolean hasCombInput(ItemStack[] inputs) {
-        for (ItemStack is : inputs) {
-            if (is == null || is.getItem() == null) continue;
-            // 1) GT 蜂窝
-            if (is.getItem() instanceof ItemComb) return true;
-            // 2) Forestry 体系（ExtraBees/MagicBees/Gendustry）
-            if (isForestryComb(is.getItem())) return true;
-        }
-        return false;
-    }
-
-    private static Boolean cachedForestryCombInterface = null;
 
     private static boolean isForestryComb(Item item) {
-        // 尝试 Forestry IItemBeeComb 接口
-        if (cachedForestryCombInterface == null) {
+        if (!forestryChecked) {
             try {
-                Class<?> iface = Class.forName("forestry.api.apiculture.IItemBeeComb");
-                cachedForestryCombInterface = true;
-            } catch (ClassNotFoundException e) {
-                cachedForestryCombInterface = false;
-            }
-        }
-        if (cachedForestryCombInterface) {
-            try {
-                Class<?> iface = Class.forName("forestry.api.apiculture.IItemBeeComb");
-                if (iface.isInstance(item)) return true;
+                forestryCombInterface = Class.forName("forestry.api.apiculture.IItemBeeComb");
             } catch (ClassNotFoundException ignored) {}
+            forestryChecked = true;
         }
-        // 类名包含 Comb 的兜底（Gendustry 等）
-        for (Class<?> c = item.getClass(); c != null; c = c.getSuperclass()) {
-            String name = c.getSimpleName();
-            if (name.contains("Comb") && !name.equals("ItemComb")) return true;
+        if (forestryCombInterface == null) return false;
+        return forestryCombInterface.isInstance(item);
+    }
+
+    private static ItemStack[] convertOutputsToDust(ItemStack[] outputs) {
+        if (outputs == null) return null;
+        ItemStack[] result = new ItemStack[outputs.length];
+        for (int i = 0; i < outputs.length; i++) {
+            result[i] = convertToDust(outputs[i]);
         }
-        return false;
+        return result;
     }
 
-    /** 检测配方输入中是否含铂蜂窝 */
-    private static boolean isPlatinumCombRecipe(GTRecipe recipe) {
-        for (ItemStack is : recipe.mInputs) {
-            if (is == null || is.getItem() == null) continue;
-            if (!isCombItem(is.getItem())) continue;
-            String dn = is.getDisplayName();
-            if (dn != null && (dn.contains("Platinum") || dn.contains("platinum") || dn.contains("铂"))) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static boolean isCombItem(Item item) {
-        if (item instanceof ItemComb) return true;
-        return isForestryComb(item);
-    }
-
-    /** Naquadria 超能硅岩蜂窝检测（必须在 Naquadah 之前，因为 "Naquadria" 包含 "Naquadah" 子串） */
-    private static boolean isNaquadriaCombRecipe(GTRecipe recipe) {
-        for (ItemStack is : recipe.mInputs) {
-            if (is == null || is.getItem() == null) continue;
-            if (!isCombItem(is.getItem())) continue;
-            String dn = is.getDisplayName();
-            if (dn != null && (dn.contains("Naquadria") || dn.contains("超能"))) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /** Naquadah 硅岩蜂窝检测（排除 Naquadria） */
-    private static boolean isNaquadahCombRecipe(GTRecipe recipe) {
-        for (ItemStack is : recipe.mInputs) {
-            if (is == null || is.getItem() == null) continue;
-            if (!isCombItem(is.getItem())) continue;
-            String dn = is.getDisplayName();
-            if (dn != null && ((dn.contains("Naquadah") && !dn.contains("Naquadria")) || dn.contains("硅岩"))) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /** 检测配方输入中是否含铱蜂窝 */
-    private static boolean isIridiumCombRecipe(GTRecipe recipe) {
-        for (ItemStack is : recipe.mInputs) {
-            if (is == null || is.getItem() == null) continue;
-            if (!isCombItem(is.getItem())) continue;
-            String dn = is.getDisplayName();
-            if (dn != null && (dn.contains("Iridium") || dn.contains("iridium") || dn.contains("铱"))) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /** 检测配方输入中是否含锇蜂窝 */
-    private static boolean isOsmiumCombRecipe(GTRecipe recipe) {
-        for (ItemStack is : recipe.mInputs) {
-            if (is == null || is.getItem() == null) continue;
-            if (!isCombItem(is.getItem())) continue;
-            String dn = is.getDisplayName();
-            if (dn != null && (dn.contains("Osmium") || dn.contains("osmium") || dn.contains("锇"))) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /** 从配方中收集指定名称的蜂窝物品 */
-    private static void collectCombItems(GTRecipe recipe, List<ItemStack> out, String... keywords) {
-        for (ItemStack is : recipe.mInputs) {
-            if (is == null || is.getItem() == null) continue;
-            if (!isCombItem(is.getItem())) continue;
-            String dn = is.getDisplayName();
-            if (dn != null) {
-                for (String kw : keywords) {
-                    if (dn.contains(kw)) {
-                        if (out.stream()
-                            .noneMatch(s -> GTUtility.areStacksEqual(s, is))) {
-                            out.add(is.copy());
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    /** 铂蜂窝特殊配方：所有铂蜂窝 -> 4铂粉 */
-    private static void addPlatinumRecipe(List<ItemStack> combs) {
-        GTRecipeBuilder.builder()
-            .itemInputs(combs.toArray(new ItemStack[0]))
-            .itemOutputs(d(Materials.Platinum, 4))
-            .eut(30)
-            .duration(100)
-            .addTo(RM);
-        ScienceNotCool.LOG.info("  Platinum comb special: {} comb types -> 4x Platinum dust", combs.size());
-    }
-
-    /** 超能硅岩配方 */
-    private static void addNaquadriaRecipe(List<ItemStack> combs) {
-        GTRecipeBuilder.builder()
-            .itemInputs(combs.toArray(new ItemStack[0]))
-            .fluidOutputs(Materials.Naquadria.getMolten(576))
-            .eut(30)
-            .duration(100)
-            .addTo(RM);
-        ScienceNotCool.LOG.info("  Naquadria comb special: {} comb types -> 576L molten naquadria", combs.size());
-    }
-
-    /** 普通硅岩配方 */
-    private static void addNaquadahRecipe(List<ItemStack> combs) {
-        GTRecipeBuilder.builder()
-            .itemInputs(combs.toArray(new ItemStack[0]))
-            .fluidOutputs(Materials.Naquadah.getMolten(576))
-            .eut(30)
-            .duration(100)
-            .addTo(RM);
-        ScienceNotCool.LOG.info("  Naquadah comb special: {} comb types -> 576L molten naquadah", combs.size());
-    }
-
-    /** 铱蜂窝特殊配方：所有铱蜂窝 -> 4铱粉 */
-    private static void addIridiumRecipe(List<ItemStack> combs) {
-        GTRecipeBuilder.builder()
-            .itemInputs(combs.toArray(new ItemStack[0]))
-            .itemOutputs(d(Materials.Iridium, 4))
-            .eut(30)
-            .duration(100)
-            .addTo(RM);
-        ScienceNotCool.LOG.info("  Iridium comb special: {} comb types -> 4x Iridium dust", combs.size());
-    }
-
-    /** 锇蜂窝特殊配方：所有锇蜂窝 -> 4锇粉 */
-    private static void addOsmiumRecipe(List<ItemStack> combs) {
-        GTRecipeBuilder.builder()
-            .itemInputs(combs.toArray(new ItemStack[0]))
-            .itemOutputs(d(Materials.Osmium, 4))
-            .eut(30)
-            .duration(100)
-            .addTo(RM);
-        ScienceNotCool.LOG.info("  Osmium comb special: {} comb types -> 4x Osmium dust", combs.size());
-    }
-
-    private static void copyRecipe(GTRecipe recipe) {
-        // 去掉原图的流体输入（酸液）
-        // 输出中的 crushedPurified 转成最终 dust
-        ItemStack[] outputs = recipe.mOutputs;
-        if (outputs != null) {
-            ItemStack[] converted = new ItemStack[outputs.length];
-            for (int i = 0; i < outputs.length; i++) {
-                converted[i] = convertCrushedPurifiedToDust(outputs[i]);
-            }
-            outputs = converted;
-        }
-        GTRecipeBuilder b = GTRecipeBuilder.builder()
-            .itemInputs(recipe.mInputs)
-            .itemOutputs(outputs)
-            .fluidOutputs(recipe.mFluidOutputs)
-            .eut(30)
-            .duration(recipe.mDuration)
-            .special(recipe.mSpecialValue);
-        if (recipe.mOutputChances != null) b.outputChances(recipe.mOutputChances);
-        b.addTo(RM);
-    }
-
-    private static ItemStack convertCrushedPurifiedToDust(ItemStack is) {
-        if (is == null) return null;
-        ItemData assoc = GTOreDictUnificator.getAssociation(is);
+    private static ItemStack convertToDust(ItemStack stack) {
+        if (stack == null) return null;
+        ItemData assoc = GTOreDictUnificator.getAssociation(stack);
         if (assoc != null && assoc.mPrefix == OrePrefixes.crushedPurified
             && assoc.mMaterial != null
             && assoc.mMaterial.mMaterial != null) {
-            return d(assoc.mMaterial.mMaterial, is.stackSize);
+            return GTOreDictUnificator.get(OrePrefixes.dust, assoc.mMaterial.mMaterial, stack.stackSize);
         }
-        return is;
+        // nugget → dust (Platinum, Osmium, Iridium, Neutronium 等特殊金属)
+        if (assoc != null && assoc.mPrefix == OrePrefixes.nugget
+            && assoc.mMaterial != null
+            && assoc.mMaterial.mMaterial != null) {
+            int dustCount = Math.max(1, stack.stackSize / 9);
+            return GTOreDictUnificator.get(OrePrefixes.dust, assoc.mMaterial.mMaterial, dustCount);
+        }
+        return stack;
     }
 
+    /** 蜂窝唯一标识：itemId:damage */
+    private static String combId(ItemStack stack) {
+        return Item.getIdFromItem(stack.getItem()) + ":" + stack.getItemDamage();
+    }
+
+    /** 计算每蜂窝产出（dust 等效量），按输入数量归一化 */
+    private static float outputPerComb(GTRecipe recipe) {
+        int inputCount = recipe.mInputs[0].stackSize;
+        if (inputCount <= 0) inputCount = 1;
+        return (float) totalOutput(recipe) / inputCount;
+    }
+
+    /** 计算配方总产出（dust 等效量），含熔融金属流体 */
+    private static int totalOutput(GTRecipe recipe) {
+        int total = 0;
+        if (recipe.mOutputs != null) {
+            for (ItemStack s : recipe.mOutputs) {
+                ItemStack dust = convertToDust(s);
+                if (dust != null) total += dust.stackSize;
+            }
+        }
+        // 熔融金属流体也计入产出：144mb = 1 dust
+        if (recipe.mFluidOutputs != null) {
+            for (FluidStack f : recipe.mFluidOutputs) {
+                if (f != null) total += f.amount / 144;
+            }
+        }
+        return total;
+    }
+
+    private static ItemStack copyAmount(ItemStack stack, int amount) {
+        ItemStack copy = GTUtility.copy(1, stack);
+        copy.stackSize = amount;
+        return copy;
+    }
+
+    /** 从 dust 输出获取熔融流体，144mb = 1 dust */
+    private static FluidStack getMolten(ItemStack[] dustOutputs) {
+        if (dustOutputs == null) return null;
+        for (ItemStack s : dustOutputs) {
+            if (s == null) continue;
+            ItemData assoc = GTOreDictUnificator.getAssociation(s);
+            if (assoc != null && assoc.mPrefix == OrePrefixes.dust
+                && assoc.mMaterial != null
+                && assoc.mMaterial.mMaterial != null) {
+                return assoc.mMaterial.mMaterial.getMolten(144 * s.stackSize);
+            }
+        }
+        return null;
+    }
 }
