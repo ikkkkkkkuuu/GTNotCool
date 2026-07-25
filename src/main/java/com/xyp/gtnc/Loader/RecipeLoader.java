@@ -4,6 +4,7 @@ import com.xyp.gtnc.Common.recipe.gregtech.AssemblerRecipes;
 import com.xyp.gtnc.Common.recipe.gregtech.AssemblingLineRecipes;
 import com.xyp.gtnc.Common.recipe.gregtech.BenderRecipes;
 import com.xyp.gtnc.Common.recipe.gregtech.CentrifugeRecipes;
+import com.xyp.gtnc.Common.recipe.gregtech.CircuitAssemblerRecipes;
 import com.xyp.gtnc.Common.recipe.gregtech.ExtruderRecipes;
 import com.xyp.gtnc.Common.recipe.gregtech.FurnaceRecipes;
 import com.xyp.gtnc.Common.recipe.gregtech.LaserEngraverRecipes;
@@ -24,6 +25,7 @@ public class RecipeLoader {
 
     public static void loadRecipes() {
 
+        CircuitAssemblerRecipes.loadRecipes();
         ExtruderRecipes.loadRecipes();
         AssemblingLineRecipes.loadrecipes();
         DrillingRigRecipes.loadRecipes();

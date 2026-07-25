@@ -3,6 +3,7 @@ package com.xyp.gtnc;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.xyp.gtnc.Loader.MaterialLoader;
 import com.xyp.gtnc.utils.enums.ModList;
 
 import cpw.mods.fml.common.Mod;
@@ -60,6 +61,7 @@ public class ScienceNotCool {
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
         proxy.init(event);
+        MaterialLoader.loadInit();
     }
 
     @Mod.EventHandler

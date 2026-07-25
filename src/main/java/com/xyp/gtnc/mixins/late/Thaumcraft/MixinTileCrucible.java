@@ -40,17 +40,13 @@ public abstract class MixinTileCrucible {
      * 拦截 {@code updateEntity} 内对 {@code tagAmount()} 的两次调用（过量溢出 / 高温熵变的入口判断），
      * 开关开启时返回 0，使 {@code tagAmount() > 100} 与 {@code tagAmount() > 0} 两个分支都不成立，源质不再流失。
      * <p>
-     * <b>注意 {@code remap = true}</b>：{@code updateEntity} 是 Minecraft 继承来的方法，生产（混淆）环境下被混淆成 SRG 名
-     * {@code func_145845_h}。类级 {@code remap = false} 会让 mixin 按字面找 {@code updateEntity} 从而在生产环境找不到目标而崩
-     * （dev 环境是 MCP 名故能编译/运行、不暴露）。这里单独开 {@code remap = true} 覆盖类级设置，把方法名映射到 SRG。
-     * {@code spill} 那个 {@code @Inject} 无需 remap，因为 {@code spill} 是 Thaumcraft 自定义方法名、不参与混淆；
-     * {@code @At} 的 target {@code tagAmount()} 同理是 TC 方法，不在 MC 映射表里，remap 会原样保留。
+     * 继承类级 {@code remap = false}：GTNH Forge 运行时使用 MCP 反混淆名，{@code updateEntity}
+     * 在 dev 和生产环境均保持不变，无需 remap；{@code tagAmount()} 是 TC 自定义方法，也不参与混淆。
      */
     @Redirect(
         method = "updateEntity",
         at = @At(value = "INVOKE", target = "Lthaumcraft/common/tiles/TileCrucible;tagAmount()I"),
-        require = 2,
-        remap = true)
+        require = 2)
     private int gtnc$noCrucibleDecay(TileCrucible self) {
         if (Config.tcCrucibleNoDecay) {
             return 0;

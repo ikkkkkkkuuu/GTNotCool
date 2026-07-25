@@ -11,6 +11,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.StatCollector;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -21,6 +22,34 @@ import gregtech.api.interfaces.IOutputBus;
 
 @SuppressWarnings("unused")
 public class Utils {
+    // endregion
+
+    /**
+     * Localize by key and given formats.
+     * If the key does not exist in both of the currently used language and fallback language (English), the key itself
+     * is returned.
+     *
+     * @param key    the localization key
+     * @param format the formats
+     * @return the localized text by the key and formats, or key if the key does not exist.
+     * @see StatCollector#translateToLocalFormatted(String, Object...)
+     */
+    public static String tr(String key, Object... format) {
+        return StatCollector.translateToLocalFormatted(key, format);
+    }
+
+    /**
+     * Localize by the key.
+     * If the key does not exist in both of the currently used language and fallback language (English), the key itself
+     * is returned.
+     *
+     * @param key the localization key
+     * @return the localized text by the key, or key if the key does not exist.
+     * @see StatCollector#translateToLocal(String)
+     */
+    public static String tr(String key) {
+        return StatCollector.translateToLocal(key);
+    }
 
     public static ArrayList<ItemStack> multiplyItemStacksSize(List<ItemStack> itemStacks, float mult,
         boolean splitStacks) {

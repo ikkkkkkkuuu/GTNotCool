@@ -65,60 +65,12 @@ public final class LangEntries {
     // #tr NameVoidCrustSteamBorer
     // # Void Crust Steam Borer
     // # zh_CN 虚空地壳蒸汽钻探器
-    // #tr QuantumComputerRecipeType
-    // # CPU
-    // # zh_CN CPU
     // #tr Tooltip_GTNC_SteamInputHatch
     // # Steam Input Hatch
     // # zh_CN 蒸汽输入仓
     // #tr Tooltip_LargeSteamVoidMiner_Casing
     // # Machine casing
     // # zh_CN 机器外壳
-    // #tr Tooltip_QuantumComputer_00
-    // # Can perform crafting tasks like a conventional CPU
-    // # zh_CN 可以像常规的CPU一样执行合成任务
-    // #tr Tooltip_QuantumComputer_01
-    // # The number of crafting tasks a Quantum Computer can execute simultaneously is unlimited, as long as capacity
-    // allows
-    // # zh_CN 只要容量足够，量子计算机可以同时执行的合成任务数量不限
-    // #tr Tooltip_QuantumComputer_02
-    // # Parallel threads can be shared across different tasks
-    // # zh_CN 不同任务之间可以共享并行数量
-    // #tr Tooltip_QuantumComputer_03
-    // # When receiving a crafting task, the Quantum Computer automatically "allocates" a small CPU
-    // # zh_CN 量子计算机会在接收到合成任务时，自行“分配”出一个小CPU
-    // #tr Tooltip_QuantumComputer_04
-    // # Capacity = the amount consumed by this crafting task, Parallel threads = the number of threads available in
-    // this Quantum Computer
-    // # zh_CN 容量 = 该合成任务的占用，并行数 = 该量子计算机的并行数
-    // #tr Tooltip_QuantumComputer_05
-    // # The allocated small CPU consumes the remaining capacity of the Quantum Computer. It can keep allocating as long
-    // as enough capacity remains
-    // # zh_CN 分配出的小CPU会占用量子计算机的剩余容量。在还有足够的剩余容量时可不断分配，直到容量不足
-    // #tr Tooltip_QuantumComputer_06
-    // # When a crafting task is completed, the allocated small CPU is "reclaimed" back into the Quantum Computer as
-    // free capacity
-    // # zh_CN 在合成任务完成时，分配出的小CPU会重新“回收”进量子计算机中，作为空余容量
-    // #tr Tooltip_QuantumComputer_07
-    // # You can observe the Quantum Computer creating new CPUs from an AE terminal
-    // # zh_CN 可以在AE的终端中观察到量子计算机创建新CPU
-    // #tr Tooltip_QuantumComputer_08
-    // # Power consumption is the same as a conventional CPU
-    // # zh_CN 耗能与常规CPU一致
-    // #tr Tooltip_QuantumComputer_09
-    // # No need to turn on; the machine is ready to use once assembled
-    // # zh_CN 不需要开机，这台机器成型即可使用
-    // #tr Tooltip_QuantumComputer_10
-    // # All internal blocks must be crafting storage or parallel processing units!
-    // # zh_CN 所有内部方块必须为合成存储器或并行处理单元！
-    // #tr Tooltip_QuantumComputer_11
-    // # §cNo blocks that could form part of the Quantum Computer can be placed on the outer surface, or the machine
-    // will fail
-    // # zh_CN §c在量子计算机的外表面上，不能放置任何可用于构成量子计算机的方块，否则会导致量子计算机失效
-    // #tr Tooltip_QuantumComputer_12
-    // # §cWhen controller destroyed, it will try to return materials from the AE network above; if it fails, nothing is
-    // kept!
-    // # zh_CN §c量子计算机被破坏时会尝试获取上方AE网络退回CPU内材料，如果失败将不会保留！
     // #tr Tooltip_VoidCrustSteamBorer_00
     // # Uses Steam to mine ores from any dimension
     // # zh_CN 使用蒸汽从任意维度开采矿石

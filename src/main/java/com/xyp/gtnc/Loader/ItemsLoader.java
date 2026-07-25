@@ -1,7 +1,6 @@
 package com.xyp.gtnc.Loader;
 
 import net.minecraft.item.Item;
-import net.minecraft.util.StatCollector;
 
 import com.gtnewhorizon.gtnhlib.util.numberformatting.NumberFormatUtil;
 import com.xyp.gtnc.Client.GTNCCreativeTabs;
@@ -11,10 +10,12 @@ import com.xyp.gtnc.Common.items.bee.MutagenicFrameItem;
 import com.xyp.gtnc.Common.items.tools.VeinMiningPickaxe;
 import com.xyp.gtnc.Common.items.wildcard.WildcardPatternItem;
 import com.xyp.gtnc.utils.enums.GTNCItemList;
+import com.xyp.gtnc.utils.lang.TextLocalization;
 
 import cpw.mods.fml.common.registry.GameRegistry;
 import gregtech.api.enums.GTValues;
 import gregtech.api.enums.ItemList;
+import gregtech.api.util.GTOreDictUnificator;
 
 /**
  * 物品加载器，负责注册所有物品
@@ -92,6 +93,144 @@ public class ItemsLoader {
         // # zh_CN 高算力芯片 VII
         GTNCItemList.ChipTier7.set(MetaItemAdder.initItem(7));
 
+        // #tr item.MetaItem.9.name
+        // # Primitive Resonatic Circuit
+        // # zh_CN 原始磁共振电路
+        GTNCItemList.CircuitResonaticULV.set(
+            MetaItemAdder.initItem(
+                9,
+                new String[] { TextLocalization.Tooltip_CircuitResonaticULV_00,
+                    TextLocalization.Tooltip_CircuitResonaticULV_01 }));
+        // #tr item.MetaItem.10.name
+        // # Basic Resonatic Circuit
+        // # zh_CN 基础磁共振电路
+        GTNCItemList.CircuitResonaticLV.set(
+            MetaItemAdder.initItem(
+                10,
+                new String[] { TextLocalization.Tooltip_CircuitResonaticLV_00,
+                    TextLocalization.Tooltip_CircuitResonaticLV_01 }));
+        // #tr item.MetaItem.11.name
+        // # Advanced Resonatic Circuit
+        // # zh_CN 进阶磁共振电路
+        GTNCItemList.CircuitResonaticMV.set(
+            MetaItemAdder.initItem(
+                11,
+                new String[] { TextLocalization.Tooltip_CircuitResonaticMV_00,
+                    TextLocalization.Tooltip_CircuitResonaticMV_01 }));
+        // #tr item.MetaItem.12.name
+        // # Progressive Resonatic Circuit
+        // # zh_CN 先进磁共振电路
+        GTNCItemList.CircuitResonaticHV.set(
+            MetaItemAdder.initItem(
+                12,
+                new String[] { TextLocalization.Tooltip_CircuitResonaticHV_00,
+                    TextLocalization.Tooltip_CircuitResonaticHV_01 }));
+        // #tr item.MetaItem.13.name
+        // # Data Resonatic Circuit
+        // # zh_CN 数据磁共振电路
+        GTNCItemList.CircuitResonaticEV.set(
+            MetaItemAdder.initItem(
+                13,
+                new String[] { TextLocalization.Tooltip_CircuitResonaticEV_00,
+                    TextLocalization.Tooltip_CircuitResonaticEV_01 }));
+        // #tr item.MetaItem.14.name
+        // # Elite Resonatic Circuit
+        // # zh_CN 精英磁共振电路
+        GTNCItemList.CircuitResonaticIV.set(
+            MetaItemAdder.initItem(
+                14,
+                new String[] { TextLocalization.Tooltip_CircuitResonaticIV_00,
+                    TextLocalization.Tooltip_CircuitResonaticIV_01 }));
+        // #tr item.MetaItem.15.name
+        // # Master Resonatic Circuit
+        // # zh_CN 大师磁共振电路
+        GTNCItemList.CircuitResonaticLuV.set(
+            MetaItemAdder.initItem(
+                15,
+                new String[] { TextLocalization.Tooltip_CircuitResonaticLuV_00,
+                    TextLocalization.Tooltip_CircuitResonaticLuV_01 }));
+        // #tr item.MetaItem.16.name
+        // # Top Resonatic Circuit
+        // # zh_CN 顶级磁共振电路
+        GTNCItemList.CircuitResonaticZPM.set(
+            MetaItemAdder.initItem(
+                16,
+                new String[] { TextLocalization.Tooltip_CircuitResonaticZPM_00,
+                    TextLocalization.Tooltip_CircuitResonaticZPM_01 }));
+        // #tr item.MetaItem.17.name
+        // # Superconducting Resonatic Circuit
+        // # zh_CN 超导磁共振电路
+        GTNCItemList.CircuitResonaticUV.set(
+            MetaItemAdder.initItem(
+                17,
+                new String[] { TextLocalization.Tooltip_CircuitResonaticUV_00,
+                    TextLocalization.Tooltip_CircuitResonaticUV_01 }));
+        // #tr item.MetaItem.18.name
+        // # Supreme Resonatic Circuit
+        // # zh_CN 终极磁共振电路
+        GTNCItemList.CircuitResonaticUHV.set(
+            MetaItemAdder.initItem(
+                18,
+                new String[] { TextLocalization.Tooltip_CircuitResonaticUHV_00,
+                    TextLocalization.Tooltip_CircuitResonaticUHV_01 }));
+        // #tr item.MetaItem.19.name
+        // # Bio Resonatic Circuit
+        // # zh_CN 生物磁共振电路
+        GTNCItemList.CircuitResonaticUEV.set(
+            MetaItemAdder.initItem(
+                19,
+                new String[] { TextLocalization.Tooltip_CircuitResonaticUEV_00,
+                    TextLocalization.Tooltip_CircuitResonaticUEV_01 }));
+        // #tr item.MetaItem.20.name
+        // # Optical Resonatic Circuit
+        // # zh_CN 光学磁共振电路
+        GTNCItemList.CircuitResonaticUIV.set(
+            MetaItemAdder.initItem(
+                20,
+                new String[] { TextLocalization.Tooltip_CircuitResonaticUIV_00,
+                    TextLocalization.Tooltip_CircuitResonaticUIV_01 }));
+
+        // #tr item.MetaItem.21.name
+        // # Very Simple Circuit
+        // # zh_CN 极简控制电路
+        GTNCItemList.VerySimpleCircuit.set(
+            MetaItemAdder.initItem(
+                21,
+                new String[] { TextLocalization.Tooltip_VerySimpleCircuit_00,
+                    TextLocalization.Tooltip_VerySimpleCircuit_01 }));
+
+        // #tr item.MetaItem.22.name
+        // # Simple Circuit
+        // # zh_CN 简单控制电路
+        GTNCItemList.SimpleCircuit.set(
+            MetaItemAdder.initItem(
+                22,
+                new String[] { TextLocalization.Tooltip_SimpleCircuit_00, TextLocalization.Tooltip_SimpleCircuit_01 }));
+
+        // #tr item.MetaItem.23.name
+        // # Basic Circuit
+        // # zh_CN 基础控制电路
+        GTNCItemList.BasicCircuit.set(
+            MetaItemAdder.initItem(
+                23,
+                new String[] { TextLocalization.Tooltip_BasicCircuit_00, TextLocalization.Tooltip_BasicCircuit_01 }));
+        // #tr item.MetaItem.24.name
+        // # Advanced Circuit
+        // # zh_CN 高级控制电路
+        GTNCItemList.AdvancedCircuit.set(
+            MetaItemAdder.initItem(
+                24,
+                new String[] { TextLocalization.Tooltip_AdvancedCircuit_00,
+                    TextLocalization.Tooltip_AdvancedCircuit_01 }));
+
+        // #tr item.MetaItem.25.name
+        // # Elite Circuit
+        // # zh_CN 精英控制电路
+        GTNCItemList.EliteCircuit.set(
+            MetaItemAdder.initItem(
+                25,
+                new String[] { TextLocalization.Tooltip_EliteCircuit_00, TextLocalization.Tooltip_EliteCircuit_01 }));
+
         // #tr item.MetaItem.30.name
         // # Bioware SMD Inductor
         // # zh_CN 生物贴片电感
@@ -100,21 +239,14 @@ public class ItemsLoader {
         // #tr item.MetaItem.31.name
         // # Critical Photon
         // # zh_CN 临界光子
-        GTNCItemList.MiracleDoorPhoton.set(
-            // #tr Tooltip_MiracleDoorPhoton_00
-            // # Fuel for the Miracle Door. Each run consumes Overclock Parameter of it.
-            // # zh_CN §d奇迹之门的燃料. 每次运行消耗超频系数颗.
-            MetaItemAdder
-                .initItem(31, new String[] { StatCollector.translateToLocal("Tooltip_MiracleDoorPhoton_00") }));
+        GTNCItemList.MiracleDoorPhoton
+            .set(MetaItemAdder.initItem(31, new String[] { TextLocalization.Tooltip_MiracleDoorPhoton_00 }));
 
         // #tr item.MetaItem.32.name
         // # White Dwarf Mold (Ingot)
         // # zh_CN 白矮星模具(锭)
-        GTNCItemList.MiracleDoorMold.set(
-            // #tr Tooltip_MiracleDoorMold_00
-            // # Put into input bus of the Miracle Door to cast molten metal outputs into ingots.
-            // # zh_CN §d放入奇迹之门的输入总线, 将熔融金属产出熔铸为锭.
-            MetaItemAdder.initItem(32, new String[] { StatCollector.translateToLocal("Tooltip_MiracleDoorMold_00") }));
+        GTNCItemList.MiracleDoorMold
+            .set(MetaItemAdder.initItem(32, new String[] { TextLocalization.Tooltip_MiracleDoorMold_00 }));
 
         // #tr item.MetaItem.107.name
         // # 4A LV Wireless Energy Cover
@@ -162,38 +294,43 @@ public class ItemsLoader {
             GTNCItemList.WIRELESS_ENERGY_COVER[i].set(ItemList.WIRELESS_ENERGY_COVERS[i].get(1));
 
             GTNCItemList.WIRELESS_ENERGY_COVER_4A[i].set(
-                // #tr Tooltip_WirelessEnergyCover4A_00
-                // # Stores energy in the global network, up to 2^(2^31)EU.
-                // # zh_CN §7将能量存储于全局网络中，上限为2^(2^31)EU.
-                // #tr Tooltip_WirelessEnergyCover4A_01
-                // # Without connecting wires, this cover can draw EU from the network.
-                // # zh_CN §7不连接导线，此覆盖板可以从网络中抽取EU.
-                // #tr Tooltip_WirelessEnergyCover4A_02
-                // # Ignores voltage limits (won't cause explosions).
-                // # zh_CN 无视电压限制 (不会造成爆炸).
-                // #tr Tooltip_WirelessEnergyCover4A_03
-                // # Amperage: §e4A§7
-                // # zh_CN 电流：§e4A§7
-                // #tr Tooltip_WirelessEnergyCover4A_04
-                // # Input Voltage: §a%s (§7%s§r§a)
-                // # zh_CN 输入电压：§a%s (§7%s§r§a)
                 MetaItemAdder.initItem(
                     107 + i,
-                    new String[] { StatCollector.translateToLocal("Tooltip_WirelessEnergyCover4A_00"),
-                        StatCollector.translateToLocal("Tooltip_WirelessEnergyCover4A_01"),
-                        StatCollector.translateToLocal("Tooltip_WirelessEnergyCover4A_02"),
-                        StatCollector.translateToLocal("Tooltip_WirelessEnergyCover4A_03"),
-                        StatCollector.translateToLocalFormatted(
-                            "Tooltip_WirelessEnergyCover4A_04",
+                    new String[] { TextLocalization.Tooltip_WirelessEnergyCover4A_00,
+                        TextLocalization.Tooltip_WirelessEnergyCover4A_01,
+                        TextLocalization.Tooltip_WirelessEnergyCover4A_02,
+                        TextLocalization.Tooltip_WirelessEnergyCover4A_03,
+                        String.format(
+                            TextLocalization.Tooltip_WirelessEnergyCover4A_04,
                             NumberFormatUtil.formatNumber(GTValues.V[i + 1]),
                             GTValues.VN[i + 1]) }));
         }
     }
 
+    public static void registryOreBlackList() {
+        GTOreDictUnificator.addToBlacklist(GTNCItemList.CircuitResonaticULV.get(1));
+        GTOreDictUnificator.addToBlacklist(GTNCItemList.CircuitResonaticLV.get(1));
+        GTOreDictUnificator.addToBlacklist(GTNCItemList.CircuitResonaticMV.get(1));
+        GTOreDictUnificator.addToBlacklist(GTNCItemList.CircuitResonaticHV.get(1));
+        GTOreDictUnificator.addToBlacklist(GTNCItemList.CircuitResonaticEV.get(1));
+        GTOreDictUnificator.addToBlacklist(GTNCItemList.CircuitResonaticIV.get(1));
+        GTOreDictUnificator.addToBlacklist(GTNCItemList.CircuitResonaticLuV.get(1));
+        GTOreDictUnificator.addToBlacklist(GTNCItemList.CircuitResonaticZPM.get(1));
+        GTOreDictUnificator.addToBlacklist(GTNCItemList.CircuitResonaticUV.get(1));
+        GTOreDictUnificator.addToBlacklist(GTNCItemList.CircuitResonaticUHV.get(1));
+        GTOreDictUnificator.addToBlacklist(GTNCItemList.CircuitResonaticUEV.get(1));
+        GTOreDictUnificator.addToBlacklist(GTNCItemList.CircuitResonaticUIV.get(1));
+        GTOreDictUnificator.addToBlacklist(GTNCItemList.VerySimpleCircuit.get(1));
+        GTOreDictUnificator.addToBlacklist(GTNCItemList.SimpleCircuit.get(1));
+        GTOreDictUnificator.addToBlacklist(GTNCItemList.BasicCircuit.get(1));
+        GTOreDictUnificator.addToBlacklist(GTNCItemList.AdvancedCircuit.get(1));
+        GTOreDictUnificator.addToBlacklist(GTNCItemList.EliteCircuit.get(1));
+    }
+
     public static void registry() {
         initItems();
         registryMetaItems();
-
+        registryOreBlackList();
     }
 
 }
