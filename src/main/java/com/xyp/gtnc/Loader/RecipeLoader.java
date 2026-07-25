@@ -3,6 +3,7 @@ package com.xyp.gtnc.Loader;
 import com.xyp.gtnc.Common.recipe.gregtech.AssemblerRecipes;
 import com.xyp.gtnc.Common.recipe.gregtech.AssemblingLineRecipes;
 import com.xyp.gtnc.Common.recipe.gregtech.BenderRecipes;
+import com.xyp.gtnc.Common.recipe.gregtech.BlastFurnaceRecipes;
 import com.xyp.gtnc.Common.recipe.gregtech.CentrifugeRecipes;
 import com.xyp.gtnc.Common.recipe.gregtech.CircuitAssemblerRecipes;
 import com.xyp.gtnc.Common.recipe.gregtech.ExtruderRecipes;
@@ -18,15 +19,13 @@ import com.xyp.gtnc.Common.recipe.gtnc.MiningRigRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.OreProcessingRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.ShapedArcaneCraftingRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.StellarForgeRecipePool;
-import com.xyp.gtnc.Common.recipe.machine.AssemblerMatrixRecipes;
-import com.xyp.gtnc.Common.recipe.machine.MEBridgeRecipes;
-import com.xyp.gtnc.Common.recipe.machine.MiracleDoorRecipes;
-import com.xyp.gtnc.Common.recipe.machine.QuantumComputerRecipes;
+import com.xyp.gtnc.Common.recipe.machine.MachineRecipes;
 
 public class RecipeLoader {
 
     public static void loadRecipes() {
 
+        MachineRecipes.loadRecipes();
         ShapedArcaneCraftingRecipes.loadRecipes();
         InfusionCraftingRecipes.loadRecipes();
         CircuitAssemblerRecipes.loadRecipes();
@@ -40,15 +39,12 @@ public class RecipeLoader {
         CentrifugeRecipes.loadRecipes();
         CraftingTableRecipes.loadRecipes();
         AssemblerRecipes.loadRecipes();
-        AssemblerMatrixRecipes.loadRecipes();
-        QuantumComputerRecipes.loadRecipes();
         OreProcessingRecipes.loadOreProcessingRecipes();
         FurnaceRecipes.loadRecipes();
+        BlastFurnaceRecipes.loadRecipes();
         LaserEngraverRecipes.loadRecipes();
         CombProcessingRecipes.loadRecipes();
-        MiracleDoorRecipes.loadRecipes();
         StellarForgeRecipePool.loadRecipes();
-        MEBridgeRecipes.loadRecipes();
     }
 
     /**

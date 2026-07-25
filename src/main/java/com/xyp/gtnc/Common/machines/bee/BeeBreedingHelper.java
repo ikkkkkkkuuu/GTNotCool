@@ -190,9 +190,14 @@ public class BeeBreedingHelper {
     }
 
     private static String computeSpeciesDisplayName(String input) {
-        // 先尝试按 UID 查找物种，确保同 unlocalizedName 但不同 UID 的品种显示正确
+        // 优先按 UID 查找物种，使用 Forestry 本地化名称
         IAlleleBeeSpecies uidSpecies = getSpeciesByUID(input);
         if (uidSpecies != null) {
+            String name = uidSpecies.getName();
+            if (name != null && !name.isEmpty() && !"name".equalsIgnoreCase(name)) {
+                return name;
+            }
+            // 回退到 unlocalizedName 提取
             String uln = uidSpecies.getUnlocalizedName();
             String display = extractDisplayFromUnlocalizedName(uln);
             if (display != null) return display;
@@ -200,11 +205,11 @@ public class BeeBreedingHelper {
         // 按普通名称处理
         String display = extractDisplayFromUnlocalizedName(input);
         if (display != null) return display;
-        // 无法剥离前缀：尝试从物种注册表获取英文显示名
+        // 无法剥离前缀：尝试从物种注册表获取本地化名
         IAlleleBeeSpecies species = findSpeciesByUnlocalizedName(input);
         if (species != null) {
             String name = species.getName();
-            if (name != null && !name.isEmpty() && isAscii(name)) {
+            if (name != null && !name.isEmpty() && !"name".equalsIgnoreCase(name)) {
                 return name;
             }
         }
@@ -327,25 +332,26 @@ public class BeeBreedingHelper {
      * 直接从 IAlleleBeeSpecies 获取显示名（无额外查找），供 matchSpeciesName 使用。
      */
     private static String getDisplayNameForSpecies(IAlleleBeeSpecies species) {
+        // 优先使用 Forestry 本地化名称
+        String name = species.getName();
+        if (name != null && !name.isEmpty() && !"name".equalsIgnoreCase(name)) {
+            return name;
+        }
+        // 回退到 unlocalizedName 提取
         String uln = species.getUnlocalizedName();
         if (uln == null || uln.isEmpty()) return "";
         int lastDot = uln.lastIndexOf('.');
         if (lastDot >= 0) {
-            String name = uln.substring(lastDot + 1);
-            name = stripBeePrefix(name);
-            if (!name.isEmpty()) {
-                return Character.toUpperCase(name.charAt(0)) + name.substring(1);
+            String extracted = uln.substring(lastDot + 1);
+            extracted = stripBeePrefix(extracted);
+            if (!extracted.isEmpty()) {
+                return Character.toUpperCase(extracted.charAt(0)) + extracted.substring(1);
             }
         }
         // 无点分隔：尝试剥离前缀
         String stripped = stripBeePrefix(uln);
         if (!stripped.equals(uln) && !stripped.isEmpty()) {
             return Character.toUpperCase(stripped.charAt(0)) + stripped.substring(1);
-        }
-        // 无法剥离前缀：尝试 getName()，但排除 "name" 等无效占位符
-        String name = species.getName();
-        if (name != null && !name.isEmpty() && isAscii(name) && !"name".equalsIgnoreCase(name)) {
-            return name;
         }
         return Character.toUpperCase(uln.charAt(0)) + uln.substring(1);
     }
