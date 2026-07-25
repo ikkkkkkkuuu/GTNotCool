@@ -10,7 +10,6 @@ import gregtech.api.recipe.RecipeMap;
 import gregtech.api.recipe.RecipeMapBackend;
 import gregtech.api.recipe.RecipeMapBuilder;
 import gregtech.nei.formatter.SimpleSpecialValueFormatter;
-import gtPlusPlus.api.recipe.QuantumForceTransformerFrontend;
 
 public class GTNCRecipeMaps {
 
@@ -29,10 +28,10 @@ public class GTNCRecipeMaps {
     // # zh_CN 蜂窝处理
     public static RecipeMap<RecipeMapBackend> SteamCombProcessingRecipes = RecipeMapBuilder
         .of("gtnc.recipe.SteamCombProcessingRecipes")
-        .maxIO(9, 9, 9, 9)
+        .maxIO(9, 9, 0, 3)
         .progressBar(GTUITextures.PROGRESSBAR_ARROW_MULTIPLE)
         .neiHandlerInfo(builder -> builder.setDisplayStack(GTNCItemList.LargeSteamCombProcessor.get(1)))
-        .frontend(QuantumForceTransformerFrontend::new)
+        .frontend(GTNCLogoFrontend::new)
         .build();
 
     // #tr gtnc.recipe.SteamCrucibleRecipes
