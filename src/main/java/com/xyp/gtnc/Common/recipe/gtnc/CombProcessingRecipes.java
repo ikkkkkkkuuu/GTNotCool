@@ -85,15 +85,7 @@ public class CombProcessingRecipes {
             if (!seenCombs.add(combId(r.mInputs[0]))) continue;
             ItemStack comb = copyAmount(r.mInputs[0], 1);
             ItemStack[] outputs = convertOutputsToDust(r.mOutputs);
-            // 配方1：粉
-            GTRecipeBuilder.builder()
-                .itemInputs(comb)
-                .itemOutputs(outputs)
-                .eut(30)
-                .duration(100)
-                .addTo(RM);
-            count++;
-            // 配方2：circuit=24 → 熔融态
+            // 配方1：circuit=24 → 熔融态（必须注册在前面，否则无电路配方会先匹配）
             FluidStack molten = getMolten(outputs);
             if (molten != null) {
                 GTRecipeBuilder.builder()
@@ -105,6 +97,14 @@ public class CombProcessingRecipes {
                     .addTo(RM);
                 count++;
             }
+            // 配方2：粉（无电路，兜底）
+            GTRecipeBuilder.builder()
+                .itemInputs(comb)
+                .itemOutputs(outputs)
+                .eut(30)
+                .duration(100)
+                .addTo(RM);
+            count++;
         }
         return count;
     }
