@@ -7,6 +7,8 @@ import java.util.Set;
 import com.gtnewhorizon.gtnhmixins.ILateMixinLoader;
 import com.gtnewhorizon.gtnhmixins.LateMixin;
 
+import cpw.mods.fml.common.FMLCommonHandler;
+
 @LateMixin
 public class LateMixinsLoader implements ILateMixinLoader {
 
@@ -97,9 +99,14 @@ public class LateMixinsLoader implements ILateMixinLoader {
                 "Thaumcraft.MixinWarpEvents",
                 "Thaumcraft.MixinResearchManager",
                 "Thaumcraft.MixinPlayerKnowledge",
-                "Thaumcraft.MixinTileCrucible",
                 "Thaumcraft.MixinTileInfusionMatrix",
                 "Thaumcraft.MixinVisNetHandler");
+
+            if (FMLCommonHandler.instance()
+                .getSide()
+                .isServer()) {
+                list.add("Thaumcraft.MixinTileCrucible");
+            }
         }
 
         return list;
