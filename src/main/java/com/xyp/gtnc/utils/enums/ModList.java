@@ -43,8 +43,7 @@ public enum ModList implements IMod, ITargetMod {
     NotEnoughEnergistics(ModIds.NOT_ENOUGH_ENERGISTICS, Names.NOT_ENOUGH_ENERGISTICS),
     NEICustomDiagrams(ModIds.N_E_I_CUSTOM_DIAGRAMS, Names.N_E_I_CUSTOM_DIAGRAMS),
     AvaritiaAddons(ModIds.AVARITIA_ADDONS, Names.AVARITIA_ADDONS),
-    BetterQuesting(ModIds.BETTER_QUESTING, Names.BETTER_QUESTING),
-    BetterQuestingAPI(ModIds.BETTER_QUESTING_API, Names.BETTER_QUESTING_API);
+    BetterQuesting(ModIds.BETTER_QUESTING, Names.BETTER_QUESTING);
 
     public static class ModIds {
 
@@ -75,7 +74,6 @@ public enum ModList implements IMod, ITargetMod {
         public static final String N_E_I_CUSTOM_DIAGRAMS = "neicustomdiagram";
         public static final String AVARITIA_ADDONS = "avaritiaddons";
         public static final String BETTER_QUESTING = "betterquesting";
-        public static final String BETTER_QUESTING_API = "bqapi";
     }
 
     public static class Names {
@@ -107,7 +105,6 @@ public enum ModList implements IMod, ITargetMod {
         public static final String N_E_I_CUSTOM_DIAGRAMS = "NEI Custom Diagrams";
         public static final String AVARITIA_ADDONS = "Avaritia Addons";
         public static final String BETTER_QUESTING = "BetterQuesting";
-        public static final String BETTER_QUESTING_API = "Better Questing API";
     }
 
     public final String ID;

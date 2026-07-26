@@ -2,6 +2,7 @@ package com.xyp.gtnc;
 
 import net.minecraftforge.common.MinecraftForge;
 
+import com.xyp.gtnc.Common.command.CommandQuestUpdate;
 import com.xyp.gtnc.Common.command.CommandSteamNetwork;
 import com.xyp.gtnc.Common.items.toolbelt.common.BeltEvents;
 import com.xyp.gtnc.Common.items.toolbelt.common.BeltGuiHandler;
@@ -92,10 +93,6 @@ public class CommonProxy {
         // 注册机器
         MachineLoader.registry();
 
-        if (ModList.BetterQuesting.isModLoaded() && ModList.BetterQuestingAPI.isModLoaded()) {
-            QuestLoader.registry();
-        }
-
         // 注册AE接口终端
         var interfaceTerminal = AEApi.instance()
             .registries()
@@ -109,6 +106,9 @@ public class CommonProxy {
     // register server commands in this event handler (Remove if not needed)
     public void serverStarting(FMLServerStartingEvent event) {
         event.registerServerCommand(new CommandSteamNetwork());
+        if (ModList.BetterQuesting.isModLoaded()) {
+            event.registerServerCommand(new CommandQuestUpdate());
+        }
         // Generate Miracle Door (Stellar Forge) recipes by scanning live EBF / GTPP ABS recipe maps.
         RecipeLoader.loadRecipesServerStarted();
     }
@@ -116,6 +116,9 @@ public class CommonProxy {
     // 服务器启动完成后（晚于 VendingMachine 在 serverStarting 里的 loadDatabase）注入本 mod 的无条件交易。
     public void serverStarted(FMLServerStartedEvent event) {
         VMTradeRegistry.injectAll();
+        if (ModList.BetterQuesting.isModLoaded()) {
+            QuestLoader.importIfMissing();
+        }
     }
 
     public void complete(FMLLoadCompleteEvent event) {

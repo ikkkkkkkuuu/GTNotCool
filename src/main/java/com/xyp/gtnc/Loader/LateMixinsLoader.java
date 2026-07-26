@@ -102,7 +102,8 @@ public class LateMixinsLoader implements ILateMixinLoader {
                 "Thaumcraft.MixinTileInfusionMatrix",
                 "Thaumcraft.MixinVisNetHandler");
 
-            if (FMLLaunchHandler.side().isServer()) {
+            if (FMLLaunchHandler.side()
+                .isServer()) {
                 list.add("Thaumcraft.MixinTileCrucible");
             }
         }
