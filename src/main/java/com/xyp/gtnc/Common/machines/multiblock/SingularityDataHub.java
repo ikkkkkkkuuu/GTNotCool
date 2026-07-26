@@ -49,6 +49,7 @@ import com.gtnewhorizon.structurelib.alignment.constructable.ISurvivalConstructa
 import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
 import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
+import com.xyp.gtnc.Common.gui.modularui.multiblock.SingularityDataHubGui;
 import com.xyp.gtnc.Common.machines.hatch.VaultPortHatch;
 import com.xyp.gtnc.api.IItemVault;
 import com.xyp.gtnc.utils.ItemId;
@@ -73,6 +74,7 @@ import gregtech.api.render.TextureFactory;
 import gregtech.api.structure.error.StructureError;
 import gregtech.api.util.GTUtility;
 import gregtech.api.util.MultiblockTooltipBuilder;
+import gregtech.common.gui.modularui.multiblock.base.MTEMultiBlockBaseGui;
 import gregtech.common.tileentities.machines.MTEHatchCraftingInputME;
 import gregtech.common.tileentities.machines.MTEHatchInputBusME;
 import lombok.Setter;
@@ -84,11 +86,15 @@ public class SingularityDataHub extends MTEEnhancedMultiBlockBase<SingularityDat
 
     public static long MAX_DISTINCT_ITEMS = Long.MAX_VALUE - 1;
     public static long MAX_DISTINCT_FLUIDS = Long.MAX_VALUE - 1;
+    public static final long MAX_STORAGE_BYTES = 5_764_607_523_034_234_870L;
+    private static final int BYTES_PER_TYPE = 8;
+    private static final int ITEMS_PER_BYTE = 8;
+    private static final int FLUID_MB_PER_BYTE = 8 * 256;
 
-    public static BigInteger MAX_CAPACITY_ITEM = BigInteger.valueOf(MAX_DISTINCT_FLUIDS)
-        .multiply(BigInteger.valueOf(MAX_DISTINCT_ITEMS));
-    public static BigInteger MAX_CAPACITY_FLUID = BigInteger.valueOf(MAX_DISTINCT_FLUIDS)
-        .multiply(BigInteger.valueOf(MAX_DISTINCT_FLUIDS));
+    public static BigInteger MAX_CAPACITY_ITEM = BigInteger.valueOf(MAX_STORAGE_BYTES)
+        .multiply(BigInteger.valueOf(ITEMS_PER_BYTE));
+    public static BigInteger MAX_CAPACITY_FLUID = BigInteger.valueOf(MAX_STORAGE_BYTES)
+        .multiply(BigInteger.valueOf(FLUID_MB_PER_BYTE));
 
     public long capacityPerItem = Long.MAX_VALUE;
     public long capacityPerFluid = Long.MAX_VALUE;
@@ -118,12 +124,56 @@ public class SingularityDataHub extends MTEEnhancedMultiBlockBase<SingularityDat
         .storage()
         .createFluidList();
 
+    public long getUsedStorageBytes() {
+        long used = 0;
+        for (IAEItemStack item : STORE_ITEM) {
+            used = saturatingAdd(used, BYTES_PER_TYPE);
+            used = saturatingAdd(used, bytesForAmount(item.getStackSize(), ITEMS_PER_BYTE));
+        }
+        for (IAEFluidStack fluid : STORE_FLUID) {
+            used = saturatingAdd(used, BYTES_PER_TYPE);
+            used = saturatingAdd(used, bytesForAmount(fluid.getStackSize(), FLUID_MB_PER_BYTE));
+        }
+        return Math.min(used, MAX_STORAGE_BYTES);
+    }
+
+    private long getInsertableAmount(long currentAmount, long requestedAmount, int amountPerByte, boolean newType) {
+        if (requestedAmount <= 0) return 0;
+        long freeBytes = MAX_STORAGE_BYTES - getUsedStorageBytes();
+        if (newType) freeBytes -= BYTES_PER_TYPE;
+        if (freeBytes < 0) return 0;
+        long unusedAmount = currentAmount <= 0 ? 0 : (amountPerByte - currentAmount % amountPerByte) % amountPerByte;
+        long byteLimitedAmount = saturatingAdd(unusedAmount, saturatingMultiply(freeBytes, amountPerByte));
+        long stackLimitedAmount = Long.MAX_VALUE - currentAmount;
+        return Math.min(requestedAmount, Math.min(byteLimitedAmount, stackLimitedAmount));
+    }
+
+    private static long bytesForAmount(long amount, int amountPerByte) {
+        if (amount <= 0) return 0;
+        return amount / amountPerByte + (amount % amountPerByte == 0 ? 0 : 1);
+    }
+
+    private static long saturatingAdd(long first, long second) {
+        if (first >= Long.MAX_VALUE - second) return Long.MAX_VALUE;
+        return first + second;
+    }
+
+    private static long saturatingMultiply(long value, int factor) {
+        if (value > Long.MAX_VALUE / factor) return Long.MAX_VALUE;
+        return value * factor;
+    }
+
     public SingularityDataHub(int aID, String aName, String aNameRegional) {
         super(aID, aName, aNameRegional);
     }
 
     public SingularityDataHub(String aName) {
         super(aName);
+    }
+
+    @Override
+    protected @NotNull MTEMultiBlockBaseGui<?> getGui() {
+        return new SingularityDataHubGui(this);
     }
 
     @Override
@@ -646,129 +696,81 @@ public class SingularityDataHub extends MTEEnhancedMultiBlockBase<SingularityDat
     @Override
     public int injectItems(ItemStack aItem, boolean doInput) {
         if (locked) return 0;
-        if (STORE_ITEM.size() >= MAX_DISTINCT_ITEMS) return 0;
         var aeItem = getStoredItem(aItem);
         long size = aeItem == null ? 0 : aeItem.getStackSize();
-        if (size >= capacityPerItem) return doVoidExcess ? aItem.stackSize : 0;
-        if (capacityPerItem - size < aItem.stackSize) {
-            if (doInput) {
-                if (aeItem == null) {
-                    STORE_ITEM.addStorage(
-                        AEItemStack.create(aItem)
-                            .setStackSize(capacityPerItem - size));
-                } else {
-                    aeItem.setStackSize(capacityPerItem);
-                }
-                portHatch.postUpdateItem(aItem, capacityPerItem - size);
+        long accepted = getInsertableAmount(size, aItem.stackSize, ITEMS_PER_BYTE, aeItem == null);
+        if (accepted <= 0) return doVoidExcess ? aItem.stackSize : 0;
+        if (doInput) {
+            if (aeItem == null) {
+                STORE_ITEM.addStorage(
+                    AEItemStack.create(aItem)
+                        .setStackSize(accepted));
+            } else {
+                aeItem.setStackSize(size + accepted);
             }
-            return doVoidExcess ? aItem.stackSize : (int) (capacityPerItem - size);
-        } else {
-            if (doInput) {
-                if (aeItem == null) {
-                    STORE_ITEM.addStorage(AEItemStack.create(aItem));
-                } else {
-                    aeItem.setStackSize(size + aItem.stackSize);
-                }
-                portHatch.postUpdateItem(aItem, aItem.stackSize);
-            }
-            return aItem.stackSize;
+            portHatch.postUpdateItem(aItem, accepted);
         }
+        return doVoidExcess ? aItem.stackSize : (int) accepted;
     }
 
     @Override
     public long injectItems(IAEItemStack aItem, boolean doInput) {
         if (locked) return 0;
-        if (STORE_ITEM.size() >= MAX_DISTINCT_ITEMS) return 0;
         var aeItem = getStoredItem(aItem.getItemStack());
         long size = aeItem == null ? 0 : aeItem.getStackSize();
-        if (size >= capacityPerItem) return doVoidExcess ? aItem.getStackSize() : 0;
-        if (capacityPerItem - size < aItem.getStackSize()) {
-            if (doInput) {
-                if (aeItem == null) {
-                    STORE_ITEM.addStorage(
-                        aItem.copy()
-                            .setStackSize(capacityPerItem - size));
-                } else {
-                    aeItem.setStackSize(capacityPerItem);
-                }
-                portHatch.postUpdateItem(aItem.getItemStack(), capacityPerItem - size);
+        long accepted = getInsertableAmount(size, aItem.getStackSize(), ITEMS_PER_BYTE, aeItem == null);
+        if (accepted <= 0) return doVoidExcess ? aItem.getStackSize() : 0;
+        if (doInput) {
+            if (aeItem == null) {
+                STORE_ITEM.addStorage(
+                    aItem.copy()
+                        .setStackSize(accepted));
+            } else {
+                aeItem.setStackSize(size + accepted);
             }
-            return doVoidExcess ? aItem.getStackSize() : (int) (capacityPerItem - size);
-        } else {
-            if (doInput) {
-                if (aeItem == null) {
-                    STORE_ITEM.addStorage(aItem);
-                } else {
-                    aeItem.setStackSize(size + aItem.getStackSize());
-                }
-                portHatch.postUpdateItem(aItem.getItemStack(), aItem.getStackSize());
-            }
-            return aItem.getStackSize();
+            portHatch.postUpdateItem(aItem.getItemStack(), accepted);
         }
+        return doVoidExcess ? aItem.getStackSize() : accepted;
     }
 
     @Override
     public int injectFluids(FluidStack aFluid, boolean doInput) {
         if (locked) return 0;
-        if (STORE_FLUID.size() >= MAX_DISTINCT_FLUIDS) return 0;
         var aeFluid = getStoredFluid(aFluid);
         long size = aeFluid == null ? 0 : aeFluid.getStackSize();
-        if (size >= capacityPerFluid) return doVoidExcess ? aFluid.amount : 0;
-        if (capacityPerFluid - size < aFluid.amount) {
-            if (doInput) {
-                if (aeFluid == null) {
-                    STORE_FLUID.addStorage(
-                        AEFluidStack.create(aFluid)
-                            .setStackSize(capacityPerFluid - size));
-                } else {
-                    aeFluid.setStackSize(capacityPerFluid);
-                }
-                portHatch.postUpdateFluid(aFluid, capacityPerFluid - size);
+        long accepted = getInsertableAmount(size, aFluid.amount, FLUID_MB_PER_BYTE, aeFluid == null);
+        if (accepted <= 0) return doVoidExcess ? aFluid.amount : 0;
+        if (doInput) {
+            if (aeFluid == null) {
+                STORE_FLUID.addStorage(
+                    AEFluidStack.create(aFluid)
+                        .setStackSize(accepted));
+            } else {
+                aeFluid.setStackSize(size + accepted);
             }
-            return doVoidExcess ? aFluid.amount : (int) (capacityPerFluid - size);
-        } else {
-            if (doInput) {
-                if (aeFluid == null) {
-                    STORE_FLUID.addStorage(AEFluidStack.create(aFluid));
-                } else {
-                    aeFluid.setStackSize(size + aFluid.amount);
-                }
-                portHatch.postUpdateFluid(aFluid, capacityPerFluid - aFluid.amount);
-            }
-            return aFluid.amount;
+            portHatch.postUpdateFluid(aFluid, accepted);
         }
+        return doVoidExcess ? aFluid.amount : (int) accepted;
     }
 
     @Override
     public long injectFluids(IAEFluidStack aFluid, boolean doInput) {
         if (locked) return 0;
-        if (STORE_FLUID.size() >= MAX_DISTINCT_FLUIDS) return 0;
         var aeFluid = getStoredFluid(aFluid.getFluidStack());
         long size = aeFluid == null ? 0 : aeFluid.getStackSize();
-        if (size >= capacityPerFluid) return doVoidExcess ? aFluid.getStackSize() : 0;
-        if (capacityPerFluid - size < aFluid.getStackSize()) {
-            if (doInput) {
-                if (aeFluid == null) {
-                    STORE_FLUID.addStorage(
-                        AEFluidStack.create(aFluid)
-                            .setStackSize(capacityPerFluid - size));
-                } else {
-                    aeFluid.setStackSize(capacityPerFluid);
-                }
-                portHatch.postUpdateFluid(aFluid.getFluidStack(), capacityPerFluid - size);
+        long accepted = getInsertableAmount(size, aFluid.getStackSize(), FLUID_MB_PER_BYTE, aeFluid == null);
+        if (accepted <= 0) return doVoidExcess ? aFluid.getStackSize() : 0;
+        if (doInput) {
+            if (aeFluid == null) {
+                STORE_FLUID.addStorage(
+                    aFluid.copy()
+                        .setStackSize(accepted));
+            } else {
+                aeFluid.setStackSize(size + accepted);
             }
-            return doVoidExcess ? aFluid.getStackSize() : capacityPerFluid - size;
-        } else {
-            if (doInput) {
-                if (aeFluid == null) {
-                    STORE_FLUID.addStorage(aFluid);
-                } else {
-                    aeFluid.setStackSize(size + aFluid.getStackSize());
-                }
-                portHatch.postUpdateFluid(aFluid.getFluidStack(), aFluid.getStackSize());
-            }
-            return aFluid.getStackSize();
+            portHatch.postUpdateFluid(aFluid.getFluidStack(), accepted);
         }
+        return doVoidExcess ? aFluid.getStackSize() : accepted;
     }
 
     @Override

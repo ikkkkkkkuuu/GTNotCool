@@ -1,0 +1,76 @@
+{
+  "preRequisites:9": {
+    "0:10": {
+      "questIDHigh:4": 6004496025048666670,
+      "questIDLow:4": 5782977386681685071
+    }
+  },
+  "properties:10": {
+    "betterquesting:10": {
+      "autoClaim:1": 1,
+      "desc:8": "你似乎完全不想走魔法路线。既然如此，冗长的研究、注魔与仪式就由这份豁免替代。\\n\\n领取水晶缠绕宇宙中子态素法杖，以及血魔法的超凡血之宝珠，直接跨过神秘与血魔法的核心进程。",
+      "globalShare:1": 0,
+      "icon:10": {
+        "Count:3": 1,
+        "Damage:2": 9000,
+        "OreDict:8": "",
+        "id:8": "Thaumcraft:WandCasting",
+        "tag:10": {
+          "cap:8": "matrix",
+          "rod:8": "infinity"
+        }
+      },
+      "isMain:1": 1,
+      "isSilent:1": 0,
+      "lockedProgress:1": 0,
+      "name:8": "奥术豁免：不必研习",
+      "questLogic:8": "AND",
+      "repeatTime:3": -1,
+      "repeat_relative:1": 1,
+      "simultaneous:1": 0,
+      "snd_complete:8": "random.levelup",
+      "snd_update:8": "random.levelup",
+      "taskLogic:8": "AND",
+      "visibility:8": "NORMAL"
+    }
+  },
+  "questIDHigh:4": 6004496025048666671,
+  "questIDLow:4": 5782977386681685072,
+  "rewards:9": {
+    "0:10": {
+      "ignoreDisabled:1": 0,
+      "index:3": 0,
+      "rewardID:8": "bq_standard:item",
+      "rewards:9": {
+        "0:10": {
+          "Count:3": 1,
+          "Damage:2": 9000,
+          "OreDict:8": "",
+          "id:8": "Thaumcraft:WandCasting",
+          "tag:10": {
+            "aer:3": 9999999,
+            "aqua:3": 9999999,
+            "cap:8": "matrix",
+            "ignis:3": 9999999,
+            "ordo:3": 9999999,
+            "perditio:3": 9999999,
+            "rod:8": "infinity",
+            "terra:3": 9999999
+          }
+        },
+        "1:10": {
+          "Count:3": 1,
+          "Damage:2": 0,
+          "OreDict:8": "",
+          "id:8": "AWWayofTime:transcendentBloodOrb"
+        }
+      }
+    }
+  },
+  "tasks:9": {
+    "0:10": {
+      "index:3": 0,
+      "taskID:8": "bq_standard:checkbox"
+    }
+  }
+}

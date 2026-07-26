@@ -4,25 +4,19 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
 import com.cleanroommc.modularui.api.IGuiHolder;
-import com.cleanroommc.modularui.api.drawable.IKey;
 import com.cleanroommc.modularui.factory.PosGuiData;
 import com.cleanroommc.modularui.screen.ModularPanel;
 import com.cleanroommc.modularui.screen.UISettings;
 import com.cleanroommc.modularui.value.sync.PanelSyncManager;
-import com.cleanroommc.modularui.value.sync.StringSyncValue;
-import com.cleanroommc.modularui.widgets.textfield.TextFieldWidget;
 import com.xyp.gtnc.Loader.BlockLoader;
+import com.xyp.gtnc.ScienceNotCool;
 
-/**
- * 发起端网桥方块。
- * <p>
- * 玩家在 GUI 里写一个频道名(可中文),该方块把自己注册到 {@link MEBridgeChannelManager}。
- * 接收端据频道名匹配到它,取其 {@code IGridNode} 建立跨维度连接,两端合并为同一 AE 网络。
- */
 public class TileMEBridgeSender extends TileMEBridgeBase implements IGuiHolder<PosGuiData> {
 
-    /** 玩家写入的频道名(空 = 未广播)。 */
     private String channelName = "";
+    private long receiverTopologyRevision = Long.MIN_VALUE;
+    private String receiverTopologyChannel = "";
+    private String receiverTopologySnapshot = "";
 
     @Override
     protected ItemStack getVisualRepresentation() {
@@ -33,21 +27,38 @@ public class TileMEBridgeSender extends TileMEBridgeBase implements IGuiHolder<P
         return channelName;
     }
 
-    /** 设置频道名并刷新注册表(仅服务端)。返回 false 表示频道名被别的发起端占用。 */
+    public int getDimensionId() {
+        return worldObj == null || worldObj.provider == null ? 0 : worldObj.provider.dimensionId;
+    }
+
+    public String getCoordinates() {
+        return xCoord + ", " + yCoord + ", " + zCoord;
+    }
+
     public boolean setChannelName(String name) {
-        if (worldObj == null || worldObj.isRemote) return false;
-        String trimmed = name == null ? "" : name.trim();
+        return trySetChannelName(name).isSuccess();
+    }
 
-        // 先注销旧频道
-        if (!channelName.isEmpty()) {
-            MEBridgeChannelManager.unregister(channelName, xCoord, yCoord, zCoord, worldObj.provider.dimensionId);
-        }
+    public MEBridgeChannelChangeResult trySetChannelName(String name) {
+        if (worldObj == null || worldObj.isRemote) return MEBridgeChannelChangeResult.NOT_SERVER_SIDE;
 
-        this.channelName = trimmed;
+        String normalized = MEBridgeChannelName.normalize(name);
+        if (!MEBridgeChannelName.isValid(normalized)) return MEBridgeChannelChangeResult.INVALID_NAME;
+
+        MEBridgeChannelInfo info = new MEBridgeChannelInfo(
+            normalized,
+            xCoord,
+            yCoord,
+            zCoord,
+            worldObj.provider.dimensionId,
+            null);
+        MEBridgeChannelChangeResult result = MEBridgeChannelManager.replaceSenderChannel(channelName, info, this);
+        if (!result.isSuccess()) return result;
+
+        channelName = normalized;
+        receiverTopologyRevision = Long.MIN_VALUE;
         markDirty();
-
-        if (trimmed.isEmpty()) return true;
-        return registerSelf();
+        return MEBridgeChannelChangeResult.SUCCESS;
     }
 
     private boolean registerSelf() {
@@ -64,10 +75,7 @@ public class TileMEBridgeSender extends TileMEBridgeBase implements IGuiHolder<P
 
     @Override
     protected void onProxyReady() {
-        // 区块重新加载后重新登记,刷新弱引用
-        if (!channelName.isEmpty()) {
-            registerSelf();
-        }
+        if (!channelName.isEmpty()) registerSelf();
     }
 
     @Override
@@ -77,15 +85,27 @@ public class TileMEBridgeSender extends TileMEBridgeBase implements IGuiHolder<P
         }
     }
 
-    /** 当前连入本频道的接收端数量(遍历注册表统计,GUI 显示用)。 */
     public int getConnectedReceiverCount() {
         return TileMEBridgeReceiver.countReceiversOnChannel(channelName);
+    }
+
+    public String getReceiverTopologySnapshot() {
+        long revision = MEBridgeReceiverRegistry.getRevision();
+        if (revision != receiverTopologyRevision || !channelName.equals(receiverTopologyChannel)) {
+            receiverTopologySnapshot = MEBridgeReceiverTopologyCodec
+                .encode(MEBridgeReceiverRegistry.countByDimension(channelName));
+            receiverTopologyRevision = MEBridgeReceiverRegistry.getRevision();
+            receiverTopologyChannel = channelName;
+        }
+        return receiverTopologySnapshot;
     }
 
     @Override
     public void readFromNBT(NBTTagCompound nbt) {
         super.readFromNBT(nbt);
-        channelName = nbt.getString("mebridge_channel");
+        String savedName = MEBridgeChannelName.normalize(nbt.getString("mebridge_channel"));
+        channelName = MEBridgeChannelName.isValid(savedName) ? savedName : "";
+        receiverTopologyRevision = Long.MIN_VALUE;
     }
 
     @Override
@@ -94,60 +114,14 @@ public class TileMEBridgeSender extends TileMEBridgeBase implements IGuiHolder<P
         nbt.setString("mebridge_channel", channelName == null ? "" : channelName);
     }
 
-    // region MUI2 GUI
-
-    // 【务必保留 @SideOnly(CLIENT)】本方块会接入 AE 网络,AE2 的 NetworkEventBus.readClass 在并网时会对本 tile 调
-    // getMethods(),JVM 借此解析每个 public 方法的返回类型。createScreen 返回的 ModularScreen 是纯客户端类,
-    // 专用服务端由 SideTransformer 拒绝加载 → NoClassDefFoundError → 并网即崩服。接口里该方法本身就带
-    // @SideOnly(CLIENT) 会被服务端剥离,重写时必须原样带上,服务端才不会扫到这个客户端返回类型。
     @Override
     @cpw.mods.fml.relauncher.SideOnly(cpw.mods.fml.relauncher.Side.CLIENT)
     public com.cleanroommc.modularui.screen.ModularScreen createScreen(PosGuiData data, ModularPanel mainPanel) {
-        return new com.cleanroommc.modularui.screen.ModularScreen(com.xyp.gtnc.ScienceNotCool.MODID, mainPanel);
+        return new com.cleanroommc.modularui.screen.ModularScreen(ScienceNotCool.MODID, mainPanel);
     }
 
     @Override
     public ModularPanel buildUI(PosGuiData data, PanelSyncManager syncManager, UISettings settings) {
-        // 频道名 C2S 同步：客户端输入 → 服务端 setChannelName（注册/注销频道）
-        StringSyncValue channelSync = new StringSyncValue(this::getChannelName, this::setChannelName);
-        channelSync.allowC2S();
-        syncManager.syncValue("mebridge_channel", channelSync);
-
-        // 接收端计数（只读，服务端 → 客户端）
-        StringSyncValue countSync = new StringSyncValue(() -> String.valueOf(getConnectedReceiverCount()), v -> {});
-        syncManager.syncValue("mebridge_count", countSync);
-
-        return ModularPanel.defaultPanel("mebridge_sender", 176, 90)
-            // #tr gui.mebridge.sender.title
-            // # ME Bridge Sender
-            // # zh_CN ME 网桥 - 发起端
-            .child(
-                IKey.lang("gui.mebridge.sender.title")
-                    .asWidget()
-                    .pos(8, 6))
-            // #tr gui.mebridge.sender.channel
-            // # Channel Name:
-            // # zh_CN 频道名:
-            .child(
-                IKey.lang("gui.mebridge.sender.channel")
-                    .asWidget()
-                    .pos(8, 24))
-            .child(
-                new TextFieldWidget().value(channelSync)
-                    .autoUpdateOnChange(false)
-                    .setMaxLength(64)
-                    .pos(8, 36)
-                    .size(160, 14))
-            // #tr gui.mebridge.sender.receivers
-            // # Connected receivers: %s
-            // # zh_CN 已连入接收端: %s
-            .child(
-                IKey.dynamic(
-                    () -> net.minecraft.util.StatCollector
-                        .translateToLocalFormatted("gui.mebridge.sender.receivers", countSync.getValue()))
-                    .asWidget()
-                    .pos(8, 60));
+        return MEBridgeSenderGui.build(this, syncManager);
     }
-
-    // endregion
 }

@@ -8,6 +8,7 @@ import net.minecraftforge.client.event.MouseEvent;
 
 import org.lwjgl.input.Mouse;
 
+import com.xyp.gtnc.Client.gui.teleport.GuiTeleportTerminal;
 import com.xyp.gtnc.Common.items.toolbelt.ConfigData;
 import com.xyp.gtnc.Common.items.toolbelt.client.RadialMenuScreen;
 import com.xyp.gtnc.Common.items.tools.VeinMiningPickaxe;
@@ -47,6 +48,10 @@ public class SubscribeEventClientUtils {
                 ScienceNotCool.LOG.info("Opening tool belt radial menu");
                 mc.displayGuiScreen(new RadialMenuScreen(player));
             }
+        }
+
+        if (KeyBindManager.openTeleportTerminalKeybind.isPressed()) {
+            mc.displayGuiScreen(new GuiTeleportTerminal());
         }
     }
 

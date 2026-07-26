@@ -12,7 +12,9 @@ import com.xyp.gtnc.Common.vending.VMTradeRegistry;
 import com.xyp.gtnc.Loader.BlockLoader;
 import com.xyp.gtnc.Loader.ItemsLoader;
 import com.xyp.gtnc.Loader.MachineLoader;
+import com.xyp.gtnc.Loader.QuestLoader;
 import com.xyp.gtnc.Loader.RecipeLoader;
+import com.xyp.gtnc.utils.enums.ModList;
 import com.xyp.gtnc.utils.event.SteamNetworkEventHandler;
 
 import appeng.api.AEApi;
@@ -89,6 +91,10 @@ public class CommonProxy {
     public void postInit(FMLPostInitializationEvent event) {
         // 注册机器
         MachineLoader.registry();
+
+        if (ModList.BetterQuesting.isModLoaded() && ModList.BetterQuestingAPI.isModLoaded()) {
+            QuestLoader.registry();
+        }
 
         // 注册AE接口终端
         var interfaceTerminal = AEApi.instance()
