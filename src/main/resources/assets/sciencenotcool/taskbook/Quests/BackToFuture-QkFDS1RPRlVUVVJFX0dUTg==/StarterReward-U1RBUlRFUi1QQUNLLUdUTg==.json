@@ -1,0 +1,117 @@
+{
+  "preRequisites:9": {},
+  "properties:10": {
+    "betterquesting:10": {
+      "autoClaim:1": 1,
+      "desc:8": "时间线已经偏离既定轨迹，但第一份补给仍为你保留。\n\n点击下方的勾选按钮即可确认领取：一套已完成满额觉醒核心升级并预充能的龙之装甲，以及一把龙之毁灭权杖。",
+      "globalShare:1": 0,
+      "icon:10": {
+        "Count:3": 1,
+        "Damage:2": 0,
+        "OreDict:8": "",
+        "id:8": "DraconicEvolution:draconicDistructionStaff"
+      },
+      "isMain:1": 1,
+      "isSilent:1": 0,
+      "lockedProgress:1": 0,
+      "name:8": "起源补给：回归者装备",
+      "questLogic:8": "AND",
+      "repeatTime:3": -1,
+      "repeat_relative:1": 1,
+      "simultaneous:1": 0,
+      "snd_complete:8": "random.levelup",
+      "snd_update:8": "random.levelup",
+      "taskLogic:8": "AND",
+      "visibility:8": "NORMAL"
+    }
+  },
+  "questIDHigh:4": 6004496025048666669,
+  "questIDLow:4": 5782977386681685070,
+  "rewards:9": {
+    "0:10": {
+      "ignoreDisabled:1": 0,
+      "index:3": 0,
+      "rewardID:8": "bq_standard:item",
+      "rewards:9": {
+        "0:10": {
+          "Count:3": 1,
+          "Damage:2": 0,
+          "OreDict:8": "",
+          "id:8": "DraconicEvolution:draconicHelm",
+          "tag:10": {
+            "Energy:3": 50000000,
+            "Upgrades:10": {
+              "RFCapacity:11": [0, 0, 2, 0],
+              "ShieldCapacity:11": [0, 0, 2, 0],
+              "ShieldRecovery:11": [0, 0, 2, 0]
+            }
+          }
+        },
+        "1:10": {
+          "Count:3": 1,
+          "Damage:2": 0,
+          "OreDict:8": "",
+          "id:8": "DraconicEvolution:draconicChest",
+          "tag:10": {
+            "Energy:3": 50000000,
+            "Upgrades:10": {
+              "RFCapacity:11": [0, 0, 2, 0],
+              "ShieldCapacity:11": [0, 0, 2, 0],
+              "ShieldRecovery:11": [0, 0, 2, 0]
+            }
+          }
+        },
+        "2:10": {
+          "Count:3": 1,
+          "Damage:2": 0,
+          "OreDict:8": "",
+          "id:8": "DraconicEvolution:draconicLeggs",
+          "tag:10": {
+            "Energy:3": 50000000,
+            "Upgrades:10": {
+              "RFCapacity:11": [0, 0, 2, 0],
+              "ShieldCapacity:11": [0, 0, 2, 0],
+              "ShieldRecovery:11": [0, 0, 2, 0]
+            }
+          }
+        },
+        "3:10": {
+          "Count:3": 1,
+          "Damage:2": 0,
+          "OreDict:8": "",
+          "id:8": "DraconicEvolution:draconicBoots",
+          "tag:10": {
+            "Energy:3": 50000000,
+            "Upgrades:10": {
+              "RFCapacity:11": [0, 0, 2, 0],
+              "ShieldCapacity:11": [0, 0, 2, 0],
+              "ShieldRecovery:11": [0, 0, 2, 0]
+            }
+          }
+        },
+        "4:10": {
+          "Count:3": 1,
+          "Damage:2": 0,
+          "OreDict:8": "",
+          "id:8": "DraconicEvolution:draconicDistructionStaff",
+          "tag:10": {
+            "Energy:3": 150000000,
+            "Upgrades:10": {
+              "RFCapacity:11": [0, 0, 3, 0],
+              "DigAOE:11": [0, 0, 1, 0],
+              "DigDepth:11": [0, 0, 1, 0],
+              "AttackAOE:11": [0, 0, 3, 0],
+              "AttackDamage:11": [0, 0, 16, 0]
+            }
+          }
+        }
+      }
+    }
+  },
+  "tasks:9": {
+    "0:10": {
+      "index:3": 0,
+      "taskID:8": "bq_standard:checkbox"
+    }
+  }
+}

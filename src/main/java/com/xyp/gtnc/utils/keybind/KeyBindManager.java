@@ -34,6 +34,11 @@ public class KeyBindManager {
     public static KeyBinding cycleToolMenuRight;
 
     /**
+     * Opens the personal teleport terminal.
+     */
+    public static KeyBinding openTeleportTerminalKeybind;
+
+    /**
      * 注册所有按键绑定
      * Register all key bindings
      */
@@ -66,11 +71,20 @@ public class KeyBindManager {
         // # Cycle Right
         // # zh_CN 右切换
 
+        // #tr key.teleport_terminal.open
+        // # Open Teleport Terminal
+        // # zh_CN 打开传送终端
+        openTeleportTerminalKeybind = new KeyBinding(
+            "key.teleport_terminal.open",
+            Keyboard.KEY_B,
+            "key.categories.sciencenotcool");
+
         // 注册到客户端
         // Register to client
         ClientRegistry.registerKeyBinding(openToolMenuKeybind);
         ClientRegistry.registerKeyBinding(cycleToolMenuLeft);
         ClientRegistry.registerKeyBinding(cycleToolMenuRight);
+        ClientRegistry.registerKeyBinding(openTeleportTerminalKeybind);
     }
 
     /**

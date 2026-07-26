@@ -79,6 +79,7 @@ public class MEBridgeWorldSavedData extends WorldSavedData {
                 ScienceNotCool.LOG.warn("[MEBridge] Skipping invalid channel entry {}", i);
             }
         }
+
     }
 
     @Override
@@ -95,5 +96,6 @@ public class MEBridgeWorldSavedData extends WorldSavedData {
             list.appendTag(tag);
         }
         nbt.setTag(KEY_LIST, list);
+
     }
 }

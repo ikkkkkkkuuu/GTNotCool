@@ -1,6 +1,8 @@
 package com.xyp.gtnc.Common.packet;
 
 import com.xyp.gtnc.Common.packet.wildcard.MessageUpdateWildcardConfig;
+import com.xyp.gtnc.Common.teleport.MessageTeleportAction;
+import com.xyp.gtnc.Common.teleport.MessageTeleportDestinations;
 import com.xyp.gtnc.ScienceNotCool;
 
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
@@ -52,6 +54,13 @@ public class NetWorkHandler {
         registerMessage(
             com.xyp.gtnc.Common.packet.building.MessageSyncPixelColors.class,
             com.xyp.gtnc.Common.packet.building.MessageSyncPixelColors.Handler.class,
+            id++,
+            Side.CLIENT);
+
+        registerMessage(MessageTeleportAction.class, MessageTeleportAction.Handler.class, id++, Side.SERVER);
+        registerMessage(
+            MessageTeleportDestinations.class,
+            MessageTeleportDestinations.Handler.class,
             id++,
             Side.CLIENT);
 

@@ -1,56 +1,38 @@
 package com.xyp.gtnc.Common.mebridge;
 
-import java.util.List;
-
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.StatCollector;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.world.Teleporter;
+import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.ForgeDirection;
 
 import com.cleanroommc.modularui.api.IGuiHolder;
-import com.cleanroommc.modularui.api.IPanelHandler;
-import com.cleanroommc.modularui.api.drawable.IKey;
 import com.cleanroommc.modularui.factory.PosGuiData;
 import com.cleanroommc.modularui.screen.ModularPanel;
 import com.cleanroommc.modularui.screen.UISettings;
-import com.cleanroommc.modularui.utils.Alignment;
-import com.cleanroommc.modularui.value.sync.InteractionSyncHandler;
 import com.cleanroommc.modularui.value.sync.PanelSyncManager;
-import com.cleanroommc.modularui.value.sync.StringSyncValue;
-import com.cleanroommc.modularui.widgets.ButtonWidget;
-import com.cleanroommc.modularui.widgets.ListWidget;
-import com.cleanroommc.modularui.widgets.layout.Flow;
-import com.cleanroommc.modularui.widgets.textfield.TextFieldWidget;
 import com.xyp.gtnc.Loader.BlockLoader;
 import com.xyp.gtnc.ScienceNotCool;
 
+import appeng.api.AEApi;
+import appeng.api.exceptions.FailedConnection;
 import appeng.api.networking.IGridConnection;
 import appeng.api.networking.IGridNode;
 
-/**
- * 跨维度 ME 网桥 - 接收端。
- * <p>
- * 选定一个频道后,取该频道发起端的 {@code IGridNode},用 {@code createGridConnection} 把接收端节点与发起端节点连成
- * 一张网(方案 A:两端视为同一 AE 网络,样板/合成/存储全共享)。一个发起端可被任意多个接收端连入(1 对多)。
- * <p>
- * 连接采用懒重连 + 频率限制:仅在节点就绪 / 频道变更 / 对端上线时尝试,断开后不每 tick 重试,避免连接风暴触发
- * AE 全网重算导致卡顿。前提是两端方块所在区块常驻加载(认领区块),连接建立一次即稳定。
- */
 public class TileMEBridgeReceiver extends TileMEBridgeBase implements IGuiHolder<PosGuiData> {
 
-    /** 当前选定的频道名(可为中文);null / 空表示未选。 */
-    private String channelName = "";
-
-    /** 当前持有的跨网连接;null 表示未连接。 */
-    private IGridConnection connection;
-
-    /** 懒重连节流:每隔若干 tick 才尝试一次。 */
     private static final int RECONNECT_INTERVAL = 40;
-    private int reconnectCooldown = 0;
 
-    /** 统计某频道当前的接收端连接数(供发起端 GUI 显示"N 个接收端连入")。 */
+    private String channelName = "";
+    private IGridConnection connection;
+    private int reconnectCooldown;
+
     public static int countReceiversOnChannel(String name) {
-        // 无全局接收端表;发起端 GUI 通过遍历不便,这里返回 -1 表示"未统计"。
-        // 真正的计数在发起端侧用一个静态计数器维护(见 register/unregister 时机)。
         return MEBridgeReceiverRegistry.count(name);
     }
 
@@ -58,13 +40,25 @@ public class TileMEBridgeReceiver extends TileMEBridgeBase implements IGuiHolder
         return channelName == null ? "" : channelName;
     }
 
-    /** 设置频道(GUI 选择时调用)。会先断开旧连接,再在下次 tick 尝试连新频道。 */
+    public int getDimensionId() {
+        return worldObj == null || worldObj.provider == null ? 0 : worldObj.provider.dimensionId;
+    }
+
+    public long getWorldTime() {
+        return worldObj == null ? 0L : worldObj.getTotalWorldTime();
+    }
+
     public void setChannelName(String name) {
-        String newName = name == null ? "" : name;
-        if (newName.equals(this.channelName)) return;
+        String newName = MEBridgeChannelName.normalize(name);
+        if (!MEBridgeChannelName.isValid(newName) || newName.equals(channelName)) return;
+        if (worldObj != null && worldObj.isRemote) {
+            channelName = newName;
+            return;
+        }
+
         disconnect();
-        this.channelName = newName;
-        this.reconnectCooldown = 0; // 立即尝试
+        channelName = newName;
+        reconnectCooldown = 0;
         markDirty();
     }
 
@@ -72,20 +66,56 @@ public class TileMEBridgeReceiver extends TileMEBridgeBase implements IGuiHolder
         return connection != null;
     }
 
+    public void teleportPlayerToSender(EntityPlayerMP player, String targetChannel) {
+        if (player == null || worldObj == null || worldObj.isRemote) return;
+
+        MEBridgeChannelInfo target = MEBridgeChannelManager.get(targetChannel);
+        WorldServer destination = target == null ? null : DimensionManager.getWorld(target.dim);
+        if (target == null || destination == null || target.getSenderTile() == null) {
+            // #tr gui.mebridge.teleport.unavailable
+            // # The target sender is unavailable.
+            // # zh_CN 目标发起端当前不可用。
+            player.addChatMessage(new ChatComponentTranslation("gui.mebridge.teleport.unavailable"));
+            return;
+        }
+
+        Arrival arrival = findSafeArrival(destination, target);
+        if (arrival == null) {
+            // #tr gui.mebridge.teleport.no_safe_location
+            // # No safe location was found near the target sender.
+            // # zh_CN 未在目标发起端附近找到安全落点。
+            player.addChatMessage(new ChatComponentTranslation("gui.mebridge.teleport.no_safe_location"));
+            return;
+        }
+
+        if (player.dimension != target.dim) {
+            MinecraftServer.getServer()
+                .getConfigurationManager()
+                .transferPlayerToDimension(player, target.dim, new DirectTeleporter(destination));
+        }
+        player.playerNetServerHandler
+            .setPlayerLocation(arrival.x + 0.5D, arrival.y, arrival.z + 0.5D, player.rotationYaw, player.rotationPitch);
+        // #tr gui.mebridge.teleport.success
+        // # Teleported to channel %s.
+        // # zh_CN 已传送至频道 %s。
+        player.addChatMessage(new ChatComponentTranslation("gui.mebridge.teleport.success", target.name));
+    }
+
     @Override
-    protected net.minecraft.item.ItemStack getVisualRepresentation() {
-        return BlockLoader.blockMEBridgeReceiver != null
-            ? new net.minecraft.item.ItemStack(BlockLoader.blockMEBridgeReceiver)
-            : null;
+    protected void onProxyReady() {
+        reconnectCooldown = Math
+            .floorMod(xCoord * 31 + yCoord * 17 + zCoord * 13 + getDimensionId(), RECONNECT_INTERVAL);
+    }
+
+    @Override
+    protected ItemStack getVisualRepresentation() {
+        return BlockLoader.blockMEBridgeReceiver == null ? null : new ItemStack(BlockLoader.blockMEBridgeReceiver);
     }
 
     @Override
     public void updateEntity() {
         super.updateEntity();
         if (worldObj.isRemote) return;
-
-        // 每 RECONNECT_INTERVAL tick 重新评估一次连接状态(仿量子网桥 updateStatus:
-        // 校验现有连接是否仍有效 / 发起端离线则拆除 / 该连未连则建)。
         if (reconnectCooldown > 0) {
             reconnectCooldown--;
             return;
@@ -94,55 +124,43 @@ public class TileMEBridgeReceiver extends TileMEBridgeBase implements IGuiHolder
         updateConnectionStatus();
     }
 
-    /**
-     * 重新评估到发起端的连接。仿 QuantumCluster.updateStatus:
-     * <ul>
-     * <li>目标频道无效 / 发起端离线 / 节点未就绪 → 拆掉现有连接;</li>
-     * <li>现有连接两端节点仍匹配当前发起端 → 保留;</li>
-     * <li>否则重建。</li>
-     * </ul>
-     */
     private void updateConnectionStatus() {
-        IGridNode myNode = getGridNode(ForgeDirection.UNKNOWN);
+        IGridNode receiverNode = getGridNode(ForgeDirection.UNKNOWN);
+        IGridNode senderNode = findSenderNode(receiverNode);
 
-        // 解析目标发起端节点(频道有效 + 发起端在线 + 节点就绪)
-        IGridNode senderNode = null;
-        if (channelName != null && !channelName.isEmpty() && myNode != null) {
-            MEBridgeChannelInfo info = MEBridgeChannelManager.get(channelName);
-            if (info != null) {
-                TileMEBridgeSender sender = info.getSenderTile();
-                if (sender != null) {
-                    IGridNode n = sender.getGridNode(ForgeDirection.UNKNOWN);
-                    if (n != null && n != myNode) senderNode = n;
-                }
-            }
-        }
-
-        // 现有连接仍指向同一对节点 → 保留,不动
         if (connection != null) {
-            IGridNode a = connection.a();
-            IGridNode b = connection.b();
-            boolean stillValid = senderNode != null
-                && ((a == myNode || b == myNode) && (a == senderNode || b == senderNode));
-            if (stillValid) return;
-            // 目标变了 / 发起端离线 → 拆掉旧连接
+            IGridNode first = connection.a();
+            IGridNode second = connection.b();
+            boolean isCurrentConnection = senderNode != null
+                && ((first == receiverNode || second == receiverNode) && (first == senderNode || second == senderNode));
+            if (isCurrentConnection) return;
             disconnect();
         }
 
-        // 无可连目标(未选频道 / 发起端离线 / 节点未就绪)→ 保持断开
         if (senderNode == null) return;
+        connect(receiverNode, senderNode);
+    }
 
-        // 建立新连接。先让接收端节点认领发起端节点的 playerID——接收端是发起端网络的延伸,
-        // 不该有独立身份。这样安保检查 checkPlayerPermissions 查的是主网所有者对自己主网的权限,必过,
-        // 避免 "different security realms" 拒绝。
+    private IGridNode findSenderNode(IGridNode receiverNode) {
+        if (channelName == null || channelName.isEmpty() || receiverNode == null) return null;
+
+        MEBridgeChannelInfo info = MEBridgeChannelManager.get(channelName);
+        if (info == null) return null;
+
+        TileMEBridgeSender sender = info.getSenderTile();
+        if (sender == null) return null;
+
+        IGridNode senderNode = sender.getGridNode(ForgeDirection.UNKNOWN);
+        return senderNode == receiverNode ? null : senderNode;
+    }
+
+    private void connect(IGridNode receiverNode, IGridNode senderNode) {
         try {
-            myNode.setPlayerID(senderNode.getPlayerID());
-            connection = appeng.api.AEApi.instance()
-                .createGridConnection(myNode, senderNode);
+            receiverNode.setPlayerID(senderNode.getPlayerID());
+            connection = AEApi.instance()
+                .createGridConnection(receiverNode, senderNode);
             MEBridgeReceiverRegistry.add(channelName, this);
-        } catch (appeng.api.exceptions.FailedConnection e) {
-            // 通常是两端本地网各有不同 key 的安保终端(SecurityConnectionException),
-            // 或已在同一网(ExistingConnectionException)。
+        } catch (FailedConnection exception) {
             connection = null;
             ScienceNotCool.LOG.warn(
                 "[MEBridge] receiver ({},{},{}) failed to connect channel '{}': {}",
@@ -150,23 +168,73 @@ public class TileMEBridgeReceiver extends TileMEBridgeBase implements IGuiHolder
                 yCoord,
                 zCoord,
                 channelName,
-                e.getClass()
+                exception.getClass()
                     .getSimpleName() + " - "
-                    + e.getMessage());
+                    + exception.getMessage());
         }
     }
 
-    /** 断开当前连接。 */
     private void disconnect() {
-        if (connection != null) {
-            try {
-                connection.destroy();
-            } catch (RuntimeException e) {
-                ScienceNotCool.LOG.warn("[MEBridge] receiver connection destroy failed", e);
-            }
-            connection = null;
-            MEBridgeReceiverRegistry.remove(channelName, this);
+        if (connection == null) return;
+        try {
+            connection.destroy();
+        } catch (RuntimeException exception) {
+            ScienceNotCool.LOG.warn("[MEBridge] receiver connection destroy failed", exception);
         }
+        connection = null;
+        MEBridgeReceiverRegistry.remove(channelName, this);
+    }
+
+    private static Arrival findSafeArrival(WorldServer world, MEBridgeChannelInfo target) {
+        int[][] offsets = { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 }, { 2, 0 }, { -2, 0 }, { 0, 2 }, { 0, -2 },
+            { 1, 1 }, { 1, -1 }, { -1, 1 }, { -1, -1 } };
+        int minimumY = Math.max(1, target.y - 4);
+        int maximumY = Math.min(world.getActualHeight() - 3, target.y + 4);
+        for (int[] offset : offsets) {
+            int x = target.x + offset[0];
+            int z = target.z + offset[1];
+            for (int floorY = maximumY; floorY >= minimumY; floorY--) {
+                if (isSafeArrival(world, x, floorY, z)) return new Arrival(x, floorY + 1, z);
+            }
+        }
+        return null;
+    }
+
+    private static boolean isSafeArrival(WorldServer world, int x, int floorY, int z) {
+        net.minecraft.block.material.Material floor = world.getBlock(x, floorY, z)
+            .getMaterial();
+        net.minecraft.block.material.Material feet = world.getBlock(x, floorY + 1, z)
+            .getMaterial();
+        net.minecraft.block.material.Material head = world.getBlock(x, floorY + 2, z)
+            .getMaterial();
+        return floor.blocksMovement() && !floor.isLiquid()
+            && !feet.blocksMovement()
+            && !feet.isLiquid()
+            && !head.blocksMovement()
+            && !head.isLiquid();
+    }
+
+    private static final class Arrival {
+
+        private final int x;
+        private final int y;
+        private final int z;
+
+        private Arrival(int x, int y, int z) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+    }
+
+    private static final class DirectTeleporter extends Teleporter {
+
+        private DirectTeleporter(WorldServer world) {
+            super(world);
+        }
+
+        @Override
+        public void placeInPortal(Entity entity, double x, double y, double z, float yaw) {}
     }
 
     @Override
@@ -177,195 +245,24 @@ public class TileMEBridgeReceiver extends TileMEBridgeBase implements IGuiHolder
     @Override
     public void readFromNBT(NBTTagCompound nbt) {
         super.readFromNBT(nbt);
-        this.channelName = nbt.getString("mebridge_channel");
+        String savedName = MEBridgeChannelName.normalize(nbt.getString("mebridge_channel"));
+        channelName = MEBridgeChannelName.isValid(savedName) ? savedName : "";
     }
 
     @Override
     public void writeToNBT(NBTTagCompound nbt) {
         super.writeToNBT(nbt);
-        if (channelName != null) nbt.setString("mebridge_channel", channelName);
+        nbt.setString("mebridge_channel", getChannelName());
     }
 
-    // region MUI2 GUI
-
-    // 【务必保留 @SideOnly(CLIENT)】本方块会接入 AE 网络,AE2 的 NetworkEventBus.readClass 在并网时会对本 tile 调
-    // getMethods(),JVM 借此解析每个 public 方法的返回类型。createScreen 返回的 ModularScreen 是纯客户端类,
-    // 专用服务端由 SideTransformer 拒绝加载 → NoClassDefFoundError → 并网即崩服。接口里该方法本身就带
-    // @SideOnly(CLIENT) 会被服务端剥离,重写时必须原样带上,服务端才不会扫到这个客户端返回类型。
     @Override
     @cpw.mods.fml.relauncher.SideOnly(cpw.mods.fml.relauncher.Side.CLIENT)
     public com.cleanroommc.modularui.screen.ModularScreen createScreen(PosGuiData data, ModularPanel mainPanel) {
-        return new com.cleanroommc.modularui.screen.ModularScreen(com.xyp.gtnc.ScienceNotCool.MODID, mainPanel);
+        return new com.cleanroommc.modularui.screen.ModularScreen(ScienceNotCool.MODID, mainPanel);
     }
 
     @Override
     public ModularPanel buildUI(PosGuiData data, PanelSyncManager syncManager, UISettings settings) {
-        // 当前选定频道名 + 连接状态,C2S 同步:客户端显示,服务端点击列表时写入。
-        StringSyncValue channelSync = new StringSyncValue(this::getChannelName, this::setChannelName);
-        channelSync.allowC2S();
-        syncManager.syncValue("channel", channelSync);
-
-        // 连接状态(只读,服务端 → 客户端)。connection 字段只在服务端有值,客户端靠此同步才能显示绿/灰。
-        StringSyncValue connectedSync = new StringSyncValue(() -> isConnected() ? "1" : "0", v -> {});
-        syncManager.syncValue("connected", connectedSync);
-
-        // 频道列表数据(只读,服务端 → 客户端)。MEBridgeChannelManager 是纯服务端注册表,客户端那份恒为空;
-        // 弹出列表面板的 factory 在两端都会跑,若客户端直接读注册表则列表永远是空的(只能手动输入)。
-        // 故把服务端注册表编码成字符串随 GUI 同步下来,两端都用这份同步串重建列表 → 客户端能看到频道,
-        // 且两端 widget 树一致(InteractionSyncHandler 靠索引路由点击,树必须一致)。
-        StringSyncValue listSync = new StringSyncValue(this::encodeChannelList, v -> {});
-        syncManager.syncValue("channelList_data", listSync);
-
-        // 频道列表弹出面板:两端用同步下来的 listSync 重建。
-        IPanelHandler listPanel = syncManager
-            .syncedPanel("channelList", true, (sm, ph) -> createChannelListPanel(sm, ph, listSync));
-
-        return ModularPanel.defaultPanel("mebridge_receiver", 180, 78)
-            // #tr gui.mebridge.receiver.title
-            // # ME Bridge Receiver
-            // # zh_CN ME 网桥 - 接收端
-            .child(
-                IKey.lang("gui.mebridge.receiver.title")
-                    .asWidget()
-                    .pos(8, 6))
-            // #tr gui.mebridge.receiver.channel
-            // # Channel Name:
-            // # zh_CN 频道名:
-            .child(
-                IKey.lang("gui.mebridge.receiver.channel")
-                    .asWidget()
-                    .pos(8, 22))
-            // 直接写频道名(回车/关闭 GUI 时同步),或点右侧按钮从列表选。
-            .child(
-                new TextFieldWidget().value(channelSync)
-                    .autoUpdateOnChange(false)
-                    .setMaxLength(64)
-                    .pos(8, 34)
-                    .size(140, 14))
-            // #tr gui.mebridge.receiver.select
-            // # Browse channels
-            // # zh_CN 浏览频道列表
-            .child(
-                new ButtonWidget<>().pos(152, 34)
-                    .size(16, 14)
-                    .overlay(IKey.str("..."))
-                    .onMousePressed(btn -> {
-                        if (listPanel.isPanelOpen()) listPanel.closePanel();
-                        else listPanel.openPanel();
-                        return true;
-                    }))
-            // #tr gui.mebridge.receiver.status
-            // # Status: %s
-            // # zh_CN 状态: %s
-            .child(
-                IKey.dynamic(
-                    () -> StatCollector.translateToLocalFormatted(
-                        "gui.mebridge.receiver.status",
-                        "1".equals(connectedSync.getValue()) ? "§a●§r" : "§7○§r"))
-                    .asWidget()
-                    .pos(8, 58));
+        return MEBridgeReceiverGui.build(this, syncManager);
     }
-
-    // 频道列表编码用的分隔符:用控制字符,几乎不会出现在玩家写的频道名里。
-    // 记录间用 \n,字段间用 。字段顺序:name、online(0/1)、x、y、z、dim。
-    private static final String LIST_RECORD_SEP = "\n";
-    private static final String LIST_FIELD_SEP = "";
-
-    /** 服务端把当前注册表编码成一个字符串,随 listSync 同步给客户端。客户端调用返回空串(注册表恒空,不影响)。 */
-    private String encodeChannelList() {
-        List<MEBridgeChannelInfo> channels = MEBridgeChannelManager.snapshot();
-        StringBuilder sb = new StringBuilder();
-        for (MEBridgeChannelInfo info : channels) {
-            if (info.name == null || info.name.isEmpty()) continue;
-            if (sb.length() > 0) sb.append(LIST_RECORD_SEP);
-            sb.append(info.name)
-                .append(LIST_FIELD_SEP)
-                .append(info.isOnline() ? '1' : '0')
-                .append(LIST_FIELD_SEP)
-                .append(info.x)
-                .append(LIST_FIELD_SEP)
-                .append(info.y)
-                .append(LIST_FIELD_SEP)
-                .append(info.z)
-                .append(LIST_FIELD_SEP)
-                .append(info.dim);
-        }
-        return sb.toString();
-    }
-
-    /**
-     * 按频道名分配一个稳定的 Minecraft 颜色码(§1–§9、§a–§e,共 13 色),用于在列表里区分不同网络。
-     * 跳过 §0(黑,难读)、§f(白,与默认色无区分)。同名频道每次返回同色。
-     */
-    private static String gtnc$channelColor(String name) {
-        // 十六进制色码字符集:1..9 a..e(去掉 0 黑、f 白)
-        final char[] palette = { '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e' };
-        int idx = Math.floorMod(name.hashCode(), palette.length);
-        return "§" + palette[idx];
-    }
-
-    /** 频道列表弹出面板:两端都从同步下来的 listSync 字符串重建,保证 widget 树一致。 */
-    public ModularPanel createChannelListPanel(PanelSyncManager syncManager, IPanelHandler panelHandler,
-        StringSyncValue listSync) {
-        Flow column = Flow.column()
-            .coverChildrenHeight()
-            .width(156);
-
-        String data = listSync.getValue();
-        if (data != null && !data.isEmpty()) {
-            for (String record : data.split(LIST_RECORD_SEP, -1)) {
-                if (record.isEmpty()) continue;
-                String[] f = record.split(LIST_FIELD_SEP, -1);
-                if (f.length < 6) continue;
-                final String name = f[0];
-                final boolean online = "1".equals(f[1]);
-                final String x = f[2], y = f[3], z = f[4], dim = f[5];
-                // 每个网络(频道)按名字哈希分配一个稳定的专属颜色,圆点和名字都用它上色,
-                // 从而一眼区分不同网络;在线/离线继续用实心●/空心○区分。
-                String color = gtnc$channelColor(name);
-                String label = color + (online ? "●" : "○") + " " + name + "§r";
-                column.child(
-                    new ButtonWidget<>().width(156)
-                        .height(16)
-                        .marginBottom(1)
-                        .overlay(IKey.str(label))
-                        .syncHandler(new InteractionSyncHandler().setOnMousePressed(md -> {
-                            if (!md.isClient()) {
-                                setChannelName(name);
-                                markDirty();
-                            }
-                        }))
-                        .tooltip(
-                            t -> t.addLine(
-                                IKey.str(
-                                    StatCollector.translateToLocal("gui.mebridge.channel.pos") + " "
-                                        + x
-                                        + ", "
-                                        + y
-                                        + ", "
-                                        + z
-                                        + " (dim "
-                                        + dim
-                                        + ")"))));
-            }
-        }
-        ListWidget<?, ?> list = new ListWidget<>().size(160, 100)
-            .child(column);
-
-        return new ModularPanel("mebridge:list").child(ButtonWidget.panelCloseButton())
-            .child(
-                Flow.column()
-                    .child(
-                        IKey.lang("gui.mebridge.receiver.select")
-                            .asWidget()
-                            .marginTop(10))
-                    .child(list)
-                    .childPadding(4)
-                    .margin(8)
-                    .coverChildren()
-                    .crossAxisAlignment(Alignment.CrossAxis.START))
-            .coverChildren();
-    }
-
-    // endregion
 }

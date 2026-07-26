@@ -1,14 +1,13 @@
 package com.xyp.gtnc.mixins.late.Thaumcraft;
 
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.xyp.gtnc.Config.Config;
 
-import thaumcraft.api.aspects.AspectList;
 import thaumcraft.common.tiles.TileCrucible;
 
 /**
@@ -22,21 +21,10 @@ import thaumcraft.common.tiles.TileCrucible;
  * <li>过量溢出（{@code tagAmount() > 100} 时每 5 tick 删随机 1 个并 spill）；</li>
  * <li>高温熵变（{@code heat > 150} 时每约 100 tick 删 1 个，复合降解、基础 spill）。</li>
  * </ul>
- * 之前的 {@code @Redirect tagAmount()} 方案虽理论上应阻断 guard 条件，但实际无效。
- * 改用更彻底的 save/restore：HEAD 保存 {@code this.aspects}、TAIL 恢复，
- * 无论方法内以何种方式修改源质都会被撤销。加热、精炼、计时器等其余逻辑不受影响。
- * <p>
- * <b>注意</b>：类级 {@code remap = false}，且运行时 TC jar 的 {@code updateEntity}
- * 保持 MCP 名（非 SRG 名 {@code func_145845_h}），因此 Inject 目标用 {@code updateEntity}。
+ * 直接重定向这两处 guard 调用，在源头跳过衰减逻辑，避免先扣除再恢复时向客户端同步错误数据。
  */
 @Mixin(value = TileCrucible.class, remap = false)
 public abstract class MixinTileCrucible {
-
-    /** 用于在 updateEntity 入口暂存源质列表 */
-    private AspectList sciencenotcool$savedAspects;
-
-    @Shadow
-    public AspectList aspects;
 
     @Inject(method = "spill", at = @At("HEAD"), cancellable = true, require = 1)
     private void gtnc$noCrucibleFlux(CallbackInfo ci) {
@@ -45,28 +33,11 @@ public abstract class MixinTileCrucible {
         }
     }
 
-    /**
-     * 在 updateEntity 入口快照当前 aspects。
-     * 配合下面的 TAIL 注入实现"源质自动恢复"。
-     */
-    @Inject(method = "updateEntity", at = @At("HEAD"))
-    private void gtnc$snapshotAspects(CallbackInfo ci) {
-        if (Config.tcCrucibleNoDecay) {
-            this.sciencenotcool$savedAspects = this.aspects.copy();
-        }
-    }
-
-    /**
-     * 在 updateEntity 尾部恢复为入口快照，使本 tick 内的所有源质修改无效化。
-     * <p>
-     * 注意：{@code attemptSmelt} 在物品落入坩埚时独立调用（不在 updateEntity 内），
-     * 故精炼配方消耗源质不受影响。
-     */
-    @Inject(method = "updateEntity", at = @At("TAIL"))
-    private void gtnc$restoreAspects(CallbackInfo ci) {
-        if (Config.tcCrucibleNoDecay && this.sciencenotcool$savedAspects != null) {
-            this.aspects = this.sciencenotcool$savedAspects;
-            this.sciencenotcool$savedAspects = null;
-        }
+    @Redirect(
+        method = "updateEntity",
+        at = @At(value = "INVOKE", target = "Lthaumcraft/common/tiles/TileCrucible;tagAmount()I"),
+        require = 2)
+    private int gtnc$skipCrucibleDecayChecks(TileCrucible crucible) {
+        return Config.tcCrucibleNoDecay ? 0 : crucible.tagAmount();
     }
 }
