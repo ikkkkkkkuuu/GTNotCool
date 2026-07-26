@@ -394,7 +394,7 @@ public class SingularityDataHub extends MTEEnhancedMultiBlockBase<SingularityDat
             .addInfo(StatCollector.translateToLocal("Tooltip_SingularityDataHub_00"))
             // #tr Tooltip_SingularityDataHub_01
             // # Infinite storage for items and fluids!
-            // # zh_CN 无限的物品和流体存储！
+            // # zh_CN §m无限的物品和流体存储！§r 其实并不无限:)
             .addInfo(StatCollector.translateToLocal("Tooltip_SingularityDataHub_01"))
             // #tr Tooltip_SingularityDataHub_02
             // # No longer compatible with output bus or output hatche, input only

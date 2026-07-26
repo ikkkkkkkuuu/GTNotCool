@@ -106,6 +106,7 @@ public class LargeCombProcessor extends MTEEnhancedMultiBlockBase<LargeCombProce
     private static final int HORIZONTAL_OFF_SET = 7;
     private static final int VERTICAL_OFF_SET = 8;
     private static final int DEPTH_OFF_SET = 0;
+    private static final int MAX_PARALLEL_RECIPES = Integer.MAX_VALUE;
 
     private int mCountCasing = 0;
 
@@ -231,7 +232,7 @@ public class LargeCombProcessor extends MTEEnhancedMultiBlockBase<LargeCombProce
 
     @Override
     public int getMaxParallelRecipes() {
-        return 2560;
+        return MAX_PARALLEL_RECIPES;
     }
 
     @Override
@@ -242,7 +243,7 @@ public class LargeCombProcessor extends MTEEnhancedMultiBlockBase<LargeCombProce
     @Override
     protected ProcessingLogic createProcessingLogic() {
         return new ProcessingLogic().enablePerfectOverclock()
-            .setMaxParallel(2560)
+            .setMaxParallel(MAX_PARALLEL_RECIPES)
             .setSpeedBonus(0.1)
             .setEuModifier(0.1);
     }
@@ -294,8 +295,7 @@ public class LargeCombProcessor extends MTEEnhancedMultiBlockBase<LargeCombProce
 
             long availablePower = getMaxInputEu();
 
-            int maxIterations = 200;
-            for (int i = 0; i < maxIterations; i++) {
+            for (int iteration = 0; iteration < MAX_PARALLEL_RECIPES; iteration++) {
                 // Power limit: stop if adding another recipe exceeds available EU/t
                 if (totalEUt + eutPerRecipe > availablePower) {
                     break;
