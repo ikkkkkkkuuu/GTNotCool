@@ -333,6 +333,93 @@ public class TextLocalization {
     // # zh_CN 虚空采矿场
     public static final String LargeSteamVoidMinerRecipeType = TextEnums.tr("LargeSteamVoidMinerRecipeType");
 
+    // == LargeSteamCropBreeder == //
+
+    // #tr LargeSteamCropBreederMachineType
+    // # Crop Breeding
+    // # zh_CN 作物杂交
+    public static final String LargeSteamCropBreederMachineType = TextEnums.tr("LargeSteamCropBreederMachineType");
+
+    // #tr LargeSteamCropBreederModeDeterministic
+    // # Deterministic Breeding
+    // # zh_CN 确定性杂交
+    public static final String LargeSteamCropBreederModeDeterministic = TextEnums
+        .tr("LargeSteamCropBreederModeDeterministic");
+
+    // #tr LargeSteamCropBreederModeMutationPool
+    // # Mutation Pool Breeding
+    // # zh_CN 杂交池杂交
+    public static final String LargeSteamCropBreederModeMutationPool = TextEnums
+        .tr("LargeSteamCropBreederModeMutationPool");
+
+    // #tr LargeSteamCropBreederRecipeType
+    // # Deterministic Crop Breeding
+    // # zh_CN 确定性作物杂交
+    public static final String LargeSteamCropBreederRecipeType = TextEnums.tr("LargeSteamCropBreederRecipeType");
+
+    // #tr Tooltip_LargeSteamCropBreeder_00
+    // # A large steam-powered CropsNH breeding machine
+    // # zh_CN 使用蒸汽进行 CropsNH 作物杂交的大型机器
+    public static final String Tooltip_LargeSteamCropBreeder_00 = TextEnums.tr("Tooltip_LargeSteamCropBreeder_00");
+
+    // #tr Tooltip_LargeSteamCropBreeder_01
+    // # Accepts 2-4 analyzed parent seeds and all catalysts required by deterministic mutations
+    // # zh_CN 接受 2-4 种已分析亲本种子及确定性杂交所需的全部催化物
+    public static final String Tooltip_LargeSteamCropBreeder_01 = TextEnums.tr("Tooltip_LargeSteamCropBreeder_01");
+
+    // #tr Tooltip_LargeSteamCropBreeder_02
+    // # Does not consume enriched liquid fertilizer
+    // # zh_CN 不消耗富集液体肥料
+    public static final String Tooltip_LargeSteamCropBreeder_02 = TextEnums.tr("Tooltip_LargeSteamCropBreeder_02");
+
+    // #tr Tooltip_LargeSteamCropBreeder_03
+    // # Deterministic offspring inherit the average Growth, Gain and Resistance of their parents
+    // # zh_CN 确定性杂交后代的生长、产量和抗性取参与亲本的平均值
+    public static final String Tooltip_LargeSteamCropBreeder_03 = TextEnums.tr("Tooltip_LargeSteamCropBreeder_03");
+
+    // #tr Tooltip_LargeSteamCropBreeder_04
+    // # Crop tier and machine-only catalyst requirements from CropsNH are respected
+    // # zh_CN 遵守 CropsNH 的作物等级与机器专用催化条件
+    public static final String Tooltip_LargeSteamCropBreeder_04 = TextEnums.tr("Tooltip_LargeSteamCropBreeder_04");
+
+    // #tr Tooltip_LargeSteamCropBreeder_05
+    // # Use the GUI mode button to switch between deterministic breeding and mutation-pool breeding
+    // # zh_CN 使用 GUI 模式按钮切换确定性杂交和杂交池杂交
+    public static final String Tooltip_LargeSteamCropBreeder_05 = TextEnums.tr("Tooltip_LargeSteamCropBreeder_05");
+
+    // #tr Tooltip_LargeSteamCropBreeder_06
+    // # Mutation-pool offspring use CropsNH's normal parent-average stat variation
+    // # zh_CN 杂交池后代沿用 CropsNH 原生的亲本平均属性浮动规则
+    public static final String Tooltip_LargeSteamCropBreeder_06 = TextEnums.tr("Tooltip_LargeSteamCropBreeder_06");
+
+    // #tr Tooltip_LargeSteamCropBreeder_Casing
+    // # Machine casing
+    // # zh_CN 机器外壳
+    public static final String Tooltip_LargeSteamCropBreeder_Casing = TextEnums
+        .tr("Tooltip_LargeSteamCropBreeder_Casing");
+
+    // #tr Tooltip_LargeSteamCropBreeder_Controller
+    // # Front center
+    // # zh_CN 正面中央
+    public static final String Tooltip_LargeSteamCropBreeder_Controller = TextEnums
+        .tr("Tooltip_LargeSteamCropBreeder_Controller");
+
+    // #tr Tooltip_LargeSteamCropBreeder_BorosilicateGlass
+    // # Borosilicate Glass
+    // # zh_CN 硼硅玻璃
+    public static final String Tooltip_LargeSteamCropBreeder_BorosilicateGlass = TextEnums
+        .tr("Tooltip_LargeSteamCropBreeder_BorosilicateGlass");
+
+    // #tr Tooltip_LargeSteamCropBreeder_GreenhouseWalls
+    // # Greenhouse walls
+    // # zh_CN 温室墙体
+    public static final String Tooltip_LargeSteamCropBreeder_GreenhouseWalls = TextEnums
+        .tr("Tooltip_LargeSteamCropBreeder_GreenhouseWalls");
+
+    public static final String Tooltip_GTNC_SteamTierInfo = TextEnums.tr("Tooltip_GTNC_SteamTierInfo");
+    public static final String Tooltip_GTNC_SteamGearInfo = TextEnums.tr("Tooltip_GTNC_SteamGearInfo");
+    public static final String Tooltip_GTNC_SteamWirelessMode = TextEnums.tr("Tooltip_GTNC_SteamWirelessMode");
+
     // == IndustrialArcaneAssembler == //
 
     // #tr Tooltip_IndustrialArcaneAssembler_00

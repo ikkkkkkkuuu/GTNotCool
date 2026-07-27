@@ -30,8 +30,7 @@ public class BeeSpeciesDropTextField extends TextFieldWidget implements RecipeVi
         String uid = BeeBreedingHelper.getBeeUID(draggedStack);
         if (uid == null || uid.isEmpty()) return false;
 
-        // 直接用 UID 设置文本，StringSyncValue 会将其送到 setTargetBeeSpecies
-        // 文本框显示 UID，终端区域会显示 getSpeciesDisplayName 转换后的友好名称
+        // Fill the editable draft with the unique UID. The machine changes target only after the user presses Apply.
         setText(uid);
         onTextChanged();
         return true;

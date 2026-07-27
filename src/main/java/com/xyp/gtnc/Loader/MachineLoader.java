@@ -32,6 +32,7 @@ import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamCentrifuge;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamChemicalReactor;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamCircuitAssembler;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamCompressor;
+import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamCropBreeder;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamCrucible;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamCutting;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamDistillationTower;
@@ -436,6 +437,17 @@ public class MachineLoader {
                 StatCollector.translateToLocal("NameLargeSteamBeeBreeder")));
         AnimatedTooltipHandler
             .addItemTooltip(GTNCItemList.LargeSteamBeeBreeder.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        // #tr NameLargeSteamCropBreeder
+        // # Large Steam Crop Breeder
+        // # zh_CN 大型蒸汽作物杂交机
+        GTNCItemList.LargeSteamCropBreeder.set(
+            new LargeSteamCropBreeder(
+                GTNCMachineID.LARGE_STEAM_CROP_BREEDER.ID,
+                "LargeSteamCropBreeder",
+                StatCollector.translateToLocal("NameLargeSteamCropBreeder")));
+        AnimatedTooltipHandler
+            .addItemTooltip(GTNCItemList.LargeSteamCropBreeder.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
 
         // #tr NameLargeSteamCombProcessor
         // # Large Steam Comb Processor

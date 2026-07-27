@@ -5,10 +5,9 @@ import java.util.function.Supplier;
 import com.cleanroommc.modularui.api.drawable.IKey;
 import com.cleanroommc.modularui.api.widget.IWidget;
 import com.cleanroommc.modularui.drawable.Rectangle;
-import com.cleanroommc.modularui.drawable.UITexture;
 import com.cleanroommc.modularui.utils.Alignment;
 import com.cleanroommc.modularui.widget.ParentWidget;
-import com.xyp.gtnc.ScienceNotCool;
+import com.xyp.gtnc.Common.gui.modularui.GTNCGuiTextures;
 
 final class MEBridgeGuiTheme {
 
@@ -22,36 +21,12 @@ final class MEBridgeGuiTheme {
     static final int PANEL_DARK = 0xFF171A22;
     static final int PANEL_ROW = 0xFF303646;
 
-    private static final UITexture MODERN_BACKGROUND = UITexture.builder()
-        .location(ScienceNotCool.MODID, "gui/me_bridge/modernity/background")
-        .imageSize(176, 166)
-        .adaptable(2)
-        .build();
-    private static final UITexture MODERN_BORDER = UITexture.builder()
-        .location(ScienceNotCool.MODID, "gui/me_bridge/modernity/panel_border")
-        .imageSize(8, 8)
-        .adaptable(1)
-        .build();
-    private static final UITexture MODERN_BUTTON = UITexture.builder()
-        .location(ScienceNotCool.MODID, "gui/me_bridge/modernity/button")
-        .imageSize(18, 18)
-        .adaptable(2)
-        .build();
-
     private MEBridgeGuiTheme() {}
-
-    static UITexture background() {
-        return MODERN_BACKGROUND;
-    }
-
-    static UITexture button() {
-        return MODERN_BUTTON;
-    }
 
     static ParentWidget<?> section(int x, int y, int width, int height) {
         ParentWidget<?> section = new ParentWidget<>().pos(x, y)
             .size(width, height)
-            .background(MODERN_BORDER);
+            .background(GTNCGuiTextures.MODERN_PANEL_BORDER);
         section.child(
             new ParentWidget<>().pos(2, 2)
                 .size(width - 4, height - 4)

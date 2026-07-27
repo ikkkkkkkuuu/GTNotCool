@@ -13,6 +13,7 @@ import static gregtech.api.util.GTRecipeBuilder.SECONDS;
 
 import net.minecraft.item.ItemStack;
 
+import com.gtnewhorizon.cropsnh.api.CropsNHItemList;
 import com.xyp.gtnc.utils.enums.GTNCItemList;
 import com.xyp.gtnc.utils.item.ItemUtils;
 
@@ -286,6 +287,19 @@ public class AssemblerRecipes {
             .itemOutputs(GTNCItemList.LargeSteamBeeBreeder.get(1))
             .duration(5 * SECONDS)
             .eut(32)
+            .addTo(As);
+
+        // 蒸汽作物杂交机
+        GTRecipeBuilder.builder()
+            .itemInputs(
+                GTNCItemList.LargeSteamAssembler.get(1L),
+                CropsNHItemList.cropSticks.get(16),
+                GTOreDictUnificator.get(OrePrefixes.circuit, Materials.LV, 8),
+                GTOreDictUnificator.get(OrePrefixes.plate, Materials.Bronze, 8),
+                GTUtility.getIntegratedCircuit(23))
+            .itemOutputs(GTNCItemList.LargeSteamCropBreeder.get(1))
+            .duration(10 * SECONDS)
+            .eut(RECIPE_LV)
             .addTo(As);
 
         // 养蜂机

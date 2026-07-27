@@ -23,6 +23,7 @@ import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
     dependencies = "after:AWWayofTime;" + "required-after:Avaritia;"
         + "after:BloodArsenal;"
         + "required-after:Botania;"
+        + "required-after:cropsnh;"
         + "required-after:bartworks;"
         + "after:eternalsingularity;"
         + "after:etfuturum;"

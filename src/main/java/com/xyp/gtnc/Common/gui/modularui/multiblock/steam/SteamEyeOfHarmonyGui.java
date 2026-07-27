@@ -6,6 +6,7 @@ import com.cleanroommc.modularui.value.sync.PanelSyncManager;
 import com.cleanroommc.modularui.widgets.layout.Flow;
 import com.cleanroommc.modularui.widgets.slot.ItemSlot;
 import com.cleanroommc.modularui.widgets.slot.ModularSlot;
+import com.xyp.gtnc.Common.gui.modularui.GTNCGuiTextures;
 import com.xyp.gtnc.Common.gui.modularui.multiblock.GTNCSteamMultiBlockBaseGui;
 import com.xyp.gtnc.Common.machines.multiblock.steam.SteamEyeOfHarmony;
 
@@ -30,7 +31,8 @@ public class SteamEyeOfHarmonyGui extends GTNCSteamMultiBlockBaseGui {
                     public int getSlotStackLimit() {
                         return multiblock.getInventoryStackLimit();
                     }
-                }.singletonSlotGroup()))
+                }.singletonSlotGroup())
+                    .background(GTNCGuiTextures.MODERN_VAULT_ITEM_SLOT))
             .child(createPowerSwitchButton())
             .child(createUpgradeTreeButton(panel, syncManager))
             .child(createStructureUpdateButton(syncManager));

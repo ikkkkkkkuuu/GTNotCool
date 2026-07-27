@@ -7,8 +7,6 @@ import java.util.Set;
 import com.gtnewhorizon.gtnhmixins.ILateMixinLoader;
 import com.gtnewhorizon.gtnhmixins.LateMixin;
 
-import cpw.mods.fml.relauncher.FMLLaunchHandler;
-
 @LateMixin
 public class LateMixinsLoader implements ILateMixinLoader {
 
@@ -102,10 +100,6 @@ public class LateMixinsLoader implements ILateMixinLoader {
                 "Thaumcraft.MixinTileInfusionMatrix",
                 "Thaumcraft.MixinVisNetHandler");
 
-            if (FMLLaunchHandler.side()
-                .isServer()) {
-                list.add("Thaumcraft.MixinTileCrucible");
-            }
         }
 
         return list;

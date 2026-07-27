@@ -1,32 +1,19 @@
 package com.xyp.gtnc.Common.gui.modularui.multiblock;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.math.BigInteger;
-import java.util.Base64;
 import java.util.Locale;
 import java.util.function.DoubleSupplier;
 import java.util.function.LongSupplier;
 
-import javax.imageio.ImageIO;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 
 import org.lwjgl.opengl.GL11;
 
-import com.cleanroommc.modularui.api.drawable.IDrawable;
 import com.cleanroommc.modularui.api.drawable.IKey;
 import com.cleanroommc.modularui.api.widget.IWidget;
-import com.cleanroommc.modularui.drawable.GuiDraw;
 import com.cleanroommc.modularui.drawable.Rectangle;
-import com.cleanroommc.modularui.drawable.UITexture;
 import com.cleanroommc.modularui.screen.ModularPanel;
 import com.cleanroommc.modularui.screen.UISettings;
-import com.cleanroommc.modularui.screen.viewport.GuiContext;
 import com.cleanroommc.modularui.screen.viewport.ModularGuiContext;
 import com.cleanroommc.modularui.theme.WidgetTheme;
 import com.cleanroommc.modularui.theme.WidgetThemeEntry;
@@ -38,12 +25,10 @@ import com.cleanroommc.modularui.widget.ParentWidget;
 import com.cleanroommc.modularui.widget.Widget;
 import com.cleanroommc.modularui.widgets.SlotGroupWidget;
 import com.cleanroommc.modularui.widgets.layout.Flow;
+import com.xyp.gtnc.Common.gui.modularui.GTNCGuiTextures;
 import com.xyp.gtnc.Common.machines.multiblock.SingularityDataHub;
-import com.xyp.gtnc.ScienceNotCool;
 
-import gregtech.common.gui.modularui.multiblock.base.MTEMultiBlockBaseGui;
-
-public class SingularityDataHubGui extends MTEMultiBlockBaseGui<SingularityDataHub> {
+public class SingularityDataHubGui extends GTNCModernMultiBlockBaseGui<SingularityDataHub> {
 
     private static final String ITEM_TYPES_SYNC_KEY = "singularityDataHubItemTypes";
     private static final String FLUID_TYPES_SYNC_KEY = "singularityDataHubFluidTypes";
@@ -63,11 +48,6 @@ public class SingularityDataHubGui extends MTEMultiBlockBaseGui<SingularityDataH
     private static final int GAUGE_FILL = 0xFF00B800;
     private static final int GAUGE_FILL_HIGHLIGHT = 0xFF42E842;
     private static final int PANEL_ALT = 0xFF201E27;
-    private static final UITexture HOST_SLOT = UITexture.builder()
-        .location(ScienceNotCool.MODID, "gui/data_hub/slot")
-        .imageSize(18, 18)
-        .adaptable(1)
-        .build();
 
     public SingularityDataHubGui(SingularityDataHub multiblock) {
         super(multiblock);
@@ -96,7 +76,7 @@ public class SingularityDataHubGui extends MTEMultiBlockBaseGui<SingularityDataH
     @Override
     protected ModularPanel getBasePanel(com.cleanroommc.modularui.factory.PosGuiData guiData,
         PanelSyncManager syncManager, UISettings uiSettings) {
-        return super.getBasePanel(guiData, syncManager, uiSettings).background(HostBackgroundDrawable.INSTANCE);
+        return super.getBasePanel(guiData, syncManager, uiSettings).background(GTNCGuiTextures.MODERN_VAULT_BACKGROUND);
     }
 
     @Override
@@ -206,7 +186,7 @@ public class SingularityDataHubGui extends MTEMultiBlockBaseGui<SingularityDataH
         // # zh_CN 运行成本
         content.child(metric("Gui_SingularityDataHub_RunningCost", () -> "0 EU/t", 238, 132, TEXT));
         content.child(
-            SlotGroupWidget.playerInventory((index, slot) -> slot.background(HOST_SLOT))
+            SlotGroupWidget.playerInventory((index, slot) -> slot.background(GTNCGuiTextures.MODERN_VAULT_ITEM_SLOT))
                 .pos(8, 123));
         content.child(createFixedButtonColumn(syncManager).pos(309, 160));
         return Flow.column()
@@ -217,7 +197,7 @@ public class SingularityDataHubGui extends MTEMultiBlockBaseGui<SingularityDataH
     private IWidget section(int x, int y, int width, int height) {
         return new ParentWidget<>().pos(x, y)
             .size(width, height)
-            .background(ExactPanelBorderDrawable.INSTANCE);
+            .background(GTNCGuiTextures.MODERN_VAULT_PANEL_BORDER);
     }
 
     private IWidget darkInset(int x, int y, int width, int height) {
@@ -315,112 +295,6 @@ public class SingularityDataHubGui extends MTEMultiBlockBaseGui<SingularityDataH
         return String.format(Locale.ROOT, scaled < 10D ? "%.1f%s" : "%.0f%s", scaled, units[unitIndex]);
     }
 
-    private static final class HostBackgroundDrawable implements IDrawable {
-
-        private static final HostBackgroundDrawable INSTANCE = new HostBackgroundDrawable();
-        private static final ResourceLocation TEXTURE = new ResourceLocation(
-            ScienceNotCool.MODID,
-            "textures/gui/data_hub/background.png");
-
-        @Override
-        public void draw(GuiContext context, int x, int y, int width, int height, WidgetTheme widgetTheme) {
-            GL11.glColor4f(1F, 1F, 1F, 1F);
-            final int left = 2;
-            final int top = 2;
-            final int right = 2;
-            final int bottom = 4;
-            int centerWidth = Math.max(0, width - left - right);
-            int centerHeight = Math.max(0, height - top - bottom);
-            drawPart(x, y, left, top, 0, 0, left, top);
-            drawPart(x + left, y, centerWidth, top, left, 0, 16 - left - right, top);
-            drawPart(x + width - right, y, right, top, 16 - right, 0, right, top);
-            drawPart(x, y + top, left, centerHeight, 0, top, left, 16 - top - bottom);
-            drawPart(x + left, y + top, centerWidth, centerHeight, left, top, 16 - left - right, 16 - top - bottom);
-            drawPart(x + width - right, y + top, right, centerHeight, 16 - right, top, right, 16 - top - bottom);
-            drawPart(x, y + height - bottom, left, bottom, 0, 16 - bottom, left, bottom);
-            drawPart(x + left, y + height - bottom, centerWidth, bottom, left, 16 - bottom, 16 - left - right, bottom);
-            drawPart(x + width - right, y + height - bottom, right, bottom, 16 - right, 16 - bottom, right, bottom);
-            GL11.glColor4f(1F, 1F, 1F, 1F);
-        }
-
-        private static void drawPart(int x, int y, int width, int height, int u, int v, int textureWidth,
-            int textureHeight) {
-            if (width <= 0 || height <= 0) return;
-            GuiDraw.drawTexture(
-                TEXTURE,
-                x,
-                y,
-                x + width,
-                y + height,
-                u / 16F,
-                v / 16F,
-                (u + textureWidth) / 16F,
-                (v + textureHeight) / 16F,
-                true);
-        }
-    }
-
-    private static final class ExactPanelBorderDrawable implements IDrawable {
-
-        private static final ExactPanelBorderDrawable INSTANCE = new ExactPanelBorderDrawable();
-        private static final String PNG_BASE64 = "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAACxIAAAsSAdLdfvwAAAB4SURBVDhPY2CAAl5ewf+kYJg+uObWxl6i8cVzVxCGgBjuzv7/E6LSwDQxGKQWbgjMAJDJ+lomGE5FxyA1MPUYBsDY+DC6etoYAPIjOh41gEQD8GF09SgGwBTgw1gTEsyZIEFiMEwt2ABYfkD2JzEYrhk5R5KCYfoArHmyRVtuUaoAAAAASUVORK5CYII=";
-
-        private ResourceLocation location;
-
-        @Override
-        public void draw(GuiContext context, int x, int y, int width, int height, WidgetTheme widgetTheme) {
-            ResourceLocation texture = location();
-            int border = 6;
-            int centerWidth = Math.max(0, width - border * 2);
-            int centerHeight = Math.max(0, height - border * 2);
-            GL11.glColor4f(1F, 1F, 1F, 1F);
-            drawPart(texture, x, y, border, border, 0, 0, border, border);
-            drawPart(texture, x + border, y, centerWidth, border, border, 0, 4, border);
-            drawPart(texture, x + width - border, y, border, border, 10, 0, border, border);
-            drawPart(texture, x, y + border, border, centerHeight, 0, border, border, 4);
-            drawPart(texture, x + border, y + border, centerWidth, centerHeight, border, border, 4, 4);
-            drawPart(texture, x + width - border, y + border, border, centerHeight, 10, border, border, 4);
-            drawPart(texture, x, y + height - border, border, border, 0, 10, border, border);
-            drawPart(texture, x + border, y + height - border, centerWidth, border, border, 10, 4, border);
-            drawPart(texture, x + width - border, y + height - border, border, border, 10, 10, border, border);
-            GL11.glColor4f(1F, 1F, 1F, 1F);
-        }
-
-        private ResourceLocation location() {
-            if (location != null) return location;
-            try {
-                byte[] png = Base64.getDecoder()
-                    .decode(PNG_BASE64);
-                BufferedImage image = ImageIO.read(new ByteArrayInputStream(png));
-                if (image == null || image.getWidth() != 16 || image.getHeight() != 16) {
-                    throw new IOException("Invalid host panel border image");
-                }
-                location = Minecraft.getMinecraft()
-                    .getTextureManager()
-                    .getDynamicTextureLocation("sciencenotcool_data_hub_panel_border", new DynamicTexture(image));
-                return location;
-            } catch (IOException | IllegalArgumentException exception) {
-                throw new IllegalStateException("Unable to load data hub panel border", exception);
-            }
-        }
-
-        private static void drawPart(ResourceLocation texture, int x, int y, int width, int height, int u, int v,
-            int textureWidth, int textureHeight) {
-            if (width <= 0 || height <= 0) return;
-            GuiDraw.drawTexture(
-                texture,
-                x,
-                y,
-                x + width,
-                y + height,
-                u / 16F,
-                v / 16F,
-                (u + textureWidth) / 16F,
-                (v + textureHeight) / 16F,
-                true);
-        }
-    }
-
     private static final class StorageLoadWidget extends Widget<StorageLoadWidget> {
 
         private final DoubleSupplier progress;
@@ -465,7 +339,7 @@ public class SingularityDataHubGui extends MTEMultiBlockBaseGui<SingularityDataH
             WidgetTheme theme = getActiveWidgetTheme(entry, isHovering());
             int width = getArea().width;
             int height = getArea().height;
-            ExactPanelBorderDrawable.INSTANCE.draw(context, 0, 0, width, height, theme);
+            GTNCGuiTextures.MODERN_VAULT_PANEL_BORDER.draw(context, 0, 0, width, height, theme);
             new Rectangle().color(PANEL_ALT)
                 .draw(context, 2, 2, width - 4, height - 4, theme);
             int filled = (int) Math.round(Math.max(0D, Math.min(1D, progress.getAsDouble())) * (width - 6));

@@ -15,6 +15,7 @@ import net.minecraft.util.StatCollector;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
+import com.xyp.gtnc.Common.gui.modularui.GTNCGuiTextures;
 import com.xyp.gtnc.Common.teleport.MessageTeleportAction;
 import com.xyp.gtnc.Common.teleport.TeleportDestination;
 import com.xyp.gtnc.ScienceNotCool;
@@ -85,12 +86,8 @@ public class GuiTeleportTerminal extends GuiScreen {
     // # zh_CN 可编辑
     private static final String STATUS_UNLOCKED_KEY = "gui.gtnc.teleport_terminal.status_unlocked";
 
-    private static final ResourceLocation BACKGROUND = new ResourceLocation(
-        ScienceNotCool.MODID,
-        "textures/gui/me_bridge/modernity/background.png");
-    private static final ResourceLocation BUTTON = new ResourceLocation(
-        ScienceNotCool.MODID,
-        "textures/gui/me_bridge/modernity/button.png");
+    private static final ResourceLocation BACKGROUND = GTNCGuiTextures.MODERN_BACKGROUND_LOCATION;
+    private static final ResourceLocation BUTTON = GTNCGuiTextures.MODERN_BUTTON_COMPACT_LOCATION;
 
     private static final int GUI_WIDTH = 352;
     private static final int GUI_HEIGHT = 300;

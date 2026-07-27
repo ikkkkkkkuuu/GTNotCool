@@ -132,6 +132,10 @@ public abstract class GTNCSteamMultiBlockBase<T extends GTNCSteamMultiBlockBase<
         return costs;
     }
 
+    public boolean supportsUpgradeTree() {
+        return true;
+    }
+
     @Override
     public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
         super.onPostTick(aBaseMetaTileEntity, aTick);

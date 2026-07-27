@@ -18,6 +18,7 @@ import com.xyp.gtnc.Common.recipe.gtnc.InfusionCraftingRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.MiningRigRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.OreProcessingRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.ShapedArcaneCraftingRecipes;
+import com.xyp.gtnc.Common.recipe.gtnc.SteamCropBreederRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.StellarForgeRecipePool;
 import com.xyp.gtnc.Common.recipe.machine.MachineRecipes;
 
@@ -44,6 +45,7 @@ public class RecipeLoader {
         BlastFurnaceRecipes.loadRecipes();
         LaserEngraverRecipes.loadRecipes();
         CombProcessingRecipes.loadRecipes();
+        SteamCropBreederRecipes.loadRecipes();
         StellarForgeRecipePool.loadRecipes();
     }
 

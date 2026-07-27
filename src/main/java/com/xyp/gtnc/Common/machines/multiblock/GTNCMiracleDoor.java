@@ -37,6 +37,7 @@ import org.jetbrains.annotations.NotNull;
 
 import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
 import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
+import com.xyp.gtnc.Common.gui.modularui.multiblock.GTNCModernMultiBlockBaseGui;
 import com.xyp.gtnc.Common.machines.multiblock.multiMachineBase.GTNCWirelessBase;
 import com.xyp.gtnc.Config.Config;
 import com.xyp.gtnc.Loader.BlockLoader;
@@ -121,7 +122,7 @@ public class GTNCMiracleDoor extends GTNCWirelessBase<GTNCMiracleDoor> {
     @Override
     protected MTEMultiBlockBaseGui<?> getGui() {
         // MUI2 GUI keeps its own mode-icon list; feed it here so the mode-switch button shows up.
-        return new MTEMultiBlockBaseGui<>(this).withMachineModeIcons(
+        return new GTNCModernMultiBlockBaseGui<>(this).withMachineModeIcons(
             GTGuiTextures.OVERLAY_BUTTON_MACHINEMODE_LPF_FLUID,
             GTGuiTextures.OVERLAY_BUTTON_MACHINEMODE_SINGULARITY);
     }

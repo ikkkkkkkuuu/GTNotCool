@@ -51,6 +51,7 @@ import com.cleanroommc.modularui.widgets.TextWidget;
 import com.cleanroommc.modularui.widgets.layout.Flow;
 import com.cleanroommc.modularui.widgets.slot.ModularSlot;
 import com.cleanroommc.modularui.widgets.slot.SlotGroup;
+import com.xyp.gtnc.Common.gui.modularui.GTNCGuiTextures;
 import com.xyp.gtnc.Common.machines.multiblock.MTEMegaIndustrialApiary;
 import com.xyp.gtnc.Common.machines.multiblock.MTEMegaIndustrialApiary.BeeSimulator;
 
@@ -58,12 +59,10 @@ import codechicken.nei.LayoutManager;
 import codechicken.nei.SearchField;
 import forestry.api.apiculture.EnumBeeType;
 import gregtech.api.modularui2.GTGuiTextures;
-import gregtech.api.modularui2.GTWidgetThemes;
-import gregtech.common.gui.modularui.multiblock.base.MTEMultiBlockBaseGui;
 import gregtech.common.modularui2.widget.SlotLikeButtonWidget;
 import kubatech.api.helpers.GTHelper;
 
-public class MTEMegaIndustrialApiaryGui extends MTEMultiBlockBaseGui<MTEMegaIndustrialApiary> {
+public class MTEMegaIndustrialApiaryGui extends GTNCModernMultiBlockBaseGui<MTEMegaIndustrialApiary> {
 
     private static final int SLOTS_PER_ROW = 9;
     private static final int BEE_ENTRIES_PER_PAGE = 36;
@@ -300,7 +299,7 @@ public class MTEMegaIndustrialApiaryGui extends MTEMultiBlockBaseGui<MTEMegaIndu
             .paddingBottom(4)
             .paddingLeft(4)
             .paddingRight(0)
-            .widgetTheme(GTWidgetThemes.BACKGROUND_TERMINAL)
+            .background(GTNCGuiTextures.MODERN_VAULT_PANEL_BORDER)
             .child(
                 createTerminalTextWidget(syncManager, panel)
                     .size(getTerminalWidgetWidth() - 4, getTerminalWidgetHeight() - 8)
@@ -360,36 +359,36 @@ public class MTEMegaIndustrialApiaryGui extends MTEMultiBlockBaseGui<MTEMegaIndu
     }
 
     private IWidget createPageNavigationRow() {
+        ButtonWidget<?> previousButton = new ButtonWidget<>().size(14, 14)
+            .overlay(IKey.str("<"))
+            .onMousePressed(btn -> {
+                if (beePage > 0) {
+                    beePage--;
+                    beePageSyncer.setIntValue(beePage, true, true);
+                }
+                return true;
+            });
+        ButtonWidget<?> nextButton = new ButtonWidget<>().size(14, 14)
+            .overlay(IKey.str(">"))
+            .onMousePressed(btn -> {
+                if (beePage < beePageCount - 1) {
+                    beePage++;
+                    beePageSyncer.setIntValue(beePage, true, true);
+                }
+                return true;
+            });
         return Flow.row()
             .widthRel(1f)
             .height(14)
             .mainAxisAlignment(Alignment.MainAxis.CENTER)
             .crossAxisAlignment(CrossAxis.CENTER)
             .setEnabledIf(w -> beePageCount > 1)
-            .child(
-                new ButtonWidget<>().size(14, 14)
-                    .overlay(IKey.str("<"))
-                    .onMousePressed(btn -> {
-                        if (beePage > 0) {
-                            beePage--;
-                            beePageSyncer.setIntValue(beePage, true, true);
-                        }
-                        return true;
-                    }))
+            .child(applyModernButton(previousButton, () -> beePage > 0))
             .child(
                 new TextWidget<>(IKey.dynamic(() -> (beePage + 1) + " / " + beePageCount)).alignment(Alignment.Center)
                     .width(50)
                     .height(14))
-            .child(
-                new ButtonWidget<>().size(14, 14)
-                    .overlay(IKey.str(">"))
-                    .onMousePressed(btn -> {
-                        if (beePage < beePageCount - 1) {
-                            beePage++;
-                            beePageSyncer.setIntValue(beePage, true, true);
-                        }
-                        return true;
-                    }));
+            .child(applyModernButton(nextButton, () -> beePage < beePageCount - 1));
     }
 
     private IWidget createBeeSlotGrid(int activeCount) {
@@ -654,10 +653,10 @@ public class MTEMegaIndustrialApiaryGui extends MTEMultiBlockBaseGui<MTEMegaIndu
     }
 
     private IWidget createInventoryToggleButton() {
-        return new ButtonWidget<>().size(18, 18)
+        ButtonWidget<?> button = new ButtonWidget<>().size(18, 18)
             .overlay(
                 new DynamicDrawable(() -> isInInventory ? GTGuiTextures.OVERLAY_BUTTON_WHITELIST : OVERLAY_BEE_LIST))
-            .onMousePressed(button -> {
+            .onMousePressed(mouseButton -> {
                 isInInventory = !isInInventory;
                 return true;
             })
@@ -668,6 +667,7 @@ public class MTEMegaIndustrialApiaryGui extends MTEMultiBlockBaseGui<MTEMegaIndu
                             ? StatCollector.translateToLocal("kubatech.gui.text.mia.show_machine_status")
                             : StatCollector.translateToLocal("kubatech.gui.text.mia.show_bee_inventory"))))
             .tooltipShowUpTimer(TOOLTIP_DELAY);
+        return applyModernStateButton(button, () -> isInInventory, () -> true);
     }
 
     private IWidget createConfigurationButton(PanelSyncManager syncManager, ModularPanel parent) {
@@ -675,7 +675,7 @@ public class MTEMegaIndustrialApiaryGui extends MTEMultiBlockBaseGui<MTEMegaIndu
             "apiaryConfigPanel",
             true,
             (p_syncManager, syncHandler) -> createConfigurationPanel(p_syncManager, parent, syncManager));
-        return new ButtonWidget<>().size(18, 18)
+        ButtonWidget<?> button = new ButtonWidget<>().size(18, 18)
             .overlay(GuiTextures.GEAR)
             .onMousePressed(d -> {
                 if (!configPanel.isPanelOpen()) {
@@ -687,6 +687,7 @@ public class MTEMegaIndustrialApiaryGui extends MTEMultiBlockBaseGui<MTEMegaIndu
             })
             .tooltipBuilder(t -> t.addLine(IKey.lang("kubatech.gui.text.configuration")))
             .tooltipShowUpTimer(TOOLTIP_DELAY);
+        return applyModernStateButton(button, configPanel::isPanelOpen, () -> true);
     }
 
     private ModularPanel createConfigurationPanel(PanelSyncManager p_syncManager, ModularPanel parent,
@@ -698,7 +699,7 @@ public class MTEMegaIndustrialApiaryGui extends MTEMultiBlockBaseGui<MTEMegaIndu
             .leftRel(1)
             .topRel(0)
             .size(90, 70)
-            .widgetTheme("backgroundPopup")
+            .background(GTNCGuiTextures.MODERN_VAULT_PANEL_BORDER)
             .child(
                 Flow.column()
                     .sizeRel(1)
@@ -726,6 +727,31 @@ public class MTEMegaIndustrialApiaryGui extends MTEMultiBlockBaseGui<MTEMegaIndu
 
     private IWidget createModeEntry(IntSyncValue modeSyncer, String labelKey, int cycleLength,
         java.util.function.IntFunction<String> modeTextProvider) {
+        ButtonWidget<?> modeButton = new ButtonWidget<>().overlay(new DynamicDrawable(() -> {
+            IKey key = IKey.str(modeTextProvider.apply(modeSyncer.getIntValue()))
+                .alignment(Alignment.Center);
+            return multiblock.mMaxProgresstime > 0 ? key.color(0xFFA0A0A0) : key;
+        }))
+            .onMousePressed(mouseButton -> {
+                if (multiblock.mMaxProgresstime > 0) return true;
+                int current = modeSyncer.getIntValue();
+                int next = mouseButton == 1 ? (current - 1 + cycleLength) % cycleLength : (current + 1) % cycleLength;
+                modeSyncer.setIntValue(next, true, true);
+                return true;
+            })
+            .tooltipBuilder(t -> {
+                t.setAutoUpdate(true);
+                t.addLine(modeTextProvider.apply(modeSyncer.getIntValue()));
+                if (multiblock.mMaxProgresstime > 0) {
+                    t.addLine(
+                        EnumChatFormatting.RED
+                            + StatCollector.translateToLocal("GT5U.gui.text.cannot_change_when_running"));
+                }
+            })
+            .width(65)
+            .height(12)
+            .marginBottom(2);
+
         return Flow.column()
             .widthRel(1)
             .coverChildrenHeight()
@@ -735,31 +761,7 @@ public class MTEMegaIndustrialApiaryGui extends MTEMultiBlockBaseGui<MTEMegaIndu
                 new TextWidget<>(StatCollector.translateToLocal(labelKey)).widthRel(1)
                     .height(9)
                     .marginBottom(2))
-            .child(new ButtonWidget<>().overlay(new DynamicDrawable(() -> {
-                IKey key = IKey.str(modeTextProvider.apply(modeSyncer.getIntValue()))
-                    .alignment(Alignment.Center);
-                return multiblock.mMaxProgresstime > 0 ? key.color(0xFFA0A0A0) : key;
-            }))
-                .onMousePressed(mouseButton -> {
-                    if (multiblock.mMaxProgresstime > 0) return true;
-                    int current = modeSyncer.getIntValue();
-                    int next = mouseButton == 1 ? (current - 1 + cycleLength) % cycleLength
-                        : (current + 1) % cycleLength;
-                    modeSyncer.setIntValue(next, true, true);
-                    return true;
-                })
-                .tooltipBuilder(t -> {
-                    t.setAutoUpdate(true);
-                    t.addLine(modeTextProvider.apply(modeSyncer.getIntValue()));
-                    if (multiblock.mMaxProgresstime > 0) {
-                        t.addLine(
-                            EnumChatFormatting.RED
-                                + StatCollector.translateToLocal("GT5U.gui.text.cannot_change_when_running"));
-                    }
-                })
-                .width(65)
-                .height(12)
-                .marginBottom(2));
+            .child(applyModernButton(modeButton, () -> multiblock.mMaxProgresstime <= 0));
     }
 
     private static String getPrimaryModeText(int mode) {

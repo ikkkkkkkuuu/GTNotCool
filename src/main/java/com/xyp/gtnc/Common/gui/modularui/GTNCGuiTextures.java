@@ -1,6 +1,9 @@
 package com.xyp.gtnc.Common.gui.modularui;
 
+import net.minecraft.util.ResourceLocation;
+
 import com.cleanroommc.modularui.drawable.UITexture;
+import com.xyp.gtnc.ScienceNotCool;
 
 /**
  * Centralized GUI texture definitions for GTNC (ScienceNotCool) mod.
@@ -8,7 +11,7 @@ import com.cleanroommc.modularui.drawable.UITexture;
  */
 public final class GTNCGuiTextures {
 
-    public static final String MODID = "sciencenotcool";
+    public static final String MODID = ScienceNotCool.MODID;
 
     // ==================== Button ====================
     public static final UITexture BUTTON_CELESTIAL_32x32 = UITexture.fullImage(MODID, "gui/button/celestial");
@@ -16,6 +19,79 @@ public final class GTNCGuiTextures {
     public static final UITexture BUTTON_TRANSPARENT_PRESSED_16x16 = UITexture
         .fullImage(MODID, "gui/button/transparent_pressed_16x16");
     public static final UITexture CLOSE_BUTTON_HOLLOW = UITexture.fullImage(MODID, "gui/button/transparent_x_10x10");
+    // ==================== Shared Modernity Theme ====================
+    public static final ResourceLocation MODERN_BACKGROUND_LOCATION = new ResourceLocation(
+        MODID,
+        "textures/gui/modernity/background.png");
+    public static final ResourceLocation MODERN_BUTTON_COMPACT_LOCATION = new ResourceLocation(
+        MODID,
+        "textures/gui/modernity/button_compact.png");
+
+    public static final UITexture MODERN_BUTTON = UITexture.builder()
+        .location(MODID, "gui/modernity/button")
+        .imageSize(20, 20)
+        .adaptable(3)
+        .build();
+    public static final UITexture MODERN_BUTTON_HOVER = UITexture.builder()
+        .location(MODID, "gui/modernity/button_hover")
+        .imageSize(20, 20)
+        .adaptable(3)
+        .build();
+    public static final UITexture MODERN_BUTTON_PRESSED = UITexture.builder()
+        .location(MODID, "gui/modernity/button_pressed")
+        .imageSize(20, 20)
+        .adaptable(3)
+        .build();
+    public static final UITexture MODERN_BUTTON_DISABLED = UITexture.builder()
+        .location(MODID, "gui/modernity/button_disabled")
+        .imageSize(20, 20)
+        .adaptable(3)
+        .build();
+    public static final UITexture MODERN_BUTTON_COMPACT = UITexture.builder()
+        .location(MODID, "gui/modernity/button_compact")
+        .imageSize(18, 18)
+        .adaptable(2)
+        .build();
+    public static final UITexture MODERN_BUTTON_COMPACT_PRESSED = UITexture.builder()
+        .location(MODID, "gui/modernity/button_compact_pressed")
+        .imageSize(18, 18)
+        .adaptable(2)
+        .build();
+    public static final UITexture MODERN_BACKGROUND = UITexture.builder()
+        .location(MODID, "gui/modernity/background")
+        .imageSize(176, 166)
+        .adaptable(2)
+        .build();
+    public static final UITexture MODERN_PANEL_BORDER = UITexture.builder()
+        .location(MODID, "gui/modernity/panel_border")
+        .imageSize(8, 8)
+        .adaptable(1)
+        .build();
+    public static final UITexture MODERN_DISPLAY = UITexture.builder()
+        .location(MODID, "gui/modernity/display")
+        .imageSize(143, 75)
+        .adaptable(1)
+        .build();
+    public static final UITexture MODERN_ITEM_SLOT = UITexture.builder()
+        .location(MODID, "gui/modernity/item_slot")
+        .imageSize(18, 18)
+        .adaptable(1)
+        .build();
+    public static final UITexture MODERN_VAULT_BACKGROUND = UITexture.builder()
+        .location(MODID, "gui/modernity/vault_background")
+        .imageSize(16, 16)
+        .adaptable(2, 2, 2, 4)
+        .build();
+    public static final UITexture MODERN_VAULT_PANEL_BORDER = UITexture.builder()
+        .location(MODID, "gui/modernity/vault_panel_border")
+        .imageSize(16, 16)
+        .adaptable(6)
+        .build();
+    public static final UITexture MODERN_VAULT_ITEM_SLOT = UITexture.builder()
+        .location(MODID, "gui/modernity/vault_item_slot")
+        .imageSize(18, 18)
+        .adaptable(1)
+        .build();
 
     // ==================== Overlay Button ====================
     public static final UITexture OVERLAY_BUTTON_POWER_SWITCH_ON = UITexture

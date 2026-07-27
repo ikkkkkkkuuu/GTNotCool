@@ -19,15 +19,15 @@ import static gregtech.api.util.GTStructureUtility.chainAllGlasses;
 import static gregtech.api.util.GTStructureUtility.ofOreDictBlockMap;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import javax.annotation.Nonnull;
 
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.util.ForgeDirection;
 
@@ -37,6 +37,7 @@ import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
 import com.xyp.gtnc.Common.gui.modularui.multiblock.steam.LargeSteamBeeBreederGui;
 import com.xyp.gtnc.Common.machines.bee.BeeBreedingHelper;
+import com.xyp.gtnc.Common.machines.bee.BeeBreedingPlanner;
 import com.xyp.gtnc.Common.machines.bee.DronePool;
 import com.xyp.gtnc.Common.machines.multiblock.multiMachineBase.GTNCSteamMultiBlockBase;
 import com.xyp.gtnc.utils.Utils;
@@ -91,7 +92,7 @@ import gregtech.common.gui.modularui.multiblock.base.MTEMultiBlockBaseGui;
 // # zh_CN 依照繁育链自动向上杂交，新品种永久留存池中
 
 // #tr Tooltip_LargeSteamBeeBreeder_03
-// # 6.4 seconds per breeding cycle, uses actual mutation chance from Forestry
+// # 3.2 seconds per breeding cycle, uses actual mutation chance from Forestry
 // # zh_CN 每次繁育周期 3.2 秒，使用林业原版杂交概率
 
 // #tr Tooltip_LargeSteamBeeBreeder_04
@@ -131,6 +132,10 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
 
     /** 每周期最大并行繁育步骤数 */
     private static final int MAX_PARALLEL_STEPS = 16;
+
+    private static final byte OPERATION_NONE = 0;
+    private static final byte OPERATION_BREEDING = 1;
+    private static final byte OPERATION_OUTPUT = 2;
 
     // ==================== 结构定义 ====================
 
@@ -211,14 +216,16 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
     /** 目标蜜蜂品种名 */
     private String targetBeeSpecies = "";
 
-    /** 上次计算繁育链时的目标品种 */
-    private String lastChainTargetSpecies = "";
-
-    /** 雄蜂池 */
+    /** Permanently unlocked species archive. */
     private DronePool dronePool = new DronePool();
 
-    /** 当前繁育链 */
+    /** Current immutable plan and the list exposed to legacy display code. */
+    private BeeBreedingPlanner.Plan breedingPlan = BeeBreedingPlanner.Plan.empty("");
     private List<BeeBreedingHelper.BreedingStep> breedingChain = new ArrayList<>();
+    private boolean breedingPlanDirty = true;
+    /** Work frozen at recipe start. It is the only work that may settle at recipe completion. */
+    private byte activeOperation = OPERATION_NONE;
+    private List<BreedingAttempt> activeBreedingBatch = new ArrayList<>();
 
     /** 待输出的目标公主蜂数量 */
     private int pendingPrincessOutputs = 0;
@@ -238,14 +245,15 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
     /** 用于客户端同步的雄蜂池品种数 */
     private int syncedPoolSize = 0;
 
-    /** 用于客户端同步的雄蜂池摘要文本 */
-    private String syncedPoolSummary = "";
-
-    /** 用于客户端同步的繁育链摘要文本 */
-    private String syncedChainSummary = "";
-
-    /** 用于客户端同步的缺少品种信息（与syncedChainSummary同步更新，解决同步延迟问题） */
+    /** Species UID currently blocking the plan. */
     private String syncedMissingInfo = "";
+
+    /** Structured GUI data. UIDs are resolved to localized names on the client. */
+    private List<String> syncedPoolSpecies = Collections.emptyList();
+    private List<NBTTagCompound> syncedChainSteps = Collections.emptyList();
+
+    /** Last server-side target validation result, displayed beside the Apply button. */
+    private boolean targetInputValid = true;
 
     /**
      * GUI 摘要脏标记。
@@ -257,6 +265,46 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
 
     private void markDisplayDirty() {
         displayDirty = true;
+    }
+
+    private void invalidateBreedingPlan() {
+        breedingPlanDirty = true;
+        markDisplayDirty();
+    }
+
+    private static final class BreedingAttempt {
+
+        private final BeeBreedingHelper.BreedingStep step;
+        private final double effectiveChance;
+
+        private BreedingAttempt(BeeBreedingHelper.BreedingStep step, double effectiveChance) {
+            this.step = step;
+            this.effectiveChance = effectiveChance;
+        }
+
+        private NBTTagCompound toNBT() {
+            NBTTagCompound tag = new NBTTagCompound();
+            tag.setString("parent1", step.parent1);
+            tag.setString("parent2", step.parent2);
+            tag.setString("result", step.result);
+            tag.setDouble("baseChance", step.chance);
+            tag.setDouble("effectiveChance", effectiveChance);
+            return tag;
+        }
+
+        private static BreedingAttempt fromNBT(NBTTagCompound tag) {
+            if (tag == null) return null;
+            String parent1 = tag.getString("parent1");
+            String parent2 = tag.getString("parent2");
+            String result = tag.getString("result");
+            if (parent1.isEmpty() || parent2.isEmpty() || result.isEmpty()) return null;
+            BeeBreedingHelper.BreedingStep step = new BeeBreedingHelper.BreedingStep(
+                parent1,
+                parent2,
+                result,
+                tag.getDouble("baseChance"));
+            return new BreedingAttempt(step, tag.getDouble("effectiveChance"));
+        }
     }
 
     // ==================== 构造函数 ====================
@@ -397,17 +445,18 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
             if (gearBefore != hasStainlessSteelGear) markDisplayDirty();
 
             scanInputBuses();
-            analyzeBreedingChain();
+            refreshBreedingPlan();
 
             // 摘要字符串只在池/链/加成变化时重建，避免每秒无谓的字符串拼接
             if (displayDirty) {
-                syncedPoolSummary = buildPoolSummary();
-                syncedChainSummary = buildChainSummary();
                 syncedPoolSize = dronePool.getAvailableSpecies()
                     .size();
+                syncedPoolSpecies = new ArrayList<>(dronePool.getAvailableSpecies());
+                Collections.sort(syncedPoolSpecies);
+                syncedChainSteps = buildStructuredChainSteps();
                 // 同步重建缺失信息，使其与 chainSummary 同时触发客户端更新
                 if (allTasksBlocked && missingDroneSpecies != null && !missingDroneSpecies.isEmpty()) {
-                    syncedMissingInfo = BeeBreedingHelper.getSpeciesDisplayName(missingDroneSpecies);
+                    syncedMissingInfo = missingDroneSpecies;
                 } else {
                     syncedMissingInfo = "";
                 }
@@ -449,140 +498,82 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
     @Nonnull
     @Override
     public CheckRecipeResult checkProcessing() {
-        boolean hasNewInput = scanInputBuses();
+        scanInputBuses();
+        activeOperation = OPERATION_NONE;
+        activeBreedingBatch.clear();
 
         if (targetBeeSpecies == null || targetBeeSpecies.isEmpty()) {
-            updateChainDisplayInfo();
+            refreshBreedingPlan();
             return CheckRecipeResultRegistry.NO_RECIPE;
         }
 
-        if (dronePool.hasDrone(targetBeeSpecies) && pendingPrincessOutputs > 0) {
-            int beforeOutput = pendingPrincessOutputs;
-            outputPendingPrincesses();
-            updateChainDisplayInfo();
-            if (pendingPrincessOutputs < beforeOutput) {
-                mMaxProgresstime = TICKS_PER_BREEDING;
-                mEfficiency = 10000;
-                mEfficiencyIncrease = 10000;
-                lEUt = 0;
-                return CheckRecipeResultRegistry.SUCCESSFUL;
-            }
-        }
-
-        if (pendingPrincessOutputs <= 0 && dronePool.hasDrone(targetBeeSpecies)) {
-            updateChainDisplayInfo();
+        refreshBreedingPlan();
+        if (pendingPrincessOutputs <= 0) {
             return CheckRecipeResultRegistry.NO_RECIPE;
         }
 
-        if (pendingPrincessOutputs <= 0 && !hasNewInput) {
-            analyzeBreedingChain();
-            updateChainDisplayInfo();
-            return CheckRecipeResultRegistry.NO_RECIPE;
-        }
-
-        if (!targetBeeSpecies.equals(lastChainTargetSpecies)) {
-            recalculateBreedingChain();
-            lastChainTargetSpecies = targetBeeSpecies;
-        }
-        updateChainDisplayInfo();
-
-        if (breedingChain.isEmpty()) {
-            if (dronePool.hasDrone(targetBeeSpecies)) {
-                mMaxProgresstime = TICKS_PER_BREEDING;
-                mEfficiency = 10000;
-                mEfficiencyIncrease = 10000;
-                lEUt = 0;
-                return CheckRecipeResultRegistry.SUCCESSFUL;
-            }
-
-            List<BeeBreedingHelper.MutationData> fallbackMutations = BeeBreedingHelper
-                .getMutationsForUID(targetBeeSpecies);
-            BeeBreedingHelper.MutationData usable = null;
-            String actualMissing = "";
-            for (BeeBreedingHelper.MutationData m : fallbackMutations) {
-                if (m.parent1.equals(targetBeeSpecies) || m.parent2.equals(targetBeeSpecies)) continue;
-                boolean hp1 = dronePool.hasDrone(m.parent1);
-                boolean hp2 = dronePool.hasDrone(m.parent2);
-                if (hp1 && hp2) {
-                    usable = m;
-                    break;
-                }
-                if (actualMissing.isEmpty()) {
-                    actualMissing = !hp1 ? m.parent1 : m.parent2;
-                }
-            }
-
-            if (usable != null) {
-                breedingChain = new ArrayList<>();
-                breedingChain.add(
-                    new BeeBreedingHelper.BreedingStep(
-                        usable.parent1,
-                        usable.parent2,
-                        targetBeeSpecies,
-                        usable.chance));
-            } else {
+        if (dronePool.hasDrone(targetBeeSpecies)) {
+            ItemStack princess = BeeBreedingHelper.createPrincess(targetBeeSpecies);
+            if (princess == null) {
                 allTasksBlocked = true;
-                String missing = actualMissing.isEmpty() ? targetBeeSpecies : actualMissing;
-                missingDroneSpecies = findMostBasicMissing(missing);
+                missingDroneSpecies = targetBeeSpecies;
+                markDisplayDirty();
                 // #tr GT5U.gui.text.recipe_result.BeeBreeder_unreachable_target
-                // # Current pool species cannot reach target species!
-                // # zh_CN 当前池中品种无法到达目标品种！
+                // # Current species archive cannot reach the target species!
+                // # zh_CN 当前物种档案无法到达目标品种！
                 return SimpleCheckRecipeResult.ofFailure("BeeBreeder_unreachable_target");
             }
+            ItemStack drone = BeeBreedingHelper.createDrone(targetBeeSpecies);
+            mOutputItems = drone == null ? new ItemStack[] { princess } : new ItemStack[] { princess, drone };
+            activeOperation = OPERATION_OUTPUT;
+            prepareBreedingCycle();
+            return CheckRecipeResultRegistry.SUCCESSFUL;
         }
 
-        int executableSteps = 0;
-        String firstMissing = "";
-
-        for (BeeBreedingHelper.BreedingStep step : breedingChain) {
-            if (dronePool.hasDrone(step.result)) continue;
-            boolean hasParent1 = dronePool.hasDrone(step.parent1);
-            boolean hasParent2 = dronePool.hasDrone(step.parent2);
-            if (hasParent1 && hasParent2) {
-                executableSteps++;
-            } else {
-                if (firstMissing.isEmpty()) {
-                    firstMissing = !hasParent1 ? step.parent1 : step.parent2;
-                }
-            }
+        List<BeeBreedingHelper.BreedingStep> readySteps = breedingPlan
+            .getReadySteps(dronePool.getAvailableSpecies(), MAX_PARALLEL_STEPS);
+        if (readySteps.isEmpty()) {
+            allTasksBlocked = true;
+            missingDroneSpecies = breedingPlan.getFirstMissingSpecies();
+            if (missingDroneSpecies.isEmpty()) missingDroneSpecies = targetBeeSpecies;
+            markDisplayDirty();
+            // #tr GT5U.gui.text.recipe_result.BeeBreeder_missing_drone
+            // # Species archive is missing a required parent!
+            // # zh_CN 物种档案中缺少必要亲本！
+            return SimpleCheckRecipeResult.ofFailure("BeeBreeder_missing_drone");
         }
 
-        if (executableSteps == 0) {
-            if (!firstMissing.isEmpty()) {
-                missingDroneSpecies = firstMissing;
-                allTasksBlocked = true;
-                // #tr GT5U.gui.text.recipe_result.BeeBreeder_missing_drone
-                // # Drone pool missing required species!
-                // # zh_CN 雄蜂池缺少所需品种！
-                return SimpleCheckRecipeResult.ofFailure("BeeBreeder_missing_drone");
-            }
-            // If drone available but recipe has no steps, handle output in next cycle
-            if (dronePool.hasDrone(targetBeeSpecies) && pendingPrincessOutputs > 0) {
-                return CheckRecipeResultRegistry.NO_RECIPE;
-            }
-            return CheckRecipeResultRegistry.NO_RECIPE;
+        double chanceBonus = (hasStainlessSteelGear ? 2.0D : 0.0D) + Math.max(0, glassTier);
+        List<BreedingAttempt> batch = new ArrayList<>(readySteps.size());
+        for (BeeBreedingHelper.BreedingStep step : readySteps) {
+            batch.add(new BreedingAttempt(step, step.chance + chanceBonus));
         }
 
-        int breedingCount = Math.min(executableSteps, MAX_PARALLEL_STEPS);
         long steamPerBreeding = BASE_STEAM_PER_BREEDING + (long) Math.max(0, glassTier) * STEAM_PER_GLASS_TIER;
-        long steamNeeded = (long) breedingCount * steamPerBreeding;
-
+        long steamNeeded = (long) batch.size() * steamPerBreeding;
         if (!tryConsumeSteam((int) Math.min(steamNeeded, Integer.MAX_VALUE))) {
             return CheckRecipeResultRegistry.insufficientPower(steamNeeded);
         }
 
+        activeOperation = OPERATION_BREEDING;
+        activeBreedingBatch = batch;
+        allTasksBlocked = false;
+        missingDroneSpecies = "";
+        prepareBreedingCycle();
+        return CheckRecipeResultRegistry.SUCCESSFUL;
+    }
+
+    private void prepareBreedingCycle() {
         mMaxProgresstime = TICKS_PER_BREEDING;
         mEfficiency = 10000;
         mEfficiencyIncrease = 10000;
         lEUt = 0;
-
-        return CheckRecipeResultRegistry.SUCCESSFUL;
     }
 
     @Override
     public boolean onRunningTick(ItemStack aStack) {
         if (mProgresstime >= mMaxProgresstime - 1) {
-            processBreedingResults();
+            settleActiveOperation();
         }
         return super.onRunningTick(aStack);
     }
@@ -592,28 +583,24 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
     private boolean scanInputBuses() {
         ArrayList<ItemStack> inputs = getStoredInputs();
         List<ItemStack> toRemove = new ArrayList<>();
-        boolean hasNew = false;
+        boolean stateChanged = false;
 
         for (ItemStack stack : inputs) {
             if (stack == null) continue;
 
             if (BeeBreedingHelper.isDrone(stack)) {
-                dronePool.addDrone(stack);
+                stateChanged |= dronePool.addDrone(stack);
                 toRemove.add(stack);
-                hasNew = true;
             } else if (BeeBreedingHelper.isPrincess(stack)) {
                 // 使用基因组中的实际 UID，确保同 unlocalizedName 但不同 UID 的品种不过混淆
                 String uid = BeeBreedingHelper.getBeeUID(stack);
                 if (uid != null) {
-                    ItemStack virtualDrone = BeeBreedingHelper.createDrone(uid);
-                    if (virtualDrone != null) {
-                        virtualDrone.stackSize = 1;
-                        dronePool.addDrone(virtualDrone);
-                    }
+                    stateChanged |= dronePool.unlockSpecies(uid);
+                    long newPending = (long) pendingPrincessOutputs + Math.max(1, stack.stackSize);
+                    pendingPrincessOutputs = (int) Math.min(Integer.MAX_VALUE, newPending);
                 }
-                pendingPrincessOutputs++;
                 toRemove.add(stack);
-                hasNew = true;
+                stateChanged = true;
             }
         }
 
@@ -622,192 +609,69 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
         }
         if (!toRemove.isEmpty()) {
             updateSlots();
+            invalidateBreedingPlan();
             markDisplayDirty();
         }
 
-        return hasNew;
+        return stateChanged;
     }
 
-    private void processBreedingResults() {
-        int processed = 0;
+    private void settleActiveOperation() {
+        if (activeOperation == OPERATION_NONE) return;
 
-        for (BeeBreedingHelper.BreedingStep step : breedingChain) {
-            if (processed >= MAX_PARALLEL_STEPS) break;
-
-            if (dronePool.hasDrone(step.result)) continue;
-
-            if (!dronePool.hasDrone(step.parent1) || !dronePool.hasDrone(step.parent2)) {
-                continue;
+        boolean archiveChanged = false;
+        if (activeOperation == OPERATION_OUTPUT) {
+            if (mOutputItems != null && mOutputItems.length > 0 && pendingPrincessOutputs > 0) {
+                pendingPrincessOutputs--;
             }
-
-            processed++;
-
-            double effectiveChance = step.chance + (hasStainlessSteelGear ? 2.0 : 0.0) + Math.max(0, glassTier);
-            if (BeeBreedingHelper.tryMutation(effectiveChance)) {
-                ItemStack newDrone = BeeBreedingHelper.createDrone(step.result);
-                if (newDrone != null) {
-                    newDrone.stackSize = 8;
-                    dronePool.addDrone(newDrone);
-                    markDisplayDirty();
+        } else if (activeOperation == OPERATION_BREEDING) {
+            for (BreedingAttempt attempt : activeBreedingBatch) {
+                if (dronePool.hasDrone(attempt.step.result)) continue;
+                if (BeeBreedingHelper.tryMutation(attempt.effectiveChance)) {
+                    archiveChanged |= dronePool.unlockSpecies(attempt.step.result);
                 }
             }
         }
 
+        activeOperation = OPERATION_NONE;
+        activeBreedingBatch.clear();
+        if (archiveChanged) invalidateBreedingPlan();
+        markDisplayDirty();
     }
 
-    private void outputPendingPrincesses() {
-        if (targetBeeSpecies == null || targetBeeSpecies.isEmpty()) {
-            pendingPrincessOutputs = 0;
-            return;
-        }
+    private void refreshBreedingPlan() {
+        boolean previousBlocked = allTasksBlocked;
+        String previousMissing = missingDroneSpecies;
+        int previousCompleted = chainCompletedSteps;
 
-        if (pendingPrincessOutputs > 0) {
-            ItemStack princess = BeeBreedingHelper.createPrincess(targetBeeSpecies);
-            if (princess != null) {
-                // 同时产出一只配套的满分雄蜂，凑成纯合满分蜂对（后代仍满分）
-                ItemStack drone = BeeBreedingHelper.createDrone(targetBeeSpecies);
-                mOutputItems = drone != null ? new ItemStack[] { princess, drone } : new ItemStack[] { princess };
-                pendingPrincessOutputs--;
-            } else {
-                allTasksBlocked = true;
+        if (targetBeeSpecies == null || targetBeeSpecies.isEmpty()) {
+            breedingPlan = BeeBreedingPlanner.Plan.empty("");
+            breedingChain = new ArrayList<>();
+            breedingPlanDirty = false;
+            allTasksBlocked = false;
+            missingDroneSpecies = "";
+        } else {
+            if (breedingPlanDirty) {
+                breedingPlan = BeeBreedingPlanner.plan(targetBeeSpecies, dronePool.getAvailableSpecies());
+                breedingChain = new ArrayList<>(breedingPlan.getSteps());
+                breedingPlanDirty = false;
+            }
+
+            boolean targetUnlocked = dronePool.hasDrone(targetBeeSpecies);
+            boolean hasReadyStep = !breedingPlan.getReadySteps(dronePool.getAvailableSpecies(), 1)
+                .isEmpty();
+            allTasksBlocked = pendingPrincessOutputs > 0 && !targetUnlocked && !hasReadyStep;
+            missingDroneSpecies = allTasksBlocked ? breedingPlan.getFirstMissingSpecies() : "";
+            if (allTasksBlocked && missingDroneSpecies.isEmpty()) {
                 missingDroneSpecies = targetBeeSpecies;
             }
         }
-    }
-
-    private void analyzeBreedingChain() {
-        if (targetBeeSpecies == null || targetBeeSpecies.isEmpty()) return;
-
-        // 快照可能影响 GUI 摘要的状态，若变化则标记脏（覆盖非池变化引起的更新，如目标切换后重算链）
-        boolean prevBlocked = allTasksBlocked;
-        String prevMissing = missingDroneSpecies;
-        List<BeeBreedingHelper.BreedingStep> prevChain = breedingChain;
-        int prevCompleted = chainCompletedSteps;
-
-        missingDroneSpecies = "";
-        allTasksBlocked = false;
-
-        analyzeBreedingChainInternal();
-
-        if (prevBlocked != allTasksBlocked || !java.util.Objects.equals(prevMissing, missingDroneSpecies)
-            || prevChain != breedingChain
-            || prevCompleted != chainCompletedSteps) {
-            markDisplayDirty();
-        }
-    }
-
-    private void analyzeBreedingChainInternal() {
-        if (!targetBeeSpecies.equals(lastChainTargetSpecies)) {
-            recalculateBreedingChain();
-            lastChainTargetSpecies = targetBeeSpecies;
-        }
 
         updateChainDisplayInfo();
-
-        if (breedingChain.isEmpty()) {
-            // 池中已有目标 → 不需要繁育链
-            if (dronePool.hasDrone(targetBeeSpecies)) return;
-
-            List<BeeBreedingHelper.MutationData> fallbackMutations = BeeBreedingHelper
-                .getMutationsForUID(targetBeeSpecies);
-            BeeBreedingHelper.MutationData usable = null;
-            String actualMissing = "";
-            for (BeeBreedingHelper.MutationData m : fallbackMutations) {
-                if (m.parent1.equals(targetBeeSpecies) || m.parent2.equals(targetBeeSpecies)) continue;
-                boolean hp1 = dronePool.hasDrone(m.parent1);
-                boolean hp2 = dronePool.hasDrone(m.parent2);
-                if (hp1 && hp2) {
-                    usable = m;
-                    break;
-                }
-                if (actualMissing.isEmpty()) {
-                    actualMissing = !hp1 ? m.parent1 : m.parent2;
-                }
-            }
-
-            if (usable != null) {
-                breedingChain = new ArrayList<>();
-                breedingChain.add(
-                    new BeeBreedingHelper.BreedingStep(
-                        usable.parent1,
-                        usable.parent2,
-                        targetBeeSpecies,
-                        usable.chance));
-            } else {
-                allTasksBlocked = true;
-                String missing = actualMissing.isEmpty() ? targetBeeSpecies : actualMissing;
-                missingDroneSpecies = findMostBasicMissing(missing);
-            }
-            return;
+        if (previousBlocked != allTasksBlocked || !java.util.Objects.equals(previousMissing, missingDroneSpecies)
+            || previousCompleted != chainCompletedSteps) {
+            markDisplayDirty();
         }
-
-        // 检查是否有可执行的步骤
-        String firstMissing = "";
-        for (BeeBreedingHelper.BreedingStep step : breedingChain) {
-            if (dronePool.hasDrone(step.result)) continue;
-            boolean hasParent1 = dronePool.hasDrone(step.parent1);
-            boolean hasParent2 = dronePool.hasDrone(step.parent2);
-            if (hasParent1 && hasParent2) {
-                return; // 有步骤可执行，无需报告缺失
-            }
-            if (firstMissing.isEmpty()) {
-                firstMissing = !hasParent1 ? step.parent1 : step.parent2;
-            }
-        }
-
-        if (!firstMissing.isEmpty()) {
-            missingDroneSpecies = firstMissing;
-            allTasksBlocked = true;
-        }
-    }
-
-    private void recalculateBreedingChain() {
-        Set<String> poolSpecies = new HashSet<>();
-        for (String species : dronePool.getAvailableSpecies()) {
-            if (dronePool.hasDrone(species)) {
-                poolSpecies.add(species);
-            }
-        }
-        breedingChain = BeeBreedingHelper.createBreedingChainForUID(targetBeeSpecies, poolSpecies);
-    }
-
-    /**
-     * 从指定品种向下递归查找池中缺少的最基础品种
-     * <p>
-     * 使用与 createBreedingChain() 相同的 selectBestMutation() 选择最优杂交路径，
-     * 沿路径向下 DFS，直到找到第一个池中没有的品种为止。
-     */
-    private String findMostBasicMissing(String species) {
-        return findMostBasicMissing(species, new HashSet<>());
-    }
-
-    private String findMostBasicMissing(String species, Set<String> visited) {
-        if (dronePool.hasDrone(species)) return null;
-        if (!visited.add(species)) return species;
-
-        List<BeeBreedingHelper.MutationData> mutations = BeeBreedingHelper.getMutationsForUID(species);
-        // 排除自引用
-        List<BeeBreedingHelper.MutationData> filtered = new ArrayList<>();
-        for (BeeBreedingHelper.MutationData m : mutations) {
-            if (!m.parent1.equals(species) && !m.parent2.equals(species)) {
-                filtered.add(m);
-            }
-        }
-        if (filtered.isEmpty()) return species;
-
-        // 使用与 createBreedingChain() 相同的选择逻辑
-        BeeBreedingHelper.MutationData best = BeeBreedingHelper.selectBestMutationForUID(species, filtered);
-
-        // 优先沿 parent1 路径向下查
-        String missing = findMostBasicMissing(best.parent1, visited);
-        if (missing != null) return missing;
-
-        // 再沿 parent2 路径向下查
-        String missing2 = findMostBasicMissing(best.parent2, visited);
-        if (missing2 != null) return missing2;
-
-        // 两个亲本都在池中，说明当前品种是"最基础缺少的"
-        return species;
     }
 
     private int countCompletedSteps() {
@@ -823,47 +687,29 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
         chainCompletedSteps = countCompletedSteps();
     }
 
-    private String buildPoolSummary() {
-        Set<String> species = dronePool.getAvailableSpecies();
-        if (species.isEmpty()) return "";
-        StringBuilder sb = new StringBuilder();
-        for (String s : species) {
-            if (dronePool.hasDrone(s)) {
-                if (sb.length() > 0) sb.append("|");
-                sb.append(BeeBreedingHelper.getSpeciesDisplayName(s));
-            }
-        }
-        return sb.toString();
-    }
-
-    private String buildChainSummary() {
-        if (breedingChain.isEmpty()) return "";
-        StringBuilder sb = new StringBuilder();
-        for (BeeBreedingHelper.BreedingStep step : breedingChain) {
-            if (sb.length() > 0) sb.append("|");
-            String status;
-            if (dronePool.hasDrone(step.result)) {
-                status = "D";
-            } else if (dronePool.hasDrone(step.parent1) && dronePool.hasDrone(step.parent2)) {
-                status = "R";
-            } else {
-                status = "B";
-            }
-            sb.append(status)
-                .append(",")
-                .append(BeeBreedingHelper.getSpeciesDisplayName(step.parent1))
-                .append(",")
-                .append(BeeBreedingHelper.getSpeciesDisplayName(step.parent2))
-                .append(",")
-                .append(BeeBreedingHelper.getSpeciesDisplayName(step.result))
-                .append(",")
-                .append(
-                    String.format("%.1f", step.chance + (hasStainlessSteelGear ? 2.0 : 0.0) + Math.max(0, glassTier)));
-        }
-        return sb.toString();
-    }
-
     // ==================== GUI 交互 ====================
+
+    private List<NBTTagCompound> buildStructuredChainSteps() {
+        if (breedingChain.isEmpty()) return Collections.emptyList();
+        List<NBTTagCompound> result = new ArrayList<>(breedingChain.size());
+        double chanceBonus = (hasStainlessSteelGear ? 2.0D : 0.0D) + Math.max(0, glassTier);
+        for (BeeBreedingHelper.BreedingStep step : breedingChain) {
+            NBTTagCompound tag = new NBTTagCompound();
+            tag.setString("parent1", step.parent1);
+            tag.setString("parent2", step.parent2);
+            tag.setString("result", step.result);
+            tag.setDouble("chance", Math.min(100.0D, step.chance + chanceBonus));
+            if (dronePool.hasDrone(step.result)) {
+                tag.setByte("status", (byte) 2);
+            } else if (dronePool.hasDrone(step.parent1) && dronePool.hasDrone(step.parent2)) {
+                tag.setByte("status", (byte) 1);
+            } else {
+                tag.setByte("status", (byte) 0);
+            }
+            result.add(tag);
+        }
+        return result;
+    }
 
     @Override
     protected MTEMultiBlockBaseGui<LargeSteamBeeBreeder> getGui() {
@@ -889,6 +735,12 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
         aNBT.setString("targetBeeSpecies", targetBeeSpecies != null ? targetBeeSpecies : "");
         aNBT.setInteger("pendingPrincessOutputs", pendingPrincessOutputs);
         aNBT.setTag("dronePool", dronePool.toNBT());
+        aNBT.setByte("beeBreederActiveOperation", activeOperation);
+        NBTTagList attempts = new NBTTagList();
+        for (BreedingAttempt attempt : activeBreedingBatch) {
+            attempts.appendTag(attempt.toNBT());
+        }
+        aNBT.setTag("beeBreederActiveBatch", attempts);
     }
 
     @Override
@@ -904,7 +756,19 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
             dronePool = new DronePool();
         }
 
+        activeOperation = aNBT.getByte("beeBreederActiveOperation");
+        activeBreedingBatch = new ArrayList<>();
+        NBTTagList attempts = aNBT.getTagList("beeBreederActiveBatch", 10);
+        for (int i = 0; i < attempts.tagCount(); i++) {
+            BreedingAttempt attempt = BreedingAttempt.fromNBT(attempts.getCompoundTagAt(i));
+            if (attempt != null) activeBreedingBatch.add(attempt);
+        }
+        if (activeOperation != OPERATION_BREEDING) activeBreedingBatch.clear();
+
+        breedingPlan = BeeBreedingPlanner.Plan.empty(targetBeeSpecies);
+        breedingPlanDirty = true;
         breedingChain.clear();
+        markDisplayDirty();
     }
 
     /**
@@ -929,18 +793,37 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
 
     public void setTargetBeeSpecies(String species) {
         // 优先按 UID 精确查找（来自 NEI 拖放），再按名称模糊匹配（用户手动输入）
-        if (species != null && !species.isEmpty()) {
-            IAlleleBeeSpecies resolved = BeeBreedingHelper.getSpeciesByUID(species);
+        String candidate = species == null ? "" : species.trim();
+        if (!candidate.isEmpty()) {
+            IAlleleBeeSpecies resolved = BeeBreedingHelper.getSpeciesByUID(candidate);
             if (resolved == null) {
-                resolved = BeeBreedingHelper.getSpeciesByName(species);
+                resolved = BeeBreedingHelper.getSpeciesByName(candidate);
             }
+            targetInputValid = resolved != null;
             if (resolved != null) {
                 // 存储 UID 作为唯一标识（避免同 unlocalizedName 但不同 UID 的品种混淆）
-                this.targetBeeSpecies = resolved.getUID();
+                String resolvedUID = resolved.getUID();
+                if (!resolvedUID.equals(targetBeeSpecies)) {
+                    this.targetBeeSpecies = resolvedUID;
+                    invalidateBreedingPlan();
+                    markBaseTileDirty();
+                }
                 return;
             }
+            markDisplayDirty();
+            return;
         }
-        this.targetBeeSpecies = species != null ? species : "";
+        targetInputValid = true;
+        if (!targetBeeSpecies.isEmpty()) {
+            this.targetBeeSpecies = "";
+            invalidateBreedingPlan();
+            markBaseTileDirty();
+        }
+    }
+
+    private void markBaseTileDirty() {
+        IGregTechTileEntity baseTile = getBaseMetaTileEntity();
+        if (baseTile != null) baseTile.markDirty();
     }
 
     public DronePool getDronePool() {
@@ -971,16 +854,28 @@ public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeB
         return missingDroneSpecies;
     }
 
-    public String getSyncedPoolSummary() {
-        return syncedPoolSummary;
-    }
-
-    public String getSyncedChainSummary() {
-        return syncedChainSummary;
-    }
-
     public String getSyncedMissingInfo() {
         return syncedMissingInfo;
+    }
+
+    public boolean isTargetInputValid() {
+        return targetInputValid;
+    }
+
+    public List<String> getSyncedPoolSpecies() {
+        return syncedPoolSpecies;
+    }
+
+    public void setSyncedPoolSpecies(List<String> species) {
+        syncedPoolSpecies = species == null ? Collections.emptyList() : species;
+    }
+
+    public List<NBTTagCompound> getSyncedChainSteps() {
+        return syncedChainSteps;
+    }
+
+    public void setSyncedChainSteps(List<NBTTagCompound> steps) {
+        syncedChainSteps = steps == null ? Collections.emptyList() : steps;
     }
 
     // ==================== Tooltip ====================

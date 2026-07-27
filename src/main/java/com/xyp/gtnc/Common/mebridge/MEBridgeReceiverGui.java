@@ -20,6 +20,7 @@ import com.cleanroommc.modularui.widgets.DynamicSyncedWidget;
 import com.cleanroommc.modularui.widgets.ListWidget;
 import com.cleanroommc.modularui.widgets.layout.Flow;
 import com.cleanroommc.modularui.widgets.textfield.TextFieldWidget;
+import com.xyp.gtnc.Common.gui.modularui.GTNCGuiTextures;
 
 final class MEBridgeReceiverGui {
 
@@ -145,7 +146,7 @@ final class MEBridgeReceiverGui {
         details.child(
             new ButtonWidget<>().pos(128, 40)
                 .size(32, 16)
-                .background(MEBridgeGuiTheme.button())
+                .background(GTNCGuiTextures.MODERN_BUTTON_COMPACT)
                 .overlay(IKey.lang("gui.mebridge.receiver.clear"))
                 .syncHandler(
                     new InteractionSyncHandler()
@@ -199,7 +200,7 @@ final class MEBridgeReceiverGui {
         content.child(details);
 
         return ModularPanel.defaultPanel("mebridge_receiver", 420, 240)
-            .background(MEBridgeGuiTheme.background())
+            .background(GTNCGuiTextures.MODERN_BACKGROUND)
             .child(content.pos(4, 4));
     }
 
@@ -296,7 +297,7 @@ final class MEBridgeReceiverGui {
         row.child(
             new ButtonWidget<>().pos(0, 0)
                 .size(178, 18)
-                .background(MEBridgeGuiTheme.button())
+                .background(GTNCGuiTextures.MODERN_BUTTON_COMPACT)
                 .overlay(IKey.str(label))
                 .tooltip(
                     tooltip -> tooltip.addLine(
@@ -313,7 +314,7 @@ final class MEBridgeReceiverGui {
         row.child(
             new ButtonWidget<>().pos(182, 0)
                 .size(18, 18)
-                .background(MEBridgeGuiTheme.button())
+                .background(GTNCGuiTextures.MODERN_BUTTON_COMPACT)
                 .overlay(IKey.str("C"))
                 .syncHandler(directoryAction(syncManager, receiver, entry, DirectoryAction.CONNECT))
                 .tooltip(tooltip -> tooltip.addLine(IKey.lang("gui.mebridge.receiver.connect"))));
@@ -323,7 +324,7 @@ final class MEBridgeReceiverGui {
         row.child(
             new ButtonWidget<>().pos(204, 0)
                 .size(18, 18)
-                .background(MEBridgeGuiTheme.button())
+                .background(GTNCGuiTextures.MODERN_BUTTON_COMPACT)
                 .overlay(IKey.str("T"))
                 .syncHandler(directoryAction(syncManager, receiver, entry, DirectoryAction.TELEPORT))
                 .tooltip(tooltip -> tooltip.addLine(IKey.lang("gui.mebridge.receiver.teleport"))));

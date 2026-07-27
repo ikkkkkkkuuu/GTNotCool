@@ -45,12 +45,11 @@ import appeng.api.storage.data.IAEItemStack;
 import appeng.util.item.AEItemStack;
 import gregtech.api.modularui2.GTGuiTextures;
 import gregtech.api.util.GTUtility;
-import gregtech.common.gui.modularui.multiblock.base.MTEMultiBlockBaseGui;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.Reference2LongMap;
 import it.unimi.dsi.fastutil.objects.Reference2LongOpenHashMap;
 
-public class AssemblerMatrixGui extends MTEMultiBlockBaseGui<AssemblerMatrix> {
+public class AssemblerMatrixGui extends GTNCModernMultiBlockBaseGui<AssemblerMatrix> {
 
     private static final String SHOW_PATTERN_SYNC_KEY = "showPattern";
     private static final String CUSTOM_NAME_SYNC_KEY = "customName";
@@ -153,11 +152,7 @@ public class AssemblerMatrixGui extends MTEMultiBlockBaseGui<AssemblerMatrix> {
 
     private IWidget createShowPatternButton(PanelSyncManager syncManager) {
         BooleanSyncValue showPatternSyncer = syncManager.findSyncHandler(SHOW_PATTERN_SYNC_KEY, BooleanSyncValue.class);
-        return new ButtonWidget<>().size(18, 18)
-            .background(
-                new DynamicDrawable(
-                    () -> showPatternSyncer.getBoolValue() ? GTGuiTextures.BUTTON_STANDARD_PRESSED
-                        : GTGuiTextures.BUTTON_STANDARD))
+        ButtonWidget<?> button = new ButtonWidget<>().size(18, 18)
             .overlay(
                 new DynamicDrawable(
                     () -> showPatternSyncer.getBoolValue() ? GTGuiTextures.OVERLAY_BUTTON_WHITELIST
@@ -172,6 +167,7 @@ public class AssemblerMatrixGui extends MTEMultiBlockBaseGui<AssemblerMatrix> {
                             "Info_ShowPattern_" + (showPatternSyncer.getBoolValue() ? "Enabled" : "Disabled")))))
             .tooltipAutoUpdate(true)
             .tooltipShowUpTimer(TOOLTIP_DELAY);
+        return applyModernStateButton(button, showPatternSyncer::getBoolValue, () -> true);
     }
 
     private IWidget createCustomNameField(PanelSyncManager syncManager) {

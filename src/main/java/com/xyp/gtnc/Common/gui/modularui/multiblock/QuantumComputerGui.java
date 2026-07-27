@@ -26,9 +26,8 @@ import com.xyp.gtnc.Common.machines.multiblock.QuantumComputer;
 import com.xyp.gtnc.utils.Utils;
 
 import gregtech.api.modularui2.GTGuiTextures;
-import gregtech.common.gui.modularui.multiblock.base.MTEMultiBlockBaseGui;
 
-public class QuantumComputerGui extends MTEMultiBlockBaseGui<QuantumComputer> {
+public class QuantumComputerGui extends GTNCModernMultiBlockBaseGui<QuantumComputer> {
 
     private static final String WIDTH_SYNC_KEY = "quantumComputerWidth";
     private static final String HEIGHT_SYNC_KEY = "quantumComputerHeight";
@@ -151,7 +150,8 @@ public class QuantumComputerGui extends MTEMultiBlockBaseGui<QuantumComputer> {
             .height(76)
             .childIf(
                 multiblock.doesBindPlayerInventory(),
-                () -> SlotGroupWidget.playerInventory(false)
+                () -> SlotGroupWidget
+                    .playerInventory((index, slot) -> slot.background(GTNCGuiTextures.MODERN_VAULT_ITEM_SLOT))
                     .marginLeft(4))
             .child(createButtonColumn(panel, syncManager));
     }
@@ -173,6 +173,7 @@ public class QuantumComputerGui extends MTEMultiBlockBaseGui<QuantumComputer> {
                             return multiblock.getInventoryStackLimit();
                         }
                     }.singletonSlotGroup())
+                    .background(GTNCGuiTextures.MODERN_VAULT_ITEM_SLOT)
                     .backgroundOverlay(GTGuiTextures.SLOT_ITEM_DARK)
                     .marginTop(4));
     }

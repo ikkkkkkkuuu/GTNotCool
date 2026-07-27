@@ -155,10 +155,6 @@ public class Config {
      * 复合源质直接发现、直接入池。默认开启。
      */
     public static boolean tcScanIgnoreParentAspects = true;
-    /** 仅在专用服务器生效：坩埚不产生通量污染。 */
-    public static boolean tcCrucibleNoFlux = true;
-    /** 仅在专用服务器生效：坩埚内源质不随时间流失。 */
-    public static boolean tcCrucibleNoDecay = true;
     /**
      * 开启后，注魔祭坛（Infusion Matrix）注魔时不失稳——每个 craftCycle 开头把 {@code instability} 归零。
      * 失稳只会引发掉物/爆炸/闪电/涨 warp 等负面事件（含注魔侧的通量生成），合成进度本身与失稳无关，
@@ -667,12 +663,6 @@ public class Config {
                 tcScanIgnoreParentAspects,
                 "开启后，扫描源质时无视「必须先发现父源质」的顺序要求(hasDiscoveredParentAspects 恒返回 true)，"
                     + "因此可任意乱序扫描，复合源质直接发现入池，无需按源质合成树自底向上逐个解锁。");
-
-            tcCrucibleNoFlux = configuration
-                .getBoolean("crucibleNoFlux", CATEGORY_THAUMCRAFT, tcCrucibleNoFlux, "仅专用服务器生效：坩埚不产生通量污染。");
-
-            tcCrucibleNoDecay = configuration
-                .getBoolean("crucibleNoDecay", CATEGORY_THAUMCRAFT, tcCrucibleNoDecay, "仅专用服务器生效：坩埚内源质不随时间流失。");
 
             tcInfusionNoInstability = configuration.getBoolean(
                 "infusionNoInstability",

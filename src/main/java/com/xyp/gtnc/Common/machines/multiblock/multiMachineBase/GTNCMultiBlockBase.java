@@ -53,6 +53,10 @@ public abstract class GTNCMultiBlockBase<T extends GTNCMultiBlockBase<T>> extend
         return costs;
     }
 
+    public boolean supportsUpgradeTree() {
+        return true;
+    }
+
     public GTNCMultiBlockBase(int aID, String aName, String aNameRegional) {
         super(aID, aName, aNameRegional);
     }

@@ -16,6 +16,7 @@ import com.cleanroommc.modularui.widgets.DynamicSyncedWidget;
 import com.cleanroommc.modularui.widgets.ListWidget;
 import com.cleanroommc.modularui.widgets.layout.Flow;
 import com.cleanroommc.modularui.widgets.textfield.TextFieldWidget;
+import com.xyp.gtnc.Common.gui.modularui.GTNCGuiTextures;
 
 final class MEBridgeSenderGui {
 
@@ -134,7 +135,7 @@ final class MEBridgeSenderGui {
         content.child(monitor);
 
         return ModularPanel.defaultPanel("mebridge_sender", 420, 210)
-            .background(MEBridgeGuiTheme.background())
+            .background(GTNCGuiTextures.MODERN_BACKGROUND)
             .child(content.pos(4, 4));
     }
 

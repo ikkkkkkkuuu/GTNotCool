@@ -20,7 +20,6 @@ import com.cleanroommc.modularui.drawable.ItemDrawable;
 import com.cleanroommc.modularui.screen.ModularPanel;
 import com.cleanroommc.modularui.screen.RichTooltip;
 import com.cleanroommc.modularui.utils.Alignment;
-import com.cleanroommc.modularui.utils.Color;
 import com.cleanroommc.modularui.utils.item.ItemStackHandler;
 import com.cleanroommc.modularui.utils.serialization.IByteBufAdapter;
 import com.cleanroommc.modularui.value.BoolValue;
@@ -162,11 +161,13 @@ public class LargeSteamVoidMinerGui extends GTNCSteamMultiBlockBaseGui {
             .reverseLayout(true)
             .child(createPowerSwitchButton())
             .child(createWirelessModeButton(syncManager))
-            .child(createPanelToggleButton(dimPanel, "GT5U.gui.button.vm.dimension"))
+            .child(createPanelToggleButton(dimPanel, "GT5U.gui.button.vm.dimension", null))
             .child(
                 // Filter button: same gear toggle, plus a server-side drop-map refresh when pressed.
-                createPanelToggleButton(filterPopup, "GT5U.gui.text.vm.title")
-                    .syncHandler(new InteractionSyncHandler().setOnMousePressed(mouseDelta -> {
+                createPanelToggleButton(
+                    filterPopup,
+                    "GT5U.gui.text.vm.title",
+                    new InteractionSyncHandler().setOnMousePressed(mouseDelta -> {
                         if (!mouseDelta.isClient()) {
                             vm().refreshDropMap();
                             vm().getBaseMetaTileEntity()
@@ -177,20 +178,23 @@ public class LargeSteamVoidMinerGui extends GTNCSteamMultiBlockBaseGui {
     }
 
     /** A 16px gear button that toggles {@code panel} open/closed, with {@code tooltipKey} as its hover tooltip. */
-    private ButtonWidget<?> createPanelToggleButton(IPanelHandler panel, String tooltipKey) {
-        return new ButtonWidget<>().size(16)
+    private ButtonWidget<?> createPanelToggleButton(IPanelHandler panel, String tooltipKey,
+        InteractionSyncHandler serverSyncHandler) {
+        ButtonWidget<?> button = new ButtonWidget<>().size(16)
             .marginBottom(2)
-            .background(GTNCGuiTextures.BUTTON_CELESTIAL_32x32)
-            .disableHoverBackground()
             .overlay(GuiTextures.GEAR)
-            .onMousePressed(button -> {
+            .onMousePressed(mouseButton -> {
                 if (panel.isPanelOpen()) {
                     panel.closePanel();
                 } else panel.openPanel();
-                return true;
+                return serverSyncHandler == null;
             })
             .tooltip(t -> t.addLine(translateToLocal(tooltipKey)))
             .tooltipShowUpTimer(TOOLTIP_DELAY);
+        if (serverSyncHandler != null) {
+            button.syncHandler(serverSyncHandler);
+        }
+        return applyModernStateButton(button, panel::isPanelOpen, () -> true);
     }
 
     public ModularPanel createDimSlotPanel(PanelSyncManager syncManager, IPanelHandler panelHandler) {
@@ -203,7 +207,8 @@ public class LargeSteamVoidMinerGui extends GTNCSteamMultiBlockBaseGui {
         ModularSlot dimSlot = new ModularSlot(dimSlotHandler, 0);
         dimSlot.slotGroup("dimInput");
 
-        return new ModularPanel("gtnc:vm:dim").child(ButtonWidget.panelCloseButton())
+        return new ModularPanel("gtnc:vm:dim").background(GTNCGuiTextures.MODERN_VAULT_PANEL_BORDER)
+            .child(applyModernButton(ButtonWidget.panelCloseButton(), () -> true))
             .child(
                 Flow.column()
                     .child(
@@ -212,6 +217,7 @@ public class LargeSteamVoidMinerGui extends GTNCSteamMultiBlockBaseGui {
                             .marginTop(12))
                     .child(
                         new ItemSlot().slot(dimSlot)
+                            .background(GTNCGuiTextures.MODERN_VAULT_ITEM_SLOT)
                             .size(18)
                             .margin(4))
                     .childPadding(4)
@@ -247,7 +253,8 @@ public class LargeSteamVoidMinerGui extends GTNCSteamMultiBlockBaseGui {
         if (vm().selected.getSlots() != ores.length) {
             vm().selected.setSize(ores.length);
         }
-        return new ModularPanel("gtnc:vm:filter").child(ButtonWidget.panelCloseButton())
+        return new ModularPanel("gtnc:vm:filter").background(GTNCGuiTextures.MODERN_VAULT_PANEL_BORDER)
+            .child(applyModernButton(ButtonWidget.panelCloseButton(), () -> true))
             .child(
                 Flow.column()
                     .child(
@@ -300,8 +307,10 @@ public class LargeSteamVoidMinerGui extends GTNCSteamMultiBlockBaseGui {
                         .overlay(
                             new ItemDrawable(stack).asIcon()
                                 .size(16))
-                        .background(true, GTGuiTextures.BUTTON_STANDARD_PRESSED.withColorOverride(Color.GREY.main))
-                        .background(false, GTGuiTextures.BUTTON_STANDARD)
+                        .background(true, GTNCGuiTextures.MODERN_BUTTON_PRESSED)
+                        .background(false, GTNCGuiTextures.MODERN_BUTTON)
+                        .hoverBackground(true, GTNCGuiTextures.MODERN_BUTTON_HOVER)
+                        .hoverBackground(false, GTNCGuiTextures.MODERN_BUTTON_HOVER)
                         .tooltipBuilder(false, t -> getOreButtonTooltip(t, stack, false))
                         .tooltipBuilder(true, t -> getOreButtonTooltip(t, stack, true))
                         .setEnabledIf($ -> matchesSearch(stack));
@@ -316,41 +325,46 @@ public class LargeSteamVoidMinerGui extends GTNCSteamMultiBlockBaseGui {
     }
 
     private Flow createRightButtonColumn(GenericSyncValue<ItemStackHandler, ?> syncer, GTUtility.ItemId[] ores) {
-        return Flow.column()
-            .child(
-                new ToggleButton()
-                    .value(new BooleanSyncValue(() -> vm().blacklist, bool -> vm().blacklist = bool).allowC2S())
-                    .tooltip(false, t -> t.add(translateToLocal("GT5U.gui.button.vm.whitelist")))
-                    .tooltip(true, t -> t.add(translateToLocal("GT5U.gui.button.vm.blacklist")))
-                    .overlay(
-                        false,
-                        GTGuiTextures.OVERLAY_BUTTON_WHITELIST.asIcon()
-                            .size(16))
-                    .overlay(
-                        true,
-                        GTGuiTextures.OVERLAY_BUTTON_BLACKLIST.asIcon()
-                            .size(16)))
-            .child(new ButtonWidget<>().onMousePressed(button -> {
-                for (int i = 0; i < ores.length; i++) {
-                    vm().selected.setStackInSlot(i, ores[i].getItemStack());
-                }
+        ToggleButton blacklistButton = new ToggleButton()
+            .value(new BooleanSyncValue(() -> vm().blacklist, bool -> vm().blacklist = bool).allowC2S())
+            .tooltip(false, t -> t.add(translateToLocal("GT5U.gui.button.vm.whitelist")))
+            .tooltip(true, t -> t.add(translateToLocal("GT5U.gui.button.vm.blacklist")))
+            .overlay(
+                false,
+                GTGuiTextures.OVERLAY_BUTTON_WHITELIST.asIcon()
+                    .size(16))
+            .overlay(
+                true,
+                GTGuiTextures.OVERLAY_BUTTON_BLACKLIST.asIcon()
+                    .size(16));
+
+        ButtonWidget<?> selectAllButton = new ButtonWidget<>().onMousePressed(button -> {
+            for (int i = 0; i < ores.length; i++) {
+                vm().selected.setStackInSlot(i, ores[i].getItemStack());
+            }
+            syncer.setValue(vm().selected);
+            return true;
+        })
+            .tooltip(t -> t.add(translateToLocal("GT5U.gui.button.vm.select")))
+            .overlay(
+                GTGuiTextures.OVERLAY_BUTTON_CHECKMARK.asIcon()
+                    .size(16));
+
+        ButtonWidget<?> deselectAllButton = new ButtonWidget<>()
+            .tooltip(t -> t.add(translateToLocal("GT5U.gui.button.vm.deselect")))
+            .onMousePressed(button -> {
+                vm().selected = new ItemStackHandler(ores.length);
                 syncer.setValue(vm().selected);
                 return true;
             })
-                .tooltip(t -> t.add(translateToLocal("GT5U.gui.button.vm.select")))
-                .overlay(
-                    GTGuiTextures.OVERLAY_BUTTON_CHECKMARK.asIcon()
-                        .size(16)))
-            .child(
-                new ButtonWidget<>().tooltip(t -> t.add(translateToLocal("GT5U.gui.button.vm.deselect")))
-                    .onMousePressed(button -> {
-                        vm().selected = new ItemStackHandler(ores.length);
-                        syncer.setValue(vm().selected);
-                        return true;
-                    })
-                    .overlay(
-                        GTGuiTextures.OVERLAY_BUTTON_CROSS.asIcon()
-                            .size(16)))
+            .overlay(
+                GTGuiTextures.OVERLAY_BUTTON_CROSS.asIcon()
+                    .size(16));
+
+        return Flow.column()
+            .child(applyModernToggleButton(blacklistButton, () -> true))
+            .child(applyModernButton(selectAllButton, () -> true))
+            .child(applyModernButton(deselectAllButton, () -> true))
             .crossAxisAlignment(Alignment.CrossAxis.START)
             .childPadding(3)
             .coverChildrenWidth()
