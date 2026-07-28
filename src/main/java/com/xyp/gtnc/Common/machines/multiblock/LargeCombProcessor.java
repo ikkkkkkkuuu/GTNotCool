@@ -186,12 +186,12 @@ public class LargeCombProcessor extends MTEEnhancedMultiBlockBase<LargeCombProce
                         onElementPass(x -> ++x.mCountCasing, ofBlock(BlockLoader.metaCasing02, 4))))
                 .addElement('H', ofBlocksMap(ofOreDictBlockMap("plankWood"), Blocks.planks, 0))
                 .addElement('I', ofBlocksMap(ofOreDictBlockMap("slabWood"), Blocks.wooden_slab, 0))
-                .addElement('J', ofBlock(GregTechAPI.sBlockFrames, (int) Materials.Bronze.mMetaItemSubID))
-                .addElement('K', ofBlock(GregTechAPI.sBlockFrames, (int) Materials.Bronze.mMetaItemSubID))
-                .addElement('L', ofBlock(GregTechAPI.sBlockFrames, (int) Materials.Bronze.mMetaItemSubID))
-                .addElement('N', ofBlock(GregTechAPI.sBlockFrames, (int) Materials.Bronze.mMetaItemSubID))
-                .addElement('O', ofBlock(GregTechAPI.sBlockFrames, (int) Materials.Bronze.mMetaItemSubID))
-                .addElement('P', ofBlock(GregTechAPI.sBlockFrames, (int) Materials.Bronze.mMetaItemSubID))
+                .addElement('J', ofBlock(GregTechAPI.sBlockFrames, Materials.Bronze.mMetaItemSubID))
+                .addElement('K', ofBlock(GregTechAPI.sBlockFrames, Materials.Bronze.mMetaItemSubID))
+                .addElement('L', ofBlock(GregTechAPI.sBlockFrames, Materials.Bronze.mMetaItemSubID))
+                .addElement('N', ofBlock(GregTechAPI.sBlockFrames, Materials.Bronze.mMetaItemSubID))
+                .addElement('O', ofBlock(GregTechAPI.sBlockFrames, Materials.Bronze.mMetaItemSubID))
+                .addElement('P', ofBlock(GregTechAPI.sBlockFrames, Materials.Bronze.mMetaItemSubID))
                 .build();
         }
         return STRUCTURE_DEFINITION;

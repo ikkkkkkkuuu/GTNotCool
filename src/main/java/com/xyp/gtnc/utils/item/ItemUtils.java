@@ -1,11 +1,12 @@
 package com.xyp.gtnc.utils.item;
 
+import static com.xyp.gtnc.ScienceNotCool.RESOURCE_ROOT_ID;
+
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTTagCompound;
 
 import com.gtnewhorizons.modularui.api.drawable.UITexture;
-import com.xyp.gtnc.utils.enums.ModList;
 
 import gregtech.api.enums.ItemList;
 import gregtech.api.enums.Materials;
@@ -15,10 +16,9 @@ public class ItemUtils {
 
     // Logo images for GUI (MUI1 UITexture)
     public static final UITexture PICTURE_CIRCULATION = UITexture
-        .fullImage(ModList.ScienceNotCool.ID, "gui/picture/circulation_");
+        .fullImage(RESOURCE_ROOT_ID, "gui/picture/circulation_");
 
-    public static final UITexture PICTURE_GTNL_LOGO = UITexture
-        .fullImage(ModList.ScienceNotCool.ID, "gui/picture/gorge_logo");
+    public static final UITexture PICTURE_GTNL_LOGO = UITexture.fullImage(RESOURCE_ROOT_ID, "gui/picture/gorge_logo");
 
     public static ItemStack getItemStack(ItemStack baseStack, String aNBTString, ItemStack aReplacement) {
         if (baseStack == null) return aReplacement;

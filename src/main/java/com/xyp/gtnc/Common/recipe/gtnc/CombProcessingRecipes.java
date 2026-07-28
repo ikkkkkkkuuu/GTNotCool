@@ -42,7 +42,7 @@ public class CombProcessingRecipes {
         ScienceNotCool.LOG.info("Loaded {} Steam Comb Processing Recipes", count);
     }
 
-    // ==================== 离心机 → 直接复制 ====================
+    // ==================== 离心机 → 直接复制 + 熔融副配方 ====================
 
     private static int importFromCentrifuge() {
         Collection<GTRecipe> recipes = RecipeMaps.centrifugeRecipes.getAllRecipes();
@@ -51,6 +51,7 @@ public class CombProcessingRecipes {
             if (r.mInputs == null || r.mInputs.length == 0) continue;
             if (!isComb(r.mInputs[0])) continue;
             if (!seenCombs.add(combId(r.mInputs[0]))) continue;
+            // 粉尘配方：直接复制离心机产物（保留原输入数量）
             GTRecipeBuilder.builder()
                 .itemInputs(r.mInputs[0])
                 .itemOutputs(r.mOutputs)
@@ -60,6 +61,23 @@ public class CombProcessingRecipes {
                 .duration(r.mDuration)
                 .addTo(RM);
             count++;
+            // 熔融配方：若粉尘输出有对应的熔融态，额外注册 circuit=24
+            // 配方以 1 个蜂窝为输入，熔融量按输入数量均分
+            FluidStack molten = getMolten(r.mOutputs);
+            if (molten != null) {
+                int inputCount = Math.max(1, r.mInputs[0].stackSize);
+                FluidStack perComb = new FluidStack(molten.getFluid(), molten.amount / inputCount);
+                if (perComb.amount > 0) {
+                    GTRecipeBuilder.builder()
+                        .itemInputs(copyAmount(r.mInputs[0], 1))
+                        .circuit(24)
+                        .fluidOutputs(perComb)
+                        .eut(30)
+                        .duration(100)
+                        .addTo(RM);
+                    count++;
+                }
+            }
         }
         return count;
     }
@@ -97,9 +115,10 @@ public class CombProcessingRecipes {
                     .addTo(RM);
                 count++;
             }
-            // 配方2：粉（无电路，兜底）
+            // 配方2：circuit=1 → 粉（兜底）
             GTRecipeBuilder.builder()
                 .itemInputs(comb)
+                .circuit(1)
                 .itemOutputs(outputs)
                 .eut(30)
                 .duration(100)
@@ -134,7 +153,14 @@ public class CombProcessingRecipes {
     private static boolean isComb(ItemStack stack) {
         if (stack == null || stack.getItem() == null) return false;
         Item item = stack.getItem();
-        return item instanceof ItemComb || isForestryComb(item);
+        // GT 蜂窝：ItemComb 实例
+        if (item instanceof ItemComb) return true;
+        // Forestry 接口检测：IItemBeeComb
+        if (isForestryComb(item)) return true;
+        // 类名回退：Forestry / MagicBees / ExtraBees 等模组的蜂窝，
+        // 在 GTNH 中可能既不是 ItemComb 也不实现 IItemBeeComb，但类名必含 "Comb"
+        if (isCombByClassName(item)) return true;
+        return false;
     }
 
     private static boolean isForestryComb(Item item) {
@@ -146,6 +172,14 @@ public class CombProcessingRecipes {
         }
         if (forestryCombInterface == null) return false;
         return forestryCombInterface.isInstance(item);
+    }
+
+    /** 类名回退检测：所有蜂类模组的蜂窝 item 类名都包含 "Comb" */
+    private static boolean isCombByClassName(Item item) {
+        return item.getClass()
+            .getSimpleName()
+            .toLowerCase()
+            .contains("comb");
     }
 
     private static ItemStack[] convertOutputsToDust(ItemStack[] outputs) {

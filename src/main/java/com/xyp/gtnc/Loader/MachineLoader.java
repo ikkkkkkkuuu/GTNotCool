@@ -181,7 +181,7 @@ public class MachineLoader {
             .addItemTooltip(GTNCItemList.LargeBoilerTitanium.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
 
         // #tr NameLargeBoilerTungstenSteel
-        // # Large Tungstensteel Boiler
+        // # Large Tungsten steel Boiler
         // # zh_CN 大型钨钢锅炉
         GTNCItemList.LargeBoilerTungstenSteel.set(
             new LargeBoiler.LargeBoilerTungstenSteel(
@@ -225,7 +225,7 @@ public class MachineLoader {
             .addItemTooltip(GTNCItemList.LargeSteamTurbineTitanium.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
 
         // #tr NameLargeSteamTurbineTungstenSteel
-        // # Large Tungstensteel Steam Turbine
+        // # Large Tungsten steel Steam Turbine
         // # zh_CN 大型钨钢蒸汽涡轮
         GTNCItemList.LargeSteamTurbineTungstenSteel.set(
             new LargeSteamTurbine.LargeSteamTurbineTungstenSteel(
@@ -505,7 +505,7 @@ public class MachineLoader {
             .addItemTooltip(GTNCItemList.LargeSteamCrucibleTitanium.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
 
         // #tr NameLargeSteamCrucibleTungstenSteel
-        // # Large Steam Tungstensteel Crucible
+        // # Large Steam Tungsten steel Crucible
         // # zh_CN 大型蒸汽钨钢坩埚
         GTNCItemList.LargeSteamCrucibleTungstenSteel.set(
             new LargeSteamCrucible.LargeSteamCrucibleTungstenSteel(
