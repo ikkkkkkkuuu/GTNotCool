@@ -395,10 +395,10 @@ public class ThinkTechRecipes {
             .eut(491520)
             .addTo(As);
 
-        // 二硅化钼线圈: MoSi₂棒 + HSLA钢熔融
+        // 二硅化钼线圈: MoSi₂板 + 云母箔 + HSLA钢熔融
         GTValues.RA.stdBuilder()
             .itemInputs(
-                GTNCMaterials.MolybdenumDisilicide.get(OrePrefixes.stick, 32),
+                GTNCMaterials.MolybdenumDisilicide.get(OrePrefixes.plate, 32),
                 GTOreDictUnificator.get(OrePrefixes.foil, Materials.Mica, 16))
             .fluidInputs(GTNCMaterials.HSLASteel.getMolten(144))
             .itemOutputs(GTNCItemList.MolybdenumDisilicideCoil.get(1))
