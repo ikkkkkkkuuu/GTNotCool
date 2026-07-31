@@ -82,7 +82,8 @@ public class ThinkTechRecipes {
 
         // ==== HNIW ====
         GTValues.RA.stdBuilder()
-            .itemInputs(GTOreDictUnificator.get(OrePrefixes.dust, Materials.Palladium, 0))
+            .itemInputs(
+                GTUtility.copyAmountUnsafe(0, GTOreDictUnificator.get(OrePrefixes.dust, Materials.Palladium, 1)))
             .fluidInputs(
                 GTNCMaterials.Phenylmethanamine.getFluidOrGas(6000),
                 GTNCMaterials.Ethanedial.getFluidOrGas(3000),
@@ -219,7 +220,7 @@ public class ThinkTechRecipes {
 
         // 马来酸酐: 丁烷 + O₂ → 马来酸酐 + 水 (Bi催化)
         GTValues.RA.stdBuilder()
-            .itemInputs(GTOreDictUnificator.get(OrePrefixes.dust, Materials.Bismuth, 0))
+            .itemInputs(GTUtility.copyAmountUnsafe(0, GTOreDictUnificator.get(OrePrefixes.dust, Materials.Bismuth, 1)))
             .fluidInputs(Materials.Oxygen.getGas(7000), Materials.Butane.getGas(1000))
             .fluidOutputs(Materials.Water.getFluid(4000), GTNCMaterials.MaleicAnhydride.getFluidOrGas(1000))
             .duration(14 * 20)
@@ -267,7 +268,7 @@ public class ThinkTechRecipes {
 
         // 马来酸酐 → 丁二酸 (RhPd催化加氢)
         GTValues.RA.stdBuilder()
-            .itemInputs(WerkstoffLoader.RhodiumPlatedPalladium.get(OrePrefixes.dust, 0))
+            .itemInputs(GTUtility.copyAmountUnsafe(0, WerkstoffLoader.RhodiumPlatedPalladium.get(OrePrefixes.dust, 1)))
             .fluidInputs(
                 Materials.Water.getFluid(1000),
                 Materials.Hydrogen.getGas(1000),
