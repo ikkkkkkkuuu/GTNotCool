@@ -159,9 +159,9 @@ public class ChemicalReactorRecipes {
             .eut(480)
             .addTo(LCR);
 
-        // 煤气 + 蒸汽 → 氢气 + 二氧化碳 (水煤气变换, 赤铁矿催化)
+        // 煤气 + 蒸汽 → 氢气 + 二氧化碳 (水煤气变换, 铁基催化)
         GTValues.RA.stdBuilder()
-            .itemInputs(GTUtility.copyAmountUnsafe(0, Materials.Hematite.getDust(1)), GTUtility.getIntegratedCircuit(9))
+            .itemInputs(GTUtility.copyAmountUnsafe(0, Materials.Iron.getDust(1)), GTUtility.getIntegratedCircuit(9))
             .fluidInputs(new FluidStack(GTPPFluids.CoalGas, 1000), Materials.Steam.getGas(1000L))
             .fluidOutputs(Materials.Hydrogen.getGas(2000L), Materials.CarbonDioxide.getGas(1000L))
             .duration(12 * SECONDS)
