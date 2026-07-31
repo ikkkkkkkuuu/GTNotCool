@@ -96,7 +96,7 @@ public class ThinkTechRecipes {
 
         // ==== HMT ====
         GTValues.RA.stdBuilder()
-            .fluidInputs(Materials.Ammonia.getGas(4000), FluidRegistry.getFluidStack("formaldehyde", 6000))
+            .fluidInputs(Materials.Ammonia.getGas(4000), new FluidStack(GTPPFluids.Formaldehyde, 6000))
             .fluidOutputs(GTNCMaterials.HMT.getMolten(1000), Materials.Water.getFluid(6000))
             .eut(RECIPE_EV)
             .duration(20 * 2)
