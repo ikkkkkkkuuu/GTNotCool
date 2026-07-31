@@ -3,6 +3,7 @@ package com.xyp.gtnc.Common.recipe.gtnc;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 
+import com.xyp.gtnc.Common.material.GTNCMaterials;
 import com.xyp.gtnc.Loader.ItemsLoader;
 import com.xyp.gtnc.utils.enums.GTNCItemList;
 
@@ -22,24 +23,26 @@ public class CraftingTableRecipes {
         // 通配样板符配方：空白样板 → 通配样板符
         GameRegistry.addRecipe(
             new ItemStack(ItemsLoader.wildcardPattern),
-            new Object[] { "B", 'B', AEApi.instance()
+            "B", 'B', AEApi.instance()
                 .definitions()
                 .materials()
                 .blankPattern()
                 .maybeStack(1)
-                .orNull() });
+                .orNull());
 
         // 诱变框架配方：验证框架(Forestry) 中心 + 四周高算力芯片I
         GameRegistry.addRecipe(
             new ItemStack(ItemsLoader.mutagenicFrame),
-            new Object[] { " A ", "ABA", " A ", 'A', GTNCItemList.ChipTier1.get(1), 'B',
-                GameRegistry.findItemStack("Forestry", "frameProven", 1) });
+            " A ", "ABA", " A ",
+            'A', GTNCMaterials.CompressedSteam.get(OrePrefixes.gearGt, 1),
+            'B', GameRegistry.findItemStack("Forestry", "frameProven", 1));
 
         // 无尽框架配方：诱变框架中心 + 四周高算力芯片III
         GameRegistry.addRecipe(
             new ItemStack(ItemsLoader.endlessFrame),
-            new Object[] { " A ", "ABA", " A ", 'A', GTNCItemList.ChipTier3.get(1), 'B',
-                new ItemStack(ItemsLoader.mutagenicFrame) });
+            " A ", "ABA", " A ",
+            'A', GTNCMaterials.CompressedSteam.get(OrePrefixes.gearGt, 1),
+            'B', new ItemStack(ItemsLoader.mutagenicFrame));
 
         GTModHandler.addCraftingRecipe(
             GTNCItemList.SteamEyeOfHarmony.get(1),

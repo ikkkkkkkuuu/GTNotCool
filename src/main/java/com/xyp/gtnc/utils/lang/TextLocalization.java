@@ -462,4 +462,195 @@ public class TextLocalization {
     // # zh_CN 工业注魔矩阵
     public static final String IndustrialArcaneAssembler_Mode_1 = TextEnums.tr("IndustrialArcaneAssembler_Mode_1");
 
+    // ==== GTNC 自定义材料 ====
+
+    // #tr Material.SAPO34
+    // # SAPO-34 Molecular Sieve (MTO catalyst)
+    // # zh_CN SAPO分子筛
+    public static final String Material_SAPO34 = "SAPO分子筛";
+
+    // #tr Material.AmmoniumPerchlorate
+    // # Ammonium Perchlorate (solid rocket oxidizer)
+    // # zh_CN 高氯酸铵
+    public static final String Material_AmmoniumPerchlorate = "高氯酸铵";
+
+    // #tr Material.AmmoniumDinitramide
+    // # Ammonium Dinitramide ADN (high-energy solid rocket oxidizer)
+    // # zh_CN 二硝酰胺铵
+    public static final String Material_AmmoniumDinitramide = "二硝酰胺铵";
+
+    // #tr Material.NaquadahOxidizer
+    // # Naquadah Oxidizer (extreme-energy rocket oxidizer)
+    // # zh_CN 硅岩氧化剂
+    public static final String Material_NaquadahOxidizer = "硅岩氧化剂";
+
+    // #tr Material.CompressedSteam
+    // # Compressed Steam (supercritical solid metal)
+    // # zh_CN 压缩蒸汽
+    public static final String Material_CompressedSteam = "压缩蒸汽";
+
+    // ==== ThinkTech 移植材料 ====
+
+    // #tr Material.AlkaneWaterMixture
+    // # Alkane Water Mixture
+    // # zh_CN 烷烃水混合物
+    public static final String Material_AlkaneWaterMixture = "烷烃水混合物";
+
+    // #tr Material.Trinitrotoluene
+    // # 2,4,6-trinitrotoluene (TNT)
+    // # zh_CN 三硝基甲苯
+    public static final String Material_Trinitrotoluene = "三硝基甲苯";
+
+    // #tr Material.LeadAzide
+    // # Lead Azide
+    // # zh_CN 叠氮化铅
+    public static final String Material_LeadAzide = "叠氮化铅";
+
+    // #tr Material.PETN
+    // # Pentaerythritol Tetranitrate
+    // # zh_CN 季戊四醇四硝酸酯
+    public static final String Material_PETN = "季戊四醇四硝酸酯";
+
+    // #tr Material.HMX
+    // # HMX (cyclotetramethylene tetranitramine)
+    // # zh_CN 奥克托今
+    public static final String Material_HMX = "奥克托今";
+
+    // #tr Material.HNIW
+    // # HNIW / CL-20
+    // # zh_CN 六硝基六氮杂异伍兹烷
+    public static final String Material_HNIW = "六硝基六氮杂异伍兹烷";
+
+    // #tr Material.HMT
+    // # HMT (hexamethylenetetramine)
+    // # zh_CN 乌洛托品
+    public static final String Material_HMT = "乌洛托品";
+
+    // #tr Material.Ethanedial
+    // # Ethanedial (glyoxal)
+    // # zh_CN 乙二醛
+    public static final String Material_Ethanedial = "乙二醛";
+
+    // #tr Material.Phenylmethanamine
+    // # Phenylmethanamine (benzylamine)
+    // # zh_CN 苄胺
+    public static final String Material_Phenylmethanamine = "苄胺";
+
+    // #tr Material.Benzaldehyd
+    // # Benzaldehyd
+    // # zh_CN 苯甲醛
+    public static final String Material_Benzaldehyd = "苯甲醛";
+
+    // #tr Material.Pentachloride
+    // # Pentachloride (PCl5)
+    // # zh_CN 五氯化磷
+    public static final String Material_Pentachloride = "五氯化磷";
+
+    // #tr Material.SodiumAzide
+    // # Sodium Azide
+    // # zh_CN 叠氮化钠
+    public static final String Material_SodiumAzide = "叠氮化钠";
+
+    // #tr Material.PreculturedBacterialSolution
+    // # Pre-cultured Bacterial Solution
+    // # zh_CN 预培养维生细菌液
+    public static final String Material_PreculturedBacterialSolution = "预培养维生细菌液";
+
+    // #tr Material.FreezedPreculturedBacterialSolution
+    // # Freezed Pre-cultured Bacterial Solution
+    // # zh_CN 预培养维生冷藏细菌液
+    public static final String Material_FreezedPreculturedBacterialSolution = "预培养维生冷藏细菌液";
+
+    // #tr Material.RawBioSludge
+    // # Raw Biological Sludge
+    // # zh_CN 待处理浓缩菌泥
+    public static final String Material_RawBioSludge = "待处理浓缩菌泥";
+
+    // #tr Material.SeleniumDioxide
+    // # Selenium Dioxide
+    // # zh_CN 二氧化硒
+    public static final String Material_SeleniumDioxide = "二氧化硒";
+
+    // #tr Material.NutrientSolution
+    // # Nutrient Solution
+    // # zh_CN 营养液
+    public static final String Material_NutrientSolution = "营养液";
+
+    // #tr Material.Photoresist
+    // # Photoresist
+    // # zh_CN 光刻胶
+    public static final String Material_Photoresist = "光刻胶";
+
+    // #tr Material.Sxcqyry
+    // # Three-phase Indium Extraction Solution
+    // # zh_CN 三相萃取铟溶液
+    public static final String Material_Sxcqyry = "三相萃取铟溶液";
+
+    // #tr Material.Dndcq
+    // # Low-concentration Extraction Solution
+    // # zh_CN 低浓度萃取液
+    public static final String Material_Dndcq = "低浓度萃取液";
+
+    // ==== GTNL 独立化工材料 ====
+
+    // #tr Material.BariumChloride
+    // # Barium Chloride
+    // # zh_CN 氯化钡
+    public static final String Material_BariumChloride = "氯化钡";
+
+    // #tr Material.MaleicAnhydride
+    // # Maleic Anhydride
+    // # zh_CN 马来酸酐
+    public static final String Material_MaleicAnhydride = "马来酸酐";
+
+    // #tr Material.Durene
+    // # Durene
+    // # zh_CN 均四甲苯
+    public static final String Material_Durene = "均四甲苯";
+
+    // #tr Material.AntimonyTrifluoride
+    // # Antimony Trifluoride
+    // # zh_CN 三氟化锑
+    public static final String Material_AntimonyTrifluoride = "三氟化锑";
+
+    // #tr Material.AmmoniumBisulfate
+    // # Ammonium Bisulfate
+    // # zh_CN 硫酸氢铵
+    public static final String Material_AmmoniumBisulfate = "硫酸氢铵";
+
+    // #tr Material.PMDA
+    // # Pyromellitic Dianhydride
+    // # zh_CN 均苯四甲酸二酐
+    public static final String Material_PMDA = "均苯四甲酸二酐";
+
+    // #tr Material.SuccinicAcid
+    // # Succinic Acid
+    // # zh_CN 丁二酸
+    public static final String Material_SuccinicAcid = "丁二酸";
+
+    // #tr Material.SmallBaka
+    // # Small Baka (nitrobenzene fluid)
+    // # zh_CN 硝基苯流体
+    public static final String Material_SmallBaka = "硝基苯流体";
+
+    // #tr Material.Polyimide
+    // # Polyimide
+    // # zh_CN 聚酰亚胺
+    public static final String Material_Polyimide = "聚酰亚胺";
+
+    // #tr Material.Germaniumtungstennitride
+    // # Germanium Tungsten Nitride
+    // # zh_CN 锗钨氮化物
+    public static final String Material_Germaniumtungstennitride = "锗钨氮化物";
+
+    // #tr Material.MolybdenumDisilicide
+    // # Molybdenum Disilicide
+    // # zh_CN 二硅化钼
+    public static final String Material_MolybdenumDisilicide = "二硅化钼";
+
+    // #tr Material.HSLASteel
+    // # HSLA Steel
+    // # zh_CN HSLA钢
+    public static final String Material_HSLASteel = "HSLA钢";
+
 }

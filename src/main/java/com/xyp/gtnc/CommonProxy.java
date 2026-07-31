@@ -13,6 +13,7 @@ import com.xyp.gtnc.Common.vending.VMTradeRegistry;
 import com.xyp.gtnc.Loader.BlockLoader;
 import com.xyp.gtnc.Loader.ItemsLoader;
 import com.xyp.gtnc.Loader.MachineLoader;
+import com.xyp.gtnc.Loader.MaterialLoader;
 import com.xyp.gtnc.Loader.QuestLoader;
 import com.xyp.gtnc.Loader.RecipeLoader;
 import com.xyp.gtnc.utils.enums.ModList;
@@ -45,6 +46,9 @@ public class CommonProxy {
         // Register network channel and all packets
         ScienceNotCool.channel = NetworkRegistry.INSTANCE.newSimpleChannel(ScienceNotCool.MODID);
         NetWorkHandler.registerAllMessage();
+
+        // 注册自定义 Werkstoff 材料（必须在物品/方块之前）
+        MaterialLoader.loadPreInit();
 
         // 注册物品（包括工具带）
         ItemsLoader.registry();

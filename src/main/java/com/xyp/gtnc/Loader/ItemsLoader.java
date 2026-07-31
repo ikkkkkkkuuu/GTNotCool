@@ -236,6 +236,31 @@ public class ItemsLoader {
         // # zh_CN 生物贴片电感
         GTNCItemList.BiowareSMDInductor.set(MetaItemAdder.initItem(30));
 
+        // #tr item.MetaItem.33.name
+        // # Bioware SMD Capacitor
+        // # zh_CN 生物贴片电容
+        GTNCItemList.BiowareSMDCapacitor.set(MetaItemAdder.initItem(33));
+
+        // #tr item.MetaItem.34.name
+        // # Bioware SMD Diode
+        // # zh_CN 生物贴片二极管
+        GTNCItemList.BiowareSMDDiode.set(MetaItemAdder.initItem(34));
+
+        // #tr item.MetaItem.35.name
+        // # Bioware SMD Resistor
+        // # zh_CN 生物贴片电阻
+        GTNCItemList.BiowareSMDResistor.set(MetaItemAdder.initItem(35));
+
+        // #tr item.MetaItem.36.name
+        // # Bioware SMD Transistor
+        // # zh_CN 生物贴片晶体管
+        GTNCItemList.BiowareSMDTransistor.set(MetaItemAdder.initItem(36));
+
+        // #tr item.MetaItem.37.name
+        // # Molybdenum Disilicide Coil
+        // # zh_CN 二硅化钼线圈
+        GTNCItemList.MolybdenumDisilicideCoil.set(MetaItemAdder.initItem(37));
+
         // #tr item.MetaItem.31.name
         // # Critical Photon
         // # zh_CN 临界光子

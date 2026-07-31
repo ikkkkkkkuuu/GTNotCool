@@ -1,12 +1,25 @@
 package com.xyp.gtnc.Loader;
 
+import com.xyp.gtnc.Common.material.GTNCMaterials;
 import com.xyp.gtnc.utils.enums.GTNCItemList;
 
+import bartworks.API.WerkstoffAdderRegistry;
 import gregtech.api.enums.Materials;
 import gregtech.api.enums.OrePrefixes;
 import gregtech.api.util.GTOreDictUnificator;
 
 public class MaterialLoader {
+
+    /** preInit：注册 Werkstoff 自定义材料 */
+    public static void loadPreInit() {
+        WerkstoffAdderRegistry.addWerkstoffAdder(new GTNCMaterials());
+    }
+
+    /** init：注册中文名并注册 OreDict */
+    public static void loadInit() {
+        GTNCLanguageLoader.registry();
+        registryOreDictionary();
+    }
 
     public static void registryOreDictionary() {
         GTOreDictUnificator
@@ -34,10 +47,4 @@ public class MaterialLoader {
         GTOreDictUnificator.registerOre(OrePrefixes.circuit.get(Materials.HV), GTNCItemList.AdvancedCircuit.get(1));
         GTOreDictUnificator.registerOre(OrePrefixes.circuit.get(Materials.EV), GTNCItemList.EliteCircuit.get(1));
     }
-
-    public static void loadInit() {
-
-        registryOreDictionary();
-    }
-
 }

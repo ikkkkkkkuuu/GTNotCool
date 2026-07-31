@@ -5,10 +5,14 @@ import com.xyp.gtnc.Common.recipe.gregtech.AssemblingLineRecipes;
 import com.xyp.gtnc.Common.recipe.gregtech.BenderRecipes;
 import com.xyp.gtnc.Common.recipe.gregtech.BlastFurnaceRecipes;
 import com.xyp.gtnc.Common.recipe.gregtech.CentrifugeRecipes;
+import com.xyp.gtnc.Common.recipe.gregtech.ChemicalReactorRecipes;
 import com.xyp.gtnc.Common.recipe.gregtech.CircuitAssemblerRecipes;
 import com.xyp.gtnc.Common.recipe.gregtech.ExtruderRecipes;
 import com.xyp.gtnc.Common.recipe.gregtech.FurnaceRecipes;
 import com.xyp.gtnc.Common.recipe.gregtech.LaserEngraverRecipes;
+import com.xyp.gtnc.Common.recipe.gregtech.MixerRecipes;
+import com.xyp.gtnc.Common.recipe.gregtech.ThinkTechRecipes;
+import com.xyp.gtnc.Common.recipe.gregtech.compressorRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.CombProcessingRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.CraftingTableRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.CrucibleRecipes;
@@ -26,6 +30,7 @@ public class RecipeLoader {
 
     public static void loadRecipes() {
 
+        compressorRecipes.loadRecipes();
         MachineRecipes.loadRecipes();
         ShapedArcaneCraftingRecipes.loadRecipes();
         InfusionCraftingRecipes.loadRecipes();
@@ -44,6 +49,9 @@ public class RecipeLoader {
         FurnaceRecipes.loadRecipes();
         BlastFurnaceRecipes.loadRecipes();
         LaserEngraverRecipes.loadRecipes();
+        ChemicalReactorRecipes.loadRecipes();
+        MixerRecipes.loadRecipes();
+        ThinkTechRecipes.loadRecipes();
         CombProcessingRecipes.loadRecipes();
         SteamCropBreederRecipes.loadRecipes();
         StellarForgeRecipePool.loadRecipes();

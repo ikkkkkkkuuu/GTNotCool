@@ -30,6 +30,11 @@ import gregtech.api.util.GTUtility;
 public enum GTNCItemList implements IItemContainer {
 
     BiowareSMDInductor,
+    BiowareSMDCapacitor,
+    BiowareSMDDiode,
+    BiowareSMDResistor,
+    BiowareSMDTransistor,
+    MolybdenumDisilicideCoil,
 
     ChipTier1,
     ChipTier2,
