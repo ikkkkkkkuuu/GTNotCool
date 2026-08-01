@@ -29,6 +29,7 @@ public class GTNCMultiBlockBaseGui<T extends MTEMultiBlockBase> extends GTNCUpgr
             .reverseLayout(true)
             .child(createPowerSwitchButton())
             .childIf(isUpgradeTreeSupported(), () -> createUpgradeTreeButton(panel, syncManager))
+            .childIf(multiblock.supportsMachineModeSwitch(), () -> createModeSwitchButton(syncManager))
             .child(createStructureUpdateButton(syncManager));
     }
 

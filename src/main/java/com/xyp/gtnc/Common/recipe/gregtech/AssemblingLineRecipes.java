@@ -1,5 +1,6 @@
 package com.xyp.gtnc.Common.recipe.gregtech;
 
+import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
@@ -82,6 +83,43 @@ public class AssemblingLineRecipes {
             GTNCItemList.AtomicEnergyExcitationPlant.get(1),
             4000,
             (int) TierEU.RECIPE_UIV);
+
+        if (Mods.BloodMagic.isModLoaded()) {
+            ItemStack lpMaterializer = Mods.BloodArsenal.isModLoaded()
+                ? GTModHandler.getModItem(Mods.BloodArsenal.ID, "lp_materializer", 1)
+                : new ItemStack(Blocks.hopper);
+            ItemStack lifeInfuser = Mods.BloodArsenal.isModLoaded()
+                ? GTModHandler.getModItem(Mods.BloodArsenal.ID, "life_infuser", 1)
+                : new ItemStack(Blocks.beacon);
+
+            GTValues.RA.stdBuilder()
+                .metadata(GTRecipeConstants.RESEARCH_ITEM, GTModHandler.getModItem(Mods.BloodMagic.ID, "Altar", 1))
+                .metadata(GTRecipeConstants.SCANNING, new Scanning(30 * GTRecipeBuilder.MINUTES, TierEU.RECIPE_ZPM))
+                .itemInputs(
+                    GTModHandler.getModItem(Mods.BloodMagic.ID, "masterStone", 32),
+                    new Object[] { OrePrefixes.circuit.get(Materials.ZPM), 32 },
+                    new Object[] { OrePrefixes.circuit.get(Materials.UV), 16 },
+                    GTOreDictUnificator.get(OrePrefixes.frameGt, Materials.Trinium, 16),
+                    GTOreDictUnificator.get(OrePrefixes.wireGt16, Materials.SuperconductorZPM, 64),
+                    ItemList.Field_Generator_ZPM.get(16),
+                    GTOreDictUnificator.get(OrePrefixes.plateSuperdense, Materials.Naquadah, 5),
+                    ItemList.Electric_Pump_ZPM.get(32),
+                    ItemList.Emitter_ZPM.get(32),
+                    lpMaterializer,
+                    lifeInfuser,
+                    GTModHandler.getModItem(Mods.BloodMagic.ID, "blockWritingTable", 1),
+                    GTModHandler.getModItem(Mods.BloodMagic.ID, "activationCrystal", 1, 1),
+                    GTModHandler.getModItem(Mods.BloodMagic.ID, "itemRitualDiviner", 1, 2))
+                .fluidInputs(
+                    Materials.Grade4PurifiedWater.getFluid(64000),
+                    Materials.Americium.getMolten(4608),
+                    Materials.Neutronium.getMolten(2304),
+                    Materials.NaquadahEnriched.getMolten(1152))
+                .itemOutputs(GTNCItemList.BloodSoulSacrificialArray.get(1))
+                .eut(TierEU.RECIPE_UV)
+                .duration(120 * GTRecipeBuilder.SECONDS)
+                .addTo(AL);
+        }
 
         TTRecipeAdder.addResearchableAssemblylineRecipe(
             ItemList.SpaceElevatorController.get(1),

@@ -53,6 +53,30 @@ public class CraftingTableRecipes {
             });
 
         GTModHandler.addCraftingRecipe(
+            GTNCItemList.SteamForgeOfGods.get(1),
+            new Object[] { "AGA", "PCP", "FBF",
+                'A', ItemList.Block_BronzePlate.get(1),
+                'G', ItemList.Casing_Gearbox_Bronze.get(1),
+                'P', ItemList.Casing_Pipe_Bronze.get(1),
+                'C', OrePrefixes.circuit.get(Materials.LV),
+                'F', ItemList.Casing_Firebox_Bronze.get(1),
+                'B', GTOreDictUnificator.get(OrePrefixes.frameGt, Materials.Bronze, 1L)
+            });
+
+        addSteamGodforgeModuleRecipe(
+            GTNCItemList.SteamGodforgeSmeltingModule.get(1),
+            ItemList.Machine_LV_AlloySmelter.get(1));
+        addSteamGodforgeModuleRecipe(
+            GTNCItemList.SteamGodforgeMoltenModule.get(1),
+            ItemList.Machine_LV_FluidExtractor.get(1));
+        addSteamGodforgeModuleRecipe(
+            GTNCItemList.SteamGodforgePlasmaModule.get(1),
+            ItemList.Machine_LV_Electrolyzer.get(1));
+        addSteamGodforgeModuleRecipe(
+            GTNCItemList.SteamGodforgeExoticModule.get(1),
+            ItemList.Machine_LV_Mixer.get(1));
+
+        GTModHandler.addCraftingRecipe(
             GTNCItemList.DieselGeneratorLV.get(1),
             new Object[] { "ABA", "CDC", "EFE",
                 'A', ItemList.Electric_Piston_LV.get(1),
@@ -462,6 +486,16 @@ public class CraftingTableRecipes {
             });
         // spotless:on
 
+    }
+
+    private static void addSteamGodforgeModuleRecipe(ItemStack output, ItemStack lvMachine) {
+        GTModHandler.addCraftingRecipe(
+            output,
+            new Object[] { "PFP", "GMG", "PBP", 'P',
+                GTOreDictUnificator.get(OrePrefixes.plateDouble, Materials.Bronze, 1L), 'F',
+                ItemList.Casing_Firebox_Bronze.get(1), 'G',
+                GTOreDictUnificator.get(OrePrefixes.gearGt, Materials.Bronze, 1L), 'M', lvMachine, 'B',
+                GTOreDictUnificator.get(OrePrefixes.frameGt, Materials.Bronze, 1L) });
     }
 
 }

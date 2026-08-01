@@ -2,12 +2,15 @@ package com.xyp.gtnc.Loader;
 
 import java.util.Comparator;
 
+import com.xyp.gtnc.Common.gui.recipe.FallingTowerFrontend;
 import com.xyp.gtnc.Common.gui.recipe.GTNCLogoFrontend;
 import com.xyp.gtnc.Common.gui.recipe.IndustrialInfusionCraftingRecipesFrontend;
 import com.xyp.gtnc.Common.gui.recipe.StellarForgeAlloySmelterRecipesFrontend;
 import com.xyp.gtnc.utils.enums.GTNCItemList;
+import com.xyp.gtnc.utils.recipes.format.BloodSoulFormat;
 import com.xyp.gtnc.utils.recipes.metadata.FuelRefiningMetadata;
 
+import gregtech.api.enums.Mods;
 import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.recipe.RecipeMap;
 import gregtech.api.recipe.RecipeMapBackend;
@@ -188,5 +191,45 @@ public class GTNCRecipeMaps {
             builder -> builder.setDisplayStack(GTNCItemList.IndustrialArcaneAssembler.get(1))
                 .setMaxRecipesPerPage(1))
         .build();
+
+    // #tr gtnc.recipe.FallingTowerRecipes
+    // # Falling Tower
+    // # zh_CN 模拟坠星标位
+    public static final RecipeMap<RecipeMapBackend> FallingTowerRecipes = Mods.BloodMagic.isModLoaded()
+        ? RecipeMapBuilder.of("gtnc.recipe.FallingTowerRecipes")
+            .maxIO(1, 81, 0, 0)
+            .progressBar(GTUITextures.PROGRESSBAR_COMPRESS)
+            .frontend(FallingTowerFrontend::new)
+            .neiHandlerInfo(
+                builder -> builder.setDisplayStack(GTNCItemList.BloodSoulSacrificialArray.get(1))
+                    .setMaxRecipesPerPage(1))
+            .build()
+        : null;
+
+    // #tr gtnc.recipe.BloodDemonInjectionRecipes
+    // # Blood Demon Injection
+    // # zh_CN 血魔注入
+    public static final RecipeMap<RecipeMapBackend> BloodDemonInjectionRecipes = Mods.BloodMagic.isModLoaded()
+        ? RecipeMapBuilder.of("gtnc.recipe.BloodDemonInjectionRecipes")
+            .maxIO(4, 1, 0, 0)
+            .progressBar(GTUITextures.PROGRESSBAR_ARROW_MULTIPLE)
+            .frontend(GTNCLogoFrontend::new)
+            .neiSpecialInfoFormatter(BloodSoulFormat.INSTANCE)
+            .neiHandlerInfo(builder -> builder.setDisplayStack(GTNCItemList.BloodSoulSacrificialArray.get(1)))
+            .build()
+        : null;
+
+    // #tr gtnc.recipe.AlchemicChemistrySetRecipes
+    // # Alchemic Chemistry
+    // # zh_CN 秘法炼金
+    public static final RecipeMap<RecipeMapBackend> AlchemicChemistrySetRecipes = Mods.BloodMagic.isModLoaded()
+        ? RecipeMapBuilder.of("gtnc.recipe.AlchemicChemistrySetRecipes")
+            .maxIO(5, 1, 0, 0)
+            .progressBar(GTUITextures.PROGRESSBAR_ARROW_MULTIPLE)
+            .frontend(GTNCLogoFrontend::new)
+            .neiSpecialInfoFormatter(BloodSoulFormat.INSTANCE)
+            .neiHandlerInfo(builder -> builder.setDisplayStack(GTNCItemList.BloodSoulSacrificialArray.get(1)))
+            .build()
+        : null;
 
 }

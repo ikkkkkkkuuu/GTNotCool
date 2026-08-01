@@ -13,6 +13,7 @@ import com.xyp.gtnc.Common.recipe.gregtech.LaserEngraverRecipes;
 import com.xyp.gtnc.Common.recipe.gregtech.MixerRecipes;
 import com.xyp.gtnc.Common.recipe.gregtech.ThinkTechRecipes;
 import com.xyp.gtnc.Common.recipe.gregtech.compressorRecipes;
+import com.xyp.gtnc.Common.recipe.gtnc.BloodSoulSacrificialArrayRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.CombProcessingRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.CraftingTableRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.CrucibleRecipes;
@@ -42,6 +43,7 @@ public class RecipeLoader {
         AssemblingLineRecipes.loadrecipes();
         DrillingRigRecipes.loadRecipes();
         FuelRefiningComplexRecipes.loadRecipes();
+        BloodSoulSacrificialArrayRecipes.loadRecipes();
         PlatinumBasedTreatmentRecipes.loadRecipes();
         PetrochemicalPlantRecipes.loadRecipes();
         MiningRigRecipes.loadRecipes();

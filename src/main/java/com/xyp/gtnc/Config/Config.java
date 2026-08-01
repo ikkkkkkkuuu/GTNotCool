@@ -102,6 +102,45 @@ public class Config {
     }
     // endregion
 
+    // region Steam Forge of Gods
+    public static class SteamForgeOfGods {
+
+        /** Apply the upstream Godforge perfect-overclock rules before the steam speed penalty. */
+        public static boolean enablePerfectOverclock = true;
+        /** Parallel caps unlocked by the dedicated parallel branch nodes. */
+        public static int[] parallelStages = { 256, 512, 1_024, 2_048, 4_096, 8_192, 16_384, 32_768, 65_536 };
+        /** Duration multipliers unlocked by dedicated heat and speed branch nodes. */
+        public static double[] speedPenaltyStages = { 4096, 2048, 1024, 512, 256, 128, 96, 80, 64 };
+        /** Pressure interpolation strength inside the currently unlocked parallel range. */
+        public static double pressureParallelMultiplier = 1.0;
+        /** LV base processing voltage and the voltage added by each pressure factor above one. */
+        public static long baseProcessingVoltage = 32L;
+        public static long processingVoltagePerPressure = 32L;
+        /** Rational steam conversion. Defaults to 1 EU = 1 L steam. */
+        public static long steamPerEUNumerator = 1;
+        public static long steamPerEUDenominator = 1;
+        /** Critical Photons consumed for a cold start. Partial stacks are stored by the controller. */
+        public static int startupCriticalPhotons = 16;
+        /** Molten Compressed Steam consumed per fuel factor every five seconds. */
+        public static long compressedSteamPerFuelFactor = 144L;
+        /** Additional rational multiplier for module processing consumption. */
+        public static long moduleSteamMultiplierNumerator = 1;
+        public static long moduleSteamMultiplierDenominator = 1;
+        /** Multipliers used by the four milestone counters. */
+        public static double chargeMilestoneMultiplier = 1.0;
+        public static double conversionMilestoneMultiplier = 1.0;
+        public static double catalystMilestoneMultiplier = 1.0;
+        public static double compositionMilestoneMultiplier = 1.0;
+        /** Steam-specific level 1-7 milestone thresholds. */
+        public static long[] steamWorkMilestoneThresholds = { 100_000L, 1_000_000L, 10_000_000L, 100_000_000L,
+            1_000_000_000L, 10_000_000_000L, 100_000_000_000L };
+        public static long[] recipeMilestoneThresholds = { 64L, 512L, 4_096L, 32_768L, 262_144L, 2_097_152L,
+            16_777_216L };
+        public static long[] compressedSteamMilestoneThresholds = { 14_400L, 57_600L, 230_400L, 921_600L, 3_686_400L,
+            14_745_600L, 58_982_400L };
+    }
+    // endregion
+
     // region ToolBelt 配置
     public static boolean releaseToSwap = true;
     public static boolean allowClickOutsideBounds = false;
@@ -347,6 +386,7 @@ public class Config {
     private static final String CATEGORY_THAUMCRAFT = "Thaumcraft";
     private static final String CATEGORY_AE2 = "Applied_Energistics_2";
     private static final String CATEGORY_CUT_CORNERS = "CutCorners";
+    private static final String CATEGORY_STEAM_FORGE_OF_GODS = "Steam_Forge_Of_Gods";
     // endregion
 
     // region 配置文件
@@ -722,6 +762,126 @@ public class Config {
                 Integer.MAX_VALUE,
                 "恒星锻炉(EBF)模式的 EU 消耗倍率。默认 2。");
 
+            SteamForgeOfGods.enablePerfectOverclock = configuration.getBoolean(
+                "enablePerfectOverclock",
+                CATEGORY_STEAM_FORGE_OF_GODS,
+                SteamForgeOfGods.enablePerfectOverclock,
+                "Whether steam Godforge modules retain the upstream perfect-overclock behavior.");
+            SteamForgeOfGods.parallelStages = migrateLegacyParallelStages(
+                configuration,
+                sanitizeParallelStages(
+                    configuration.getStringList(
+                        "parallelStages",
+                        CATEGORY_STEAM_FORGE_OF_GODS,
+                        toStringArray(SteamForgeOfGods.parallelStages),
+                        "Parallel caps from zero upgrades to the fully upgraded machine."),
+                    SteamForgeOfGods.parallelStages));
+            SteamForgeOfGods.speedPenaltyStages = sanitizePositiveDoubles(
+                configuration.getStringList(
+                    "speedPenaltyStages",
+                    CATEGORY_STEAM_FORGE_OF_GODS,
+                    toStringArray(SteamForgeOfGods.speedPenaltyStages),
+                    "Duration multipliers applied after upstream Godforge speed calculations."),
+                SteamForgeOfGods.speedPenaltyStages);
+            SteamForgeOfGods.pressureParallelMultiplier = configuration.getFloat(
+                "pressureParallelMultiplier",
+                CATEGORY_STEAM_FORGE_OF_GODS,
+                (float) SteamForgeOfGods.pressureParallelMultiplier,
+                0.0001f,
+                Float.MAX_VALUE,
+                "How strongly pressure fills the parallel range unlocked by parallel-specific upgrades.");
+            SteamForgeOfGods.baseProcessingVoltage = readLong(
+                "baseProcessingVoltage",
+                SteamForgeOfGods.baseProcessingVoltage,
+                1L,
+                "Base processing voltage for steam Godforge modules. Defaults to LV voltage.");
+            SteamForgeOfGods.processingVoltagePerPressure = readLong(
+                "processingVoltagePerPressure",
+                SteamForgeOfGods.processingVoltagePerPressure,
+                0L,
+                "Processing voltage added for every pressure factor above one.");
+            SteamForgeOfGods.steamPerEUNumerator = readLong(
+                "steamPerEUNumerator",
+                SteamForgeOfGods.steamPerEUNumerator,
+                1L,
+                "Numerator for wireless steam per EU. The default 1/1 means 1 EU = 1 L steam.");
+            SteamForgeOfGods.steamPerEUDenominator = readLong(
+                "steamPerEUDenominator",
+                SteamForgeOfGods.steamPerEUDenominator,
+                1L,
+                "Denominator for wireless steam per EU.");
+            SteamForgeOfGods.startupCriticalPhotons = configuration.getInt(
+                "startupCriticalPhotons",
+                CATEGORY_STEAM_FORGE_OF_GODS,
+                SteamForgeOfGods.startupCriticalPhotons,
+                1,
+                Integer.MAX_VALUE,
+                "Critical Photons required for a cold start.");
+            SteamForgeOfGods.compressedSteamPerFuelFactor = readLong(
+                "compressedSteamPerFuelFactor",
+                SteamForgeOfGods.compressedSteamPerFuelFactor,
+                1L,
+                "mB of molten Compressed Steam consumed per fuel factor every five seconds.");
+            SteamForgeOfGods.moduleSteamMultiplierNumerator = readLong(
+                "moduleSteamMultiplierNumerator",
+                SteamForgeOfGods.moduleSteamMultiplierNumerator,
+                1L,
+                "Additional module steam multiplier numerator.");
+            SteamForgeOfGods.moduleSteamMultiplierDenominator = readLong(
+                "moduleSteamMultiplierDenominator",
+                SteamForgeOfGods.moduleSteamMultiplierDenominator,
+                1L,
+                "Additional module steam multiplier denominator.");
+            SteamForgeOfGods.chargeMilestoneMultiplier = configuration.getFloat(
+                "chargeMilestoneMultiplier",
+                CATEGORY_STEAM_FORGE_OF_GODS,
+                (float) SteamForgeOfGods.chargeMilestoneMultiplier,
+                0.0001f,
+                Float.MAX_VALUE,
+                "Charge milestone progress multiplier.");
+            SteamForgeOfGods.conversionMilestoneMultiplier = configuration.getFloat(
+                "conversionMilestoneMultiplier",
+                CATEGORY_STEAM_FORGE_OF_GODS,
+                (float) SteamForgeOfGods.conversionMilestoneMultiplier,
+                0.0001f,
+                Float.MAX_VALUE,
+                "Conversion milestone progress multiplier.");
+            SteamForgeOfGods.catalystMilestoneMultiplier = configuration.getFloat(
+                "catalystMilestoneMultiplier",
+                CATEGORY_STEAM_FORGE_OF_GODS,
+                (float) SteamForgeOfGods.catalystMilestoneMultiplier,
+                0.0001f,
+                Float.MAX_VALUE,
+                "Catalyst milestone progress multiplier.");
+            SteamForgeOfGods.compositionMilestoneMultiplier = configuration.getFloat(
+                "compositionMilestoneMultiplier",
+                CATEGORY_STEAM_FORGE_OF_GODS,
+                (float) SteamForgeOfGods.compositionMilestoneMultiplier,
+                0.0001f,
+                Float.MAX_VALUE,
+                "Composition milestone progress multiplier.");
+            SteamForgeOfGods.steamWorkMilestoneThresholds = sanitizeIncreasingLongs(
+                configuration.getStringList(
+                    "steamWorkMilestoneThresholds",
+                    CATEGORY_STEAM_FORGE_OF_GODS,
+                    toStringArray(SteamForgeOfGods.steamWorkMilestoneThresholds),
+                    "Actual wireless-steam totals required for milestone levels 1 through 7."),
+                SteamForgeOfGods.steamWorkMilestoneThresholds);
+            SteamForgeOfGods.recipeMilestoneThresholds = sanitizeIncreasingLongs(
+                configuration.getStringList(
+                    "recipeMilestoneThresholds",
+                    CATEGORY_STEAM_FORGE_OF_GODS,
+                    toStringArray(SteamForgeOfGods.recipeMilestoneThresholds),
+                    "Actual completed-recipe totals required for milestone levels 1 through 7."),
+                SteamForgeOfGods.recipeMilestoneThresholds);
+            SteamForgeOfGods.compressedSteamMilestoneThresholds = sanitizeIncreasingLongs(
+                configuration.getStringList(
+                    "compressedSteamMilestoneThresholds",
+                    CATEGORY_STEAM_FORGE_OF_GODS,
+                    toStringArray(SteamForgeOfGods.compressedSteamMilestoneThresholds),
+                    "Actual molten Compressed Steam totals required for milestone levels 1 through 7."),
+                SteamForgeOfGods.compressedSteamMilestoneThresholds);
+
             // CutCorners 配方提速配置项
             recipeSpeedMode = configuration.getInt(
                 "mode",
@@ -776,6 +936,106 @@ public class Config {
         }
     }
 
+    private static String[] toStringArray(int[] values) {
+        String[] result = new String[values.length];
+        for (int i = 0; i < values.length; i++) result[i] = Integer.toString(values[i]);
+        return result;
+    }
+
+    private static String[] toStringArray(double[] values) {
+        String[] result = new String[values.length];
+        for (int i = 0; i < values.length; i++) result[i] = Double.toString(values[i]);
+        return result;
+    }
+
+    private static String[] toStringArray(long[] values) {
+        String[] result = new String[values.length];
+        for (int i = 0; i < values.length; i++) result[i] = Long.toString(values[i]);
+        return result;
+    }
+
+    private static int[] sanitizeParallelStages(String[] configured, int[] fallback) {
+        int[] parsed = sanitizePositiveInts(configured, fallback);
+        if (parsed == fallback) return fallback;
+        int previous = 0;
+        for (int value : parsed) {
+            if (value < previous || value > 65_536) return fallback;
+            previous = value;
+        }
+        return parsed;
+    }
+
+    private static int[] migrateLegacyParallelStages(Configuration configuration, int[] configured) {
+        int[] legacy = { 1, 4, 8, 16, 32, 64, 128, 192, 256 };
+        if (configured.length != legacy.length) return configured;
+        for (int i = 0; i < legacy.length; i++) {
+            if (configured[i] != legacy[i]) return configured;
+        }
+        int[] upgraded = { 256, 512, 1_024, 2_048, 4_096, 8_192, 16_384, 32_768, 65_536 };
+        configuration
+            .get(
+                CATEGORY_STEAM_FORGE_OF_GODS,
+                "parallelStages",
+                toStringArray(upgraded),
+                "Parallel caps from zero upgrades to the fully upgraded machine.")
+            .set(toStringArray(upgraded));
+        return upgraded;
+    }
+
+    private static int[] sanitizePositiveInts(String[] configured, int[] fallback) {
+        if (configured == null || configured.length == 0) return fallback;
+        int[] parsed = new int[configured.length];
+        try {
+            for (int i = 0; i < configured.length; i++) {
+                parsed[i] = Integer.parseInt(configured[i]);
+                if (parsed[i] <= 0) return fallback;
+            }
+            return parsed;
+        } catch (NumberFormatException ignored) {
+            return fallback;
+        }
+    }
+
+    private static double[] sanitizePositiveDoubles(String[] configured, double[] fallback) {
+        if (configured == null || configured.length == 0) return fallback;
+        double[] parsed = new double[configured.length];
+        try {
+            for (int i = 0; i < configured.length; i++) {
+                parsed[i] = Double.parseDouble(configured[i]);
+                if (!Double.isFinite(parsed[i]) || parsed[i] <= 0) return fallback;
+            }
+            return parsed;
+        } catch (NumberFormatException ignored) {
+            return fallback;
+        }
+    }
+
+    private static long[] sanitizeIncreasingLongs(String[] configured, long[] fallback) {
+        if (configured == null || configured.length != 7) return fallback;
+        long[] parsed = new long[configured.length];
+        long previous = 0;
+        try {
+            for (int i = 0; i < configured.length; i++) {
+                parsed[i] = Long.parseLong(configured[i]);
+                if (parsed[i] <= previous) return fallback;
+                previous = parsed[i];
+            }
+            return parsed;
+        } catch (NumberFormatException ignored) {
+            return fallback;
+        }
+    }
+
+    private static long readLong(String key, long fallback, long minimum, String comment) {
+        String raw = configuration.get(CATEGORY_STEAM_FORGE_OF_GODS, key, Long.toString(fallback), comment)
+            .getString();
+        try {
+            return Math.max(minimum, Long.parseLong(raw));
+        } catch (NumberFormatException ignored) {
+            return fallback;
+        }
+    }
+
     public static synchronized void setTcAutoResearch(boolean enabled) {
         tcAutoResearch = enabled;
         configuration.get(CATEGORY_THAUMCRAFT, "autoResearch", false)
@@ -796,5 +1056,6 @@ public class Config {
         configuration.addCustomCategoryComment(CATEGORY_THAUMCRAFT, "神秘时代(Thaumcraft)的配置设置");
         configuration.addCustomCategoryComment(CATEGORY_AE2, "应用能源2(Applied Energistics 2)的配置设置");
         configuration.addCustomCategoryComment(CATEGORY_CUT_CORNERS, "配方提速(仿 GTNH-CutCorners)的配置设置");
+        configuration.addCustomCategoryComment(CATEGORY_STEAM_FORGE_OF_GODS, "蒸汽诸神之锻炉的速度、并行、无线蒸汽与里程碑倍率设置。");
     }
 }

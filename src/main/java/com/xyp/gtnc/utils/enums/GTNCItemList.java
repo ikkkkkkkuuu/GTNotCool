@@ -99,6 +99,11 @@ public enum GTNCItemList implements IItemContainer {
     LargeSteamVoidMiner,
 
     SteamEyeOfHarmony,
+    SteamForgeOfGods,
+    SteamGodforgeSmeltingModule,
+    SteamGodforgeMoltenModule,
+    SteamGodforgePlasmaModule,
+    SteamGodforgeExoticModule,
 
     LargeSteamCrucibleSteel,
     LargeSteamCrucibleInvar,
@@ -642,6 +647,7 @@ public enum GTNCItemList implements IItemContainer {
     AssemblerMatrix,
     FuelRefiningComplex,
     AtomicEnergyExcitationPlant,
+    BloodSoulSacrificialArray,
     PlatinumBasedTreatment,
     PetrochemicalPlant,
     VeinMiningPickaxe,

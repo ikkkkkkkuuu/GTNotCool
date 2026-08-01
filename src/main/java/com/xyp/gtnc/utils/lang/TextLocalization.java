@@ -31,6 +31,563 @@ public class TextLocalization {
     // # zh_CN 切换无线蒸汽模式
     public static final String GUI_WIRELESS_STEAM_BUTTON = TextEnums.tr("GTNC.gui.wireless_steam.button");
 
+    // == Steam Forge of Gods == //
+
+    // #tr SteamForgeOfGodsMachineType
+    // # Steam Forge of Gods
+    // # zh_CN 蒸汽诸神之锻炉
+    public static final String SteamForgeOfGodsMachineType = TextEnums.tr("SteamForgeOfGodsMachineType");
+
+    // #tr Tooltip_SteamForgeOfGods_00
+    // # An LV-obtainable bronze Forge started with Critical Photons and maintained by molten Compressed Steam
+    // # zh_CN 可在LV阶段获得，以临界光子启动并由液态压缩蒸汽维持的青铜诸神之锻炉
+    public static final String Tooltip_SteamForgeOfGods_00 = TextEnums.tr("Tooltip_SteamForgeOfGods_00");
+
+    // #tr Tooltip_SteamForgeOfGods_01
+    // # Retains Godforge perfect overclocks, with configurable steam speed penalties and 1-256 parallel
+    // # zh_CN 保留诸神之锻炉完美超频，并具有可配置的蒸汽速度惩罚与1-256并行
+    public static final String Tooltip_SteamForgeOfGods_01 = TextEnums.tr("Tooltip_SteamForgeOfGods_01");
+
+    // #tr Tooltip_SteamForgeOfGods_02
+    // # Modules draw team wireless steam; 1 EU = 1 L wireless steam by default
+    // # zh_CN 模块消耗团队无线蒸汽；默认1 EU等价于1 L无线蒸汽
+    public static final String Tooltip_SteamForgeOfGods_02 = TextEnums.tr("Tooltip_SteamForgeOfGods_02");
+
+    // #tr Tooltip_SteamForgeOfGods_Controller
+    // # Front center, 15th layer
+    // # zh_CN 正面中央，第15层
+    public static final String Tooltip_SteamForgeOfGods_Controller = TextEnums
+        .tr("Tooltip_SteamForgeOfGods_Controller");
+
+    // #tr Tooltip_SteamForgeOfGods_Casing
+    // # Around the controller
+    // # zh_CN 控制器周围
+    public static final String Tooltip_SteamForgeOfGods_Casing = TextEnums.tr("Tooltip_SteamForgeOfGods_Casing");
+
+    // #tr Tooltip_SteamForgeOfGods_Module
+    // # Steam Godforge Module
+    // # zh_CN 蒸汽诸神之锻炉模块
+    public static final String Tooltip_SteamForgeOfGods_Module = TextEnums.tr("Tooltip_SteamForgeOfGods_Module");
+
+    // #tr Tooltip_SteamForgeOfGods_ModuleSocket
+    // # Ring module sockets
+    // # zh_CN 环形结构模块接口
+    public static final String Tooltip_SteamForgeOfGods_ModuleSocket = TextEnums
+        .tr("Tooltip_SteamForgeOfGods_ModuleSocket");
+
+    // Steam Godforge evolution tree. The array order is ForgeOfGodsUpgrade.ordinal().
+    public static final String[] STEAM_GODFORGE_UPGRADE_NAMES = {
+        // #tr steam_godforge.upgrade.start.name
+        // # Kindle the Bronze Star
+        // # zh_CN 点燃青铜之星
+        TextEnums.tr("steam_godforge.upgrade.start.name"),
+        // #tr steam_godforge.upgrade.igcc.name
+        // # Heat-Guided Combustion
+        // # zh_CN 热导燃烧控制
+        TextEnums.tr("steam_godforge.upgrade.igcc.name"),
+        // #tr steam_godforge.upgrade.stem.name
+        // # Steam Economy Loop
+        // # zh_CN 蒸汽经济循环
+        TextEnums.tr("steam_godforge.upgrade.stem.name"),
+        // #tr steam_godforge.upgrade.cfce.name
+        // # Compression Flow Expansion
+        // # zh_CN 压缩流量扩展
+        TextEnums.tr("steam_godforge.upgrade.cfce.name"),
+        // #tr steam_godforge.upgrade.giss.name
+        // # Insulated Pressure Supply
+        // # zh_CN 绝热压力供给
+        TextEnums.tr("steam_godforge.upgrade.giss.name"),
+        // #tr steam_godforge.upgrade.fdim.name
+        // # Molten Steam Manifold
+        // # zh_CN 熔融蒸汽歧管
+        TextEnums.tr("steam_godforge.upgrade.fdim.name"),
+        // #tr steam_godforge.upgrade.sa.name
+        // # Parallel Accumulator
+        // # zh_CN 并行蓄压器
+        TextEnums.tr("steam_godforge.upgrade.sa.name"),
+        // #tr steam_godforge.upgrade.gpci.name
+        // # Plasma Pressure Injection
+        // # zh_CN 等离子压力注入
+        TextEnums.tr("steam_godforge.upgrade.gpci.name"),
+        // #tr steam_godforge.upgrade.rec.name
+        // # Regenerative Economizer
+        // # zh_CN 再生省煤器
+        TextEnums.tr("steam_godforge.upgrade.rec.name"),
+        // #tr steam_godforge.upgrade.gem.name
+        // # Gearbox Efficiency Matrix
+        // # zh_CN 齿轮箱效率矩阵
+        TextEnums.tr("steam_godforge.upgrade.gem.name"),
+        // #tr steam_godforge.upgrade.ctcdd.name
+        // # Twin-Cylinder Drive
+        // # zh_CN 双缸联动
+        TextEnums.tr("steam_godforge.upgrade.ctcdd.name"),
+        // #tr steam_godforge.upgrade.qgpiu.name
+        // # Exotic Pressure Vessel
+        // # zh_CN 奇异压力容器
+        TextEnums.tr("steam_godforge.upgrade.qgpiu.name"),
+        // #tr steam_godforge.upgrade.sefcp.name
+        // # Smelting Firebox Focus
+        // # zh_CN 熔炼火箱聚焦
+        TextEnums.tr("steam_godforge.upgrade.sefcp.name"),
+        // #tr steam_godforge.upgrade.tct.name
+        // # Triple Compression Train
+        // # zh_CN 三级压缩列车
+        TextEnums.tr("steam_godforge.upgrade.tct.name"),
+        // #tr steam_godforge.upgrade.ggebe.name
+        // # Bronze Energy Recuperator
+        // # zh_CN 青铜能量回收器
+        TextEnums.tr("steam_godforge.upgrade.ggebe.name"),
+        // #tr steam_godforge.upgrade.tptp.name
+        // # Multi-Step Plasma Piping
+        // # zh_CN 多级等离子管路
+        TextEnums.tr("steam_godforge.upgrade.tptp.name"),
+        // #tr steam_godforge.upgrade.dop.name
+        // # Optimized Pressure Draft
+        // # zh_CN 优化压力抽送
+        TextEnums.tr("steam_godforge.upgrade.dop.name"),
+        // #tr steam_godforge.upgrade.cnti.name
+        // # High-Pressure Nozzle Array
+        // # zh_CN 高压喷嘴阵列
+        TextEnums.tr("steam_godforge.upgrade.cnti.name"),
+        // #tr steam_godforge.upgrade.epec.name
+        // # Perfect Expansion Cycle
+        // # zh_CN 完美膨胀循环
+        TextEnums.tr("steam_godforge.upgrade.epec.name"),
+        // #tr steam_godforge.upgrade.imkg.name
+        // # Intermeshed Master Gearbox
+        // # zh_CN 主联动齿轮箱
+        TextEnums.tr("steam_godforge.upgrade.imkg.name"),
+        // #tr steam_godforge.upgrade.ndpe.name
+        // # Dense Pipe Exchange
+        // # zh_CN 致密管路交换
+        TextEnums.tr("steam_godforge.upgrade.ndpe.name"),
+        // #tr steam_godforge.upgrade.pos.name
+        // # Perfect Overclock Governor
+        // # zh_CN 完美超频调速器
+        TextEnums.tr("steam_godforge.upgrade.pos.name"),
+        // #tr steam_godforge.upgrade.dor.name
+        // # Dual-Loop Recuperation
+        // # zh_CN 双回路热回收
+        TextEnums.tr("steam_godforge.upgrade.dor.name"),
+        // #tr steam_godforge.upgrade.ngms.name
+        // # Unified Steam Main
+        // # zh_CN 统一蒸汽总管
+        TextEnums.tr("steam_godforge.upgrade.ngms.name"),
+        // #tr steam_godforge.upgrade.seds.name
+        // # Superheated Steam Division
+        // # zh_CN 过热蒸汽分流
+        TextEnums.tr("steam_godforge.upgrade.seds.name"),
+        // #tr steam_godforge.upgrade.pa.name
+        // # Pressure Ascendancy
+        // # zh_CN 压力升华
+        TextEnums.tr("steam_godforge.upgrade.pa.name"),
+        // #tr steam_godforge.upgrade.cd.name
+        // # Second Bronze Ring
+        // # zh_CN 第二青铜环
+        TextEnums.tr("steam_godforge.upgrade.cd.name"),
+        // #tr steam_godforge.upgrade.tse.name
+        // # Steam Factor Expansion
+        // # zh_CN 蒸汽倍率扩展
+        TextEnums.tr("steam_godforge.upgrade.tse.name"),
+        // #tr steam_godforge.upgrade.tbf.name
+        // # Independent Voltage Control
+        // # zh_CN 独立电压控制
+        TextEnums.tr("steam_godforge.upgrade.tbf.name"),
+        // #tr steam_godforge.upgrade.ee.name
+        // # Exotic Steam Engineering
+        // # zh_CN 奇异蒸汽工程
+        TextEnums.tr("steam_godforge.upgrade.ee.name"),
+        // #tr steam_godforge.upgrade.end.name
+        // # Third Bronze Ring
+        // # zh_CN 第三青铜环
+        TextEnums.tr("steam_godforge.upgrade.end.name") };
+
+    public static final String[] STEAM_GODFORGE_UPGRADE_BODIES = {
+        // #tr steam_godforge.upgrade.start.body
+        // # Opens the evolution tree; this node does not directly change processing parameters.
+        // # zh_CN 开启蒸汽演化树；本节点不直接改变运行参数。
+        TextEnums.tr("steam_godforge.upgrade.start.body"),
+        // #tr steam_godforge.upgrade.igcc.body
+        // # Sets the heat speed multiplier to heat^-0.01 and advances the configured speed-penalty table by one stage.
+        // # zh_CN 速度倍率变为炉温^-0.01，并使配置中的速度惩罚表前进1级。
+        TextEnums.tr("steam_godforge.upgrade.igcc.body"),
+        // #tr steam_godforge.upgrade.stem.body
+        // # Multiplies controller Compressed Steam upkeep by 0.8 (rounded, minimum 1 L); with TSE, raises maximum
+        // pressure from 70 to 72.
+        // # zh_CN 控制器压缩蒸汽维护基数×0.8（四舍五入且至少1 L）；配合TSE时压力上限由70升至72。
+        TextEnums.tr("steam_godforge.upgrade.stem.body"),
+        // #tr steam_godforge.upgrade.cfce.body
+        // # Before TSE, increases the current maximum pressure factor by 20% (rounded down).
+        // # zh_CN 在TSE前，将当前压力倍率上限提高20%（向下取整）。
+        TextEnums.tr("steam_godforge.upgrade.cfce.body"),
+        // #tr steam_godforge.upgrade.giss.body
+        // # Auto voltage becomes base + (effective pressure - 1) x voltage per pressure; defaults to 32 + (effective
+        // pressure - 1) x 32 EU/t.
+        // # zh_CN 自动处理电压变为“基础电压＋（有效压力－1）×每压力电压”；默认是32＋（有效压力－1）×32 EU/t。
+        TextEnums.tr("steam_godforge.upgrade.giss.body"),
+        // #tr steam_godforge.upgrade.fdim.body
+        // # Allows Steam Godforge Molten Modules to connect and process recipes.
+        // # zh_CN 允许蒸汽诸神之锻炉熔融模块连接并执行配方。
+        TextEnums.tr("steam_godforge.upgrade.fdim.body"),
+        // #tr steam_godforge.upgrade.sa.body
+        // # Advances the parallel-cap table by one stage; effective pressure interpolates the cap from the previous
+        // stage to the new stage.
+        // # zh_CN 并行上限表前进1级；有效压力在前一级与新一级上限之间插值。
+        TextEnums.tr("steam_godforge.upgrade.sa.body"),
+        // #tr steam_godforge.upgrade.gpci.body
+        // # Allows Steam Godforge Plasma Modules to connect and process tier-0 plasma recipes.
+        // # zh_CN 允许蒸汽诸神之锻炉等离子模块连接，并执行0级等离子配方。
+        TextEnums.tr("steam_godforge.upgrade.gpci.body"),
+        // #tr steam_godforge.upgrade.rec.body
+        // # Multiplies module steam use by 1-(1-1.05^(-0.05 x maximum charge))/20; the saving approaches 5% as maximum
+        // charge grows.
+        // # zh_CN 模块蒸汽耗量乘以1－（1－1.05^（－0.05×最大蓄压））/20；最大蓄压越高，减免越接近5%。
+        TextEnums.tr("steam_godforge.upgrade.rec.body"),
+        // #tr steam_godforge.upgrade.gem.body
+        // # Before TSE, changes the maximum pressure factor from 5 to 5 plus the number of active upgrade nodes.
+        // # zh_CN 在TSE前，压力倍率上限由5提高为5＋已激活升级节点数。
+        TextEnums.tr("steam_godforge.upgrade.gem.body"),
+        // #tr steam_godforge.upgrade.ctcdd.body
+        // # Advances the configured parallel-cap table by one stage; the default table doubles the cap at this step.
+        // # zh_CN 配置中的并行上限表前进1级；默认表在此步骤使上限翻倍。
+        TextEnums.tr("steam_godforge.upgrade.ctcdd.body"),
+        // #tr steam_godforge.upgrade.qgpiu.body
+        // # Allows Exotic Modules in Quark-Gluon Plasma mode to connect; Magmatter mode still requires EE.
+        // # zh_CN 允许奇异模块以夸克-胶子等离子体模式连接；磁单极子物质模式仍需EE。
+        TextEnums.tr("steam_godforge.upgrade.qgpiu.body"),
+        // #tr steam_godforge.upgrade.sefcp.body
+        // # Changes the heat logarithm base from 1.5 to 1.12 for smelting modules and 1.18 for other modules, and
+        // advances the speed table one stage.
+        // # zh_CN 炉温对数底数由1.5降至熔炼模块1.12、其他模块1.18，并使速度惩罚表前进1级。
+        TextEnums.tr("steam_godforge.upgrade.sefcp.body"),
+        // #tr steam_godforge.upgrade.tct.body
+        // # Advances the parallel table one stage and multiplies pressure interpolation by 3 for smelting/molten
+        // modules or 2 for other modules, capped at 100%.
+        // # zh_CN 并行表前进1级；熔炼/熔融模块的压力插值进度×3，其他模块×2，最高100%。
+        TextEnums.tr("steam_godforge.upgrade.tct.body"),
+        // #tr steam_godforge.upgrade.ggebe.body
+        // # Sets the overclock time divisor to 2.3 for plasma or 2.15 for smelting/molten; exotic modules require PA
+        // and receive 2.0225.
+        // # zh_CN 超频时间除数变为等离子模块2.3、熔炼/熔融模块2.15；奇异模块需PA并获得2.0225。
+        TextEnums.tr("steam_godforge.upgrade.ggebe.body"),
+        // #tr steam_godforge.upgrade.tptp.body
+        // # Allows Plasma Modules to run recipes marked as multi-step plasma processing.
+        // # zh_CN 允许等离子模块执行标记为“多级等离子处理”的配方。
+        TextEnums.tr("steam_godforge.upgrade.tptp.body"),
+        // #tr steam_godforge.upgrade.dop.body
+        // # Advances the configured speed-penalty table by one stage; it has no additional Steam Godforge effect.
+        // # zh_CN 配置中的速度惩罚表前进1级；在蒸汽诸神之锻炉中没有其他额外效果。
+        TextEnums.tr("steam_godforge.upgrade.dop.body"),
+        // #tr steam_godforge.upgrade.cnti.body
+        // # Raises the effective heat cap for heat overclocking from 15000 K to 30000 K and advances the speed table
+        // one stage.
+        // # zh_CN 热超频有效炉温上限由15000 K提高至30000 K，并使速度惩罚表前进1级。
+        TextEnums.tr("steam_godforge.upgrade.cnti.body"),
+        // #tr steam_godforge.upgrade.epec.body
+        // # Advances parallel and speed tables one stage; multiplies pressure interpolation by 1+heat/15000 for
+        // smelting/molten or 1+heat/25000 for other modules.
+        // # zh_CN 并行表与速度表各前进1级；压力插值进度乘以1＋炉温/15000（熔炼/熔融）或1＋炉温/25000（其他）。
+        TextEnums.tr("steam_godforge.upgrade.epec.body"),
+        // #tr steam_godforge.upgrade.imkg.body
+        // # Heat-OC energy discount changes from 5% to 8% per step; at half charge, energy saving reaches 15% for
+        // plasma or 10% for other standard modules.
+        // # zh_CN 每级热超频节能由5%提高到8%；蓄压50%时，等离子模块最高节能15%，其他常规模块最高10%。
+        TextEnums.tr("steam_godforge.upgrade.imkg.body"),
+        // #tr steam_godforge.upgrade.ndpe.body
+        // # Lets heat above 30000 K affect heat OC with exponent 0.85 for smelting or 0.8 for other modules, and
+        // advances the speed table one stage.
+        // # zh_CN 允许30000 K以上炉温继续用于热超频，超出部分按0.85次幂（熔炼）或0.8次幂（其他）衰减；速度表前进1级。
+        TextEnums.tr("steam_godforge.upgrade.ndpe.body"),
+        // #tr steam_godforge.upgrade.pos.body
+        // # Advances parallel and speed tables one stage; pressure interpolation is multiplied by 1+active nodes/5 for
+        // smelting/molten or 1+active nodes/8 for others.
+        // # zh_CN 并行表与速度表各前进1级；压力插值进度乘以1＋激活节点数/5（熔炼/熔融）或1＋激活节点数/8（其他）。
+        TextEnums.tr("steam_godforge.upgrade.pos.body"),
+        // #tr steam_godforge.upgrade.dor.body
+        // # Advances the speed table one stage and divides duration multiplier by parallel^0.02 for plasma or
+        // parallel^0.012 for other modules.
+        // # zh_CN 速度表前进1级；等离子模块的时长倍率再除以并行^0.02，其他模块除以并行^0.012。
+        TextEnums.tr("steam_godforge.upgrade.dor.body"),
+        // #tr steam_godforge.upgrade.ngms.body
+        // # Advances the parallel table one stage; while voltage is automatic, processing voltage is multiplied by 4
+        // once per constructed ring.
+        // # zh_CN 并行表前进1级；使用自动电压时，每个已建造结构环使处理电压再×4。
+        TextEnums.tr("steam_godforge.upgrade.ngms.body"),
+        // #tr steam_godforge.upgrade.seds.body
+        // # Raises Plasma Module recipe access from plasma tier 0 to tier 1.
+        // # zh_CN 将等离子模块可执行的配方等级由0级提高到1级。
+        TextEnums.tr("steam_godforge.upgrade.seds.body"),
+        // #tr steam_godforge.upgrade.pa.body
+        // # Exotic Modules receive square-root versions of speed and energy discounts; with GGEBE their overclock time
+        // divisor becomes 2.0225.
+        // # zh_CN 奇异模块可获得速度与耗能增益的平方根版本；配合GGEBE时超频时间除数变为2.0225。
+        TextEnums.tr("steam_godforge.upgrade.pa.body"),
+        // #tr steam_godforge.upgrade.cd.body
+        // # Allows the second ring, raises the connected-module limit from 8 to 12, and gives NGMS one additional x4
+        // voltage multiplication.
+        // # zh_CN 允许建造第二环，将模块连接上限由8提高到12，并为NGMS增加一次×4电压倍率。
+        TextEnums.tr("steam_godforge.upgrade.cd.body"),
+        // #tr steam_godforge.upgrade.tse.body
+        // # Sets the maximum pressure factor to 70, or 72 with STEM, and advances the parallel table one stage.
+        // # zh_CN 将压力倍率上限设为70（有STEM时为72），并使并行上限表前进1级。
+        TextEnums.tr("steam_godforge.upgrade.tse.body"),
+        // #tr steam_godforge.upgrade.tbf.body
+        // # Stops automatic voltage updates and unlocks independent voltage input on every module (GUI range:
+        // 2,000,000,000 to Long.MAX_VALUE EU/t).
+        // # zh_CN 停止自动电压刷新，并解锁每个模块独立的电压输入（GUI范围：2,000,000,000至Long.MAX_VALUE EU/t）。
+        TextEnums.tr("steam_godforge.upgrade.tbf.body"),
+        // #tr steam_godforge.upgrade.ee.body
+        // # Raises Plasma Module recipe access to tier 2 and allows Exotic Modules in Magmatter mode to connect and
+        // operate.
+        // # zh_CN 将等离子模块配方权限提高到2级，并允许奇异模块以磁单极子物质模式连接和运行。
+        TextEnums.tr("steam_godforge.upgrade.ee.body"),
+        // #tr steam_godforge.upgrade.end.body
+        // # Allows the third ring, raises the module limit from 12 to 16, advances parallel one stage, and gives NGMS
+        // another x4 voltage multiplication.
+        // # zh_CN 允许建造第三环，将模块上限由12提高到16，并行表前进1级，并为NGMS再增加一次×4电压倍率。
+        TextEnums.tr("steam_godforge.upgrade.end.body") };
+
+    // #tr steam_godforge.upgrade.lore
+    // # Values shown are the Steam Godforge's current formulas; configurable tables use their default values unless
+    // stated otherwise.
+    // # zh_CN 以上均为蒸汽诸神之锻炉当前实际公式；未特别说明时，可配置数值按默认配置描述。
+    public static final String STEAM_GODFORGE_UPGRADE_LORE = TextEnums.tr("steam_godforge.upgrade.lore");
+
+    // #tr steam_godforge.upgrade.materials
+    // # Bronze engineering materials
+    // # zh_CN 青铜工程材料
+    public static final String STEAM_GODFORGE_UPGRADE_MATERIALS = TextEnums.tr("steam_godforge.upgrade.materials");
+
+    // #tr steam_godforge.upgrade.materials_paid
+    // # Bronze engineering materials paid
+    // # zh_CN 青铜工程材料已支付
+    public static final String STEAM_GODFORGE_UPGRADE_MATERIALS_PAID = TextEnums
+        .tr("steam_godforge.upgrade.materials_paid");
+
+    // #tr steam_godforge.insight_cost
+    // # Steam insight cost
+    // # zh_CN 蒸汽洞见消耗
+    public static final String STEAM_GODFORGE_INSIGHT_COST = TextEnums.tr("steam_godforge.insight_cost");
+
+    // #tr steam_godforge.insight_available
+    // # Available steam insight
+    // # zh_CN 可用蒸汽洞见
+    public static final String STEAM_GODFORGE_INSIGHT_AVAILABLE = TextEnums.tr("steam_godforge.insight_available");
+
+    public static final String[] STEAM_GODFORGE_MILESTONE_NAMES = {
+        // #tr steam_godforge.milestone.charge
+        // # Steam Work
+        // # zh_CN 蒸汽作功
+        TextEnums.tr("steam_godforge.milestone.charge"),
+        // #tr steam_godforge.milestone.conversion
+        // # Steam Conversion
+        // # zh_CN 蒸汽转化
+        TextEnums.tr("steam_godforge.milestone.conversion"),
+        // #tr steam_godforge.milestone.catalyst
+        // # Pressure Catalyst
+        // # zh_CN 压力催化
+        TextEnums.tr("steam_godforge.milestone.catalyst"),
+        // #tr steam_godforge.milestone.composition
+        // # Bronze Composition
+        // # zh_CN 青铜组装
+        TextEnums.tr("steam_godforge.milestone.composition") };
+
+    public static final String[] STEAM_GODFORGE_MILESTONE_DESCRIPTIONS = {
+        // #tr steam_godforge.milestone.charge.description
+        // # Measures team wireless steam actually consumed by all connected modules.
+        // # zh_CN 统计所有已连接模块实际消耗的团队无线蒸汽。
+        TextEnums.tr("steam_godforge.milestone.charge.description"),
+        // #tr steam_godforge.milestone.conversion.description
+        // # Measures recipes completed by every connected steam module.
+        // # zh_CN 统计所有已连接蒸汽模块完成的配方数量。
+        TextEnums.tr("steam_godforge.milestone.conversion.description"),
+        // #tr steam_godforge.milestone.catalyst.description
+        // # Measures molten Compressed Steam actually consumed by the controller.
+        // # zh_CN 统计控制器实际消耗的液态压缩蒸汽。
+        TextEnums.tr("steam_godforge.milestone.catalyst.description"),
+        // #tr steam_godforge.milestone.composition.description
+        // # Measures bronze rings and module extensions assembled around the forge.
+        // # zh_CN 统计围绕锻炉建造的青铜环与模块扩展。
+        TextEnums.tr("steam_godforge.milestone.composition.description") };
+
+    public static final String[] STEAM_GODFORGE_MILESTONE_UNITS = {
+        // #tr steam_godforge.milestone.charge.unit
+        // # L wireless steam
+        // # zh_CN 升无线蒸汽
+        TextEnums.tr("steam_godforge.milestone.charge.unit"),
+        // #tr steam_godforge.milestone.conversion.unit
+        // # recipes completed
+        // # zh_CN 份已完成配方
+        TextEnums.tr("steam_godforge.milestone.conversion.unit"),
+        // #tr steam_godforge.milestone.catalyst.unit
+        // # L molten Compressed Steam
+        // # zh_CN 升液态压缩蒸汽
+        TextEnums.tr("steam_godforge.milestone.catalyst.unit"),
+        // #tr steam_godforge.milestone.composition.unit
+        // # steam extensions assembled
+        // # zh_CN 个蒸汽扩展结构
+        TextEnums.tr("steam_godforge.milestone.composition.unit") };
+
+    // #tr steam_godforge.milestone.total
+    // # Total progress
+    // # zh_CN 总进度
+    public static final String STEAM_GODFORGE_MILESTONE_TOTAL = TextEnums.tr("steam_godforge.milestone.total");
+
+    // #tr steam_godforge.milestone.level
+    // # Milestone level
+    // # zh_CN 里程碑等级
+    public static final String STEAM_GODFORGE_MILESTONE_LEVEL = TextEnums.tr("steam_godforge.milestone.level");
+
+    // #tr steam_godforge.milestone.next
+    // # Next level at
+    // # zh_CN 下一级需求
+    public static final String STEAM_GODFORGE_MILESTONE_NEXT = TextEnums.tr("steam_godforge.milestone.next");
+
+    // #tr steam_godforge.milestone.insight
+    // # Steam insight gained
+    // # zh_CN 已获得蒸汽洞见
+    public static final String STEAM_GODFORGE_MILESTONE_INSIGHT = TextEnums.tr("steam_godforge.milestone.insight");
+
+    // #tr steam_godforge.fuel.title
+    // # Compressed Steam Feed
+    // # zh_CN 压缩蒸汽供给
+    public static final String STEAM_GODFORGE_FUEL_TITLE = TextEnums.tr("steam_godforge.fuel.title");
+
+    // #tr steam_godforge.fuel.factor
+    // # Pressure factor
+    // # zh_CN 压力倍率
+    public static final String STEAM_GODFORGE_FUEL_FACTOR = TextEnums.tr("steam_godforge.fuel.factor");
+
+    // #tr steam_godforge.fuel.usage
+    // # Molten Compressed Steam usage
+    // # zh_CN 液态压缩蒸汽消耗
+    public static final String STEAM_GODFORGE_FUEL_USAGE = TextEnums.tr("steam_godforge.fuel.usage");
+
+    // #tr steam_godforge.info.wireless_steam
+    // # Wireless steam
+    // # zh_CN 无线蒸汽
+    public static final String STEAM_GODFORGE_INFO_WIRELESS_STEAM = TextEnums.tr("steam_godforge.info.wireless_steam");
+
+    // #tr steam_godforge.info.parallel
+    // # Steam parallel
+    // # zh_CN 蒸汽并行
+    public static final String STEAM_GODFORGE_INFO_PARALLEL = TextEnums.tr("steam_godforge.info.parallel");
+
+    // #tr steam_godforge.info.speed_penalty
+    // # Speed penalty
+    // # zh_CN 速度惩罚
+    public static final String STEAM_GODFORGE_INFO_SPEED_PENALTY = TextEnums.tr("steam_godforge.info.speed_penalty");
+
+    // #tr steam_godforge.info.last_controller_cost
+    // # Last controller cost
+    // # zh_CN 上次控制器消耗
+    public static final String STEAM_GODFORGE_INFO_LAST_CONTROLLER_COST = TextEnums
+        .tr("steam_godforge.info.last_controller_cost");
+
+    // #tr SteamGodforgeSmeltingModuleMachineType
+    // # Steam Godforge Smelting Module
+    // # zh_CN 蒸汽诸神之锻炉熔炼模块
+    public static final String SteamGodforgeSmeltingModuleMachineType = TextEnums
+        .tr("SteamGodforgeSmeltingModuleMachineType");
+
+    // #tr SteamGodforgeMoltenModuleMachineType
+    // # Steam Godforge Molten Module
+    // # zh_CN 蒸汽诸神之锻炉熔融模块
+    public static final String SteamGodforgeMoltenModuleMachineType = TextEnums
+        .tr("SteamGodforgeMoltenModuleMachineType");
+
+    // #tr SteamGodforgePlasmaModuleMachineType
+    // # Steam Godforge Plasma Module
+    // # zh_CN 蒸汽诸神之锻炉等离子模块
+    public static final String SteamGodforgePlasmaModuleMachineType = TextEnums
+        .tr("SteamGodforgePlasmaModuleMachineType");
+
+    // #tr SteamGodforgeExoticModuleMachineType
+    // # Steam Godforge Exotic Module
+    // # zh_CN 蒸汽诸神之锻炉奇异模块
+    public static final String SteamGodforgeExoticModuleMachineType = TextEnums
+        .tr("SteamGodforgeExoticModuleMachineType");
+
+    // #tr Tooltip_SteamGodforgeModule_00
+    // # A bronze module for the Steam Forge of Gods
+    // # zh_CN 蒸汽诸神之锻炉使用的青铜模块
+    public static final String Tooltip_SteamGodforgeModule_00 = TextEnums.tr("Tooltip_SteamGodforgeModule_00");
+
+    // #tr Tooltip_SteamGodforgeModule_01
+    // # Must be connected to a running Steam Forge of Gods to function
+    // # zh_CN 必须连接到运行中的蒸汽诸神之锻炉才能工作
+    public static final String Tooltip_SteamGodforgeModule_01 = TextEnums.tr("Tooltip_SteamGodforgeModule_01");
+
+    // #tr Tooltip_SteamGodforgeModule_02
+    // # Processing power is drawn entirely from the controller owner's team wireless steam
+    // # zh_CN 运行能量完全取自控制器所有者团队的无线蒸汽
+    public static final String Tooltip_SteamGodforgeModule_02 = TextEnums.tr("Tooltip_SteamGodforgeModule_02");
+
+    // #tr Tooltip_SteamGodforgeSmeltingModule_00
+    // # Performs furnace and blast furnace recipes with high heat
+    // # zh_CN 以高温执行熔炉与高炉配方
+    public static final String Tooltip_SteamGodforgeSmeltingModule_00 = TextEnums
+        .tr("Tooltip_SteamGodforgeSmeltingModule_00");
+
+    // #tr Tooltip_SteamGodforgeMoltenModule_00
+    // # Melts materials directly into their fluid forms
+    // # zh_CN 将材料直接熔化为对应流体
+    public static final String Tooltip_SteamGodforgeMoltenModule_00 = TextEnums
+        .tr("Tooltip_SteamGodforgeMoltenModule_00");
+
+    // #tr Tooltip_SteamGodforgePlasmaModule_00
+    // # Ionizes materials into plasma; advanced plasmas require upgrades
+    // # zh_CN 将材料电离为等离子体；高级等离子体需要相应升级
+    public static final String Tooltip_SteamGodforgePlasmaModule_00 = TextEnums
+        .tr("Tooltip_SteamGodforgePlasmaModule_00");
+
+    // #tr Tooltip_SteamGodforgeExoticModule_00
+    // # Produces exotic matter; advanced products require upgrades
+    // # zh_CN 制造奇异物质；高级产物需要相应升级
+    public static final String Tooltip_SteamGodforgeExoticModule_00 = TextEnums
+        .tr("Tooltip_SteamGodforgeExoticModule_00");
+
+    // #tr Tooltip_SteamGodforgeModule_Controller
+    // # Front center
+    // # zh_CN 正面中央
+    public static final String Tooltip_SteamGodforgeModule_Controller = TextEnums
+        .tr("Tooltip_SteamGodforgeModule_Controller");
+
+    // #tr Tooltip_SteamGodforgeModule_BronzePlated
+    // # Bronze Plated Bricks
+    // # zh_CN 青铜镀层砖
+    public static final String Tooltip_SteamGodforgeModule_BronzePlated = TextEnums
+        .tr("Tooltip_SteamGodforgeModule_BronzePlated");
+
+    // #tr Tooltip_SteamGodforgeModule_Reinforced
+    // # Bronze Plated Reinforced Block
+    // # zh_CN 青铜板加固方块
+    public static final String Tooltip_SteamGodforgeModule_Reinforced = TextEnums
+        .tr("Tooltip_SteamGodforgeModule_Reinforced");
+
+    // #tr Tooltip_SteamGodforgeModule_Pipe
+    // # Bronze Pipe Casing
+    // # zh_CN 青铜管道方块
+    public static final String Tooltip_SteamGodforgeModule_Pipe = TextEnums.tr("Tooltip_SteamGodforgeModule_Pipe");
+
+    // #tr Tooltip_SteamGodforgeModule_Gearbox
+    // # Bronze Gear Box Casing
+    // # zh_CN 青铜齿轮箱机械方块
+    public static final String Tooltip_SteamGodforgeModule_Gearbox = TextEnums
+        .tr("Tooltip_SteamGodforgeModule_Gearbox");
+
+    // #tr Tooltip_SteamGodforgeModule_Firebox
+    // # Bronze Firebox Casing
+    // # zh_CN 青铜燃烧室机械方块
+    public static final String Tooltip_SteamGodforgeModule_Firebox = TextEnums
+        .tr("Tooltip_SteamGodforgeModule_Firebox");
+
+    // #tr Tooltip_SteamGodforgeModule_FrontCasing
+    // # Any Bronze Plated Bricks on the module head's outer shell
+    // # zh_CN 模块头部外壳的任意青铜镀层砖
+    public static final String Tooltip_SteamGodforgeModule_FrontCasing = TextEnums
+        .tr("Tooltip_SteamGodforgeModule_FrontCasing");
+
     // == Fuel Refining Machines == //
 
     // #tr FuelRefiningComplexRecipeType
@@ -77,6 +634,60 @@ public class TextLocalization {
     // # zh_CN 分子机械方块
     public static final String Tooltip_AtomicEnergyExcitationPlant_Casing = TextEnums
         .tr("Tooltip_AtomicEnergyExcitationPlant_Casing");
+
+    // #tr BloodSoulSacrificialArrayRecipeType
+    // # Blood Demon Injection / Falling Tower / Alchemic Chemistry
+    // # zh_CN 血魔注入 / 模拟坠星标位 / 秘法炼金
+    public static final String BloodSoulSacrificialArrayRecipeType = TextEnums
+        .tr("BloodSoulSacrificialArrayRecipeType");
+
+    // #tr Tooltip_BloodSoulSacrificialArray_00
+    // # §4§oSacrifice your soul...
+    // # zh_CN §4§o献祭你的灵魂……
+    public static final String Tooltip_BloodSoulSacrificialArray_00 = TextEnums
+        .tr("Tooltip_BloodSoulSacrificialArray_00");
+
+    // #tr Tooltip_BloodSoulSacrificialArray_01
+    // # Starts with 8 parallels; the upgrade tree adds speed and parallel processing
+    // # zh_CN 初始 8 并行；升级树会提升速度与并行处理能力
+    public static final String Tooltip_BloodSoulSacrificialArray_01 = TextEnums
+        .tr("Tooltip_BloodSoulSacrificialArray_01");
+
+    // #tr Tooltip_BloodSoulSacrificialArray_02
+    // # Each upgrade tier reduces LP consumption by 2%, up to 20%
+    // # zh_CN 升级树每级减少 2% LP 消耗，最高减少 20%
+    public static final String Tooltip_BloodSoulSacrificialArray_02 = TextEnums
+        .tr("Tooltip_BloodSoulSacrificialArray_02");
+
+    // #tr Tooltip_BloodSoulSacrificialArray_03
+    // # Draws LP directly from the machine owner's soul network
+    // # zh_CN 直接从机器所有者的灵魂网络抽取 LP
+    public static final String Tooltip_BloodSoulSacrificialArray_03 = TextEnums
+        .tr("Tooltip_BloodSoulSacrificialArray_03");
+
+    // #tr Tooltip_BloodSoulSacrificialArray_04
+    // # An Amonk Blood Orb in an input bus removes all LP costs
+    // # zh_CN 输入总线中的阿蒙克气血宝珠可免除全部 LP 消耗
+    public static final String Tooltip_BloodSoulSacrificialArray_04 = TextEnums
+        .tr("Tooltip_BloodSoulSacrificialArray_04");
+
+    // #tr Tooltip_BloodSoulSacrificialArray_05
+    // # Right-click the controller with a wire cutter to toggle the falling meteor effect
+    // # zh_CN 使用剪线钳右击控制器可开关坠星特效
+    public static final String Tooltip_BloodSoulSacrificialArray_05 = TextEnums
+        .tr("Tooltip_BloodSoulSacrificialArray_05");
+
+    // #tr Tooltip_BloodSoulSacrificialArray_Casing
+    // # Black Plutonium Mining Casing on the front, left or right
+    // # zh_CN 前、左、右侧的黑钚采矿机械方块
+    public static final String Tooltip_BloodSoulSacrificialArray_Casing = TextEnums
+        .tr("Tooltip_BloodSoulSacrificialArray_Casing");
+
+    public static final String BloodSoulSacrificialArray_Mode_0 = TextEnums.tr("BloodSoulSacrificialArray_Mode_0");
+    public static final String BloodSoulSacrificialArray_Mode_1 = TextEnums.tr("BloodSoulSacrificialArray_Mode_1");
+    public static final String BloodSoulSacrificialArray_Mode_2 = TextEnums.tr("BloodSoulSacrificialArray_Mode_2");
+    public static final String BloodSoulSacrificialArray_LPNetwork = TextEnums
+        .tr("BloodSoulSacrificialArray.LPNetwork");
 
     // #tr Tooltip_CircuitResonaticULV_00
     // # A primitive circuit board

@@ -16,6 +16,7 @@ import com.xyp.gtnc.Common.machines.hatch.SuperMTEHatchCraftingInputSlave;
 import com.xyp.gtnc.Common.machines.hatch.VaultPortHatch;
 import com.xyp.gtnc.Common.machines.multiblock.AssemblerMatrix;
 import com.xyp.gtnc.Common.machines.multiblock.AtomicEnergyExcitationPlant;
+import com.xyp.gtnc.Common.machines.multiblock.BloodSoulSacrificialArray;
 import com.xyp.gtnc.Common.machines.multiblock.FuelRefiningComplex;
 import com.xyp.gtnc.Common.machines.multiblock.GTNCDrillingRig;
 import com.xyp.gtnc.Common.machines.multiblock.GTNCGeneralChemicalFactory;
@@ -55,6 +56,11 @@ import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamTurbine;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamVoidMiner;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamWireMill;
 import com.xyp.gtnc.Common.machines.multiblock.steam.SteamEyeOfHarmony;
+import com.xyp.gtnc.Common.machines.multiblock.steam.godforge.SteamForgeOfGods;
+import com.xyp.gtnc.Common.machines.multiblock.steam.godforge.SteamGodforgeExoticModule;
+import com.xyp.gtnc.Common.machines.multiblock.steam.godforge.SteamGodforgeMoltenModule;
+import com.xyp.gtnc.Common.machines.multiblock.steam.godforge.SteamGodforgePlasmaModule;
+import com.xyp.gtnc.Common.machines.multiblock.steam.godforge.SteamGodforgeSmeltingModule;
 import com.xyp.gtnc.utils.enums.GTNCItemList;
 import com.xyp.gtnc.utils.enums.GTNCMachineID;
 import com.xyp.gtnc.utils.text.AnimatedText;
@@ -63,6 +69,7 @@ import com.xyp.gtnc.utils.text.AnimatedTooltipHandler;
 import gregtech.api.covers.CoverRegistry;
 import gregtech.api.enums.GTValues;
 import gregtech.api.enums.ItemList;
+import gregtech.api.enums.Mods;
 import gregtech.api.enums.Textures;
 import gregtech.api.metatileentity.implementations.MTEHatchEnergy;
 import gregtech.api.render.TextureFactory;
@@ -114,6 +121,18 @@ public class MachineLoader {
                 "AtomicEnergyExcitationPlant",
                 StatCollector.translateToLocal("NameAtomicEnergyExcitationPlant")));
         addItemTooltip(GTNCItemList.AtomicEnergyExcitationPlant.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        if (Mods.BloodMagic.isModLoaded()) {
+            // #tr NameBloodSoulSacrificialArray
+            // # Blood Soul Sacrificial Array
+            // # zh_CN 血魂祭祀阵
+            GTNCItemList.BloodSoulSacrificialArray.set(
+                new BloodSoulSacrificialArray(
+                    GTNCMachineID.BLOOD_SOUL_SACRIFICIAL_ARRAY.ID,
+                    "BloodSoulSacrificialArray",
+                    StatCollector.translateToLocal("NameBloodSoulSacrificialArray")));
+            addItemTooltip(GTNCItemList.BloodSoulSacrificialArray.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+        }
 
         // #tr NameAssemblerMatrix
         // # Assembler Matrix
@@ -623,6 +642,56 @@ public class MachineLoader {
                 "SteamEyeOfHarmony",
                 StatCollector.translateToLocal("NameSteamEyeOfHarmony")));
         AnimatedTooltipHandler.addItemTooltip(GTNCItemList.SteamEyeOfHarmony.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        // #tr NameSteamForgeOfGods
+        // # Steam Forge of Gods
+        // # zh_CN 蒸汽诸神之锻炉
+        GTNCItemList.SteamForgeOfGods.set(
+            new SteamForgeOfGods(
+                GTNCMachineID.STEAM_FORGE_OF_GODS.ID,
+                "SteamForgeOfGods",
+                StatCollector.translateToLocal("NameSteamForgeOfGods")));
+        addItemTooltip(GTNCItemList.SteamForgeOfGods.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        // #tr NameSteamGodforgeSmeltingModule
+        // # Steam Godforge Smelting Module
+        // # zh_CN 蒸汽诸神之锻炉熔炼模块
+        GTNCItemList.SteamGodforgeSmeltingModule.set(
+            new SteamGodforgeSmeltingModule(
+                GTNCMachineID.STEAM_GODFORGE_SMELTING_MODULE.ID,
+                "SteamGodforgeSmeltingModule",
+                StatCollector.translateToLocal("NameSteamGodforgeSmeltingModule")));
+        addItemTooltip(GTNCItemList.SteamGodforgeSmeltingModule.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        // #tr NameSteamGodforgeMoltenModule
+        // # Steam Godforge Molten Module
+        // # zh_CN 蒸汽诸神之锻炉熔融模块
+        GTNCItemList.SteamGodforgeMoltenModule.set(
+            new SteamGodforgeMoltenModule(
+                GTNCMachineID.STEAM_GODFORGE_MOLTEN_MODULE.ID,
+                "SteamGodforgeMoltenModule",
+                StatCollector.translateToLocal("NameSteamGodforgeMoltenModule")));
+        addItemTooltip(GTNCItemList.SteamGodforgeMoltenModule.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        // #tr NameSteamGodforgePlasmaModule
+        // # Steam Godforge Plasma Module
+        // # zh_CN 蒸汽诸神之锻炉等离子模块
+        GTNCItemList.SteamGodforgePlasmaModule.set(
+            new SteamGodforgePlasmaModule(
+                GTNCMachineID.STEAM_GODFORGE_PLASMA_MODULE.ID,
+                "SteamGodforgePlasmaModule",
+                StatCollector.translateToLocal("NameSteamGodforgePlasmaModule")));
+        addItemTooltip(GTNCItemList.SteamGodforgePlasmaModule.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        // #tr NameSteamGodforgeExoticModule
+        // # Steam Godforge Exotic Module
+        // # zh_CN 蒸汽诸神之锻炉奇异模块
+        GTNCItemList.SteamGodforgeExoticModule.set(
+            new SteamGodforgeExoticModule(
+                GTNCMachineID.STEAM_GODFORGE_EXOTIC_MODULE.ID,
+                "SteamGodforgeExoticModule",
+                StatCollector.translateToLocal("NameSteamGodforgeExoticModule")));
+        addItemTooltip(GTNCItemList.SteamGodforgeExoticModule.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
 
     }
 
