@@ -32,7 +32,7 @@ import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
 import com.xyp.gtnc.Common.gui.modularui.multiblock.steam.SteamEyeOfHarmonyGui;
 import com.xyp.gtnc.Common.machines.multiblock.multiMachineBase.GTNCSteamMultiBlockBase;
-import com.xyp.gtnc.utils.enums.GTNCItemList;
+import com.xyp.gtnc.Common.machines.multiblock.multiMachineBase.UpgradeTreeHelper;
 import com.xyp.gtnc.utils.world.steam.SteamWirelessNetworkManager;
 
 import cpw.mods.fml.relauncher.Side;
@@ -169,13 +169,7 @@ public class SteamEyeOfHarmony extends GTNCSteamMultiBlockBase<SteamEyeOfHarmony
         List<ItemStack> costs = getUpgradeCosts();
         for (int idx : paidUpgradeCostIndices) {
             if (idx >= costs.size()) continue;
-            for (int i = 7; i >= 1; i--) {
-                GTNCItemList chip = GTNCItemList.valueOf("ChipTier" + i);
-                if (chip.hasBeenSet() && GTUtility.areStacksEqual(costs.get(idx), chip.get(1))) {
-                    cumulativeTier += i;
-                    break;
-                }
-            }
+            cumulativeTier += UpgradeTreeHelper.getChipTier(costs.get(idx));
         }
         if (cumulativeTier > mUpgradeTier) {
             mUpgradeTier = cumulativeTier;
@@ -197,6 +191,16 @@ public class SteamEyeOfHarmony extends GTNCSteamMultiBlockBase<SteamEyeOfHarmony
     /** Steam discount ratio: sum(tier) * STEAM_DISCOUNT_PER_TIER (clamped to [0, 1)) */
     public double getSteamDiscount() {
         return Math.min(mUpgradeTier * STEAM_DISCOUNT_PER_TIER, 0.99);
+    }
+
+    @Override
+    protected float getUpgradeSpeedBonus() {
+        return 1.0f;
+    }
+
+    @Override
+    protected int getUpgradeParallelBonus() {
+        return mUpgradeTier * PARALLEL_PER_TIER;
     }
 
     // ==================== Textures ====================

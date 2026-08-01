@@ -6,32 +6,143 @@ import static gregtech.api.enums.TierEU.RECIPE_IV;
 import static gregtech.api.enums.TierEU.RECIPE_LV;
 import static gregtech.api.enums.TierEU.RECIPE_LuV;
 import static gregtech.api.enums.TierEU.RECIPE_MV;
+import static gregtech.api.enums.TierEU.RECIPE_UEV;
 import static gregtech.api.enums.TierEU.RECIPE_UHV;
+import static gregtech.api.enums.TierEU.RECIPE_UIV;
+import static gregtech.api.enums.TierEU.RECIPE_UV;
 import static gregtech.api.enums.TierEU.RECIPE_ZPM;
 import static gregtech.api.util.GTRecipeBuilder.INGOTS;
 import static gregtech.api.util.GTRecipeBuilder.SECONDS;
 
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 
 import com.gtnewhorizon.cropsnh.api.CropsNHItemList;
 import com.xyp.gtnc.utils.enums.GTNCItemList;
 import com.xyp.gtnc.utils.item.ItemUtils;
 
+import appeng.api.AEApi;
 import gregtech.api.enums.GTValues;
 import gregtech.api.enums.ItemList;
 import gregtech.api.enums.Materials;
+import gregtech.api.enums.Mods;
 import gregtech.api.enums.OrePrefixes;
+import gregtech.api.objects.SubstituteFluidStack;
 import gregtech.api.recipe.RecipeMap;
 import gregtech.api.recipe.RecipeMaps;
 import gregtech.api.util.GTModHandler;
 import gregtech.api.util.GTOreDictUnificator;
 import gregtech.api.util.GTRecipeBuilder;
 import gregtech.api.util.GTUtility;
+import gtPlusPlus.core.material.MaterialsAlloy;
 
 public class AssemblerRecipes {
 
     public static void loadRecipes() {
         RecipeMap<?> As = RecipeMaps.assemblerRecipes;
+        var aeParts = AEApi.instance()
+            .definitions()
+            .parts();
+        var aeMaterials = AEApi.instance()
+            .definitions()
+            .materials();
+        var aeBlocks = AEApi.instance()
+            .definitions()
+            .blocks();
+
+        GTValues.RA.stdBuilder()
+            .itemInputs(
+                GTUtility.getIntegratedCircuit(18),
+                ItemList.Hull_LV.get(1),
+                ItemList.Cover_Screen.get(1),
+                new ItemStack(Items.ender_pearl, 16),
+                GTModHandler.getModItem(Mods.StructureLib.ID, "item.structurelib.constructableTrigger", 1, 0),
+                GTOreDictUnificator.get(OrePrefixes.circuit, Materials.LV, 4),
+                GTOreDictUnificator.get(OrePrefixes.foil, Materials.Steel, 16))
+            .itemOutputs(GTNCItemList.EnergyMonitor.get(1))
+            .fluidInputs(SubstituteFluidStack.soldering(144))
+            .duration(400)
+            .eut(RECIPE_LV)
+            .addTo(As);
+
+        GTValues.RA.stdBuilder()
+            .itemInputs(
+                ItemList.Hatch_Input_Bus_ME.get(1),
+                aeParts.storageBus()
+                    .maybeStack(1)
+                    .orNull(),
+                ItemList.Conveyor_Module_EV.get(2),
+                aeMaterials.cardCapacity()
+                    .maybeStack(9)
+                    .orNull())
+            .itemOutputs(GTNCItemList.SuperInputBusME.get(1))
+            .fluidInputs(SubstituteFluidStack.soldering(576))
+            .duration(300)
+            .eut(RECIPE_EV)
+            .addTo(As);
+
+        GTValues.RA.stdBuilder()
+            .itemInputs(
+                ItemList.Hatch_Input_ME.get(1),
+                GTModHandler.getModItem(Mods.AE2FluidCraft.ID, "part_fluid_storage_bus", 1),
+                ItemList.Electric_Pump_EV.get(2),
+                aeMaterials.cardCapacity()
+                    .maybeStack(9)
+                    .orNull())
+            .itemOutputs(GTNCItemList.SuperInputHatchME.get(1))
+            .fluidInputs(SubstituteFluidStack.soldering(576))
+            .duration(300)
+            .eut(RECIPE_EV)
+            .addTo(As);
+
+        GTValues.RA.stdBuilder()
+            .itemInputs(
+                GTNCItemList.SuperInputBusME.get(1),
+                aeBlocks.chest()
+                    .maybeStack(1)
+                    .orNull(),
+                ItemList.Conveyor_Module_ZPM.get(2),
+                aeMaterials.cardSuperSpeed()
+                    .maybeStack(4)
+                    .orNull())
+            .itemOutputs(GTNCItemList.AdvancedSuperInputBusME.get(1))
+            .fluidInputs(MaterialsAlloy.INDALLOY_140.getFluidStack(1296))
+            .duration(300)
+            .eut(RECIPE_ZPM)
+            .addTo(As);
+
+        GTValues.RA.stdBuilder()
+            .itemInputs(
+                GTNCItemList.SuperInputHatchME.get(1),
+                aeBlocks.chest()
+                    .maybeStack(2)
+                    .orNull(),
+                ItemList.Electric_Pump_ZPM.get(2),
+                aeMaterials.cardSuperSpeed()
+                    .maybeStack(6)
+                    .orNull())
+            .itemOutputs(GTNCItemList.AdvancedSuperInputHatchME.get(1))
+            .fluidInputs(MaterialsAlloy.INDALLOY_140.getFluidStack(1296))
+            .duration(300)
+            .eut(RECIPE_ZPM)
+            .addTo(As);
+
+        GTValues.RA.stdBuilder()
+            .itemInputs(
+                ItemList.Hull_IV.get(4L),
+                ItemList.Casing_Autoclave.get(16L),
+                GTOreDictUnificator.get(OrePrefixes.rotor, Materials.Desh, 32),
+                GTOreDictUnificator.get(OrePrefixes.circuit, Materials.IV, 8L),
+                GTOreDictUnificator.get(OrePrefixes.circuit, Materials.LuV, 4L),
+                ItemList.Super_Tank_EV.get(4L),
+                ItemList.Electric_Motor_IV.get(4L),
+                ItemList.Electric_Pump_IV.get(8L),
+                ItemList.Steam_Valve_IV.get(16L))
+            .fluidInputs(MaterialsAlloy.INDALLOY_140.getFluidStack(64000))
+            .itemOutputs(GTNCItemList.PetrochemicalPlant.get(1))
+            .duration(1200)
+            .eut(RECIPE_IV)
+            .addTo(As);
         // 二极管
         GTValues.RA.stdBuilder()
             .itemInputs(
@@ -120,7 +231,7 @@ public class AssemblerRecipes {
             .itemOutputs(GTNCItemList.ChipTier1.get(1))
             .fluidInputs(Materials.Polyethylene.getMolten(9216))
             .circuit(24)
-            .eut(RECIPE_MV)
+            .eut(RECIPE_LV)
             .duration(SECONDS * 15)
             .addTo(As);
 
@@ -133,7 +244,7 @@ public class AssemblerRecipes {
             .itemOutputs(GTNCItemList.ChipTier2.get(1))
             .fluidInputs(Materials.Polyethylene.getMolten(9216))
             .circuit(24)
-            .eut(RECIPE_HV)
+            .eut(RECIPE_MV)
             .duration(20 * SECONDS)
             .addTo(As);
 
@@ -146,7 +257,7 @@ public class AssemblerRecipes {
             .itemOutputs(GTNCItemList.ChipTier3.get(1))
             .fluidInputs(Materials.Polyethylene.getMolten(9216))
             .circuit(24)
-            .eut(RECIPE_EV)
+            .eut(RECIPE_HV)
             .duration(20 * SECONDS)
             .addTo(As);
 
@@ -159,7 +270,7 @@ public class AssemblerRecipes {
             .itemOutputs(GTNCItemList.ChipTier4.get(1))
             .fluidInputs(Materials.Polyethylene.getMolten(9216))
             .circuit(24)
-            .eut(RECIPE_IV)
+            .eut(RECIPE_EV)
             .duration(20 * SECONDS)
             .addTo(As);
 
@@ -172,7 +283,7 @@ public class AssemblerRecipes {
             .itemOutputs(GTNCItemList.ChipTier5.get(1))
             .fluidInputs(Materials.Polyethylene.getMolten(9216))
             .circuit(24)
-            .eut(RECIPE_LuV)
+            .eut(RECIPE_IV)
             .duration(20 * SECONDS)
             .addTo(As);
 
@@ -185,7 +296,7 @@ public class AssemblerRecipes {
             .itemOutputs(GTNCItemList.ChipTier6.get(1))
             .fluidInputs(Materials.Polyethylene.getMolten(9216))
             .circuit(24)
-            .eut(RECIPE_ZPM)
+            .eut(RECIPE_LuV)
             .duration(20 * SECONDS)
             .addTo(As);
 
@@ -198,7 +309,46 @@ public class AssemblerRecipes {
             .itemOutputs(GTNCItemList.ChipTier7.get(1))
             .fluidInputs(Materials.Polyethylene.getMolten(9216))
             .circuit(24)
+            .eut(RECIPE_UV)
+            .duration(20 * SECONDS)
+            .addTo(As);
+
+        // chipTier8
+        GTValues.RA.stdBuilder()
+            .itemInputs(
+                GTOreDictUnificator.get(OrePrefixes.circuit, Materials.UV, 8),
+                GTOreDictUnificator.get(OrePrefixes.plate, Materials.Polytetrafluoroethylene, 2),
+                ItemList.Tool_DataStick.get(42))
+            .itemOutputs(GTNCItemList.ChipTier8.get(1))
+            .fluidInputs(Materials.Polyethylene.getMolten(9216))
+            .circuit(24)
             .eut(RECIPE_UHV)
+            .duration(20 * SECONDS)
+            .addTo(As);
+
+        // chipTier9
+        GTValues.RA.stdBuilder()
+            .itemInputs(
+                GTOreDictUnificator.get(OrePrefixes.circuit, Materials.UHV, 8),
+                GTOreDictUnificator.get(OrePrefixes.plate, Materials.Polytetrafluoroethylene, 2),
+                ItemList.Tool_DataStick.get(42))
+            .itemOutputs(GTNCItemList.ChipTier9.get(1))
+            .fluidInputs(Materials.Polyethylene.getMolten(9216))
+            .circuit(24)
+            .eut(RECIPE_UEV)
+            .duration(20 * SECONDS)
+            .addTo(As);
+
+        // chipTier10
+        GTValues.RA.stdBuilder()
+            .itemInputs(
+                GTOreDictUnificator.get(OrePrefixes.circuit, Materials.UEV, 8),
+                GTOreDictUnificator.get(OrePrefixes.plate, Materials.Polytetrafluoroethylene, 2),
+                ItemList.Tool_DataStick.get(42))
+            .itemOutputs(GTNCItemList.ChipTier10.get(1))
+            .fluidInputs(Materials.Polyethylene.getMolten(9216))
+            .circuit(24)
+            .eut(RECIPE_UIV)
             .duration(20 * SECONDS)
             .addTo(As);
 

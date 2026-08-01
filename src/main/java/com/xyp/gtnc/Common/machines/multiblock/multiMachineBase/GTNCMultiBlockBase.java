@@ -1,6 +1,8 @@
 package com.xyp.gtnc.Common.machines.multiblock.multiMachineBase;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -13,11 +15,11 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
+import com.cleanroommc.modularui.utils.item.ItemStackHandler;
 import com.xyp.gtnc.Common.gui.modularui.multiblock.GTNCMultiBlockBaseGui;
 import com.xyp.gtnc.utils.enums.GTNCItemList;
 
 import gregtech.api.metatileentity.implementations.MTEExtendedPowerMultiBlockBase;
-import gregtech.api.util.GTUtility;
 import gregtech.common.gui.modularui.multiblock.base.MTEMultiBlockBaseGui;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
@@ -28,7 +30,7 @@ import mcp.mobius.waila.api.IWailaDataAccessor;
  * <ul>
  * <li>Each chip tier: +20% speed, +16 parallel recipes</li>
  * <li>Tier 1: 1.20x speed, +16 parallel</li>
- * <li>Tier 7: 2.40x speed, +112 parallel</li>
+ * <li>Tier 10: 3.00x speed, +160 parallel</li>
  * </ul>
  */
 public abstract class GTNCMultiBlockBase<T extends GTNCMultiBlockBase<T>> extends MTEExtendedPowerMultiBlockBase<T> {
@@ -36,7 +38,7 @@ public abstract class GTNCMultiBlockBase<T extends GTNCMultiBlockBase<T>> extend
     protected int mUpgradeTier = 0;
     protected boolean mUpgraded = false;
     /** Paid cost indices for the upgrade tree. Persisted across chunk reloads. */
-    public Set<Integer> paidUpgradeCostIndices = new HashSet<>();
+    protected final Set<Integer> paidUpgradeCostIndices = new HashSet<>();
 
     /**
      * Override in subclass to define required items for upgrade.
@@ -44,7 +46,7 @@ public abstract class GTNCMultiBlockBase<T extends GTNCMultiBlockBase<T>> extend
      */
     public List<ItemStack> getUpgradeCosts() {
         List<ItemStack> costs = new ArrayList<>();
-        for (int i = 1; i <= 7; i++) {
+        for (int i = 1; i <= UpgradeTreeHelper.MAX_CHIP_TIER; i++) {
             GTNCItemList chip = GTNCItemList.valueOf("ChipTier" + i);
             if (chip.hasBeenSet()) {
                 costs.add(chip.get(1));
@@ -55,6 +57,34 @@ public abstract class GTNCMultiBlockBase<T extends GTNCMultiBlockBase<T>> extend
 
     public boolean supportsUpgradeTree() {
         return true;
+    }
+
+    public Set<Integer> getPaidUpgradeCostIndices() {
+        return Collections.unmodifiableSet(paidUpgradeCostIndices);
+    }
+
+    /** Applies one payable cost. This is intentionally server-side machine logic rather than GUI-owned state. */
+    public boolean tryApplyUpgrade(ItemStackHandler inputs) {
+        if (getBaseMetaTileEntity() == null || !getBaseMetaTileEntity().isServerSide()
+            || !supportsUpgradeTree()
+            || !UpgradeTreeHelper.tryPayUpgradeCost(getUpgradeCosts(), paidUpgradeCostIndices, inputs)) {
+            return false;
+        }
+        onUpgradeComplete();
+        getBaseMetaTileEntity().markDirty();
+        return true;
+    }
+
+    public int getUpgradeTierForGui() {
+        return mUpgradeTier;
+    }
+
+    public int getUpgradeSpeedPercentForGui() {
+        return Math.round(100.0f / getUpgradeSpeedBonus());
+    }
+
+    public int getUpgradeParallelForGui() {
+        return getUpgradeParallelBonus();
     }
 
     public GTNCMultiBlockBase(int aID, String aName, String aNameRegional) {
@@ -112,13 +142,7 @@ public abstract class GTNCMultiBlockBase<T extends GTNCMultiBlockBase<T>> extend
         for (int idx : paidUpgradeCostIndices) {
             if (idx >= costs.size()) continue;
             ItemStack cost = costs.get(idx);
-            for (int i = 7; i >= 1; i--) {
-                GTNCItemList chip = GTNCItemList.valueOf("ChipTier" + i);
-                if (chip.hasBeenSet() && GTUtility.areStacksEqual(cost, chip.get(1))) {
-                    if (i > highestTier) highestTier = i;
-                    break;
-                }
-            }
+            highestTier = Math.max(highestTier, UpgradeTreeHelper.getChipTier(cost));
         }
         if (highestTier > mUpgradeTier) {
             mUpgradeTier = highestTier;
@@ -176,16 +200,29 @@ public abstract class GTNCMultiBlockBase<T extends GTNCMultiBlockBase<T>> extend
     @Override
     public void saveNBTData(NBTTagCompound aNBT) {
         super.saveNBTData(aNBT);
+        writeUpgradeNBT(aNBT);
+    }
+
+    /**
+     * Keep paid upgrade chips on the controller item when the machine is dismantled.
+     * GregTech passes this tag back to {@link #loadNBTData(NBTTagCompound)} when the controller is placed again.
+     */
+    @Override
+    public void setItemNBT(NBTTagCompound aNBT) {
+        super.setItemNBT(aNBT);
+        writeUpgradeNBT(aNBT);
+    }
+
+    private void writeUpgradeNBT(NBTTagCompound aNBT) {
         aNBT.setInteger("mUpgradeTier", mUpgradeTier);
         aNBT.setBoolean("mUpgraded", mUpgraded);
-        if (!paidUpgradeCostIndices.isEmpty()) {
-            int[] arr = new int[paidUpgradeCostIndices.size()];
-            int i = 0;
-            for (int idx : paidUpgradeCostIndices) {
-                arr[i++] = idx;
-            }
-            aNBT.setIntArray("paidUpgradeCostIndices", arr);
+        int[] arr = new int[paidUpgradeCostIndices.size()];
+        int i = 0;
+        for (int idx : paidUpgradeCostIndices) {
+            arr[i++] = idx;
         }
+        Arrays.sort(arr);
+        aNBT.setIntArray("paidUpgradeCostIndices", arr);
     }
 
     @Override
@@ -195,8 +232,9 @@ public abstract class GTNCMultiBlockBase<T extends GTNCMultiBlockBase<T>> extend
         mUpgraded = aNBT.getBoolean("mUpgraded");
         paidUpgradeCostIndices.clear();
         if (aNBT.hasKey("paidUpgradeCostIndices")) {
+            int costCount = getUpgradeCosts().size();
             for (int idx : aNBT.getIntArray("paidUpgradeCostIndices")) {
-                paidUpgradeCostIndices.add(idx);
+                if (idx >= 0 && idx < costCount) paidUpgradeCostIndices.add(idx);
             }
         }
     }

@@ -93,6 +93,21 @@ public class ItemsLoader {
         // # zh_CN 高算力芯片 VII
         GTNCItemList.ChipTier7.set(MetaItemAdder.initItem(7));
 
+        // #tr item.MetaItem.38.name
+        // # High Computing Power Chip Tier VIII
+        // # zh_CN 高算力芯片 VIII
+        GTNCItemList.ChipTier8.set(MetaItemAdder.initItem(38));
+
+        // #tr item.MetaItem.39.name
+        // # High Computing Power Chip Tier IX
+        // # zh_CN 高算力芯片 IX
+        GTNCItemList.ChipTier9.set(MetaItemAdder.initItem(39));
+
+        // #tr item.MetaItem.40.name
+        // # High Computing Power Chip Tier X
+        // # zh_CN 高算力芯片 X
+        GTNCItemList.ChipTier10.set(MetaItemAdder.initItem(40));
+
         // #tr item.MetaItem.9.name
         // # Primitive Resonatic Circuit
         // # zh_CN 原始磁共振电路

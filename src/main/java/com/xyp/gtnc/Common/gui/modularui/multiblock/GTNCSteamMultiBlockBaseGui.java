@@ -6,17 +6,18 @@ import java.util.List;
 import java.util.Set;
 
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.StatCollector;
 
 import com.cleanroommc.modularui.drawable.DynamicDrawable;
 import com.cleanroommc.modularui.screen.ModularPanel;
 import com.cleanroommc.modularui.utils.Alignment;
+import com.cleanroommc.modularui.utils.item.ItemStackHandler;
 import com.cleanroommc.modularui.value.sync.BooleanSyncValue;
 import com.cleanroommc.modularui.value.sync.PanelSyncManager;
 import com.cleanroommc.modularui.widgets.ButtonWidget;
 import com.cleanroommc.modularui.widgets.layout.Flow;
 import com.xyp.gtnc.Common.gui.modularui.GTNCGuiTextures;
 import com.xyp.gtnc.Common.machines.multiblock.multiMachineBase.GTNCSteamMultiBlockBase;
+import com.xyp.gtnc.utils.lang.TextLocalization;
 
 public class GTNCSteamMultiBlockBaseGui extends GTNCUpgradeableMultiBlockBaseGui<GTNCSteamMultiBlockBase<?>> {
 
@@ -45,7 +46,7 @@ public class GTNCSteamMultiBlockBaseGui extends GTNCUpgradeableMultiBlockBaseGui
 
     @Override
     protected Set<Integer> getMachinePaidUpgradeCostIndices() {
-        return multiblock.paidUpgradeCostIndices;
+        return multiblock.getPaidUpgradeCostIndices();
     }
 
     @Override
@@ -54,8 +55,23 @@ public class GTNCSteamMultiBlockBaseGui extends GTNCUpgradeableMultiBlockBaseGui
     }
 
     @Override
-    protected void onUpgradeComplete() {
-        multiblock.onUpgradeComplete();
+    protected boolean tryApplyUpgrade(ItemStackHandler inputs) {
+        return multiblock.tryApplyUpgrade(inputs);
+    }
+
+    @Override
+    protected int getUpgradeTier() {
+        return multiblock.getUpgradeTierForGui();
+    }
+
+    @Override
+    protected int getUpgradeSpeedPercent() {
+        return multiblock.getUpgradeSpeedPercentForGui();
+    }
+
+    @Override
+    protected int getUpgradeParallel() {
+        return multiblock.getUpgradeParallelForGui();
     }
 
     // #tr GTNC_gui_button_wireless_steam
@@ -75,7 +91,7 @@ public class GTNCSteamMultiBlockBaseGui extends GTNCUpgradeableMultiBlockBaseGui
                 wirelessSyncer.setBoolValue(!wirelessSyncer.getBoolValue());
                 return true;
             })
-            .tooltip(t -> t.addLine(StatCollector.translateToLocal("GTNC_gui_button_wireless_steam")))
+            .tooltip(t -> t.addLine(TextLocalization.GUI_WIRELESS_STEAM_BUTTON))
             .tooltipShowUpTimer(TOOLTIP_DELAY);
         return applyModernStateButton(button, wirelessSyncer::getBoolValue, () -> true);
     }

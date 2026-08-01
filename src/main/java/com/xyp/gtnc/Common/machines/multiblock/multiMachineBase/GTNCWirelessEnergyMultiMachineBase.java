@@ -263,6 +263,12 @@ public abstract class GTNCWirelessEnergyMultiMachineBase<T extends GTNCWirelessE
     }
 
     @Override
+    public void setItemNBT(NBTTagCompound aNBT) {
+        super.setItemNBT(aNBT);
+        aNBT.setBoolean("wirelessMode", wirelessMode);
+    }
+
+    @Override
     public void loadNBTData(NBTTagCompound aNBT) {
         super.loadNBTData(aNBT);
         wirelessMode = aNBT.getBoolean("wirelessMode");

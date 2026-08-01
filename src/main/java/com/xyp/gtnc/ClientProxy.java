@@ -60,6 +60,10 @@ public class ClientProxy extends CommonProxy {
         // 连接独立服务端的客户端从不触发它，导致客户端 NEI 看不到配方（只剩多方块预览）。这里在每个 JVM 都触发的
         // loadComplete 里为客户端补生成一次；loadRecipesServerStarted 内部有幂等守卫，单人环境不会重复添加。
         RecipeLoader.loadRecipesServerStarted();
+
+        // ThaumcraftResearchTweaks replaces the client research GUI. Restore the vanilla client GUI so the
+        // client-only automatic research mixin is present; the dedicated/integrated server GUI map is untouched.
+        com.xyp.gtnc.Client.research.ResearchGuiCompatibility.install();
     }
 
     /**

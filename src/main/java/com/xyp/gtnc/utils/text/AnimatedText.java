@@ -31,33 +31,47 @@ import org.apache.commons.lang3.ArrayUtils;
 
 public class AnimatedText {
 
-    public static final Supplier<String> SNL_EDEN_GARDEN = () -> com.xyp.gtnc.utils.text.AnimatedText.SCIENCE_NOT_LEISURE
-        .get() + com.xyp.gtnc.utils.text.AnimatedText.EDEN_GARDEN.get() + RESET;
-    public static final Supplier<String> SNL_SRP = () -> com.xyp.gtnc.utils.text.AnimatedText.SCIENCE_NOT_LEISURE
-        .get() + RESET + ": " + com.xyp.gtnc.utils.text.AnimatedText.STRUCTURAL_RECONSTRUCTION_PLAN.get() + RESET;
-    public static final Supplier<String> SNL_QYZG = () -> com.xyp.gtnc.utils.text.AnimatedText.SCIENCE_NOT_LEISURE
-        .get() + RESET + ": " + com.xyp.gtnc.utils.text.AnimatedText.QYZG.get() + RESET;
-    public static final Supplier<String> SNL_QYZG_SRP = () -> com.xyp.gtnc.utils.text.AnimatedText.SCIENCE_NOT_LEISURE
-        .get() + RESET
+    public static final Supplier<String> SNL_EDEN_GARDEN = () -> AnimatedText.SCIENCE_NOT_LEISURE.get()
+        + AnimatedText.EDEN_GARDEN.get()
+        + RESET;
+    public static final Supplier<String> SNL_SRP = () -> AnimatedText.SCIENCE_NOT_LEISURE.get() + RESET
         + ": "
-        + com.xyp.gtnc.utils.text.AnimatedText.QYZG.get()
+        + AnimatedText.STRUCTURAL_RECONSTRUCTION_PLAN.get()
+        + RESET;
+    public static final Supplier<String> SNL_QYZG = () -> AnimatedText.SCIENCE_NOT_LEISURE.get() + RESET
+        + ": "
+        + AnimatedText.QYZG.get()
+        + RESET;
+    public static final Supplier<String> SNL_QYZG_SRP = () -> AnimatedText.SCIENCE_NOT_LEISURE.get() + RESET
+        + ": "
+        + AnimatedText.QYZG.get()
         + RESET
         + " X "
-        + com.xyp.gtnc.utils.text.AnimatedText.STRUCTURAL_RECONSTRUCTION_PLAN.get()
+        + AnimatedText.STRUCTURAL_RECONSTRUCTION_PLAN.get()
         + RESET;
-    public static final Supplier<String> SNL_NLXCJH = () -> com.xyp.gtnc.utils.text.AnimatedText.SCIENCE_NOT_LEISURE
-        .get() + RESET + ": " + com.xyp.gtnc.utils.text.AnimatedText.NLXCJH.get() + RESET;
-    public static final Supplier<String> SNL_TOTTO = () -> com.xyp.gtnc.utils.text.AnimatedText.SCIENCE_NOT_LEISURE
-        .get() + RESET + ": " + com.xyp.gtnc.utils.text.AnimatedText.TOTTO.get() + RESET;
-    public static final Supplier<String> SNL_PBTR = () -> com.xyp.gtnc.utils.text.AnimatedText.SCIENCE_NOT_LEISURE
-        .get() + RESET + ": " + com.xyp.gtnc.utils.text.AnimatedText.PBTR.get() + RESET;
-    public static final Supplier<String> SNL_SCCR = () -> com.xyp.gtnc.utils.text.AnimatedText.SCIENCE_NOT_LEISURE
-        .get() + RESET + ": " + com.xyp.gtnc.utils.text.AnimatedText.SCCR.get() + RESET;
-    public static final Supplier<String> SNL_SKYINR = () -> com.xyp.gtnc.utils.text.AnimatedText.SCIENCE_NOT_LEISURE
+    public static final Supplier<String> SNL_NLXCJH = () -> AnimatedText.SCIENCE_NOT_LEISURE.get() + RESET
+        + ": "
+        + AnimatedText.NLXCJH.get()
+        + RESET;
+    public static final Supplier<String> SNL_TOTTO = () -> AnimatedText.SCIENCE_NOT_LEISURE.get() + RESET
+        + ": "
+        + AnimatedText.TOTTO.get()
+        + RESET;
+    public static final Supplier<String> SNL_PBTR = () -> AnimatedText.SCIENCE_NOT_LEISURE.get() + RESET
+        + ": "
+        + AnimatedText.PBTR.get()
+        + RESET;
+    public static final Supplier<String> SNL_SCCR = () -> AnimatedText.SCIENCE_NOT_LEISURE.get() + RESET
+        + ": "
+        + AnimatedText.SCCR.get()
+        + RESET;
+    public static final Supplier<String> SNL_SKYINR = () -> AnimatedText.SCIENCE_NOT_LEISURE
         .get() + RESET + ": " + AQUA + "Created By: Skyinr" + RESET;
 
-    public static final Supplier<String> SNL_LONEI = () -> com.xyp.gtnc.utils.text.AnimatedText.SCIENCE_NOT_LEISURE
-        .get() + RESET + ": " + com.xyp.gtnc.utils.text.AnimatedText.LONEI.get() + RESET;
+    public static final Supplier<String> SNL_LONEI = () -> AnimatedText.SCIENCE_NOT_LEISURE.get() + RESET
+        + ": "
+        + AnimatedText.LONEI.get()
+        + RESET;
 
     public static final Supplier<String> SCIENCE_NOT_LEISURE = chain(
         // #tr Tooltip_Adder

@@ -1,17 +1,64 @@
 package com.xyp.gtnc.Loader;
 
+import java.util.Comparator;
+
 import com.xyp.gtnc.Common.gui.recipe.GTNCLogoFrontend;
 import com.xyp.gtnc.Common.gui.recipe.IndustrialInfusionCraftingRecipesFrontend;
 import com.xyp.gtnc.Common.gui.recipe.StellarForgeAlloySmelterRecipesFrontend;
 import com.xyp.gtnc.utils.enums.GTNCItemList;
+import com.xyp.gtnc.utils.recipes.metadata.FuelRefiningMetadata;
 
 import gregtech.api.gui.modularui.GTUITextures;
 import gregtech.api.recipe.RecipeMap;
 import gregtech.api.recipe.RecipeMapBackend;
 import gregtech.api.recipe.RecipeMapBuilder;
+import gregtech.api.util.GTRecipe;
+import gregtech.nei.formatter.HeatingCoilSpecialValueFormatter;
 import gregtech.nei.formatter.SimpleSpecialValueFormatter;
 
 public class GTNCRecipeMaps {
+
+    // #tr gtnc.recipe.PlatinumBasedTreatmentRecipes
+    // # Platinum-Based Treatment
+    // # zh_CN 铂系处理
+    public static final RecipeMap<RecipeMapBackend> PlatinumBasedTreatmentRecipes = RecipeMapBuilder
+        .of("gtnc.recipe.PlatinumBasedTreatmentRecipes")
+        .maxIO(8, 12, 4, 4)
+        .progressBar(GTUITextures.PROGRESSBAR_ARROW_MULTIPLE)
+        .frontend(GTNCLogoFrontend::new)
+        .neiHandlerInfo(
+            builder -> builder.setDisplayStack(GTNCItemList.PlatinumBasedTreatment.get(1))
+                .setMaxRecipesPerPage(1))
+        .build();
+
+    // #tr gtnc.recipe.PetrochemicalPlantRecipes
+    // # Petrochemical Plant
+    // # zh_CN 石油化工厂
+    public static final RecipeMap<RecipeMapBackend> PetrochemicalPlantRecipes = RecipeMapBuilder
+        .of("gtnc.recipe.PetrochemicalPlantRecipes")
+        .maxIO(4, 4, 4, 12)
+        .progressBar(GTUITextures.PROGRESSBAR_ARROW_MULTIPLE)
+        .frontend(GTNCLogoFrontend::new)
+        .neiHandlerInfo(
+            builder -> builder.setDisplayStack(GTNCItemList.PetrochemicalPlant.get(1))
+                .setMaxRecipesPerPage(1))
+        .build();
+
+    // #tr gtnc.recipe.FuelRefiningComplexRecipes
+    // # Fuel Refining Complex
+    // # zh_CN 燃料精炼复合体
+    public static RecipeMap<RecipeMapBackend> FuelRefiningComplexRecipes = RecipeMapBuilder
+        .of("gtnc.recipe.FuelRefiningComplexRecipes")
+        .maxIO(4, 0, 8, 1)
+        .progressBar(GTUITextures.PROGRESSBAR_ARROW_MULTIPLE)
+        .frontend(GTNCLogoFrontend::new)
+        .neiHandlerInfo(builder -> builder.setDisplayStack(GTNCItemList.FuelRefiningComplex.get(1)))
+        .neiSpecialInfoFormatter(HeatingCoilSpecialValueFormatter.INSTANCE)
+        .neiRecipeComparator(
+            Comparator
+                .<GTRecipe, Integer>comparing(recipe -> recipe.getMetadataOrDefault(FuelRefiningMetadata.INSTANCE, 0))
+                .thenComparing(GTRecipe::compareTo))
+        .build();
 
     // #tr gtnc.recipe.OreProcessingRecipes
     // # Ore Processing

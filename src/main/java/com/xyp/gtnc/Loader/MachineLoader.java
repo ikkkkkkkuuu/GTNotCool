@@ -7,11 +7,16 @@ import net.minecraft.util.StatCollector;
 import com.xyp.gtnc.Common.machines.basicMachine.DieselGenerator;
 import com.xyp.gtnc.Common.machines.basicMachine.MTETimeAccelerator;
 import com.xyp.gtnc.Common.machines.basicMachine.SteamTurbine;
+import com.xyp.gtnc.Common.machines.basicMachine.monitor.EnergyMonitor;
 import com.xyp.gtnc.Common.machines.cover.WirelessMultiEnergyCover;
+import com.xyp.gtnc.Common.machines.hatch.SuperInputBusME;
+import com.xyp.gtnc.Common.machines.hatch.SuperInputHatchME;
 import com.xyp.gtnc.Common.machines.hatch.SuperMTEHatchCraftingInputME;
 import com.xyp.gtnc.Common.machines.hatch.SuperMTEHatchCraftingInputSlave;
 import com.xyp.gtnc.Common.machines.hatch.VaultPortHatch;
 import com.xyp.gtnc.Common.machines.multiblock.AssemblerMatrix;
+import com.xyp.gtnc.Common.machines.multiblock.AtomicEnergyExcitationPlant;
+import com.xyp.gtnc.Common.machines.multiblock.FuelRefiningComplex;
 import com.xyp.gtnc.Common.machines.multiblock.GTNCDrillingRig;
 import com.xyp.gtnc.Common.machines.multiblock.GTNCGeneralChemicalFactory;
 import com.xyp.gtnc.Common.machines.multiblock.GTNCMiningRig;
@@ -20,6 +25,8 @@ import com.xyp.gtnc.Common.machines.multiblock.IndustrialArcaneAssembler;
 import com.xyp.gtnc.Common.machines.multiblock.LargeCombProcessor;
 import com.xyp.gtnc.Common.machines.multiblock.LargeOreProcessor;
 import com.xyp.gtnc.Common.machines.multiblock.MTEMegaIndustrialApiary;
+import com.xyp.gtnc.Common.machines.multiblock.PetrochemicalPlant;
+import com.xyp.gtnc.Common.machines.multiblock.PlatinumBasedTreatment;
 import com.xyp.gtnc.Common.machines.multiblock.QuantumComputer;
 import com.xyp.gtnc.Common.machines.multiblock.SingularityDataHub;
 import com.xyp.gtnc.Common.machines.multiblock.SuperSpaceElevator;
@@ -68,6 +75,46 @@ import tectech.thing.metaTileEntity.hatch.MTEHatchWirelessMulti;
 public class MachineLoader {
 
     public static void registerMachines() {
+        // #tr NamePlatinumBasedTreatment
+        // # Platinum-Based Treatment
+        // # zh_CN 铂系处理厂
+        GTNCItemList.PlatinumBasedTreatment.set(
+            new PlatinumBasedTreatment(
+                GTNCMachineID.PLATINUM_BASED_TREATMENT.ID,
+                "PlatinumBasedTreatment",
+                StatCollector.translateToLocal("NamePlatinumBasedTreatment")));
+        addItemTooltip(GTNCItemList.PlatinumBasedTreatment.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        // #tr NamePetrochemicalPlant
+        // # Petrochemical Plant
+        // # zh_CN 石油化工厂
+        GTNCItemList.PetrochemicalPlant.set(
+            new PetrochemicalPlant(
+                GTNCMachineID.PETROCHEMICAL_PLANT.ID,
+                "PetrochemicalPlant",
+                StatCollector.translateToLocal("NamePetrochemicalPlant")));
+        addItemTooltip(GTNCItemList.PetrochemicalPlant.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        // #tr NameFuelRefiningComplex
+        // # Fuel Refining Complex
+        // # zh_CN 燃料精炼复合体
+        GTNCItemList.FuelRefiningComplex.set(
+            new FuelRefiningComplex(
+                GTNCMachineID.FUEL_REFINING_COMPLEX.ID,
+                "FuelRefiningComplex",
+                StatCollector.translateToLocal("NameFuelRefiningComplex")));
+        addItemTooltip(GTNCItemList.FuelRefiningComplex.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        // #tr NameAtomicEnergyExcitationPlant
+        // # Atomic Energy Excitation Plant
+        // # zh_CN 原子能激发工厂
+        GTNCItemList.AtomicEnergyExcitationPlant.set(
+            new AtomicEnergyExcitationPlant(
+                GTNCMachineID.ATOMIC_ENERGY_EXCITATION_PLANT.ID,
+                "AtomicEnergyExcitationPlant",
+                StatCollector.translateToLocal("NameAtomicEnergyExcitationPlant")));
+        addItemTooltip(GTNCItemList.AtomicEnergyExcitationPlant.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
         // #tr NameAssemblerMatrix
         // # Assembler Matrix
         // # zh_CN 装配矩阵
@@ -580,6 +627,50 @@ public class MachineLoader {
     }
 
     public static void registerHatch() {
+        // #tr SuperInputBusME
+        // # Super Stocking Input Bus (ME)
+        // # zh_CN 超级存储输入总线 (ME)
+        GTNCItemList.SuperInputBusME.set(
+            new SuperInputBusME(
+                GTNCMachineID.SUPER_INPUT_BUS_ME.ID,
+                false,
+                "SuperInputBusME",
+                StatCollector.translateToLocal("SuperInputBusME")));
+        addItemTooltip(GTNCItemList.SuperInputBusME.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        // #tr SuperInputHatchME
+        // # Super Stocking Input Hatch (ME)
+        // # zh_CN 超级存储输入仓 (ME)
+        GTNCItemList.SuperInputHatchME.set(
+            new SuperInputHatchME(
+                GTNCMachineID.SUPER_INPUT_HATCH_ME.ID,
+                false,
+                "SuperInputHatchME",
+                StatCollector.translateToLocal("SuperInputHatchME")));
+        addItemTooltip(GTNCItemList.SuperInputHatchME.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        // #tr AdvancedSuperInputBusME
+        // # Advanced Super Stocking Input Bus (ME)
+        // # zh_CN 进阶超级存储输入总线 (ME)
+        GTNCItemList.AdvancedSuperInputBusME.set(
+            new SuperInputBusME(
+                GTNCMachineID.ADVANCED_SUPER_INPUT_BUS_ME.ID,
+                true,
+                "AdvancedSuperInputBusME",
+                StatCollector.translateToLocal("AdvancedSuperInputBusME")));
+        addItemTooltip(GTNCItemList.AdvancedSuperInputBusME.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        // #tr AdvancedSuperInputHatchME
+        // # Advanced Super Stocking Input Hatch (ME)
+        // # zh_CN 进阶超级存储输入仓 (ME)
+        GTNCItemList.AdvancedSuperInputHatchME.set(
+            new SuperInputHatchME(
+                GTNCMachineID.ADVANCED_SUPER_INPUT_HATCH_ME.ID,
+                true,
+                "AdvancedSuperInputHatchME",
+                StatCollector.translateToLocal("AdvancedSuperInputHatchME")));
+        addItemTooltip(GTNCItemList.AdvancedSuperInputHatchME.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
         // #tr NameSuperMTEHatchCraftingInputBusME
         // # Super Pattern Input Bus (ME)
         // # zh_CN 超级样板输入总线 (ME)
@@ -4297,6 +4388,17 @@ public class MachineLoader {
     }
 
     public static void registerbasicMachine() {
+
+        // #tr EnergyMonitor
+        // # Energy Monitor
+        // # zh_CN 能源监控器
+        GTNCItemList.EnergyMonitor.set(
+            new EnergyMonitor(
+                GTNCMachineID.ENERGY_MONITOR.ID,
+                "EnergyMonitor",
+                StatCollector.translateToLocal("EnergyMonitor"),
+                1));
+        addItemTooltip(GTNCItemList.EnergyMonitor.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
 
         // #tr DieselGeneratorLV
         // # Gas Turbine LV

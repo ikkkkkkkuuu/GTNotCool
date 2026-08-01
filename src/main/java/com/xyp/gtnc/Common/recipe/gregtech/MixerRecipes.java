@@ -3,18 +3,44 @@ package com.xyp.gtnc.Common.recipe.gregtech;
 import static gregtech.api.util.GTRecipeBuilder.SECONDS;
 
 import com.xyp.gtnc.Common.material.GTNCMaterials;
+import com.xyp.gtnc.utils.enums.GTNCItemList;
 
 import bartworks.system.material.WerkstoffLoader;
 import gregtech.api.enums.GTValues;
+import gregtech.api.enums.ItemList;
 import gregtech.api.enums.Materials;
 import gregtech.api.enums.OrePrefixes;
 import gregtech.api.recipe.RecipeMap;
 import gtPlusPlus.api.recipe.GTPPRecipeMaps;
+import gtPlusPlus.core.material.MaterialsAlloy;
 
 public class MixerRecipes {
 
     public static void loadRecipes() {
         RecipeMap<?> Mixer = GTPPRecipeMaps.mixerNonCellRecipes;
+
+        GTValues.RA.stdBuilder()
+            .itemInputs(
+                ItemList.Machine_Multi_BlastFurnace.get(8),
+                ItemList.LargeSifter.get(3),
+                ItemList.Distillation_Tower.get(4),
+                ItemList.LargeFluidExtractor.get(1),
+                ItemList.Machine_Mass_Solidifier.get(1),
+                gtPlusPlus.xmod.gregtech.api.enums.GregtechItemList.Controller_IndustrialFluidHeater.get(1),
+                ItemList.IndustrialElectrolyzer.get(4),
+                ItemList.IndustrialMixer.get(2),
+                ItemList.Machine_Multi_LargeChemicalReactor.get(15))
+            .itemOutputs(GTNCItemList.PlatinumBasedTreatment.get(1))
+            .fluidInputs(
+                MaterialsAlloy.MARAGING250.getFluidStack(288),
+                MaterialsAlloy.INCONEL_792.getFluidStack(288),
+                Materials.Titanium.getMolten(1152),
+                Materials.StainlessSteel.getMolten(1728),
+                Materials.Iridium.getMolten(9216),
+                Materials.Osmium.getMolten(9216))
+            .duration(27648000)
+            .eut(8)
+            .addTo(Mixer);
 
         // ==================== 催化剂合成 ====================
 

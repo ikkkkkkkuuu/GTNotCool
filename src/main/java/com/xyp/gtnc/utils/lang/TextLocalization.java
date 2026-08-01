@@ -2,6 +2,82 @@ package com.xyp.gtnc.utils.lang;
 
 public class TextLocalization {
 
+    public static final String Tooltip_GTNC_Upgrade_00 = TextEnums.tr("Tooltip_GTNC_Upgrade_00");
+    public static final String Tooltip_GTNC_Upgrade_01 = TextEnums.tr("Tooltip_GTNC_Upgrade_01");
+    public static final String Tooltip_GTNC_Upgrade_02 = TextEnums.tr("Tooltip_GTNC_Upgrade_02");
+
+    // #tr GTNC.gui.upgrade_tree.button
+    // # Open Upgrade Tree
+    // # zh_CN 打开升级树
+    public static final String GUI_UPGRADE_TREE_BUTTON = TextEnums.tr("GTNC.gui.upgrade_tree.button");
+
+    // #tr GTNC.gui.upgrade_tree.title
+    // # Machine Upgrade Tree
+    // # zh_CN 机器升级树
+    public static final String GUI_UPGRADE_TREE_TITLE = TextEnums.tr("GTNC.gui.upgrade_tree.title");
+
+    // #tr GTNC.gui.upgrade_tree.status
+    // # Tier %d | Speed %.2fx | Parallel +%d
+    // # zh_CN 等级 %d | 速度 %.2fx | 并行 +%d
+    public static final String GUI_UPGRADE_TREE_STATUS = TextEnums.tr("GTNC.gui.upgrade_tree.status");
+
+    // #tr GTNC.gui.upgrade_tree.consume
+    // # Consume Upgrade Materials
+    // # zh_CN 消耗升级材料
+    public static final String GUI_UPGRADE_TREE_CONSUME = TextEnums.tr("GTNC.gui.upgrade_tree.consume");
+
+    // #tr GTNC.gui.wireless_steam.button
+    // # Toggle Wireless Steam Mode
+    // # zh_CN 切换无线蒸汽模式
+    public static final String GUI_WIRELESS_STEAM_BUTTON = TextEnums.tr("GTNC.gui.wireless_steam.button");
+
+    // == Fuel Refining Machines == //
+
+    // #tr FuelRefiningComplexRecipeType
+    // # Fuel Refining Complex
+    // # zh_CN 燃料精炼复合体
+    public static final String FuelRefiningComplexRecipeType = TextEnums.tr("FuelRefiningComplexRecipeType");
+
+    // #tr Tooltip_FuelRefiningComplex_00
+    // # Processes advanced fuels at 8 base parallels; the upgrade tree adds speed and parallels
+    // # zh_CN 以基础 8 并行处理高级燃料；升级树可增加速度和并行
+    public static final String Tooltip_FuelRefiningComplex_00 = TextEnums.tr("Tooltip_FuelRefiningComplex_00");
+
+    // #tr Tooltip_FuelRefiningComplex_Casing
+    // # High Pressure Resistant Casing
+    // # zh_CN 高压耐腐蚀机械方块
+    public static final String Tooltip_FuelRefiningComplex_Casing = TextEnums.tr("Tooltip_FuelRefiningComplex_Casing");
+
+    // #tr AtomicEnergyExcitationPlantRecipeType
+    // # Atomic Energy Excitation Plant
+    // # zh_CN 原子能激发工厂
+    public static final String AtomicEnergyExcitationPlantRecipeType = TextEnums
+        .tr("AtomicEnergyExcitationPlantRecipeType");
+
+    // #tr Tooltip_AtomicEnergyExcitationPlant_00
+    // # Each 900 K above recipe heat reduces energy use by 5% before overclocking
+    // # zh_CN 每超过配方温度 900K，超频前耗能降低 5%
+    public static final String Tooltip_AtomicEnergyExcitationPlant_00 = TextEnums
+        .tr("Tooltip_AtomicEnergyExcitationPlant_00");
+
+    // #tr Tooltip_AtomicEnergyExcitationPlant_01
+    // # Each 1800 K above recipe heat grants one heat-based perfect overclock
+    // # zh_CN 每超过配方温度 1800K，获得一次基于热量的无损超频
+    public static final String Tooltip_AtomicEnergyExcitationPlant_01 = TextEnums
+        .tr("Tooltip_AtomicEnergyExcitationPlant_01");
+
+    // #tr Tooltip_AtomicEnergyExcitationPlant_02
+    // # Use a wire cutter to enable or disable the animation
+    // # zh_CN 使用剪线钳开启或关闭动画特效
+    public static final String Tooltip_AtomicEnergyExcitationPlant_02 = TextEnums
+        .tr("Tooltip_AtomicEnergyExcitationPlant_02");
+
+    // #tr Tooltip_AtomicEnergyExcitationPlant_Casing
+    // # Molecular Casing
+    // # zh_CN 分子机械方块
+    public static final String Tooltip_AtomicEnergyExcitationPlant_Casing = TextEnums
+        .tr("Tooltip_AtomicEnergyExcitationPlant_Casing");
+
     // #tr Tooltip_CircuitResonaticULV_00
     // # A primitive circuit board
     // # zh_CN 一个原始的电路板
@@ -652,5 +728,294 @@ public class TextLocalization {
     // # HSLA Steel
     // # zh_CN HSLA钢
     public static final String Material_HSLASteel = "HSLA钢";
+
+    // #tr PlatinumBasedTreatmentRecipes
+    // # Single-Step Platinum Processing
+    // # zh_CN 单步铂处理
+    public static final String PBT_RECIPE_TYPE = TextEnums.tr("PlatinumBasedTreatmentRecipes");
+
+    // #tr Tooltip_PlatinumBasedTreatment_00
+    // # High-efficiency platinum processing unit.
+    // # zh_CN 高效铂系处理设备
+    public static final String PBT_00 = TextEnums.tr("Tooltip_PlatinumBasedTreatment_00");
+
+    // #tr Tooltip_PlatinumBasedTreatment_01
+    // # Single-step platinum processing.
+    // # zh_CN 单步完成铂系处理
+    public static final String PBT_01 = TextEnums.tr("Tooltip_PlatinumBasedTreatment_01");
+
+    // #tr Tooltip_PlatinumBasedTreatment_02
+    // # Initial parallel is 8.
+    // # zh_CN 初始并行为 8
+    public static final String PBT_02 = TextEnums.tr("Tooltip_PlatinumBasedTreatment_02");
+
+    // #tr Tooltip_PlatinumBasedTreatment_03
+    // # Each coil tier reduces recipe time and power consumption by 5%.
+    // # zh_CN 线圈每提高一级，配方时间和耗电减少 5%
+    public static final String PBT_03 = TextEnums.tr("Tooltip_PlatinumBasedTreatment_03");
+
+    // #tr Tooltip_PlatinumBasedTreatment_04
+    // # Energy hatch tier is limited by glass tier; UHV glass unlocks all tiers.
+    // # zh_CN 玻璃限制能源仓等级；UHV 玻璃解锁所有等级
+    public static final String PBT_04 = TextEnums.tr("Tooltip_PlatinumBasedTreatment_04");
+
+    // #tr Tooltip_PlatinumBasedTreatment_05
+    // # Each voltage tier adds 4 parallels.
+    // # zh_CN 电压每提高一级，并行增加 4
+    public static final String PBT_05 = TextEnums.tr("Tooltip_PlatinumBasedTreatment_05");
+
+    // #tr Tooltip_PlatinumBasedTreatment_Casing_00
+    // # Any multifunctional machine block
+    // # zh_CN 任意多功能机械方块
+    public static final String PBT_CASING = TextEnums.tr("Tooltip_PlatinumBasedTreatment_Casing_00");
+
+    // #tr Tooltip_PlatinumBasedTreatment_Casing_01
+    // # See the structure projection for muffler hatch placement
+    // # zh_CN 消声仓位置请参考多方块结构投影
+    public static final String PBT_MUFFLER = TextEnums.tr("Tooltip_PlatinumBasedTreatment_Casing_01");
+
+    // #tr PetrochemicalPlantRecipeType
+    // # Petrochemical Plant
+    // # zh_CN 石化工厂
+    public static final String PETRO_RECIPE_TYPE = TextEnums.tr("PetrochemicalPlantRecipeType");
+
+    // #tr Tooltip_PetrochemicalPlant_00
+    // # Each coil tier adds 40 parallels.
+    // # zh_CN 线圈每提高一级，并行增加 40
+    public static final String PETRO_00 = TextEnums.tr("Tooltip_PetrochemicalPlant_00");
+
+    // #tr Tooltip_PetrochemicalPlant_01
+    // # Final output: recipe output x coil tier x voltage tier x 6.
+    // # zh_CN 最终产出：配方输出 × 线圈等级 × 电压等级 × 6
+    public static final String PETRO_01 = TextEnums.tr("Tooltip_PetrochemicalPlant_01");
+
+    // #tr Tooltip_PetrochemicalPlant_02
+    // # Advanced extraction technology.
+    // # zh_CN 更先进的石化提取技术
+    public static final String PETRO_02 = TextEnums.tr("Tooltip_PetrochemicalPlant_02");
+
+    // #tr Tooltip_PetrochemicalPlant_Casing
+    // # Any Pressure Suppression Machine Block
+    // # zh_CN 任意压力抑制机械方块
+    public static final String PETRO_CASING = TextEnums.tr("Tooltip_PetrochemicalPlant_Casing");
+
+    // #tr Tooltip_PetrochemicalPlant_Muffler
+    // # Any Top Pressure Suppression Machine Block
+    // # zh_CN 任意顶部压力抑制机械方块
+    public static final String PETRO_MUFFLER = TextEnums.tr("Tooltip_PetrochemicalPlant_Muffler");
+
+    // #tr Tooltip_SuperInputBusME_00
+    // # Advanced item input for multiblocks
+    // # zh_CN 为多方块机器输入物品（进阶）
+    public static final String SUPER_BUS_00 = TextEnums.tr("Tooltip_SuperInputBusME_00");
+
+    // #tr Tooltip_SuperInputBusME_01
+    // # Hatch Tier:
+    // # zh_CN 仓室等级：
+    public static final String SUPER_BUS_01 = TextEnums.tr("Tooltip_SuperInputBusME_01");
+
+    // #tr Tooltip_SuperInputBusME_02
+    // # Retrieves directly from ME
+    // # zh_CN 直接从 ME 网络抽取物品
+    public static final String SUPER_BUS_02 = TextEnums.tr("Tooltip_SuperInputBusME_02");
+
+    // #tr Tooltip_SuperInputBusME_03
+    // # Keeps 100 item types in stock
+    // # zh_CN 可标记 100 种物品
+    public static final String SUPER_BUS_03 = TextEnums.tr("Tooltip_SuperInputBusME_03");
+
+    // #tr Tooltip_SuperInputBusME_04
+    // # Right-click with a wire cutter to change ME connection behavior
+    // # zh_CN 手持剪线钳右键以改变与 ME 网络的连接模式
+    public static final String SUPER_BUS_04 = TextEnums.tr("Tooltip_SuperInputBusME_04");
+
+    // #tr Tooltip_SuperInputBusME_05
+    // # Configuration can be copied with a data stick
+    // # zh_CN 配置可用数据棒复制和粘贴
+    public static final String SUPER_BUS_05 = TextEnums.tr("Tooltip_SuperInputBusME_05");
+
+    // #tr Tooltip_SuperInputHatchME_00
+    // # Advanced fluid input for multiblocks
+    // # zh_CN 为多方块机器输入流体（进阶）
+    public static final String SUPER_HATCH_00 = TextEnums.tr("Tooltip_SuperInputHatchME_00");
+
+    // #tr Tooltip_SuperInputHatchME_01
+    // # Hatch Tier:
+    // # zh_CN 仓室等级：
+    public static final String SUPER_HATCH_01 = TextEnums.tr("Tooltip_SuperInputHatchME_01");
+
+    // #tr Tooltip_SuperInputHatchME_02
+    // # Retrieves directly from ME
+    // # zh_CN 直接从 ME 网络抽取流体
+    public static final String SUPER_HATCH_02 = TextEnums.tr("Tooltip_SuperInputHatchME_02");
+
+    // #tr Tooltip_SuperInputHatchME_03
+    // # Keeps 100 fluid types in stock
+    // # zh_CN 可标记 100 种流体
+    public static final String SUPER_HATCH_03 = TextEnums.tr("Tooltip_SuperInputHatchME_03");
+
+    // #tr Tooltip_SuperInputHatchME_04
+    // # Right-click with a wire cutter to change ME connection behavior
+    // # zh_CN 手持剪线钳右键以改变与 ME 网络的连接模式
+    public static final String SUPER_HATCH_04 = TextEnums.tr("Tooltip_SuperInputHatchME_04");
+
+    // #tr Tooltip_SuperInputHatchME_05
+    // # Configuration can be copied with a data stick
+    // # zh_CN 配置可用数据棒复制和粘贴
+    public static final String SUPER_HATCH_05 = TextEnums.tr("Tooltip_SuperInputHatchME_05");
+
+    // #tr Info_SuperInputHatchME_00
+    // # Configure extraction amount
+    // # zh_CN 设置指定抽取数量
+    public static final String SUPER_AMOUNT = TextEnums.tr("Info_SuperInputHatchME_00");
+
+    // #tr Info_SuperInputHatchME_01
+    // # Slot:
+    // # zh_CN 槽位：
+    public static final String SUPER_SLOT = TextEnums.tr("Info_SuperInputHatchME_01");
+
+    // #tr gtnc.energy_monitor.owner
+    // # Owner: %s
+    // # zh_CN 所有者：%s
+    public static final String ENERGY_OWNER = TextEnums.tr("gtnc.energy_monitor.owner");
+
+    // #tr gtnc.energy_monitor.total_energy
+    // # Total Energy: %s
+    // # zh_CN 能源总量：%s
+    public static final String ENERGY_TOTAL = TextEnums.tr("gtnc.energy_monitor.total_energy");
+
+    // #tr gtnc.energy_monitor.average_input
+    // # Average Input: %s EU/t (%sA %s)
+    // # zh_CN 平均输入：%s EU/t（%sA %s）
+    public static final String ENERGY_INPUT = TextEnums.tr("gtnc.energy_monitor.average_input");
+
+    // #tr gtnc.energy_monitor.average_output
+    // # Average Output: %s EU/t (%sA %s)
+    // # zh_CN 平均输出：%s EU/t（%sA %s）
+    public static final String ENERGY_OUTPUT = TextEnums.tr("gtnc.energy_monitor.average_output");
+
+    // #tr gtnc.energy_monitor.estimated_full
+    // # Estimated Full Time: %s
+    // # zh_CN 预计充满时间：%s
+    public static final String ENERGY_FULL = TextEnums.tr("gtnc.energy_monitor.estimated_full");
+
+    // #tr gtnc.energy_monitor.estimated_empty
+    // # Estimated Empty Time: %s
+    // # zh_CN 预计耗空时间：%s
+    public static final String ENERGY_EMPTY = TextEnums.tr("gtnc.energy_monitor.estimated_empty");
+
+    // #tr gtnc.energy_monitor.statistics
+    // # Power Statistics:
+    // # zh_CN 用电统计：
+    public static final String ENERGY_STATS = TextEnums.tr("gtnc.energy_monitor.statistics");
+
+    // #tr gtnc.energy_monitor.mode.wired
+    // # Wired
+    // # zh_CN 有线
+    public static final String ENERGY_WIRED = TextEnums.tr("gtnc.energy_monitor.mode.wired");
+
+    // #tr gtnc.energy_monitor.mode.wireless
+    // # Wireless
+    // # zh_CN 无线
+    public static final String ENERGY_WIRELESS = TextEnums.tr("gtnc.energy_monitor.mode.wireless");
+
+    // #tr gtnc.energy_monitor.mode.all
+    // # All
+    // # zh_CN 全部
+    public static final String ENERGY_ALL = TextEnums.tr("gtnc.energy_monitor.mode.all");
+
+    // #tr gtnc.energy_monitor.never_fill
+    // # Never
+    // # zh_CN 永远不会
+    public static final String ENERGY_NEVER = TextEnums.tr("gtnc.energy_monitor.never_fill");
+
+    // #tr gtnc.energy_monitor.scroll_more
+    // # Scroll down to show more
+    // # zh_CN 向下滚动以显示更多
+    public static final String ENERGY_MORE = TextEnums.tr("gtnc.energy_monitor.scroll_more");
+
+    // #tr gtnc.energy_monitor.tooltip
+    // # Dimension: %s [%s, %s, %s] Owner: %s
+    // # zh_CN 维度：%s [%s, %s, %s] 所有者：%s
+    public static final String ENERGY_TOOLTIP = TextEnums.tr("gtnc.energy_monitor.tooltip");
+
+    // #tr gtnc.energy_monitor.mode_hint
+    // # Left-click or right-click to switch mode
+    // # zh_CN 左键或右键切换模式
+    public static final String ENERGY_MODE_HINT = TextEnums.tr("gtnc.energy_monitor.mode_hint");
+
+    // #tr gtnc.energy_monitor.time.year
+    // # y
+    // # zh_CN 年
+    public static final String ENERGY_YEAR = TextEnums.tr("gtnc.energy_monitor.time.year");
+
+    // #tr gtnc.energy_monitor.time.month
+    // # mo
+    // # zh_CN 月
+    public static final String ENERGY_MONTH = TextEnums.tr("gtnc.energy_monitor.time.month");
+
+    // #tr gtnc.energy_monitor.time.day
+    // # d
+    // # zh_CN 天
+    public static final String ENERGY_DAY = TextEnums.tr("gtnc.energy_monitor.time.day");
+
+    // #tr gtnc.energy_monitor.time.hour
+    // # h
+    // # zh_CN 时
+    public static final String ENERGY_HOUR = TextEnums.tr("gtnc.energy_monitor.time.hour");
+
+    // #tr gtnc.energy_monitor.time.minute
+    // # m
+    // # zh_CN 分
+    public static final String ENERGY_MINUTE = TextEnums.tr("gtnc.energy_monitor.time.minute");
+
+    // #tr gtnc.energy_monitor.time.second
+    // # s
+    // # zh_CN 秒
+    public static final String ENERGY_SECOND = TextEnums.tr("gtnc.energy_monitor.time.second");
+    // #tr Tooltip_EnergyMonitor_00
+    // # Monitor total stored energy and current energy use
+    // # zh_CN 监控能源总量和当前能源消耗
+    public static final String Tooltip_EnergyMonitor_00 = TextEnums.tr("Tooltip_EnergyMonitor_00");
+
+    // #tr Tooltip_AdvancedSuperInputBusME_00
+    // # Auto-pull stocks the first 100 item types in the ME network and refreshes every 5 seconds.
+    // # zh_CN 自动拉取会标记 ME 网络中的前 100 种物品，并每 5 秒刷新
+    public static final String ADVANCED_SUPER_BUS_00 = TextEnums.tr("Tooltip_AdvancedSuperInputBusME_00");
+
+    // #tr Tooltip_AdvancedSuperInputBusME_01
+    // # Toggle with a screwdriver or in the GUI.
+    // # zh_CN 使用螺丝刀或 GUI 切换
+    public static final String ADVANCED_SUPER_BUS_01 = TextEnums.tr("Tooltip_AdvancedSuperInputBusME_01");
+
+    // #tr Tooltip_AdvancedSuperInputBusME_02
+    // # Configure minimum auto-pull stack size and fast recipe checks in the GUI.
+    // # zh_CN 在 GUI 中配置自动拉取最小堆叠数和快速配方检查
+    public static final String ADVANCED_SUPER_BUS_02 = TextEnums.tr("Tooltip_AdvancedSuperInputBusME_02");
+
+    // #tr Tooltip_AdvancedSuperInputBusME_03
+    // # Warning: fast recipe checks may cause lag.
+    // # zh_CN 警告：快速配方检查可能造成卡顿
+    public static final String ADVANCED_SUPER_BUS_03 = TextEnums.tr("Tooltip_AdvancedSuperInputBusME_03");
+
+    // #tr Tooltip_AdvancedSuperInputHatchME_00
+    // # Auto-pull stocks the first 100 fluid types in the ME network and refreshes every 5 seconds.
+    // # zh_CN 自动拉取会标记 ME 网络中的前 100 种流体，并每 5 秒刷新
+    public static final String ADVANCED_SUPER_HATCH_00 = TextEnums.tr("Tooltip_AdvancedSuperInputHatchME_00");
+
+    // #tr Tooltip_AdvancedSuperInputHatchME_01
+    // # Toggle with a screwdriver or in the GUI.
+    // # zh_CN 使用螺丝刀或 GUI 切换
+    public static final String ADVANCED_SUPER_HATCH_01 = TextEnums.tr("Tooltip_AdvancedSuperInputHatchME_01");
+
+    // #tr Tooltip_AdvancedSuperInputHatchME_02
+    // # Configure auto-pull amount, refresh time, and fast recipe checks in the GUI.
+    // # zh_CN 在 GUI 中配置自动拉取数量、刷新时间和快速配方检查
+    public static final String ADVANCED_SUPER_HATCH_02 = TextEnums.tr("Tooltip_AdvancedSuperInputHatchME_02");
+
+    // #tr Tooltip_AdvancedSuperInputHatchME_03
+    // # Warning: fast recipe checks may cause lag.
+    // # zh_CN 警告：快速配方检查可能造成卡顿
+    public static final String ADVANCED_SUPER_HATCH_03 = TextEnums.tr("Tooltip_AdvancedSuperInputHatchME_03");
 
 }

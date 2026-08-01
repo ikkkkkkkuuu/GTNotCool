@@ -8,6 +8,8 @@
   "mixins": [
     "minecraft.MixinInventoryCrafting",
     "minecraft.VanillaFurnaceMixin",
-    "early.gregtech.AccessorGTLanguageManager"
+    "early.gregtech.AccessorGTLanguageManager",
+    "early.energyMonitor.MixinBaseMetaTileEntityEnergyMonitor",
+    "early.energyMonitor.MixinCommonMetaTileEntityEnergyMonitor"
   ]
 }

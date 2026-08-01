@@ -2,15 +2,14 @@ package com.xyp.gtnc.Common.gui.modularui.multiblock;
 
 import static gregtech.api.metatileentity.BaseTileEntity.TOOLTIP_DELAY;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.StatCollector;
 
 import com.cleanroommc.modularui.api.IPanelHandler;
 import com.cleanroommc.modularui.api.drawable.IKey;
@@ -27,13 +26,14 @@ import com.cleanroommc.modularui.widgets.layout.Flow;
 import com.cleanroommc.modularui.widgets.slot.ItemSlot;
 import com.cleanroommc.modularui.widgets.slot.ModularSlot;
 import com.xyp.gtnc.Common.gui.modularui.GTNCGuiTextures;
+import com.xyp.gtnc.Common.machines.multiblock.multiMachineBase.UpgradeTreeHelper;
+import com.xyp.gtnc.utils.lang.TextLocalization;
 
 import codechicken.nei.recipe.GuiCraftingRecipe;
 import codechicken.nei.recipe.GuiUsageRecipe;
 import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
 import gregtech.api.modularui2.GTGuiTextures;
 import gregtech.api.modularui2.GTWidgetThemes;
-import gregtech.api.util.GTUtility;
 import gregtech.api.util.StringUtils;
 import gregtech.common.modularui2.widget.SlotLikeButtonWidget;
 
@@ -48,7 +48,12 @@ import gregtech.common.modularui2.widget.SlotLikeButtonWidget;
 public abstract class GTNCUpgradeableMultiBlockBaseGui<T extends MTEMultiBlockBase>
     extends GTNCModernMultiBlockBaseGui<T> {
 
+    private static final int DISPLAYED_COST_COUNT = 12;
+
     protected final Set<Integer> paidCostIndices = new HashSet<>();
+    private int syncedUpgradeTier;
+    private int syncedUpgradeSpeedPercent = 100;
+    private int syncedUpgradeParallel;
 
     protected GTNCUpgradeableMultiBlockBaseGui(T multiblock) {
         super(multiblock);
@@ -60,7 +65,13 @@ public abstract class GTNCUpgradeableMultiBlockBaseGui<T extends MTEMultiBlockBa
 
     protected abstract boolean isUpgradeTreeSupported();
 
-    protected abstract void onUpgradeComplete();
+    protected abstract boolean tryApplyUpgrade(ItemStackHandler inputs);
+
+    protected abstract int getUpgradeTier();
+
+    protected abstract int getUpgradeSpeedPercent();
+
+    protected abstract int getUpgradeParallel();
 
     protected ButtonWidget<?> createUpgradeTreeButton(ModularPanel panel, PanelSyncManager syncManager) {
         IPanelHandler upgradePanel = syncManager
@@ -76,7 +87,7 @@ public abstract class GTNCUpgradeableMultiBlockBaseGui<T extends MTEMultiBlockBa
                 }
                 return true;
             })
-            .tooltip(t -> t.addLine(StatCollector.translateToLocal("GTNC_gui_button_upgrade_tree")))
+            .tooltip(t -> t.addLine(TextLocalization.GUI_UPGRADE_TREE_BUTTON))
             .tooltipShowUpTimer(TOOLTIP_DELAY);
         return applyModernStateButton(button, upgradePanel::isPanelOpen, this::isUpgradeTreeSupported);
     }
@@ -84,29 +95,45 @@ public abstract class GTNCUpgradeableMultiBlockBaseGui<T extends MTEMultiBlockBa
     protected ModularPanel createUpgradeTreePanel(PanelSyncManager syncManager, ModularPanel parent) {
         ItemStackHandler handler = new ItemStackHandler(16);
         syncManager.registerSlotGroup("upgradeTreeInput", 16);
+        syncManager.addCloseListener(player -> returnUpgradeInputs(handler, player));
 
         ModularPanel panel = new ModularPanel("upgradeTreePanel").relative(parent)
             .leftRelOffset(0, 4)
             .topRelOffset(0, 3)
-            .size(190, 115)
+            .size(190, 125)
             .background(GTNCGuiTextures.MODERN_VAULT_PANEL_BORDER)
             .disableHoverBackground()
             .child(applyModernButton(ButtonWidget.panelCloseButton(), () -> true));
 
         panel.child(
-            IKey.str("Pay Upgrade Costs")
+            IKey.str(TextLocalization.GUI_UPGRADE_TREE_TITLE)
                 .style(EnumChatFormatting.GRAY)
                 .alignment(Alignment.CENTER)
                 .asWidget()
                 .horizontalCenter()
                 .marginTop(5));
 
+        registerUpgradeStateSyncValues(syncManager);
+        panel.child(
+            IKey.dynamic(
+                () -> String.format(
+                    TextLocalization.GUI_UPGRADE_TREE_STATUS,
+                    syncedUpgradeTier,
+                    syncedUpgradeSpeedPercent / 100.0f,
+                    syncedUpgradeParallel))
+                .style(EnumChatFormatting.DARK_GRAY)
+                .alignment(Alignment.CENTER)
+                .scale(0.75f)
+                .asWidget()
+                .horizontalCenter()
+                .marginTop(16));
+
         Flow mainRow = Flow.row()
             .size(180, 72)
             .topRel(0)
             .leftRel(0)
             .marginLeft(5)
-            .marginTop(16);
+            .marginTop(27);
 
         List<ItemStack> costs = getUpgradeCosts();
         paidCostIndices.clear();
@@ -114,12 +141,12 @@ public abstract class GTNCUpgradeableMultiBlockBaseGui<T extends MTEMultiBlockBa
         syncManager.syncValue("paidBits", new IntSyncValue(() -> {
             int bits = 0;
             for (int index : getMachinePaidUpgradeCostIndices()) {
-                if (index < 12) bits |= 1 << index;
+                if (index >= 0 && index < DISPLAYED_COST_COUNT) bits |= 1 << index;
             }
             return bits;
         }, bits -> {
             paidCostIndices.clear();
-            for (int i = 0; i < 12; i++) {
+            for (int i = 0; i < DISPLAYED_COST_COUNT; i++) {
                 if ((bits & 1 << i) != 0) paidCostIndices.add(i);
             }
         }));
@@ -127,17 +154,17 @@ public abstract class GTNCUpgradeableMultiBlockBaseGui<T extends MTEMultiBlockBa
         mainRow.child(buildCostColumn(costs, 0));
         mainRow.child(buildCostColumn(costs, 4));
         mainRow.child(buildCostColumn(costs, 8));
-        mainRow.child(buildUpgradeSlotGrid(handler, "upgradeTreeInput"));
+        mainRow.child(buildUpgradeSlotGrid(handler, costs, "upgradeTreeInput"));
         panel.child(mainRow);
 
         InteractionSyncHandler upgradeSync = new InteractionSyncHandler().setOnMousePressed(mouseData -> {
             if (!mouseData.isClient()) {
-                performUpgrade(handler);
+                tryApplyUpgrade(handler);
             }
         });
         ButtonWidget<?> consumeButton = new ButtonWidget<>().syncHandler(upgradeSync)
             .overlay(
-                IKey.str("Consume Upgrade Materials")
+                IKey.str(TextLocalization.GUI_UPGRADE_TREE_CONSUME)
                     .style(EnumChatFormatting.LIGHT_PURPLE)
                     .alignment(Alignment.CENTER)
                     .scale(0.75f))
@@ -168,7 +195,8 @@ public abstract class GTNCUpgradeableMultiBlockBaseGui<T extends MTEMultiBlockBa
                 GTNCGuiTextures.MODERN_BUTTON_DISABLED.asWidget()
                     .size(18)
                     .setEnabledIf($ -> index >= costs.size()))
-            .child(new SlotLikeButtonWidget(() -> costs.get(index)).onMousePressed(d -> {
+            .child(new SlotLikeButtonWidget(() -> index < costs.size() ? costs.get(index) : null).onMousePressed(d -> {
+                if (index >= costs.size()) return false;
                 ItemStack stack = costs.get(index);
                 if (d == 0) {
                     GuiCraftingRecipe.openRecipeGui("item", stack);
@@ -203,7 +231,7 @@ public abstract class GTNCUpgradeableMultiBlockBaseGui<T extends MTEMultiBlockBa
                     .setEnabledIf($ -> paidCostIndices.contains(index)));
     }
 
-    protected SlotGroupWidget buildUpgradeSlotGrid(ItemStackHandler handler, String group) {
+    protected SlotGroupWidget buildUpgradeSlotGrid(ItemStackHandler handler, List<ItemStack> costs, String group) {
         String[] matrix = new String[4];
         String repeat = StringUtils.getRepetitionOf('s', 4);
         Arrays.fill(matrix, repeat);
@@ -211,53 +239,37 @@ public abstract class GTNCUpgradeableMultiBlockBaseGui<T extends MTEMultiBlockBa
             .matrix(matrix)
             .key(
                 's',
-                i -> new ItemSlot().slot(new ModularSlot(handler, i).slotGroup(group))
+                i -> new ItemSlot()
+                    .slot(
+                        new ModularSlot(handler, i).filter(stack -> UpgradeTreeHelper.isUpgradeCost(costs, stack))
+                            .slotGroup(group))
                     .background(GTNCGuiTextures.MODERN_VAULT_ITEM_SLOT))
             .build()
             .rightRel(0);
     }
 
-    protected void performUpgrade(ItemStackHandler handler) {
-        List<ItemStack> costs = getUpgradeCosts();
-        if (costs.isEmpty()) return;
+    private void registerUpgradeStateSyncValues(PanelSyncManager syncManager) {
+        syncManager.syncValue(
+            "upgradeTier",
+            new IntSyncValue(this::getUpgradeTier, value -> syncedUpgradeTier = Math.max(0, value)));
+        syncManager.syncValue(
+            "upgradeSpeedPercent",
+            new IntSyncValue(this::getUpgradeSpeedPercent, value -> syncedUpgradeSpeedPercent = Math.max(1, value)));
+        syncManager.syncValue(
+            "upgradeParallel",
+            new IntSyncValue(this::getUpgradeParallel, value -> syncedUpgradeParallel = Math.max(0, value)));
+    }
 
-        List<ItemStack> inputs = new ArrayList<>();
-        for (int i = 0; i < handler.getSlots(); i++) {
-            ItemStack stack = handler.getStackInSlot(i);
-            if (stack != null) inputs.add(stack.copy());
-        }
-
-        boolean foundMatch = false;
-        Set<Integer> paidIndices = getMachinePaidUpgradeCostIndices();
-        for (int index = 0; index < costs.size(); index++) {
-            if (paidIndices.contains(index)) continue;
-            ItemStack cost = costs.get(index);
-            int remaining = cost.stackSize;
-            for (ItemStack input : inputs) {
-                if (GTUtility.areStacksEqual(cost, input)) {
-                    remaining -= input.stackSize;
-                    if (remaining <= 0) break;
-                }
+    private void returnUpgradeInputs(ItemStackHandler handler, EntityPlayer player) {
+        if (player == null || player.worldObj == null || player.worldObj.isRemote) return;
+        for (int slot = 0; slot < handler.getSlots(); slot++) {
+            ItemStack stack = handler.extractItem(slot, Integer.MAX_VALUE, false);
+            if (stack == null) continue;
+            player.inventory.addItemStackToInventory(stack);
+            if (stack.stackSize > 0) {
+                player.dropPlayerItemWithRandomChoice(stack, false);
             }
-            if (remaining > 0) continue;
-
-            foundMatch = true;
-            remaining = cost.stackSize;
-            for (int slotIndex = 0; slotIndex < handler.getSlots() && remaining > 0; slotIndex++) {
-                ItemStack slot = handler.getStackInSlot(slotIndex);
-                if (slot != null && GTUtility.areStacksEqual(cost, slot)) {
-                    int take = Math.min(remaining, slot.stackSize);
-                    slot.stackSize -= take;
-                    remaining -= take;
-                    if (slot.stackSize <= 0) handler.setStackInSlot(slotIndex, null);
-                }
-            }
-            paidIndices.add(index);
-            paidCostIndices.add(index);
-            break;
         }
-        if (foundMatch) {
-            onUpgradeComplete();
-        }
+        player.inventoryContainer.detectAndSendChanges();
     }
 }

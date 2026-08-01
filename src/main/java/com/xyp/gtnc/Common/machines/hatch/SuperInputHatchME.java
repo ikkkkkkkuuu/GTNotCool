@@ -1,0 +1,1175 @@
+package com.xyp.gtnc.Common.machines.hatch;
+
+import static com.xyp.gtnc.utils.lang.TextLocalization.ADVANCED_SUPER_HATCH_00;
+import static com.xyp.gtnc.utils.lang.TextLocalization.ADVANCED_SUPER_HATCH_01;
+import static com.xyp.gtnc.utils.lang.TextLocalization.ADVANCED_SUPER_HATCH_02;
+import static com.xyp.gtnc.utils.lang.TextLocalization.ADVANCED_SUPER_HATCH_03;
+import static com.xyp.gtnc.utils.lang.TextLocalization.SUPER_AMOUNT;
+import static com.xyp.gtnc.utils.lang.TextLocalization.SUPER_HATCH_00;
+import static com.xyp.gtnc.utils.lang.TextLocalization.SUPER_HATCH_01;
+import static com.xyp.gtnc.utils.lang.TextLocalization.SUPER_HATCH_02;
+import static com.xyp.gtnc.utils.lang.TextLocalization.SUPER_HATCH_03;
+import static com.xyp.gtnc.utils.lang.TextLocalization.SUPER_HATCH_04;
+import static com.xyp.gtnc.utils.lang.TextLocalization.SUPER_HATCH_05;
+import static com.xyp.gtnc.utils.lang.TextLocalization.SUPER_SLOT;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.Iterator;
+import java.util.List;
+
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.StatCollector;
+import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidTankInfo;
+import net.minecraftforge.fluids.IFluidTank;
+
+import com.cleanroommc.modularui.factory.PosGuiData;
+import com.cleanroommc.modularui.screen.ModularPanel;
+import com.cleanroommc.modularui.screen.UISettings;
+import com.cleanroommc.modularui.value.sync.PanelSyncManager;
+import com.gtnewhorizons.modularui.api.ModularUITextures;
+import com.gtnewhorizons.modularui.api.drawable.IDrawable;
+import com.gtnewhorizons.modularui.api.drawable.Text;
+import com.gtnewhorizons.modularui.api.math.Alignment;
+import com.gtnewhorizons.modularui.api.math.Color;
+import com.gtnewhorizons.modularui.api.math.Size;
+import com.gtnewhorizons.modularui.api.screen.ModularWindow;
+import com.gtnewhorizons.modularui.api.screen.UIBuildContext;
+import com.gtnewhorizons.modularui.api.widget.Interactable;
+import com.gtnewhorizons.modularui.common.fluid.FluidStackTank;
+import com.gtnewhorizons.modularui.common.widget.ButtonWidget;
+import com.gtnewhorizons.modularui.common.widget.CycleButtonWidget;
+import com.gtnewhorizons.modularui.common.widget.DrawableWidget;
+import com.gtnewhorizons.modularui.common.widget.FakeSyncWidget;
+import com.gtnewhorizons.modularui.common.widget.FluidSlotWidget;
+import com.gtnewhorizons.modularui.common.widget.Scrollable;
+import com.gtnewhorizons.modularui.common.widget.SlotGroup;
+import com.gtnewhorizons.modularui.common.widget.TextWidget;
+import com.gtnewhorizons.modularui.common.widget.textfield.NumericWidget;
+import com.xyp.gtnc.Common.gui.modularui.hatch.SuperInputHatchMEGui;
+import com.xyp.gtnc.utils.enums.GTNCItemList;
+import com.xyp.gtnc.utils.item.ItemUtils;
+
+import appeng.api.config.Actionable;
+import appeng.api.config.PowerMultiplier;
+import appeng.api.networking.GridFlags;
+import appeng.api.networking.security.BaseActionSource;
+import appeng.api.networking.security.IActionHost;
+import appeng.api.networking.security.MachineSource;
+import appeng.api.storage.IMEMonitor;
+import appeng.api.storage.data.IAEFluidStack;
+import appeng.core.localization.WailaText;
+import appeng.me.GridAccessException;
+import appeng.me.helpers.AENetworkProxy;
+import appeng.me.helpers.IGridProxyable;
+import appeng.util.item.AEFluidStack;
+import gregtech.api.enums.GTValues;
+import gregtech.api.gui.modularui.GTUITextures;
+import gregtech.api.interfaces.IConfigurationCircuitSupport;
+import gregtech.api.interfaces.ITexture;
+import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
+import gregtech.api.metatileentity.MetaTileEntity;
+import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;
+import gregtech.api.recipe.check.CheckRecipeResult;
+import gregtech.api.recipe.check.CheckRecipeResultRegistry;
+import gregtech.api.recipe.check.SimpleCheckRecipeResult;
+import gregtech.api.util.GTUtility;
+import gregtech.api.util.shutdown.ShutDownReasonRegistry;
+import gregtech.common.tileentities.machines.MTEHatchInputME;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+
+public class SuperInputHatchME extends MTEHatchInputME implements IConfigurationCircuitSupport {
+
+    public static int SLOT_COUNT = 100;
+    public static final FluidStack[] EMPTY_FLUID_STACK = new FluidStack[0];
+    public static final int CONFIG_WINDOW_ID = 10;
+
+    public FluidStack[] storedFluids = new FluidStack[SLOT_COUNT];
+    public FluidStack[] storedInformationFluids = new FluidStack[SLOT_COUNT];
+    public int[] storedStackSizes = new int[SLOT_COUNT];
+    {
+        Arrays.fill(storedStackSizes, Integer.MAX_VALUE);
+    }
+
+    // these two fields should ALWAYS be mutated simultaneously
+    // in most cases, you should call setSavedFluid() instead of trying to write to the array directly
+    // a desync of these two fields can lead to catastrophe
+    public FluidStack[] shadowStoredFluids = new FluidStack[SLOT_COUNT];
+    public int[] savedStackSizes = new int[SLOT_COUNT];
+
+    public boolean additionalConnection = false;
+
+    public boolean autoPullAvailable;
+    public int autoPullRefreshTime = 100;
+    public boolean justHadNewFluids = false;
+    public boolean expediteRecipeCheck = false;
+
+    public SuperInputHatchME(int aID, boolean autoPullAvailable, String aName, String aNameRegional) {
+        super(aID, autoPullAvailable, aName, aNameRegional);
+        this.autoPullAvailable = autoPullAvailable;
+    }
+
+    public SuperInputHatchME(String aName, boolean autoPullAvailable, int aTier, String[] aDescription,
+        ITexture[][][] aTextures) {
+        super(aName, autoPullAvailable, aTier, aDescription, aTextures);
+        this.autoPullAvailable = autoPullAvailable;
+    }
+
+    @Override
+    public MetaTileEntity newMetaEntity(IGregTechTileEntity aTileEntity) {
+        return new SuperInputHatchME(mName, autoPullAvailable, mTier, mDescriptionArray, mTextures);
+    }
+
+    @Override
+    public String[] getDescription() {
+        List<String> strings = new ArrayList<>(8);
+        strings.add(SUPER_HATCH_00);
+        strings.add(
+            SUPER_HATCH_01 + GTValues.TIER_COLORS[autoPullAvailable ? 10 : 9]
+                + GTValues.VN[autoPullAvailable ? 10 : 9]);
+        strings.add(SUPER_HATCH_02);
+        strings.add(SUPER_HATCH_03);
+
+        if (autoPullAvailable) {
+            strings.add(ADVANCED_SUPER_HATCH_00);
+            strings.add(ADVANCED_SUPER_HATCH_01);
+            strings.add(ADVANCED_SUPER_HATCH_02);
+            strings.add(ADVANCED_SUPER_HATCH_03);
+        }
+
+        strings.add(SUPER_HATCH_04);
+        strings.add(SUPER_HATCH_05);
+        return strings.toArray(new String[0]);
+    }
+
+    @Override
+    public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTimer) {
+        if (aBaseMetaTileEntity.isServerSide()) {
+            if (aTimer % autoPullRefreshTime == 0 && autoPullFluidList) {
+                refreshFluidList();
+                updateAllInformationSlots();
+            }
+            if (aTimer % 20 == 0) {
+                aBaseMetaTileEntity.setActive(isActive());
+            }
+        }
+        super.onPostTick(aBaseMetaTileEntity, aTimer);
+    }
+
+    public void refreshFluidList() {
+        AENetworkProxy proxy = getProxy();
+        if (proxy == null || !proxy.isActive()) {
+            clearInformationFluids();
+            return;
+        }
+
+        try {
+            IMEMonitor<IAEFluidStack> sg = proxy.getStorage()
+                .getFluidInventory();
+            Iterator<IAEFluidStack> iterator = sg.getStorageList()
+                .iterator();
+
+            int index = 0;
+            while (iterator.hasNext() && index < SLOT_COUNT) {
+                IAEFluidStack currItem = iterator.next();
+                if (currItem.getStackSize() >= minAutoPullAmount) {
+                    FluidStack fluidStack = GTUtility.copyAmount(
+                        storedStackSizes[index] == Integer.MAX_VALUE ? 1 : storedStackSizes[index],
+                        currItem.getFluidStack());
+                    if (expediteRecipeCheck) {
+                        FluidStack previous = storedFluids[index];
+                        if (fluidStack != null && previous != null) {
+                            justHadNewFluids = !fluidStack.isFluidEqual(previous);
+                        }
+                    }
+                    storedFluids[index] = fluidStack;
+                    index++;
+                }
+            }
+
+            for (int i = index; i < SLOT_COUNT; i++) {
+                storedFluids[i] = null;
+                storedInformationFluids[i] = null;
+            }
+        } catch (final GridAccessException ignored) {}
+    }
+
+    public void setSavedFluid(int i, FluidStack stack) {
+        shadowStoredFluids[i] = stack;
+        savedStackSizes[i] = stack == null ? 0 : stack.amount;
+    }
+
+    @Override
+    public FluidStack[] getStoredFluids() {
+        if (!isAllowedToWork()) {
+            return EMPTY_FLUID_STACK;
+        }
+
+        AENetworkProxy proxy = getProxy();
+        if (proxy == null || !proxy.isActive()) {
+            return EMPTY_FLUID_STACK;
+        }
+
+        if (!processingRecipe) {
+            List<FluidStack> fluids = new ObjectArrayList<>(SLOT_COUNT);
+            for (FluidStack fluidStack : storedFluids) {
+                if (fluidStack != null) {
+                    fluids.add(GTUtility.copyAmount(1, fluidStack));
+                }
+            }
+            return fluids.toArray(EMPTY_FLUID_STACK);
+        }
+
+        updateAllInformationSlots();
+
+        for (int i = 0; i < SLOT_COUNT; i++) {
+            if (savedStackSizes[i] != 0 || shadowStoredFluids[i] != null) {
+                continue;
+            }
+
+            if (storedFluids[i] == null) {
+                setSavedFluid(i, null);
+                continue;
+            }
+
+            FluidStack fluidStackWithAmount = storedInformationFluids[i];
+
+            setSavedFluid(i, fluidStackWithAmount);
+        }
+
+        return shadowStoredFluids;
+    }
+
+    @Override
+    public FluidTankInfo[] getTankInfo(ForgeDirection side) {
+        if (side != ForgeDirection.UNKNOWN || !isAllowedToWork()) {
+            return EMPTY_FLUID_TANK_INFOS;
+        }
+
+        if (processingRecipe) {
+            List<FluidTankInfo> tanks = new ObjectArrayList<>(SLOT_COUNT);
+            for (FluidStack fluidStack : getStoredFluids()) {
+                if (fluidStack != null && fluidStack.amount > 0) {
+                    tanks.add(new FluidTankInfo(fluidStack, Integer.MAX_VALUE));
+                }
+            }
+            return tanks.toArray(EMPTY_FLUID_TANK_INFOS);
+        }
+
+        updateAllInformationSlots();
+
+        List<FluidTankInfo> tanks = new ObjectArrayList<>(SLOT_COUNT);
+        for (FluidStack fluidStack : storedInformationFluids) {
+            if (fluidStack != null && fluidStack.amount > 0) {
+                tanks.add(new FluidTankInfo(fluidStack, Integer.MAX_VALUE));
+            }
+        }
+        return tanks.toArray(EMPTY_FLUID_TANK_INFOS);
+    }
+
+    public boolean justUpdated() {
+        if (expediteRecipeCheck && isAllowedToWork()) {
+            boolean ret = justHadNewFluids;
+            justHadNewFluids = false;
+            return ret;
+        }
+        return false;
+    }
+
+    @Override
+    public FluidStack drain(ForgeDirection side, FluidStack aFluid, boolean doDrain) {
+        return drain(side, aFluid, aFluid == null ? 0 : aFluid.amount, doDrain);
+    }
+
+    @Override
+    public FluidStack drain(ForgeDirection side, FluidStack aFluid, int amount, boolean doDrain) {
+        // this is an ME input hatch. allowing draining via logistics would be very wrong (and against
+        // canTankBeEmptied()) but we do need to support draining from controller, which uses the UNKNOWN direction.
+        if (side != ForgeDirection.UNKNOWN) return null;
+        if (aFluid == null || amount <= 0) return null;
+        FluidStack stored = getMatchingFluidStack(aFluid);
+        if (stored == null) return null;
+        FluidStack drained = GTUtility.copyAmount(Math.min(stored.amount, amount), stored);
+        if (doDrain) {
+            stored.amount -= drained.amount;
+        }
+        return drained;
+    }
+
+    @Override
+    public void startRecipeProcessing() {
+        processingRecipe = true;
+        updateAllInformationSlots();
+    }
+
+    @Override
+    public CheckRecipeResult endRecipeProcessing(MTEMultiBlockBase controller) {
+        CheckRecipeResult checkRecipeResult = CheckRecipeResultRegistry.SUCCESSFUL;
+        AENetworkProxy proxy = getProxy();
+
+        for (int i = 0; i < SLOT_COUNT; ++i) {
+            FluidStack oldStack = shadowStoredFluids[i];
+            int toExtract = savedStackSizes[i] - (oldStack != null ? oldStack.amount : 0);
+            if (toExtract <= 0) continue;
+
+            try {
+                IMEMonitor<IAEFluidStack> sg = proxy.getStorage()
+                    .getFluidInventory();
+
+                IAEFluidStack request = AEFluidStack.create(storedFluids[i]);
+                request.setStackSize(toExtract);
+                IAEFluidStack extractionResult = sg.extractItems(request, Actionable.MODULATE, getRequestSource());
+                proxy.getEnergy()
+                    .extractAEPower(toExtract, Actionable.MODULATE, PowerMultiplier.CONFIG);
+
+                if (extractionResult == null || extractionResult.getStackSize() != toExtract) {
+                    controller.stopMachine(ShutDownReasonRegistry.CRITICAL_NONE);
+                    checkRecipeResult = SimpleCheckRecipeResult
+                        .ofFailurePersistOnShutdown("stocking_hatch_fail_extraction");
+                }
+            } catch (GridAccessException ignored) {
+                controller.stopMachine(ShutDownReasonRegistry.CRITICAL_NONE);
+                checkRecipeResult = SimpleCheckRecipeResult
+                    .ofFailurePersistOnShutdown("stocking_hatch_fail_extraction");
+            }
+            setSavedFluid(i, null);
+            if (storedInformationFluids[i] != null && storedInformationFluids[i].amount <= 0) {
+                storedInformationFluids[i] = null;
+            }
+        }
+
+        processingRecipe = false;
+        return checkRecipeResult;
+    }
+
+    @Override
+    public void onFirstTick(IGregTechTileEntity aBaseMetaTileEntity) {
+        super.onFirstTick(aBaseMetaTileEntity);
+        getProxy().onReady();
+    }
+
+    public void updateValidGridProxySides() {
+        if (additionalConnection) {
+            getProxy().setValidSides(EnumSet.complementOf(EnumSet.of(ForgeDirection.UNKNOWN)));
+        } else {
+            getProxy().setValidSides(EnumSet.of(getBaseMetaTileEntity().getFrontFacing()));
+        }
+    }
+
+    @Override
+    public void onFacingChange() {
+        updateValidGridProxySides();
+    }
+
+    @Override
+    public boolean onWireCutterRightClick(ForgeDirection side, ForgeDirection wrenchingSide, EntityPlayer aPlayer,
+        float aX, float aY, float aZ, ItemStack aTool) {
+        additionalConnection = !additionalConnection;
+        updateValidGridProxySides();
+        aPlayer.addChatComponentMessage(
+            new ChatComponentTranslation("GT5U.hatch.additionalConnection." + additionalConnection));
+        return true;
+    }
+
+    @Override
+    public boolean connectsToAllSides() {
+        return additionalConnection;
+    }
+
+    @Override
+    public void setConnectsToAllSides(boolean connects) {
+        additionalConnection = connects;
+        updateValidGridProxySides();
+    }
+
+    @Override
+    public AENetworkProxy getProxy() {
+        if (gridProxy == null) {
+            if (getBaseMetaTileEntity() instanceof IGridProxyable) {
+                gridProxy = new AENetworkProxy(
+                    (IGridProxyable) getBaseMetaTileEntity(),
+                    "proxy",
+                    autoPullAvailable ? GTNCItemList.AdvancedSuperInputHatchME.get(1)
+                        : GTNCItemList.SuperInputHatchME.get(1),
+                    true);
+                gridProxy.setFlags(GridFlags.REQUIRE_CHANNEL);
+                updateValidGridProxySides();
+                if (getBaseMetaTileEntity().getWorld() != null) gridProxy.setOwner(
+                    getBaseMetaTileEntity().getWorld()
+                        .getPlayerEntityByName(getBaseMetaTileEntity().getOwnerName()));
+            }
+        }
+        return this.gridProxy;
+    }
+
+    @Override
+    public boolean isPowered() {
+        return getProxy() != null && getProxy().isPowered();
+    }
+
+    @Override
+    public boolean isActive() {
+        return getProxy() != null && getProxy().isActive();
+    }
+
+    public void setAutoPullFluidList(boolean pullFluidList) {
+        if (!autoPullAvailable) {
+            return;
+        }
+
+        autoPullFluidList = pullFluidList;
+        if (!autoPullFluidList) {
+            Arrays.fill(storedFluids, null);
+        } else {
+            refreshFluidList();
+        }
+        updateAllInformationSlots();
+    }
+
+    @Override
+    public boolean doFastRecipeCheck() {
+        return expediteRecipeCheck;
+    }
+
+    @Override
+    public void setRecipeCheck(boolean value) {
+        expediteRecipeCheck = value;
+    }
+
+    public void updateAllInformationSlots() {
+        for (int index = 0; index < SLOT_COUNT; index++) {
+            updateInformationSlot(index);
+        }
+    }
+
+    @Override
+    public void updateInformationSlot(int index) {
+        if (index < 0 || index >= SLOT_COUNT) {
+            return;
+        }
+
+        FluidStack fluidStack = storedFluids[index];
+        if (fluidStack == null) {
+            storedInformationFluids[index] = null;
+            return;
+        }
+
+        AENetworkProxy proxy = getProxy();
+        if (proxy == null || !proxy.isActive()) {
+            storedInformationFluids[index] = null;
+            return;
+        }
+
+        if (!isAllowedToWork()) {
+            storedInformationFluids[index] = null;
+            return;
+        }
+
+        try {
+            IMEMonitor<IAEFluidStack> sg = proxy.getStorage()
+                .getFluidInventory();
+            IAEFluidStack request = AEFluidStack.create(fluidStack);
+            request.setStackSize(storedStackSizes[index]);
+            IAEFluidStack result = sg.extractItems(request, Actionable.SIMULATE, getRequestSource());
+            FluidStack resultFluid = (result != null) ? result.getFluidStack() : null;
+            // We want to track if any FluidStack is modified to notify any connected controllers to make a recipe check
+            // early
+            if (expediteRecipeCheck) {
+                FluidStack previous = storedInformationFluids[index];
+                if (resultFluid != null) {
+                    justHadNewFluids = !resultFluid.isFluidEqual(previous);
+                }
+            }
+            storedInformationFluids[index] = resultFluid;
+        } catch (final GridAccessException ignored) {}
+    }
+
+    public BaseActionSource getRequestSource() {
+        if (requestSource == null) requestSource = new MachineSource((IActionHost) getBaseMetaTileEntity());
+        return requestSource;
+    }
+
+    public FluidStack getMatchingFluidStack(FluidStack fluidStack) {
+        if (fluidStack == null) return null;
+
+        AENetworkProxy proxy = getProxy();
+        if (proxy == null || !proxy.isActive()) {
+            return null;
+        }
+
+        for (int i = 0; i < storedFluids.length; i++) {
+            if (storedFluids[i] == null) {
+                continue;
+            }
+
+            if (GTUtility.areFluidsEqual(fluidStack, storedFluids[i], false)) {
+                if (processingRecipe && shadowStoredFluids[i] != null) {
+                    return shadowStoredFluids[i].amount > 0 ? shadowStoredFluids[i] : null;
+                }
+
+                updateInformationSlot(i);
+                if (storedInformationFluids[i] != null) {
+                    setSavedFluid(i, storedInformationFluids[i]);
+                    return shadowStoredFluids[i];
+                }
+
+                setSavedFluid(i, null);
+                return null;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Used to avoid slot update.
+     */
+    public FluidStack getShadowFluidStack(int index) {
+        if (index < 0 || index >= storedFluids.length) {
+            return null;
+        }
+
+        return shadowStoredFluids[index];
+    }
+
+    /**
+     * Gets the first non-null shadow fluid stack.
+     *
+     * @return The first shadow fluid stack, or null if this doesn't exist.
+     */
+    public FluidStack getFirstShadowFluidStack() {
+        return getFirstShadowFluidStack(false);
+    }
+
+    /**
+     * Gets the first non-null shadow fluid stack.
+     *
+     * @param hasToMatchGhost Whether the first fluid stack returned has to match the first non-null ghost stack
+     * @return The first shadow fluid stack, or null if this doesn't exist.
+     */
+    public FluidStack getFirstShadowFluidStack(boolean hasToMatchGhost) {
+        FluidStack fluidStack;
+        FluidStack lockedSlot = null;
+        if (hasToMatchGhost) {
+            byte slotToCheck = 0;
+            do {
+                lockedSlot = storedFluids[slotToCheck];
+                slotToCheck++;
+            } while (lockedSlot == null && slotToCheck < storedFluids.length);
+            if (lockedSlot == null) return null;
+        }
+        byte slotToCheck = 0;
+        do {
+            fluidStack = getShadowFluidStack(slotToCheck);
+            slotToCheck++;
+        } while ((fluidStack == null || !(hasToMatchGhost && lockedSlot.getFluid() == fluidStack.getFluid()))
+            && slotToCheck < getShadowStoredFluidsSize());
+        return fluidStack;
+    }
+
+    public int getShadowStoredFluidsSize() {
+        return shadowStoredFluids.length;
+    }
+
+    public int getFluidSlot(FluidStack fluidStack) {
+        if (fluidStack == null) return -1;
+
+        for (int i = 0; i < storedFluids.length; i++) {
+            if (storedFluids[i] == null) {
+                continue;
+            }
+
+            if (GTUtility.areFluidsEqual(fluidStack, storedFluids[i], false)) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    @Override
+    public void saveNBTData(NBTTagCompound aNBT) {
+        super.saveNBTData(aNBT);
+
+        NBTTagList stackSizeList = new NBTTagList();
+        NBTTagList nbtTagList = new NBTTagList();
+        for (int i = 0; i < SLOT_COUNT; i++) {
+            int size = storedStackSizes[i];
+            if (size != Integer.MAX_VALUE) {
+                NBTTagCompound tag = new NBTTagCompound();
+                tag.setInteger("slot", i);
+                tag.setInteger("size", size);
+                stackSizeList.appendTag(tag);
+            }
+
+            FluidStack fluidStack = storedFluids[i];
+            if (fluidStack == null) {
+                continue;
+            }
+            NBTTagCompound fluidTag = fluidStack.writeToNBT(new NBTTagCompound());
+            if (storedInformationFluids[i] != null)
+                fluidTag.setInteger("informationAmount", storedInformationFluids[i].amount);
+            nbtTagList.appendTag(fluidTag);
+        }
+
+        aNBT.setTag("storedStackSizes", stackSizeList);
+        aNBT.setTag("storedFluids", nbtTagList);
+        aNBT.setInteger("refreshTime", autoPullRefreshTime);
+        aNBT.setBoolean("additionalConnection", additionalConnection);
+        aNBT.setBoolean("expediteRecipeCheck", expediteRecipeCheck);
+        getProxy().writeToNBT(aNBT);
+    }
+
+    @Override
+    public void loadNBTData(NBTTagCompound aNBT) {
+        super.loadNBTData(aNBT);
+
+        if (aNBT.hasKey("storedStackSizes")) {
+            NBTTagList list = aNBT.getTagList("storedStackSizes", 10);
+            for (int i = 0; i < list.tagCount(); i++) {
+                NBTTagCompound tag = list.getCompoundTagAt(i);
+                int slot = tag.getInteger("slot");
+                int size = tag.getInteger("size");
+                if (slot < SLOT_COUNT) {
+                    storedStackSizes[slot] = size;
+                }
+            }
+        }
+
+        if (aNBT.hasKey("storedFluids")) {
+            NBTTagList nbtTagList = aNBT.getTagList("storedFluids", 10);
+            int c = Math.min(nbtTagList.tagCount(), SLOT_COUNT);
+            for (int i = 0; i < c; i++) {
+                NBTTagCompound nbtTagCompound = nbtTagList.getCompoundTagAt(i);
+                FluidStack fluidStack = GTUtility.loadFluid(nbtTagCompound);
+                storedFluids[i] = fluidStack;
+
+                if (nbtTagCompound.hasKey("informationAmount")) {
+                    int informationAmount = nbtTagCompound.getInteger("informationAmount");
+                    storedInformationFluids[i] = GTUtility.copyAmount(informationAmount, fluidStack);
+                }
+            }
+        }
+
+        additionalConnection = aNBT.getBoolean("additionalConnection");
+        expediteRecipeCheck = aNBT.getBoolean("expediteRecipeCheck");
+        if (aNBT.hasKey("refreshTime")) {
+            autoPullRefreshTime = aNBT.getInteger("refreshTime");
+        }
+        getProxy().readFromNBT(aNBT);
+        updateAE2ProxyColor();
+        updateValidGridProxySides();
+    }
+
+    @Override
+    public void onScrewdriverRightClick(ForgeDirection side, EntityPlayer aPlayer, float aX, float aY, float aZ,
+        ItemStack aTool) {
+        if (!autoPullAvailable) {
+            return;
+        }
+
+        setAutoPullFluidList(!autoPullFluidList);
+        aPlayer.addChatMessage(
+            new ChatComponentTranslation(
+                "GT5U.machines.stocking_hatch.auto_pull_toggle." + (autoPullFluidList ? "enabled" : "disabled")));
+    }
+
+    @Override
+    public boolean pasteCopiedData(EntityPlayer player, NBTTagCompound aNBT) {
+        if (aNBT == null || !COPIED_DATA_IDENTIFIER.equals(aNBT.getString("type"))) return false;
+
+        if (autoPullAvailable) {
+            setAutoPullFluidList(aNBT.getBoolean("autoPull"));
+            minAutoPullAmount = aNBT.getInteger("minAmount");
+            autoPullRefreshTime = aNBT.getInteger("refreshTime");
+            expediteRecipeCheck = aNBT.getBoolean("expediteRecipeCheck");
+        }
+        additionalConnection = aNBT.getBoolean("additionalConnection");
+
+        NBTTagList list = aNBT.getTagList("storedStackSizes", 10);
+        for (int i = 0; i < list.tagCount(); i++) {
+            NBTTagCompound tag = list.getCompoundTagAt(i);
+            int slot = tag.getInteger("slot");
+            int size = tag.getInteger("size");
+
+            if (slot < SLOT_COUNT) {
+                storedStackSizes[slot] = size;
+            }
+        }
+
+        if (!autoPullFluidList) {
+            NBTTagList stockingFluids = aNBT.getTagList("fluidsToStock", 10);
+            for (int i = 0; i < stockingFluids.tagCount(); i++) {
+                storedFluids[i] = GTUtility.loadFluid(stockingFluids.getCompoundTagAt(i));
+            }
+        }
+        updateValidGridProxySides();
+        byte color = aNBT.getByte("color");
+        this.getBaseMetaTileEntity()
+            .setColorization(color);
+        return true;
+    }
+
+    @Override
+    public NBTTagCompound getCopiedData(EntityPlayer player) {
+        NBTTagCompound aNBT = new NBTTagCompound();
+        aNBT.setString("type", COPIED_DATA_IDENTIFIER);
+        aNBT.setBoolean("autoPull", autoPullFluidList);
+        aNBT.setInteger("minAmount", minAutoPullAmount);
+        aNBT.setBoolean("additionalConnection", additionalConnection);
+        aNBT.setInteger("refreshTime", autoPullRefreshTime);
+        aNBT.setBoolean("expediteRecipeCheck", expediteRecipeCheck);
+        aNBT.setByte("color", this.getColor());
+
+        NBTTagList stackSizeList = new NBTTagList();
+        for (int i = 0; i < SLOT_COUNT; i++) {
+            int size = storedStackSizes[i];
+            if (size == Integer.MAX_VALUE) continue;
+            NBTTagCompound tag = new NBTTagCompound();
+            tag.setInteger("slot", i);
+            tag.setInteger("size", size);
+            stackSizeList.appendTag(tag);
+        }
+        aNBT.setTag("storedStackSizes", stackSizeList);
+
+        NBTTagList stockingFluids = new NBTTagList();
+        if (!autoPullFluidList) {
+            for (int index = 0; index < SLOT_COUNT; index++) {
+                FluidStack fluidStack = storedFluids[index];
+                if (fluidStack == null) {
+                    continue;
+                }
+                stockingFluids.appendTag(fluidStack.writeToNBT(new NBTTagCompound()));
+            }
+            aNBT.setTag("fluidsToStock", stockingFluids);
+        }
+        return aNBT;
+    }
+
+    public boolean containsSuchStack(FluidStack tStack) {
+        for (int i = 0; i < 100; ++i) {
+            if (GTUtility.areFluidsEqual(storedFluids[i], tStack, false)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public int getGUIWidth() {
+        return 392;
+    }
+
+    @Override
+    public int getGUIHeight() {
+        return 179;
+    }
+
+    @Override
+    public int getCircuitSlot() {
+        return 0;
+    }
+
+    @Override
+    public boolean allowSelectCircuit() {
+        return true;
+    }
+
+    @Override
+    public int getCircuitSlotX() {
+        return 188;
+    }
+
+    @Override
+    public int getCircuitSlotY() {
+        return 64;
+    }
+
+    @Override
+    public ModularPanel buildUI(PosGuiData data, PanelSyncManager syncManager, UISettings uiSettings) {
+        refreshGuiStateOnOpen();
+        return new SuperInputHatchMEGui(this).build(data, syncManager, uiSettings);
+    }
+
+    public int getFluidSlotCountForGui() {
+        return SLOT_COUNT;
+    }
+
+    public boolean isAutoPullFluidListForGui() {
+        return autoPullFluidList;
+    }
+
+    public int getMinAutoPullAmountForGui() {
+        return minAutoPullAmount;
+    }
+
+    public void setMinAutoPullAmountForGui(int amount) {
+        minAutoPullAmount = Math.max(1, amount);
+    }
+
+    public int getAutoPullRefreshTimeForGui() {
+        return autoPullRefreshTime;
+    }
+
+    public void setAutoPullRefreshTimeForGui(int refreshTime) {
+        autoPullRefreshTime = Math.max(1, refreshTime);
+    }
+
+    public FluidStack getFilterFluidForGui(int slot) {
+        if (slot < 0 || slot >= storedFluids.length) {
+            return null;
+        }
+        return storedFluids[slot];
+    }
+
+    public void setFilterFluidForGui(int slot, FluidStack fluid) {
+        if (slot < 0 || slot >= storedFluids.length) {
+            return;
+        }
+        storedFluids[slot] = fluid;
+        updateInformationSlot(slot);
+    }
+
+    public FluidStack getInformationFluidForGui(int slot) {
+        if (slot < 0 || slot >= storedInformationFluids.length) {
+            return null;
+        }
+        return storedInformationFluids[slot];
+    }
+
+    public boolean containsFluidForGui(FluidStack fluid) {
+        return containsSuchStack(fluid);
+    }
+
+    public int getStoredStackSizeForGui(int slot) {
+        if (slot < 0 || slot >= storedStackSizes.length) {
+            return Integer.MAX_VALUE;
+        }
+        return storedStackSizes[slot];
+    }
+
+    public void setStoredStackSizeForGui(int slot, int stackSize) {
+        if (slot < 0 || slot >= storedStackSizes.length) {
+            return;
+        }
+        storedStackSizes[slot] = Math.max(1, stackSize);
+        updateInformationSlot(slot);
+    }
+
+    protected void refreshGuiStateOnOpen() {
+        if (!getBaseMetaTileEntity().isServerSide()) {
+            return;
+        }
+        if (autoPullFluidList) {
+            refreshFluidList();
+        }
+        updateAllInformationSlots();
+    }
+
+    protected void clearInformationFluids() {
+        Arrays.fill(storedInformationFluids, null);
+    }
+
+    @Override
+    @Deprecated
+    public void addUIWidgets(ModularWindow.Builder builder, UIBuildContext buildContext) {
+        // TODO: Remove this mui1 fallback after SuperInputHatchME mui2 parity is verified.
+        if (autoPullAvailable) {
+            buildContext.addSyncedWindow(CONFIG_WINDOW_ID, this::createStackSizeConfigurationWindow);
+        }
+
+        for (int i = 15; i < SLOT_COUNT + 15; i++) {
+            int slotID = i;
+            buildContext.addSyncedWindow(i, (player) -> createStroedStackSizeWindow(player, slotID - 15));
+        }
+
+        final Scrollable scrollable = new Scrollable().setVerticalScroll();
+        SlotGroup leftFluidSlotGroup = SlotGroup.ofFluidTanks(createFluidTankList(storedFluids, 1), 10)
+            .phantom(true)
+            .widgetCreator((slotIndex, h) -> (FluidSlotWidget) new FluidSlotWidget(h) {
+
+                @Override
+                public void tryClickPhantom(ClickData clickData, ItemStack cursorStack) {
+                    IGregTechTileEntity gtTE = getBaseMetaTileEntity();
+                    if (gtTE.isServerSide() && clickData.mouseButton == 2) {
+                        getContext().openSyncedWindow(slotIndex + 15);
+                        return;
+                    }
+
+                    if (clickData.mouseButton != 0 || autoPullFluidList) return;
+
+                    FluidStack heldFluid = getFluidForPhantomItem(cursorStack);
+                    if (cursorStack == null) {
+                        storedFluids[slotIndex] = null;
+                    } else {
+                        if (containsSuchStack(heldFluid)) return;
+                        storedFluids[slotIndex] = heldFluid;
+                    }
+                    if (gtTE.isServerSide()) {
+                        updateInformationSlot(slotIndex);
+                        detectAndSendChanges(false);
+                    }
+                }
+
+                @Override
+                public void tryScrollPhantom(int direction) {}
+
+                @Override
+                public IDrawable[] getBackground() {
+                    IDrawable slot;
+                    if (autoPullFluidList) {
+                        slot = GTUITextures.SLOT_DARK_GRAY;
+                    } else {
+                        slot = ModularUITextures.FLUID_SLOT;
+                    }
+                    return new IDrawable[] { slot, GTUITextures.OVERLAY_SLOT_ARROW_ME };
+                }
+
+                @Override
+                public void buildTooltip(List<Text> tooltip) {
+                    FluidStack fluid = getContent();
+                    if (fluid != null) {
+                        addFluidNameInfo(tooltip, fluid);
+
+                        if (!autoPullFluidList) {
+                            tooltip.add(Text.localised("modularui.phantom.single.clear"));
+                        }
+                    } else {
+                        tooltip.add(
+                            Text.localised("modularui.fluid.empty")
+                                .format(EnumChatFormatting.WHITE));
+                    }
+
+                    if (autoPullFluidList) {
+                        tooltip.add(Text.localised("GT5U.machines.stocking_bus.cannot_set_slot"));
+                    }
+                }
+            }.setUpdateTooltipEveryTick(true))
+            .build();
+        scrollable.widget(leftFluidSlotGroup);
+
+        SlotGroup rightFluidSlotGroup = SlotGroup
+            .ofFluidTanks(createFluidTankList(storedInformationFluids, Integer.MAX_VALUE), 10)
+            .phantom(true)
+            .widgetCreator((slotIndex, h) -> (FluidSlotWidget) new FluidSlotWidget(h) {
+
+                @Override
+                public void tryClickPhantom(ClickData clickData, ItemStack cursorStack) {}
+
+                @Override
+                public void tryScrollPhantom(int direction) {}
+
+                @Override
+                public void buildTooltip(List<Text> tooltip) {
+                    FluidStack fluid = getContent();
+                    if (fluid != null) {
+                        addFluidNameInfo(tooltip, fluid);
+                        tooltip.add(Text.localised("modularui.fluid.phantom.amount", fluid.amount));
+                        addAdditionalFluidInfo(tooltip, fluid);
+                        if (!Interactable.hasShiftDown()) {
+                            tooltip.add(Text.EMPTY);
+                            tooltip.add(Text.localised("modularui.tooltip.shift"));
+                        }
+                    } else {
+                        tooltip.add(
+                            Text.localised("modularui.fluid.empty")
+                                .format(EnumChatFormatting.WHITE));
+                    }
+                }
+            }.setUpdateTooltipEveryTick(true))
+            .background(GTUITextures.SLOT_DARK_GRAY)
+            .controlsAmount(true)
+            .build();
+        scrollable.widget(rightFluidSlotGroup.setPos(198, 0));
+
+        builder.widget(
+            scrollable.setSize(18 * 21 + 4, 72)
+                .setPos(7, 9));
+
+        builder.widget(
+            new DrawableWidget().setDrawable(GTUITextures.PICTURE_ARROW_DOUBLE)
+                .setPos(190, 30)
+                .setSize(12, 12));
+
+        if (autoPullAvailable) {
+            builder.widget(new ButtonWidget().setOnClick((clickData, widget) -> {
+                if (clickData.mouseButton == 0) {
+                    setAutoPullFluidList(!autoPullFluidList);
+                } else if (clickData.mouseButton == 1 && !widget.isClient()) {
+                    widget.getContext()
+                        .openSyncedWindow(CONFIG_WINDOW_ID);
+                }
+            })
+                .setPlayClickSound(true)
+                .setBackground(() -> {
+                    if (autoPullFluidList) {
+                        return new IDrawable[] { GTUITextures.BUTTON_STANDARD_PRESSED,
+                            GTUITextures.OVERLAY_BUTTON_AUTOPULL_ME };
+                    } else {
+                        return new IDrawable[] { GTUITextures.BUTTON_STANDARD,
+                            GTUITextures.OVERLAY_BUTTON_AUTOPULL_ME_DISABLED };
+                    }
+                })
+                .addTooltips(
+                    Arrays.asList(
+                        StatCollector.translateToLocal("GT5U.machines.stocking_hatch.auto_pull.tooltip.1"),
+                        StatCollector.translateToLocal("GT5U.machines.stocking_hatch.auto_pull.tooltip.2")))
+                .setSize(16, 16)
+                .setPos(188, 10))
+                .widget(new FakeSyncWidget.BooleanSyncer(() -> autoPullFluidList, this::setAutoPullFluidList));
+        }
+
+        builder.widget(TextWidget.dynamicText(() -> {
+            boolean isActive = isActive();
+            boolean isPowered = isPowered();
+            boolean isBooting = isBooting();
+
+            String state = WailaText.getPowerState(isActive, isPowered, isBooting);
+
+            if (isActive && isPowered) {
+                return Text.localised("{0}{1}搂f", EnumChatFormatting.GREEN, state);
+            } else {
+                return new Text(EnumChatFormatting.DARK_RED + state);
+            }
+        })
+            .setTextAlignment(Alignment.Center)
+            .setSize(130, 9)
+            .setPos(131, 84));
+        addGregTechLogo(builder);
+    }
+
+    public List<IFluidTank> createFluidTankList(FluidStack[] fluidStacks, int capacity) {
+        ObjectArrayList<IFluidTank> fluidTanks = new ObjectArrayList<>(SLOT_COUNT);
+        for (int slotIndex = 0; slotIndex < SLOT_COUNT; slotIndex++) {
+            fluidTanks.add(createTankForFluidStack(fluidStacks, slotIndex, capacity));
+        }
+        return fluidTanks;
+    }
+
+    public FluidStackTank createTankForFluidStack(FluidStack[] fluidStacks, int slotIndex, int capacity) {
+        return new FluidStackTank(() -> fluidStacks[slotIndex], (stack) -> {
+            if (getBaseMetaTileEntity().isServerSide()) {
+                return;
+            }
+
+            fluidStacks[slotIndex] = stack;
+        }, capacity);
+    }
+
+    @Deprecated
+    public ModularWindow createStackSizeConfigurationWindow(final EntityPlayer player) {
+        // TODO: Remove this mui1 fallback after SuperInputHatchME mui2 parity is verified.
+        final int WIDTH = 78;
+        final int HEIGHT = 115;
+        final int PARENT_WIDTH = getGUIWidth();
+        final int PARENT_HEIGHT = getGUIHeight();
+        ModularWindow.Builder builder = ModularWindow.builder(WIDTH, HEIGHT);
+        builder.setBackground(GTUITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
+        builder.setGuiTint(getGUIColorization());
+        builder.setDraggable(true);
+        builder.setPos(
+            (size, window) -> Alignment.Center.getAlignedPos(size, new Size(PARENT_WIDTH, PARENT_HEIGHT))
+                .add(
+                    Alignment.TopRight.getAlignedPos(new Size(PARENT_WIDTH, PARENT_HEIGHT), new Size(WIDTH, HEIGHT))
+                        .add(WIDTH - 3, 0)));
+        builder.widget(
+            TextWidget.localised("GT5U.machines.stocking_hatch.min_amount")
+                .setPos(3, 2)
+                .setSize(74, 14))
+            .widget(
+                new NumericWidget().setSetter(val -> minAutoPullAmount = (int) val)
+                    .setGetter(() -> minAutoPullAmount)
+                    .setBounds(1, Integer.MAX_VALUE)
+                    .setScrollValues(1, 4, 64)
+                    .setTextAlignment(Alignment.Center)
+                    .setTextColor(Color.WHITE.normal)
+                    .setSize(70, 18)
+                    .setPos(3, 18)
+                    .setBackground(GTUITextures.BACKGROUND_TEXT_FIELD));
+        builder.widget(
+            TextWidget.localised("GT5U.machines.stocking_bus.refresh_time")
+                .setPos(3, 42)
+                .setSize(74, 14))
+            .widget(
+                new NumericWidget().setSetter(val -> autoPullRefreshTime = (int) val)
+                    .setGetter(() -> autoPullRefreshTime)
+                    .setBounds(1, Integer.MAX_VALUE)
+                    .setScrollValues(1, 4, 64)
+                    .setTextAlignment(Alignment.Center)
+                    .setTextColor(Color.WHITE.normal)
+                    .setSize(70, 18)
+                    .setPos(3, 58)
+                    .setBackground(GTUITextures.BACKGROUND_TEXT_FIELD));
+        builder.widget(
+            TextWidget.localised("GT5U.machines.stocking_bus.force_check")
+                .setPos(3, 88)
+                .setSize(50, 14))
+            .widget(
+                new CycleButtonWidget().setToggle(() -> expediteRecipeCheck, this::setRecipeCheck)
+                    .setTextureGetter(
+                        state -> expediteRecipeCheck ? GTUITextures.OVERLAY_BUTTON_CHECKMARK
+                            : GTUITextures.OVERLAY_BUTTON_CROSS)
+                    .setBackground(GTUITextures.BUTTON_STANDARD)
+                    .setPos(53, 87)
+                    .setSize(16, 16)
+                    .addTooltip(StatCollector.translateToLocal("GT5U.machines.stocking_bus.hatch_warning")));
+        return builder.build();
+    }
+
+    @Deprecated
+    public ModularWindow createStroedStackSizeWindow(EntityPlayer player, int slotID) {
+        // TODO: Remove this mui1 fallback after SuperInputHatchME mui2 parity is verified.
+        final int WIDTH = 110;
+        final int HEIGHT = 66;
+        final int PARENT_WIDTH = getGUIWidth();
+        final int PARENT_HEIGHT = getGUIHeight();
+        ModularWindow.Builder builder = ModularWindow.builder(WIDTH, HEIGHT);
+        builder.setBackground(GTUITextures.BACKGROUND_SINGLEBLOCK_DEFAULT);
+        builder.setGuiTint(getGUIColorization());
+        builder.setDraggable(true);
+        builder.setPos(
+            (size, window) -> Alignment.Center.getAlignedPos(size, new Size(PARENT_WIDTH, PARENT_HEIGHT))
+                .add(
+                    Alignment.TopRight.getAlignedPos(new Size(PARENT_WIDTH, PARENT_HEIGHT), new Size(WIDTH, HEIGHT))
+                        .add(WIDTH - 3, 0)));
+
+        builder.widget(
+            new TextWidget(SUPER_AMOUNT).setPos(3, 6)
+                .setSize(106, 14))
+            .widget(
+                new TextWidget(SUPER_SLOT + slotID).setPos(3, 20)
+                    .setSize(106, 14))
+            .widget(
+                new NumericWidget().setSetter(val -> storedStackSizes[slotID] = (int) val)
+                    .setGetter(() -> storedStackSizes[slotID])
+                    .setBounds(1, Integer.MAX_VALUE)
+                    .setScrollValues(1, 1000, 10000)
+                    .setTextAlignment(Alignment.Center)
+                    .setTextColor(Color.WHITE.normal)
+                    .setSize(106, 18)
+                    .setPos(3, 36)
+                    .setBackground(GTUITextures.BACKGROUND_TEXT_FIELD)
+                    .attachSyncer(
+                        new FakeSyncWidget.IntegerSyncer(
+                            () -> storedStackSizes[slotID],
+                            i -> storedStackSizes[slotID] = i),
+                        builder));
+        return builder.build();
+    }
+
+    @Deprecated
+    public void addGregTechLogo(ModularWindow.Builder builder) {
+        // TODO: Remove this mui1 fallback after SuperInputHatchME mui2 parity is verified.
+        builder.widget(
+            new DrawableWidget().setDrawable(ItemUtils.PICTURE_GTNL_LOGO)
+                .setSize(18, 18)
+                .setPos(367, 81));
+    }
+}

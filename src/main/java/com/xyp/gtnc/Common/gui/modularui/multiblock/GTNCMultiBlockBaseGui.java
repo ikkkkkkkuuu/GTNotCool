@@ -6,6 +6,7 @@ import java.util.Set;
 import net.minecraft.item.ItemStack;
 
 import com.cleanroommc.modularui.screen.ModularPanel;
+import com.cleanroommc.modularui.utils.item.ItemStackHandler;
 import com.cleanroommc.modularui.value.sync.PanelSyncManager;
 import com.cleanroommc.modularui.widgets.layout.Flow;
 import com.xyp.gtnc.Common.machines.multiblock.multiMachineBase.GTNCMultiBlockBase;
@@ -42,7 +43,7 @@ public class GTNCMultiBlockBaseGui<T extends MTEMultiBlockBase> extends GTNCUpgr
 
     @Override
     protected Set<Integer> getMachinePaidUpgradeCostIndices() {
-        return upgradeMachine().paidUpgradeCostIndices;
+        return upgradeMachine().getPaidUpgradeCostIndices();
     }
 
     @Override
@@ -51,7 +52,22 @@ public class GTNCMultiBlockBaseGui<T extends MTEMultiBlockBase> extends GTNCUpgr
     }
 
     @Override
-    protected void onUpgradeComplete() {
-        upgradeMachine().onUpgradeComplete();
+    protected boolean tryApplyUpgrade(ItemStackHandler inputs) {
+        return upgradeMachine().tryApplyUpgrade(inputs);
+    }
+
+    @Override
+    protected int getUpgradeTier() {
+        return upgradeMachine().getUpgradeTierForGui();
+    }
+
+    @Override
+    protected int getUpgradeSpeedPercent() {
+        return upgradeMachine().getUpgradeSpeedPercentForGui();
+    }
+
+    @Override
+    protected int getUpgradeParallel() {
+        return upgradeMachine().getUpgradeParallelForGui();
     }
 }

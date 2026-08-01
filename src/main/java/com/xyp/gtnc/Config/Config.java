@@ -166,6 +166,8 @@ public class Config {
      * 等效"节点不衰减 + vis 无限"：任何需要 vis 的操作都拿得到，且节点/中继不掉存量。
      */
     public static boolean tcInfiniteVis = true;
+    /** Automatically solve an incomplete note while its research table GUI is open. Client behavior only. */
+    public static boolean tcAutoResearch = false;
     // endregion
 
     // region Applied Energistics 2 配置
@@ -676,6 +678,12 @@ public class Config {
                 tcInfiniteVis,
                 "开启后，从 vis 网络抽取魔力永远成功且不消耗节点存量(VisNetHandler.drainVis 直接返回请求量)。" + "等效「vis 无限 + 节点永不衰减」。");
 
+            tcAutoResearch = configuration.getBoolean(
+                "autoResearch",
+                CATEGORY_THAUMCRAFT,
+                tcAutoResearch,
+                "Automatically solve an incomplete Thaumcraft research note while its research table GUI is open.");
+
             // Applied Energistics 2 配置项
             disableAE2ChannelLimit = configuration.getBoolean(
                 "disableChannelLimit",
@@ -766,6 +774,13 @@ public class Config {
             default:
                 return original;
         }
+    }
+
+    public static synchronized void setTcAutoResearch(boolean enabled) {
+        tcAutoResearch = enabled;
+        configuration.get(CATEGORY_THAUMCRAFT, "autoResearch", false)
+            .set(enabled);
+        if (configuration.hasChanged()) configuration.save();
     }
 
     private static void categoryInit() {
