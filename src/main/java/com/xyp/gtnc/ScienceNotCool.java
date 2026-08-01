@@ -39,6 +39,7 @@ import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
         + "before:neicustomdiagram;"
         + "after:dreamcraft;"
         + "required-after:structurelib;"
+        + "after:ThaumcraftResearchTweaks;"
         + "required-after:Thaumcraft;",
     acceptedMinecraftVersions = "1.7.10")
 public class ScienceNotCool {

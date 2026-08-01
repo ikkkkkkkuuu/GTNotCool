@@ -61,8 +61,8 @@ public class ClientProxy extends CommonProxy {
         // loadComplete 里为客户端补生成一次；loadRecipesServerStarted 内部有幂等守卫，单人环境不会重复添加。
         RecipeLoader.loadRecipesServerStarted();
 
-        // ThaumcraftResearchTweaks replaces the client research GUI. Restore the vanilla client GUI so the
-        // client-only automatic research mixin is present; the dedicated/integrated server GUI map is untouched.
+        // Replace the Thaumcraft/ResearchTweaks client research GUI with GTNC's vanilla-based automatic table.
+        // This only changes NetworkRegistry's client map; the dedicated/integrated server GUI map is untouched.
         com.xyp.gtnc.Client.research.ResearchGuiCompatibility.install();
     }
 

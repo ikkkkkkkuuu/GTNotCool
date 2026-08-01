@@ -7,8 +7,6 @@ import java.util.Set;
 import com.gtnewhorizon.gtnhmixins.ILateMixinLoader;
 import com.gtnewhorizon.gtnhmixins.LateMixin;
 
-import cpw.mods.fml.relauncher.FMLLaunchHandler;
-
 @LateMixin
 public class LateMixinsLoader implements ILateMixinLoader {
 
@@ -101,13 +99,6 @@ public class LateMixinsLoader implements ILateMixinLoader {
                 "Thaumcraft.MixinPlayerKnowledge",
                 "Thaumcraft.MixinTileInfusionMatrix",
                 "Thaumcraft.MixinVisNetHandler");
-
-            // GuiResearchTable and its helpers are client-only. Registering this target on a dedicated server would
-            // resolve net.minecraft.client classes during startup and crash before normal mod initialization.
-            if (FMLLaunchHandler.side()
-                .isClient()) {
-                addAll(list, "Thaumcraft.MixinGuiResearchTableAutoResearch");
-            }
 
         }
 
