@@ -24,6 +24,7 @@ import com.xyp.gtnc.ae2thing.api.WirelessObject;
 import com.xyp.gtnc.ae2thing.client.gui.container.ContainerPatternModifier;
 import com.xyp.gtnc.ae2thing.client.gui.container.ContainerPatternValueAmount;
 import com.xyp.gtnc.ae2thing.client.gui.container.ContainerPatternValueName;
+import com.xyp.gtnc.ae2thing.common.item.ItemWirelessDualInterfaceTerminal;
 import com.xyp.gtnc.ae2thing.inventory.InventoryHandler;
 import com.xyp.gtnc.ae2thing.inventory.gui.GuiType;
 import com.xyp.gtnc.ae2thing.inventory.item.WirelessTerminal;
@@ -109,43 +110,107 @@ public class CPacketInventoryActionExtend implements IMessage {
 
     public static class Handler implements IMessageHandler<CPacketInventoryActionExtend, IMessage> {
 
-        private void extractItemFromME(EntityPlayer player, IAEItemStack requestItem, int slot) {
-            if (requestItem.getStackSize() <= 0) {
-                return;
+        /**
+         * Extracts the requested item and returns the exact AE2 stack that was removed.
+         *
+         * <p>
+         * The old implementation only reduced {@code requestItem}, then put the client-side pick-block template
+         * into the player's hand. That loses the actual stored stack's NBT/damage identity for machine blocks and
+         * other special items.
+         * </p>
+         */
+        private IAEItemStack extractItemFromME(EntityPlayer player, IAEItemStack requestItem, int slot) {
+            if (requestItem == null || requestItem.getStackSize() <= 0) {
+                return null;
             }
-            List<ItemStack> items = InvUtil
-                .matcher(player, stack -> stack != null && stack.getItem() instanceof IWirelessTermHandler);
+
+            IAEItemStack extractedTotal = null;
+
+            List<ItemStack> items = InvUtil.matcher(
+                player,
+                stack -> stack != null && stack.getItem() instanceof ItemWirelessDualInterfaceTerminal);
+
+            if (items.isEmpty()) {
+                items = InvUtil
+                    .matcher(player, stack -> stack != null && stack.getItem() instanceof IWirelessTermHandler);
+            }
+
             for (ItemStack item : items) {
+                if (requestItem.getStackSize() <= 0) {
+                    break;
+                }
+
                 try {
                     WirelessObject object = new WirelessObject(item, player.worldObj, slot, 0, 0, player);
-                    if (object.rangeCheck() && requestItem.getStackSize() > 0) {
-                        IAEItemStack result = object.getItemInventory()
-                            .extractItems(requestItem, Actionable.MODULATE, object.getSource());
-                        if (result != null) {
-                            requestItem.decStackSize(result.getStackSize());
-                        }
-                        if (requestItem.getStackSize() <= 0) {
-                            break;
-                        }
+                    if (!object.rangeCheck()) {
+                        continue;
                     }
+
+                    /*
+                     * Pass a copy to the storage monitor. A custom storage handler is allowed to mutate the stack
+                     * object it receives; the authoritative remaining request must stay under our control.
+                     */
+                    IAEItemStack attempt = requestItem.copy();
+                    IAEItemStack result = object.getItemInventory()
+                        .extractItems(attempt, Actionable.MODULATE, object.getSource());
+
+                    if (result == null || result.getStackSize() <= 0) {
+                        continue;
+                    }
+
+                    long extracted = Math.min(requestItem.getStackSize(), result.getStackSize());
+                    requestItem.decStackSize(extracted);
+
+                    if (extractedTotal == null) {
+                        extractedTotal = result.copy();
+                        extractedTotal.setStackSize(extracted);
+                    } else if (extractedTotal.isSameType(result)) {
+                        extractedTotal.setStackSize(extractedTotal.getStackSize() + extracted);
+                    }
+
+                    // One key press belongs to one wireless terminal/network. Do not continue into another network.
+                    break;
                 } catch (Exception ignored) {}
             }
+
+            return extractedTotal;
         }
 
         @Nullable
         @Override
         public IMessage onMessage(CPacketInventoryActionExtend message, MessageContext ctx) {
             final EntityPlayerMP sender = ctx.getServerHandler().playerEntity;
-            if(message.action == InventoryActionExtend.REQUEST_ITEM && sender.inventory.mainInventory[message.slot] == null){
-                // id == 1 -> extract a single item (Shift+middle click); otherwise a full stack
-                long requestCount = message.id == 1 ? 1 : message.stack.getItemStack().getMaxStackSize();
-                message.stack.setStackSize(requestCount);
-                IAEItemStack requestItem = message.stack.copy();
-                extractItemFromME(sender,requestItem,message.slot);
-                message.stack.decStackSize(requestItem.getStackSize());
-                if(message.stack.getStackSize() > 0){
-                    sender.inventory.setInventorySlotContents(message.slot,message.stack.getItemStack());
+            if (message.action == InventoryActionExtend.REQUEST_ITEM
+                && message.stack != null
+                && message.slot >= 0
+                && message.slot < sender.inventory.mainInventory.length
+                && sender.inventory.mainInventory[message.slot] == null) {
+
+                // id == 1 -> extract a single item (Shift+middle click); otherwise a full legal stack.
+                ItemStack requestTemplate = message.stack.getItemStack();
+                if (requestTemplate == null || requestTemplate.getItem() == null) {
+                    return null;
                 }
+
+                long requestCount = message.id == 1 ? 1 : requestTemplate.getMaxStackSize();
+                IAEItemStack requestItem = message.stack.copy();
+                requestItem.setStackSize(requestCount);
+
+                IAEItemStack extracted = extractItemFromME(sender, requestItem, message.slot);
+                if (extracted == null || extracted.getStackSize() <= 0) {
+                    return null;
+                }
+
+                /*
+                 * Put the exact stack returned by AE2 into the player's hand. Do not reconstruct it from the
+                 * client-side pick-block template, because that can drop or replace NBT on special machine blocks.
+                 */
+                ItemStack actualStack = extracted.getItemStack();
+                actualStack.stackSize = (int) Math.min(Integer.MAX_VALUE, extracted.getStackSize());
+
+                sender.inventory.setInventorySlotContents(message.slot, actualStack);
+                sender.inventory.markDirty();
+                sender.inventoryContainer.detectAndSendChanges();
                 return null;
             }
             if (sender.openContainer instanceof final AEBaseContainer baseContainer) {
