@@ -19,6 +19,7 @@ import net.minecraft.init.Blocks;
 
 import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
+import com.xyp.gtnc.Common.machines.hatch.SuperMTEHatchCraftingInputME;
 
 import gregtech.api.enums.Materials;
 import gregtech.api.interfaces.IHatchElement;
@@ -28,9 +29,11 @@ import gregtech.api.metatileentity.implementations.MTEHatchInput;
 import gregtech.api.metatileentity.implementations.MTEHatchInputBus;
 import gregtech.api.metatileentity.implementations.MTEHatchOutput;
 import gregtech.api.metatileentity.implementations.MTEHatchOutputBus;
+import gregtech.api.recipe.RecipeMap;
 import gregtech.api.util.GTStructureUtility;
 import gregtech.api.util.HatchElementBuilder;
 import gregtech.api.util.IGTHatchAdder;
+import gregtech.common.tileentities.machines.MTEHatchCraftingInputME;
 import tectech.thing.metaTileEntity.multi.godforge.MTEBaseModule;
 import tectech.thing.metaTileEntity.multi.godforge.MTEForgeOfGods;
 import tectech.thing.metaTileEntity.multi.godforge.structure.ForgeOfGodsRingsStructureString;
@@ -146,18 +149,48 @@ public final class SteamGodforgeStructures {
     }
 
     private static boolean addSteamModuleIO(MTEBaseModule module, IGregTechTileEntity tileEntity, int casingIndex) {
-        if (tileEntity == null) return false;
-        IMetaTileEntity metaTileEntity = tileEntity.getMetaTileEntity();
-        // Use the dedicated registration paths instead of addClassicToMachineList. Besides collecting the hatch,
-        // addInputToMachineList assigns the module's active RecipeMap to input buses; without it the hatch texture
-        // changes and the structure forms, but recipe lookup can remain detached from the module.
-        if (metaTileEntity instanceof MTEHatchInput || metaTileEntity instanceof MTEHatchInputBus) {
-            return module.addInputToMachineList(tileEntity, casingIndex);
+
+        if (tileEntity == null) {
+            return false;
         }
+
+        IMetaTileEntity metaTileEntity = tileEntity.getMetaTileEntity();
+
+        if (metaTileEntity instanceof MTEHatchInput || metaTileEntity instanceof MTEHatchInputBus) {
+
+            boolean added = module.addInputToMachineList(tileEntity, casingIndex);
+
+            if (added) {
+                bindSteamModuleRecipeMap(module, metaTileEntity);
+            }
+
+            return added;
+        }
+
         if (metaTileEntity instanceof MTEHatchOutput || metaTileEntity instanceof MTEHatchOutputBus) {
+
             return module.addOutputToMachineList(tileEntity, casingIndex);
         }
+
         return false;
+    }
+
+    private static void bindSteamModuleRecipeMap(MTEBaseModule module, IMetaTileEntity metaTileEntity) {
+
+        RecipeMap<?> recipeMap = module.getRecipeMap();
+
+        if (recipeMap == null) {
+            return;
+        }
+
+        if (metaTileEntity instanceof SuperMTEHatchCraftingInputME superHatch) {
+
+            superHatch.setControllerRecipeMap(recipeMap);
+
+        } else if (metaTileEntity instanceof MTEHatchCraftingInputME craftingHatch) {
+
+            craftingHatch.mRecipeMap = recipeMap;
+        }
     }
 
     static boolean isSteamModule(IMetaTileEntity metaTileEntity) {
