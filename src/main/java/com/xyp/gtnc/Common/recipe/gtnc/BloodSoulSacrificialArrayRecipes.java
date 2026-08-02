@@ -30,6 +30,9 @@ public final class BloodSoulSacrificialArrayRecipes {
 
     private BloodSoulSacrificialArrayRecipes() {}
 
+    // #tr NEI.BloodSoulSacrificialArray.specialValue
+    // # Base LP Cost: %s LP
+    // # zh_CN 基础 LP 消耗：%s LP
     public static void loadRecipes() {
         if (loaded || !Mods.BloodMagic.isModLoaded()) return;
         loaded = true;

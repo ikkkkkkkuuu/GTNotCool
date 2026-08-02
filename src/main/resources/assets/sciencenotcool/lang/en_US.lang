@@ -559,6 +559,7 @@ gui.mebridge.sender.no_receivers=No active receivers
 gui.mebridge.teleport.unavailable=The target sender is unavailable.
 gui.mebridge.teleport.no_safe_location=No safe location was found near the target sender.
 gui.mebridge.teleport.success=Teleported to channel %s.
+NEI.BloodSoulSacrificialArray.specialValue=Base LP Cost: %s LP
 message.gtnc.teleport_terminal.limit_reached=You have reached the maximum number of teleport destinations.
 message.gtnc.teleport_terminal.destination_locked=Unlock this destination before changing it.
 message.gtnc.teleport_terminal.destination_unsafe=No safe space was found at this destination.
