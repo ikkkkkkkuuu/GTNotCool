@@ -683,9 +683,24 @@ public class TextLocalization {
     public static final String Tooltip_BloodSoulSacrificialArray_Casing = TextEnums
         .tr("Tooltip_BloodSoulSacrificialArray_Casing");
 
+    // #tr BloodSoulSacrificialArray_Mode_0
+    // # Blood Demon Injection
+    // # zh_CN 血魔注入
     public static final String BloodSoulSacrificialArray_Mode_0 = TextEnums.tr("BloodSoulSacrificialArray_Mode_0");
+
+    // #tr BloodSoulSacrificialArray_Mode_1
+    // # Falling Tower
+    // # zh_CN 模拟坠星标位
     public static final String BloodSoulSacrificialArray_Mode_1 = TextEnums.tr("BloodSoulSacrificialArray_Mode_1");
+
+    // #tr BloodSoulSacrificialArray_Mode_2
+    // # Alchemic Chemistry
+    // # zh_CN 秘法炼金
     public static final String BloodSoulSacrificialArray_Mode_2 = TextEnums.tr("BloodSoulSacrificialArray_Mode_2");
+
+    // #tr BloodSoulSacrificialArray.LPNetwork
+    // # LP Network
+    // # zh_CN LP 网络
     public static final String BloodSoulSacrificialArray_LPNetwork = TextEnums
         .tr("BloodSoulSacrificialArray.LPNetwork");
 
