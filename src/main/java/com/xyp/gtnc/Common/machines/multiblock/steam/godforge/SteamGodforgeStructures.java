@@ -164,13 +164,20 @@ public final class SteamGodforgeStructures {
         return metaTileEntity instanceof SteamGodforgeSmeltingModule
             || metaTileEntity instanceof SteamGodforgeMoltenModule
             || metaTileEntity instanceof SteamGodforgePlasmaModule
-            || metaTileEntity instanceof SteamGodforgeExoticModule;
+            || metaTileEntity instanceof SteamGodforgeExoticModule
+            || metaTileEntity instanceof SteamGodforgeAlloyBlastSmelterModule
+            || metaTileEntity instanceof SteamGodforgeAlloySmelterModule
+            || metaTileEntity instanceof SteamGodforgeExtractorModule
+            || metaTileEntity instanceof SteamGodforgeSolarMuonCatalystModule
+            || metaTileEntity instanceof SteamGodforgeProcessingModule;
     }
 
     private enum SteamModuleElement implements IHatchElement<MTEForgeOfGods> {
 
         Module(SteamGodforgeSmeltingModule.class, SteamGodforgeMoltenModule.class, SteamGodforgePlasmaModule.class,
-            SteamGodforgeExoticModule.class);
+            SteamGodforgeExoticModule.class, SteamGodforgeAlloyBlastSmelterModule.class,
+            SteamGodforgeAlloySmelterModule.class, SteamGodforgeExtractorModule.class,
+            SteamGodforgeSolarMuonCatalystModule.class, SteamGodforgeProcessingModule.class);
 
         private final List<Class<? extends IMetaTileEntity>> moduleClasses;
         private final IGTHatchAdder<MTEForgeOfGods> adder = (controller, tileEntity,

@@ -8,13 +8,22 @@ final class SteamGodforgeTooltips {
 
     private SteamGodforgeTooltips() {}
 
-    static MultiblockTooltipBuilder module(String machineType, String moduleInfo) {
-        return new MultiblockTooltipBuilder().addMachineType(machineType)
+    static MultiblockTooltipBuilder module(String machineType, String... moduleInfos) {
+        MultiblockTooltipBuilder tooltip = new MultiblockTooltipBuilder().addMachineType(machineType)
             .addInfo(TextLocalization.Tooltip_SteamGodforgeModule_00)
             .addInfo(TextLocalization.Tooltip_SteamGodforgeModule_01)
-            .addInfo(TextLocalization.Tooltip_SteamGodforgeModule_02)
-            .addInfo(moduleInfo)
-            .beginStructureBlock(13, 7, 7, false)
+            .addInfo(TextLocalization.Tooltip_SteamGodforgeModule_02);
+
+        // 添加当前模块专属的多条说明
+        if (moduleInfos != null) {
+            for (String moduleInfo : moduleInfos) {
+                if (moduleInfo != null && !moduleInfo.isEmpty()) {
+                    tooltip.addInfo(moduleInfo);
+                }
+            }
+        }
+
+        return tooltip.beginStructureBlock(13, 7, 7, false)
             .addController(TextLocalization.Tooltip_SteamGodforgeModule_Controller)
             .addCasing("16-36", TextLocalization.Tooltip_SteamGodforgeModule_BronzePlated, false)
             .addCasing("5", TextLocalization.Tooltip_SteamGodforgeModule_Reinforced, false)

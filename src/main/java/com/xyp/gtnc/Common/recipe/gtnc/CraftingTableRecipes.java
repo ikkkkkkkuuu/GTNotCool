@@ -63,18 +63,7 @@ public class CraftingTableRecipes {
                 'B', GTOreDictUnificator.get(OrePrefixes.frameGt, Materials.Bronze, 1L)
             });
 
-        addSteamGodforgeModuleRecipe(
-            GTNCItemList.SteamGodforgeSmeltingModule.get(1),
-            ItemList.Machine_LV_AlloySmelter.get(1));
-        addSteamGodforgeModuleRecipe(
-            GTNCItemList.SteamGodforgeMoltenModule.get(1),
-            ItemList.Machine_LV_FluidExtractor.get(1));
-        addSteamGodforgeModuleRecipe(
-            GTNCItemList.SteamGodforgePlasmaModule.get(1),
-            ItemList.Machine_LV_Electrolyzer.get(1));
-        addSteamGodforgeModuleRecipe(
-            GTNCItemList.SteamGodforgeExoticModule.get(1),
-            ItemList.Machine_LV_Mixer.get(1));
+
 
         GTModHandler.addCraftingRecipe(
             GTNCItemList.DieselGeneratorLV.get(1),
@@ -484,7 +473,43 @@ public class CraftingTableRecipes {
                 'C', ItemList.Electric_Piston_UHV.get(1),
                 'D', ItemList.Casing_UV.get(1)
             });
+
+        GTModHandler.addCraftingRecipe(
+            GTNCItemList.SteamGodforgeProcessingModule.get(1),
+            new Object[] { "ABC", "DEF", "GHI",
+                'A', ItemList.Machine_LV_Mixer.get(1),
+                'B', ItemList.Machine_LV_Press.get(1),
+                'C', ItemList.Machine_LV_Compressor.get(1),
+                'D', ItemList.Machine_LV_Assembler.get(1),
+                'E', ItemList.Machine_LV_Wiremill.get(1),
+                'F', ItemList.Machine_LV_FluidSolidifier.get(1),
+                'G', ItemList.Machine_LV_Extruder.get(1),
+                'H', ItemList.Machine_LV_Cutter.get(1),
+                'I', ItemList.Machine_LV_LaserEngraver.get(1)
+            });
         // spotless:on
+        addSteamGodforgeModuleRecipe(
+            GTNCItemList.SteamGodforgeSmeltingModule.get(1),
+            ItemList.Machine_LV_AlloySmelter.get(1));
+        addSteamGodforgeModuleRecipe(
+            GTNCItemList.SteamGodforgeMoltenModule.get(1),
+            ItemList.Machine_LV_FluidExtractor.get(1));
+        addSteamGodforgeModuleRecipe(
+            GTNCItemList.SteamGodforgePlasmaModule.get(1),
+            ItemList.Machine_LV_Electrolyzer.get(1));
+        addSteamGodforgeModuleRecipe(GTNCItemList.SteamGodforgeExoticModule.get(1), ItemList.Machine_LV_Mixer.get(1));
+        addSteamGodforgeModuleRecipe(
+            GTNCItemList.SteamGodforgeAlloyBlastSmelterModule.get(1),
+            ItemList.Machine_MV_AlloySmelter.get(1));
+        addSteamGodforgeModuleRecipe(
+            GTNCItemList.SteamGodforgeAlloySmelterModule.get(1),
+            ItemList.Machine_LV_Bender.get(1));
+        addSteamGodforgeModuleRecipe(
+            GTNCItemList.SteamGodforgeExtractorModule.get(1),
+            ItemList.Machine_LV_Extractor.get(1));
+        addSteamGodforgeModuleRecipe(
+            GTNCItemList.SteamGodforgeSolarMuonCatalystModule.get(1),
+            ItemList.Machine_LV_Assembler.get(1));
 
     }
 

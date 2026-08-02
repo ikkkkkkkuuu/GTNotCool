@@ -57,10 +57,15 @@ import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamVoidMiner;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamWireMill;
 import com.xyp.gtnc.Common.machines.multiblock.steam.SteamEyeOfHarmony;
 import com.xyp.gtnc.Common.machines.multiblock.steam.godforge.SteamForgeOfGods;
+import com.xyp.gtnc.Common.machines.multiblock.steam.godforge.SteamGodforgeAlloyBlastSmelterModule;
+import com.xyp.gtnc.Common.machines.multiblock.steam.godforge.SteamGodforgeAlloySmelterModule;
 import com.xyp.gtnc.Common.machines.multiblock.steam.godforge.SteamGodforgeExoticModule;
+import com.xyp.gtnc.Common.machines.multiblock.steam.godforge.SteamGodforgeExtractorModule;
 import com.xyp.gtnc.Common.machines.multiblock.steam.godforge.SteamGodforgeMoltenModule;
 import com.xyp.gtnc.Common.machines.multiblock.steam.godforge.SteamGodforgePlasmaModule;
+import com.xyp.gtnc.Common.machines.multiblock.steam.godforge.SteamGodforgeProcessingModule;
 import com.xyp.gtnc.Common.machines.multiblock.steam.godforge.SteamGodforgeSmeltingModule;
+import com.xyp.gtnc.Common.machines.multiblock.steam.godforge.SteamGodforgeSolarMuonCatalystModule;
 import com.xyp.gtnc.utils.enums.GTNCItemList;
 import com.xyp.gtnc.utils.enums.GTNCMachineID;
 import com.xyp.gtnc.utils.text.AnimatedText;
@@ -692,6 +697,56 @@ public class MachineLoader {
                 "SteamGodforgeExoticModule",
                 StatCollector.translateToLocal("NameSteamGodforgeExoticModule")));
         addItemTooltip(GTNCItemList.SteamGodforgeExoticModule.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        // #tr NameSteamGodforgeAlloyBlastSmelterModule
+        // # Steam Godforge Alloy Blast Smelter Module
+        // # zh_CN 蒸汽诸神之锻炉合金冶炼炉模块
+        GTNCItemList.SteamGodforgeAlloyBlastSmelterModule.set(
+            new SteamGodforgeAlloyBlastSmelterModule(
+                GTNCMachineID.STEAM_GODFORGE_ALLOY_BLAST_SMELTER_MODULE.ID,
+                "SteamGodforgeAlloyBlastSmelterModule",
+                StatCollector.translateToLocal("NameSteamGodforgeAlloyBlastSmelterModule")));
+        addItemTooltip(GTNCItemList.SteamGodforgeAlloyBlastSmelterModule.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        // #tr NameSteamGodforgeAlloySmelterModule
+        // # Steam Godforge Alloy Smelter Module
+        // # zh_CN 蒸汽诸神之锻炉合金炉模块
+        GTNCItemList.SteamGodforgeAlloySmelterModule.set(
+            new SteamGodforgeAlloySmelterModule(
+                GTNCMachineID.STEAM_GODFORGE_ALLOY_SMELTER_MODULE.ID,
+                "SteamGodforgeAlloySmelterModule",
+                StatCollector.translateToLocal("NameSteamGodforgeAlloySmelterModule")));
+        addItemTooltip(GTNCItemList.SteamGodforgeAlloySmelterModule.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        // #tr NameSteamGodforgeExtractorModule
+        // # Steam Godforge Extractor Module
+        // # zh_CN 蒸汽诸神之锻炉提取模块
+        GTNCItemList.SteamGodforgeExtractorModule.set(
+            new SteamGodforgeExtractorModule(
+                GTNCMachineID.STEAM_GODFORGE_EXTRACTOR_MODULE.ID,
+                "SteamGodforgeExtractorModule",
+                StatCollector.translateToLocal("NameSteamGodforgeExtractorModule")));
+        addItemTooltip(GTNCItemList.SteamGodforgeExtractorModule.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        // #tr NameSteamGodforgeSolarMuonCatalystModule
+        // # Steam Godforge Solar Muon Catalyst Module
+        // # zh_CN 蒸汽诸神之锻炉太阳μ子催化器
+        GTNCItemList.SteamGodforgeSolarMuonCatalystModule.set(
+            new SteamGodforgeSolarMuonCatalystModule(
+                GTNCMachineID.STEAM_GODFORGE_SOLAR_MUON_CATALYST_MODULE.ID,
+                "SteamGodforgeSolarMuonCatalystModule",
+                StatCollector.translateToLocal("NameSteamGodforgeSolarMuonCatalystModule")));
+        addItemTooltip(GTNCItemList.SteamGodforgeSolarMuonCatalystModule.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        // #tr NameSteamGodforgeProcessingModule
+        // # Steam Godforge Processing Module
+        // # zh_CN 蒸汽诸神之锻炉加工模块
+        GTNCItemList.SteamGodforgeProcessingModule.set(
+            new SteamGodforgeProcessingModule(
+                GTNCMachineID.STEAM_GODFORGE_PROCESSING_MODULE.ID,
+                "SteamGodforgeProcessingModule",
+                StatCollector.translateToLocal("NameSteamGodforgeProcessingModule")));
+        addItemTooltip(GTNCItemList.SteamGodforgeProcessingModule.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
 
     }
 

@@ -9,6 +9,7 @@ import com.xyp.gtnc.Common.gui.recipe.StellarForgeAlloySmelterRecipesFrontend;
 import com.xyp.gtnc.utils.enums.GTNCItemList;
 import com.xyp.gtnc.utils.recipes.format.BloodSoulFormat;
 import com.xyp.gtnc.utils.recipes.metadata.FuelRefiningMetadata;
+import com.xyp.gtnc.utils.recipes.metadata.SolorMuonCatalystMetadata;
 
 import gregtech.api.enums.Mods;
 import gregtech.api.gui.modularui.GTUITextures;
@@ -20,6 +21,24 @@ import gregtech.nei.formatter.HeatingCoilSpecialValueFormatter;
 import gregtech.nei.formatter.SimpleSpecialValueFormatter;
 
 public class GTNCRecipeMaps {
+
+    // #tr gtnc.recipe.SolarMuonCatalystRecipes
+    // # Solar Muon Catalyst
+    // # zh_CN 太阳μ子催化器
+    public static final RecipeMap<RecipeMapBackend> SolarMuonCatalystRecipes = RecipeMapBuilder
+        .of("gtnc.recipe.SolarMuonCatalystRecipes", RecipeMapBackend::new)
+        .maxIO(1, 0, 8, 1)
+        .progressBar(GTUITextures.PROGRESSBAR_ARROW_MULTIPLE)
+        .frontend(GTNCLogoFrontend::new)
+        .neiHandlerInfo(
+            builder -> builder.setDisplayStack(GTNCItemList.SteamGodforgeSolarMuonCatalystModule.get(1))
+                .setMaxRecipesPerPage(1))
+        .neiRecipeComparator(
+            Comparator
+                .<GTRecipe, Boolean>comparing(
+                    recipe -> recipe.getMetadataOrDefault(SolorMuonCatalystMetadata.INSTANCE, false))
+                .thenComparing(GTRecipe::compareTo))
+        .build();
 
     // #tr gtnc.recipe.PlatinumBasedTreatmentRecipes
     // # Platinum-Based Treatment

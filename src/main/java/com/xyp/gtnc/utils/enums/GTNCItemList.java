@@ -100,6 +100,11 @@ public enum GTNCItemList implements IItemContainer {
 
     SteamEyeOfHarmony,
     SteamForgeOfGods,
+    SteamGodforgeProcessingModule,
+    SteamGodforgeSolarMuonCatalystModule,
+    SteamGodforgeExtractorModule,
+    SteamGodforgeAlloySmelterModule,
+    SteamGodforgeAlloyBlastSmelterModule,
     SteamGodforgeSmeltingModule,
     SteamGodforgeMoltenModule,
     SteamGodforgePlasmaModule,
