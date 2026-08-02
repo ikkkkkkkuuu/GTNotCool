@@ -16,7 +16,6 @@ import com.cleanroommc.modularui.drawable.UITexture;
 import com.cleanroommc.modularui.screen.ModularPanel;
 import com.cleanroommc.modularui.utils.Alignment;
 import com.cleanroommc.modularui.value.sync.EnumSyncValue;
-import com.cleanroommc.modularui.value.sync.PanelSyncManager;
 import com.cleanroommc.modularui.widget.ScrollWidget;
 import com.cleanroommc.modularui.widget.Widget;
 import com.cleanroommc.modularui.widget.scroll.VerticalScrollData;
@@ -42,12 +41,6 @@ public final class SteamGodforgeTreePanel {
     private static final int BUTTON_W = 40;
     private static final int BUTTON_H = 15;
 
-    /**
-     * Sends the selected upgrade through an explicit synced action before the detail panel is opened/refreshed.
-     * This avoids relying on the separate UPGRADE_CLICKED value packet in a dedicated client/server setup.
-     */
-    private static final String SELECT_UPGRADE_ACTION = "gtnc.steam_godforge.select_upgrade";
-
     private SteamGodforgeTreePanel() {}
 
     public static ModularPanel openPanel(SyncHypervisor hypervisor) {
@@ -57,33 +50,6 @@ public final class SteamGodforgeTreePanel {
         SyncActions.RESPEC_UPGRADE.registerFor(Panels.UPGRADE_TREE, hypervisor);
         SyncActions.COMPLETE_UPGRADE.registerFor(Panels.UPGRADE_TREE, hypervisor);
         SyncActions.REFRESH_DYNAMIC.registerFor(Panels.UPGRADE_TREE, hypervisor, hypervisor);
-
-        PanelSyncManager treeSyncManager = hypervisor.getSyncManager(Panels.UPGRADE_TREE);
-        EnumSyncValue<ForgeOfGodsUpgrade, ?> selected = SyncValues.UPGRADE_CLICKED
-            .lookupFrom(Panels.UPGRADE_TREE, hypervisor);
-        IPanelHandler detail = Panels.INDIVIDUAL_UPGRADE.getFrom(Panels.UPGRADE_TREE, hypervisor);
-
-        /*
-         * Do not depend on UPGRADE_CLICKED's own C2S packet here.
-         * On a dedicated client/server setup, the panel-open and refresh packets can reach a server whose
-         * selected enum is still the default START value. The server then builds START while the client builds
-         * the actually clicked node, producing a DynamicSyncHandler widget-tree mismatch and a black panel.
-         * This explicit action carries the selected ordinal and updates the server before the panel-open and
-         * REFRESH_DYNAMIC packets are sent.
-         */
-        treeSyncManager.registerSyncedAction(SELECT_UPGRADE_ACTION, buffer -> {
-            if (treeSyncManager.isClient()) {
-                return;
-            }
-
-            int ordinal = buffer.readUnsignedByte();
-            if (ordinal >= ForgeOfGodsUpgrade.VALUES.length) {
-                return;
-            }
-
-            ForgeOfGodsUpgrade upgrade = ForgeOfGodsUpgrade.VALUES[ordinal];
-            selected.setValue(upgrade, true, false);
-        });
 
         panel.size(SIZE)
             .padding(4, 0, 4, 0)
@@ -131,13 +97,13 @@ public final class SteamGodforgeTreePanel {
             .child(line(UpgradeColor.BLUE, TBF, EE, hypervisor))
             .child(line(UpgradeColor.BLUE, EE, END, hypervisor));
         Arrays.stream(ForgeOfGodsUpgrade.VALUES)
-            .map(upgrade -> button(upgrade, hypervisor, selected, detail, treeSyncManager))
+            .map(upgrade -> button(upgrade, hypervisor))
             .forEach(tree::child);
         return panel.child(tree);
     }
 
-    private static ButtonWidget<?> button(ForgeOfGodsUpgrade upgrade, SyncHypervisor hypervisor,
-        EnumSyncValue<ForgeOfGodsUpgrade, ?> selected, IPanelHandler detail, PanelSyncManager treeSyncManager) {
+    private static ButtonWidget<?> button(ForgeOfGodsUpgrade upgrade, SyncHypervisor hypervisor) {
+        IPanelHandler detail = Panels.INDIVIDUAL_UPGRADE.getFrom(Panels.UPGRADE_TREE, hypervisor);
         ButtonWidget<?> widget = new ButtonWidget<>();
         return widget.size(BUTTON_W, BUTTON_H)
             .pos(upgrade.getTreeX(), upgrade.getTreeY())
@@ -156,23 +122,10 @@ public final class SteamGodforgeTreePanel {
                 if (mouse == 0 && Interactable.hasShiftDown()) {
                     SyncActions.COMPLETE_UPGRADE.callFrom(Panels.UPGRADE_TREE, hypervisor, upgrade);
                 } else if (mouse == 0) {
-                    /*
-                     * Update the client-side selection immediately, but do not send UPGRADE_CLICKED as a
-                     * separate packet. The custom action below is the authoritative C2S update.
-                     */
-                    selected.setValue(upgrade, true, false);
-
-                    /*
-                     * Send the authoritative server selection first. The following panel-open and refresh
-                     * packets are then processed with the same selected upgrade on the server.
-                     */
-                    treeSyncManager
-                        .callSyncedAction(SELECT_UPGRADE_ACTION, buffer -> buffer.writeByte(upgrade.ordinal()));
-
-                    if (!detail.isPanelOpen()) {
-                        detail.openPanel();
-                    }
-
+                    EnumSyncValue<ForgeOfGodsUpgrade, ?> selected = SyncValues.UPGRADE_CLICKED
+                        .lookupFrom(Panels.UPGRADE_TREE, hypervisor);
+                    selected.setValue(upgrade);
+                    if (!detail.isPanelOpen()) detail.openPanel();
                     SyncActions.REFRESH_DYNAMIC.callFrom(Panels.UPGRADE_TREE, hypervisor, Panels.INDIVIDUAL_UPGRADE);
                 } else if (mouse == 1) {
                     SyncActions.RESPEC_UPGRADE.callFrom(Panels.UPGRADE_TREE, hypervisor, upgrade);

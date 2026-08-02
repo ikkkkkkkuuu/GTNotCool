@@ -54,19 +54,15 @@ public final class SteamGodforgePanels {
 
         EnumSyncValue<ForgeOfGodsUpgrade, ?> upgradeSyncer = SyncValues.UPGRADE_CLICKED
             .lookupFrom(Panels.UPGRADE_TREE, hypervisor);
-        /*
-         * Only the server refreshes this dynamic widget. The tree panel first sends the selected upgrade
-         * ordinal through SELECT_UPGRADE_ACTION, then sends the normal REFRESH_DYNAMIC action.
-         * Do not attach a change listener here: changing the client-side enum would otherwise make the
-         * client rebuild and send a dynamic widget before the server has selected the same upgrade.
-         */
         DynamicSyncHandler handler = new DynamicSyncHandler().widgetProvider(($, $$) -> {
             ForgeOfGodsUpgrade upgrade = upgradeSyncer.getValue();
             panel.size(upgrade.getPanelSize())
                 .background(upgrade.getBackground())
                 .disableHoverBackground();
             return buildUpgrade(upgrade, hypervisor);
-        });
+        })
+            .allowC2S();
+        upgradeSyncer.setChangeListener(() -> { if (handler.isValid()) handler.notifyUpdate($ -> {}); });
         return panel.child(
             new DynamicSyncedWidget<>().coverChildren()
                 .syncHandler(handler));
@@ -186,7 +182,16 @@ public final class SteamGodforgePanels {
                     }
                     return true;
                 })
-                .tooltip(t -> { for (ItemStack cost : costs) t.addFromItem(cost); })
+                .tooltip(t -> {
+                    // DynamicSyncHandler builds this widget on the dedicated server too.
+                    // RichTooltip#addFromItem() requires a client-side item tooltip and may return
+                    // an empty list on a dedicated server, causing IndexOutOfBoundsException.
+                    for (ItemStack cost : costs) {
+                        if (cost != null && cost.getItem() != null && cost.stackSize > 0) {
+                            t.addLine(cost.stackSize + " x " + cost.getDisplayName());
+                        }
+                    }
+                })
                 .tooltipShowUpTimer(TOOLTIP_DELAY)
                 .clickSound(ForgeOfGodsGuiUtil.getButtonSound()));
         column.child(bottom);
