@@ -54,15 +54,19 @@ public final class SteamGodforgePanels {
 
         EnumSyncValue<ForgeOfGodsUpgrade, ?> upgradeSyncer = SyncValues.UPGRADE_CLICKED
             .lookupFrom(Panels.UPGRADE_TREE, hypervisor);
+        /*
+         * Only the server refreshes this dynamic widget. The tree panel first sends the selected upgrade
+         * ordinal through SELECT_UPGRADE_ACTION, then sends the normal REFRESH_DYNAMIC action.
+         * Do not attach a change listener here: changing the client-side enum would otherwise make the
+         * client rebuild and send a dynamic widget before the server has selected the same upgrade.
+         */
         DynamicSyncHandler handler = new DynamicSyncHandler().widgetProvider(($, $$) -> {
             ForgeOfGodsUpgrade upgrade = upgradeSyncer.getValue();
             panel.size(upgrade.getPanelSize())
                 .background(upgrade.getBackground())
                 .disableHoverBackground();
             return buildUpgrade(upgrade, hypervisor);
-        })
-            .allowC2S();
-        upgradeSyncer.setChangeListener(() -> { if (handler.isValid()) handler.notifyUpdate($ -> {}); });
+        });
         return panel.child(
             new DynamicSyncedWidget<>().coverChildren()
                 .syncHandler(handler));
