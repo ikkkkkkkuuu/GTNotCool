@@ -8,6 +8,8 @@ import java.util.List;
 import com.cleanroommc.modularui.drawable.UITexture;
 import com.xyp.gtnc.Loader.GTNCRecipeMaps;
 
+import bartworks.API.recipe.BartWorksRecipeMaps;
+import goodgenerator.api.recipe.GoodGeneratorRecipeMaps;
 import gregtech.api.modularui2.GTGuiTextures;
 import gregtech.api.recipe.RecipeMap;
 import gregtech.api.recipe.RecipeMaps;
@@ -52,7 +54,7 @@ public enum SteamGodforgeProcessingMode {
     // # Laser Engraver
     // # zh_CN 激光蚀刻机
     LASER_ENGRAVER("gtnc.machine.steam_godforge_processing.mode.laser_engraver", RecipeMaps.laserEngraverRecipes,
-        GTGuiTextures.OVERLAY_BUTTON_MACHINEMODE_SCANNER, false),
+        GTGuiTextures.OVERLAY_BUTTON_MACHINEMODE_RESEARCH, false),
 
     // #tr gtnc.machine.steam_godforge_processing.mode.cutter
     // # Cutting Machine
@@ -119,7 +121,62 @@ public enum SteamGodforgeProcessingMode {
     // # Industrial Infusion Matrix
     // # zh_CN 工业注魔矩阵
     INDUSTRIAL_INFUSION_CRAFTING("gtnc.machine.steam_godforge_processing.mode.IndustrialInfusionCrafting",
-        GTNCRecipeMaps.IndustrialInfusionCraftingRecipes, GTGuiTextures.OVERLAY_BUTTON_MACHINEMODE_LPF_METAL, false);
+        GTNCRecipeMaps.IndustrialInfusionCraftingRecipes, GTGuiTextures.OVERLAY_BUTTON_MACHINEMODE_LPF_METAL, false),
+
+    // #tr gtnc.machine.steam_godforge_processing.mode.polarizer
+    // # Polarizer
+    // # zh_CN 两级磁化机
+    MAGNETIC_FURNACE("gtnc.machine.steam_godforge_processing.mode.polarizer", RecipeMaps.polarizerRecipes,
+        GTGuiTextures.OVERLAY_BUTTON_MACHINEMODE_POLARIZER, false),
+
+    // #tr gtnc.machine.steam_godforge_processing.mode.autoclave
+    // # Autoclave
+    // # zh_CN 高压釜
+    AUTOCLAVE("gtnc.machine.steam_godforge_processing.mode.autoclave", RecipeMaps.autoclaveRecipes,
+        GTGuiTextures.OVERLAY_BUTTON_MACHINEMODE_STEAM, false),
+
+    // #tr gtnc.machine.steam_godforge_processing.mode.Precise_Assembler
+    // # Precise Assembler
+    // # zh_CN 精密组装机
+    PRECISE_ASSEMBLER("gtnc.machine.steam_godforge_processing.mode.Precise_Assembler",
+        GoodGeneratorRecipeMaps.preciseAssemblerRecipes, GTGuiTextures.OVERLAY_BUTTON_PRECISE_MODE, false),
+
+    // #tr gtnc.machine.steam_godforge_processing.mode.electrolyzer
+    // # Electrolyzer
+    // # zh_CN 电解机
+    ELECTROLYZER("gtnc.machine.steam_godforge_processing.mode.electrolyzer", GTPPRecipeMaps.electrolyzerNonCellRecipes,
+        GTGuiTextures.OVERLAY_BUTTON_MACHINEMODE_CHEMBATH, false),
+
+    // #tr gtnc.machine.steam_godforge_processing.mode.centrifuge
+    // # Centrifuge
+    // # zh_CN 离心机
+    CENTRIFUGE("gtnc.machine.steam_godforge_processing.mode.centrifuge", RecipeMaps.centrifugeRecipes,
+        GTGuiTextures.OVERLAY_BUTTON_MACHINEMODE_SEPARATOR, false),
+
+    // #tr gtnc.machine.steam_godforge_processing.mode.scanner
+    // # Scanner
+    // # zh_CN 车床
+    SCANNER("gtnc.machine.steam_godforge_processing.mode.scanner", RecipeMaps.scannerFakeRecipes,
+        GTGuiTextures.OVERLAY_BUTTON_MACHINEMODE_SCANNER, false),
+
+    // #tr gtnc.machine.steam_godforge_processing.mode.Macerator
+    // # Macerator
+    // # zh_CN 粉碎机
+    MACERATOR("gtnc.machine.steam_godforge_processing.mode.Macerator", RecipeMaps.maceratorRecipes,
+        GTGuiTextures.OVERLAY_BUTTON_MACHINEMODE_IOF_MACERATOR, false),
+
+    // #tr gtnc.machine.steam_godforge_processing.mode.electric_implosion_compressor
+    // # Electric Implosion Compressor
+    // # zh_CN 电动聚爆压缩机
+    ELECTRIC_IMPLOSION_COMPRESSOR("gtnc.machine.steam_godforge_processing.mode.electric_implosion_compressor",
+        BartWorksRecipeMaps.electricImplosionCompressorRecipes, GTGuiTextures.OVERLAY_BUTTON_MACHINEMODE_WASHPLANT,
+        false),
+
+    // #tr gtnc.machine.steam_godforge_processing.mode.fuel_refining_complex
+    // # Fuel Refining Complex
+    // # zh_CN 燃料精炼复合体
+    FUEL_REFINING_COMPLEX("gtnc.machine.steam_godforge_processing.mode.fuel_refining_complex",
+        GTNCRecipeMaps.FuelRefiningComplexRecipes, GTGuiTextures.OVERLAY_BUTTON_MACHINEMODE_MASS_FABRICATING, false);
 
     private static final SteamGodforgeProcessingMode[] VALUES = values();
     private static final List<RecipeMap<?>> AVAILABLE_RECIPE_MAPS;
