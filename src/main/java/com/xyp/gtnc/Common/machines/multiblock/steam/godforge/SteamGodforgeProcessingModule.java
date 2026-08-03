@@ -2,7 +2,6 @@ package com.xyp.gtnc.Common.machines.multiblock.steam.godforge;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 
 import net.minecraft.item.ItemStack;
@@ -14,22 +13,20 @@ import org.jetbrains.annotations.NotNull;
 
 import com.gtnewhorizon.gtnhlib.util.numberformatting.NumberFormatUtil;
 import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
-import com.xyp.gtnc.Common.gui.modularui.multiblock.steam.SteamGodforgeSmeltingModeModuleGui;
+import com.xyp.gtnc.Common.gui.modularui.multiblock.steam.SteamGodforgeProcessingModuleGui;
+import com.xyp.gtnc.utils.enums.mode.SteamGodforgeProcessingMode;
 import com.xyp.gtnc.utils.lang.TextLocalization;
 
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.logic.ProcessingLogic;
-import gregtech.api.modularui2.GTGuiTextures;
 import gregtech.api.recipe.RecipeMap;
-import gregtech.api.recipe.RecipeMaps;
 import gregtech.api.recipe.check.CheckRecipeResult;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 import gregtech.api.util.GTRecipe;
 import gregtech.api.util.MultiblockTooltipBuilder;
 import gregtech.api.util.OverclockCalculator;
 import gregtech.common.gui.modularui.multiblock.base.MTEMultiBlockBaseGui;
-import gtPlusPlus.api.recipe.GTPPRecipeMaps;
 import tectech.thing.metaTileEntity.multi.base.TTMultiblockBase;
 import tectech.thing.metaTileEntity.multi.godforge.MTESmeltingModule;
 
@@ -37,18 +34,8 @@ import tectech.thing.metaTileEntity.multi.godforge.MTESmeltingModule;
  * 蒸汽诸神之锻炉加工模块。
  *
  * <p>
- * 包含九种加工模式：
- * <ol>
- * <li>激光蚀刻机</li>
- * <li>切割机</li>
- * <li>卷板机</li>
- * <li>线材轧机</li>
- * <li>GT++ 工业搅拌机</li>
- * <li>组装机</li>
- * <li>压模机</li>
- * <li>流体固化机</li>
- * <li>压缩机</li>
- * </ol>
+ * 加工模式由 SteamGodforgeProcessingMode 统一定义：
+ * 新增模式时只需要在模式定义表末尾增加一项，并补充语言文件翻译。
  *
  * <p>
  * 该模块使用蒸汽神锻的团队无线蒸汽供能、升级并行、速度和能耗加成，
@@ -57,26 +44,20 @@ import tectech.thing.metaTileEntity.multi.godforge.MTESmeltingModule;
 
 public class SteamGodforgeProcessingModule extends MTESmeltingModule implements SteamGodforgePower.ControllerAware {
 
-    public static final int MODE_LASER_ENGRAVER = 0;
-    public static final int MODE_CUTTER = 1;
-    public static final int MODE_BENDER = 2;
-    public static final int MODE_WIREMILL = 3;
-    public static final int MODE_GTPP_MIXER = 4;
-    public static final int MODE_ASSEMBLER = 5;
-    public static final int MODE_FORMING_PRESS = 6;
-    public static final int MODE_FLUID_SOLIDIFIER = 7;
-    public static final int MODE_COMPRESSOR = 8;
-
-    private static final int MODE_COUNT = 9;
-
-    private static final String[] MODE_KEYS = { TextLocalization.SteamGodforgeProcessingModeLaserEngraverKey,
-        TextLocalization.SteamGodforgeProcessingModeCutterKey, TextLocalization.SteamGodforgeProcessingModeBenderKey,
-        TextLocalization.SteamGodforgeProcessingModeWiremillKey,
-        TextLocalization.SteamGodforgeProcessingModeGTPPMixerKey,
-        TextLocalization.SteamGodforgeProcessingModeAssemblerKey,
-        TextLocalization.SteamGodforgeProcessingModeFormingPressKey,
-        TextLocalization.SteamGodforgeProcessingModeFluidSolidifierKey,
-        TextLocalization.SteamGodforgeProcessingModeCompressorKey };
+    /*
+     * 兼容旧代码的模式常量别名。
+     * 新增模式时不需要再添加新的 int 常量；
+     * 机器内部和 GUI 都直接读取 SteamGodforgeProcessingMode。
+     */
+    public static final int MODE_LASER_ENGRAVER = SteamGodforgeProcessingMode.LASER_ENGRAVER.getId();
+    public static final int MODE_CUTTER = SteamGodforgeProcessingMode.CUTTER.getId();
+    public static final int MODE_BENDER = SteamGodforgeProcessingMode.BENDER.getId();
+    public static final int MODE_WIREMILL = SteamGodforgeProcessingMode.WIREMILL.getId();
+    public static final int MODE_GTPP_MIXER = SteamGodforgeProcessingMode.GTPP_MIXER.getId();
+    public static final int MODE_ASSEMBLER = SteamGodforgeProcessingMode.ASSEMBLER.getId();
+    public static final int MODE_FORMING_PRESS = SteamGodforgeProcessingMode.FORMING_PRESS.getId();
+    public static final int MODE_FLUID_SOLIDIFIER = SteamGodforgeProcessingMode.FLUID_SOLIDIFIER.getId();
+    public static final int MODE_COMPRESSOR = SteamGodforgeProcessingMode.COMPRESSOR.getId();
 
     private long currentEUt;
     private int currentParallel;
@@ -166,7 +147,7 @@ public class SteamGodforgeProcessingModule extends MTESmeltingModule implements 
             @NotNull
             @Override
             protected CheckRecipeResult validateRecipe(@NotNull GTRecipe recipe) {
-                if (machineMode == MODE_ASSEMBLER) {
+                if (getProcessingMode().requiresStrictRecipeValidation()) {
                     /*
                      * 拒绝 NEI 占位配方、禁用配方以及输入或输出不完整的异常配方。
                      */
@@ -247,44 +228,33 @@ public class SteamGodforgeProcessingModule extends MTESmeltingModule implements 
         logic.enablePerfectOverclock();
     }
 
+    /**
+     * 当前模式定义。
+     */
+    public SteamGodforgeProcessingMode getProcessingMode() {
+        return SteamGodforgeProcessingMode.fromId(machineMode);
+    }
+
+    /**
+     * 获取任意模式编号对应的定义，供 GUI 弹窗使用。
+     */
+    public SteamGodforgeProcessingMode getProcessingMode(int mode) {
+        return SteamGodforgeProcessingMode.fromId(mode);
+    }
+
+    public int getProcessingModeCount() {
+        return SteamGodforgeProcessingMode.count();
+    }
+
     @Override
     public RecipeMap<?> getRecipeMap() {
-        switch (machineMode) {
-            case MODE_CUTTER:
-                return RecipeMaps.cutterRecipes;
-            case MODE_BENDER:
-                return RecipeMaps.benderRecipes;
-            case MODE_WIREMILL:
-                return RecipeMaps.wiremillRecipes;
-            case MODE_GTPP_MIXER:
-                return GTPPRecipeMaps.mixerNonCellRecipes;
-            case MODE_ASSEMBLER:
-                return RecipeMaps.assemblerRecipes;
-            case MODE_FORMING_PRESS:
-                return RecipeMaps.formingPressRecipes;
-            case MODE_FLUID_SOLIDIFIER:
-                return RecipeMaps.fluidSolidifierRecipes;
-            case MODE_COMPRESSOR:
-                return RecipeMaps.compressorRecipes;
-            case MODE_LASER_ENGRAVER:
-            default:
-                return RecipeMaps.laserEngraverRecipes;
-        }
+        return getProcessingMode().getRecipeMap();
     }
 
     @NotNull
     @Override
     public Collection<RecipeMap<?>> getAvailableRecipeMaps() {
-        return Arrays.asList(
-            RecipeMaps.laserEngraverRecipes,
-            RecipeMaps.cutterRecipes,
-            RecipeMaps.benderRecipes,
-            RecipeMaps.wiremillRecipes,
-            GTPPRecipeMaps.mixerNonCellRecipes,
-            RecipeMaps.assemblerRecipes,
-            RecipeMaps.formingPressRecipes,
-            RecipeMaps.fluidSolidifierRecipes,
-            RecipeMaps.compressorRecipes);
+        return SteamGodforgeProcessingMode.getAvailableRecipeMaps();
     }
 
     @Override
@@ -294,34 +264,35 @@ public class SteamGodforgeProcessingModule extends MTESmeltingModule implements 
 
     @Override
     public boolean supportsMachineModeSwitch() {
-        return true;
+        return SteamGodforgeProcessingMode.count() > 1;
     }
 
     @Override
     public int nextMachineMode() {
-        return (machineMode + 1) % MODE_COUNT;
+        return SteamGodforgeProcessingMode.wrapId(machineMode + 1);
     }
 
     @Override
     public void setMachineMode(int mode) {
-        int validMode = mode;
+        /*
+         * 对来自旧存档、网络包或其他代码的非法模式编号统一回退到模式 0。
+         */
+        super.setMachineMode(
+            SteamGodforgeProcessingMode.fromId(mode)
+                .getId());
+    }
 
-        if (validMode < 0 || validMode >= MODE_COUNT) {
-            validMode = MODE_LASER_ENGRAVER;
-        }
-
-        super.setMachineMode(validMode);
+    /**
+     * 返回任意模式的语言键。
+     * GUI 不需要临时修改机器状态即可生成全部模式按钮和提示。
+     */
+    public String getMachineModeKey(int mode) {
+        return getProcessingMode(mode).getTranslationKey();
     }
 
     @Override
     public String getMachineModeKey() {
-        int mode = machineMode;
-
-        if (mode < 0 || mode >= MODE_KEYS.length) {
-            mode = MODE_LASER_ENGRAVER;
-        }
-
-        return MODE_KEYS[mode];
+        return getProcessingMode().getTranslationKey();
     }
 
     @Override
@@ -388,26 +359,7 @@ public class SteamGodforgeProcessingModule extends MTESmeltingModule implements 
 
     @Override
     protected @NotNull MTEMultiBlockBaseGui<?> getGui() {
-        return new SteamGodforgeSmeltingModeModuleGui<>(
-            this,
-            // 0 激光蚀刻机
-            GTGuiTextures.OVERLAY_SLOT_LENS,
-            // 1 切割机
-            GTGuiTextures.OVERLAY_SLOT_CUTTER_SLICED,
-            // 2 卷板机
-            GTGuiTextures.OVERLAY_SLOT_BENDER,
-            // 3 线材轧机
-            GTGuiTextures.OVERLAY_SLOT_WIREMILL,
-            // 4 搅拌机
-            GTGuiTextures.OVERLAY_SLOT_BEAKER_1,
-            // 5 组装机
-            GTGuiTextures.OVERLAY_SLOT_CIRCUIT,
-            // 6 压模机
-            GTGuiTextures.OVERLAY_SLOT_PRESS_1,
-            // 7 流体固化机
-            GTGuiTextures.OVERLAY_SLOT_MOLD,
-            // 8 压缩机
-            GTGuiTextures.OVERLAY_SLOT_COMPRESSOR);
+        return new SteamGodforgeProcessingModuleGui(this);
     }
 
     @Override

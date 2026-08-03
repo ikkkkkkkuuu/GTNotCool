@@ -11,7 +11,9 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import net.minecraft.init.Blocks;
@@ -45,8 +47,10 @@ import gregtech.api.util.MultiblockTooltipBuilder;
 import gregtech.common.gui.modularui.multiblock.base.MTEMultiBlockBaseGui;
 import tectech.thing.block.TileEntityForgeOfGods;
 import tectech.thing.metaTileEntity.multi.godforge.MTEBaseModule;
+import tectech.thing.metaTileEntity.multi.godforge.MTEExoticModule;
 import tectech.thing.metaTileEntity.multi.godforge.MTEForgeOfGods;
 import tectech.thing.metaTileEntity.multi.godforge.MTEMoltenModule;
+import tectech.thing.metaTileEntity.multi.godforge.MTEPlasmaModule;
 import tectech.thing.metaTileEntity.multi.godforge.MTESmeltingModule;
 import tectech.thing.metaTileEntity.multi.godforge.upgrade.ForgeOfGodsUpgrade;
 import tectech.thing.metaTileEntity.multi.godforge.util.ForgeOfGodsData;
@@ -265,6 +269,7 @@ public class SteamForgeOfGods extends MTEForgeOfGods {
             } else {
                 disconnectSteamModules();
             }
+            updateSteamCompositionTotal(data);
             SteamGodforgeMilestones.update(data);
         }
         // The steam forge keeps milestone currency virtual; never eject upstream Graviton Shard items.
@@ -322,6 +327,58 @@ public class SteamForgeOfGods extends MTEForgeOfGods {
         lastSteamConsumed = BigInteger.valueOf(amount);
         totalSteamConsumed = totalSteamConsumed.add(lastSteamConsumed);
         return true;
+    }
+
+    /**
+     * Replaces the upstream composition counter with a Steam-Godforge-specific one.
+     *
+     * <p>
+     * The upstream Forge groups modules only by the four original base classes
+     * ({@code MTESmeltingModule}, {@code MTEMoltenModule}, {@code MTEPlasmaModule} and
+     * {@code MTEExoticModule}). Several GTNC modules inherit {@code MTESmeltingModule} only to reuse the
+     * Godforge GUI/sync framework, so the upstream counter treats the extractor, processing, alloy and
+     * Solar Muon modules as one smelting extension.
+     *
+     * <p>
+     * Here every concrete Steam module class counts as its own extension. Exotic and Magmatter modes remain
+     * separate extension types, matching the upstream behavior. After inversion, duplicate modules contribute
+     * fractional progress using the original family weights.
+     */
+    private void updateSteamCompositionTotal(ForgeOfGodsData data) {
+        Map<String, Integer> counts = new HashMap<>();
+        Map<String, Float> duplicateWeights = new HashMap<>();
+
+        for (MTEBaseModule module : moduleHatches) {
+            if (module == null) continue;
+
+            String key = module.getClass()
+                .getName();
+            float duplicateWeight = 0.2f;
+
+            if (module instanceof MTEExoticModule exoticModule) {
+                boolean magmatter = exoticModule.isMagmatterModeOn();
+                key += magmatter ? "#magmatter" : "#exotic";
+                duplicateWeight = magmatter ? 1.0f : 0.8f;
+            } else if (module instanceof MTEPlasmaModule) {
+                duplicateWeight = 0.6f;
+            } else if (module instanceof MTEMoltenModule) {
+                duplicateWeight = 0.4f;
+            }
+
+            counts.merge(key, 1, Integer::sum);
+            duplicateWeights.put(key, duplicateWeight);
+        }
+
+        float total = counts.size() + Math.max(0, data.getRingAmount() - 1);
+
+        if (data.isInversion()) {
+            for (Map.Entry<String, Integer> entry : counts.entrySet()) {
+                int duplicates = Math.max(0, entry.getValue() - 1);
+                total += duplicates * duplicateWeights.getOrDefault(entry.getKey(), 0.2f);
+            }
+        }
+
+        data.setTotalExtensionsBuilt(total);
     }
 
     private void applySteamModuleParameters(int fuelFactor) {

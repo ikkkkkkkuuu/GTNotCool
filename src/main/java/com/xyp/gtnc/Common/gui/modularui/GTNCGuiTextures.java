@@ -128,6 +128,15 @@ public final class GTNCGuiTextures {
         .fullImage(MODID, "gui/overlay_button/power_panel");
 
     // Godforge-themed extras
+
+    public static final UITexture OVERLAY_BUTTON_MACHINEMODE_LASER = UITexture
+        .fullImage(MODID, "gui/button/laser_engraver");
+
+    public static final UITexture OVERLAY_BUTTON_MACHINEMODE_MIXER = UITexture.fullImage(MODID, "gui/button/mixer");
+
+    public static final UITexture OVERLAY_BUTTON_MACHINEMODE_FLUID_SOLIDIFIER = UITexture
+        .fullImage(MODID, "gui/button/fluid_solidifier");
+
     public static final UITexture OVERLAY_BUTTON_FLAG = UITexture.fullImage(MODID, "gui/overlay_button/flag");
     public static final UITexture OVERLAY_BUTTON_HEAT_ON = UITexture.fullImage(MODID, "gui/overlay_button/heat_on");
     public static final UITexture OVERLAY_BUTTON_BATTERY_ON = UITexture

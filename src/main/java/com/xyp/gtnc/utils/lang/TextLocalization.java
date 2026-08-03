@@ -11,50 +11,17 @@ public class TextLocalization {
     // # zh_CN 使用无损完美超频
     public static final String Tooltip_SteamGodforge_perfect = TextEnums.tr("Tooltip_SteamGodforge_perfect");
 
-    // #tr gtnc.machine.steam_godforge_processing.mode.laser_engraver
-    // # Laser Engraver
-    // # zh_CN 激光蚀刻机
-    public static final String SteamGodforgeProcessingModeLaserEngraverKey = "gtnc.machine.steam_godforge_processing.mode.laser_engraver";
+    // #tr gui.steam_godforge.processing_mode_selector
+    // # Processing Mode Selection
+    // # zh_CN 加工模式选择
+    public static final String SteamGodforgeProcessingModeSelectorTitle = TextEnums
+        .tr("gui.steam_godforge.processing_mode_selector");
 
-    // #tr gtnc.machine.steam_godforge_processing.mode.cutter
-    // # Cutting Machine
-    // # zh_CN 切割机
-    public static final String SteamGodforgeProcessingModeCutterKey = "gtnc.machine.steam_godforge_processing.mode.cutter";
-
-    // #tr gtnc.machine.steam_godforge_processing.mode.bender
-    // # Bending Machine
-    // # zh_CN 卷板机
-    public static final String SteamGodforgeProcessingModeBenderKey = "gtnc.machine.steam_godforge_processing.mode.bender";
-
-    // #tr gtnc.machine.steam_godforge_processing.mode.wiremill
-    // # Wiremill
-    // # zh_CN 线材轧机
-    public static final String SteamGodforgeProcessingModeWiremillKey = "gtnc.machine.steam_godforge_processing.mode.wiremill";
-
-    // #tr gtnc.machine.steam_godforge_processing.mode.gtpp_mixer
-    // # Industrial Mixer
-    // # zh_CN 工业搅拌机
-    public static final String SteamGodforgeProcessingModeGTPPMixerKey = "gtnc.machine.steam_godforge_processing.mode.gtpp_mixer";
-
-    // #tr gtnc.machine.steam_godforge_processing.mode.assembler
-    // # Assembler
-    // # zh_CN 组装机
-    public static final String SteamGodforgeProcessingModeAssemblerKey = "gtnc.machine.steam_godforge_processing.mode.assembler";
-
-    // #tr gtnc.machine.steam_godforge_processing.mode.forming_press
-    // # Forming Press
-    // # zh_CN 压模机
-    public static final String SteamGodforgeProcessingModeFormingPressKey = "gtnc.machine.steam_godforge_processing.mode.forming_press";
-
-    // #tr gtnc.machine.steam_godforge_processing.mode.fluid_solidifier
-    // # Fluid Solidifier
-    // # zh_CN 流体固化机
-    public static final String SteamGodforgeProcessingModeFluidSolidifierKey = "gtnc.machine.steam_godforge_processing.mode.fluid_solidifier";
-
-    // #tr gtnc.machine.steam_godforge_processing.mode.compressor
-    // # Compressor
-    // # zh_CN 压缩机
-    public static final String SteamGodforgeProcessingModeCompressorKey = "gtnc.machine.steam_godforge_processing.mode.compressor";
+    // #tr gui.steam_godforge.processing_mode_selector.open
+    // # Shift+Left Click to open the mode list
+    // # zh_CN Shift+左键打开模式列表
+    public static final String SteamGodforgeProcessingModeSelectorOpen = TextEnums
+        .tr("gui.steam_godforge.processing_mode_selector.open");
     // #tr gtnc.machine.steam_godforge_processing.machine_type
     // # Steam Forge of Gods Processing Module
     // # zh_CN 蒸汽诸神之锻炉加工模块
@@ -74,8 +41,8 @@ public class TextLocalization {
         .tr("gtnc.machine.steam_godforge_processing.tooltip.1");
 
     // #tr gtnc.machine.steam_godforge_processing.tooltip.2
-    // # Provides nine common processing modes
-    // # zh_CN 提供九种常用材料加工模式
+    // # Provides multiple common processing modes
+    // # zh_CN 提供多种常用材料加工模式
     public static final String Tooltip_SteamGodforgeProcessingModule_02 = TextEnums
         .tr("gtnc.machine.steam_godforge_processing.tooltip.2");
 
