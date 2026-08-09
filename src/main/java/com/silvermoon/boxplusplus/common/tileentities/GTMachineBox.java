@@ -9,7 +9,13 @@ import static gregtech.api.enums.HatchElement.*;
 import static gregtech.api.enums.Textures.BlockIcons.casingTexturePages;
 import static gregtech.api.util.GTStructureUtility.buildHatchAdder;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -28,7 +34,12 @@ import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
 import com.silvermoon.boxplusplus.common.gui.BoxMachineGui;
 import com.silvermoon.boxplusplus.common.loader.BlockRegister;
-import com.silvermoon.boxplusplus.util.*;
+import com.silvermoon.boxplusplus.util.BoxRecipe;
+import com.silvermoon.boxplusplus.util.BoxRoutings;
+import com.silvermoon.boxplusplus.util.FluidContainer;
+import com.silvermoon.boxplusplus.util.ItemContainer;
+import com.silvermoon.boxplusplus.util.ResultModuleRequirement;
+import com.silvermoon.boxplusplus.util.Util;
 import com.xyp.gtnc.utils.structure.GTNCStructureErrors;
 
 import appeng.api.AEApi;

@@ -3,7 +3,8 @@ package com.silvermoon.boxplusplus.api;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.collect.*;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import com.silvermoon.boxplusplus.boxplusplus;
 
 import gregtech.api.metatileentity.implementations.MTEMultiBlockBase;

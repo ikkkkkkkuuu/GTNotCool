@@ -8,7 +8,11 @@ import com.silvermoon.boxplusplus.common.loader.TileEntitiesLoader;
 import com.silvermoon.boxplusplus.network.NetworkLoader;
 import com.silvermoon.boxplusplus.util.ResultModuleRequirement;
 
-import cpw.mods.fml.common.event.*;
+import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLLoadCompleteEvent;
+import cpw.mods.fml.common.event.FMLPostInitializationEvent;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.event.FMLServerStartedEvent;
 import gregtech.api.recipe.check.CheckRecipeResultRegistry;
 
 public class CommonProxy {
