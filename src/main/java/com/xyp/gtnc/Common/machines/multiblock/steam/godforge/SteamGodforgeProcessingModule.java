@@ -44,21 +44,6 @@ import tectech.thing.metaTileEntity.multi.godforge.MTESmeltingModule;
 
 public class SteamGodforgeProcessingModule extends MTESmeltingModule implements SteamGodforgePower.ControllerAware {
 
-    /*
-     * 兼容旧代码的模式常量别名。
-     * 新增模式时不需要再添加新的 int 常量；
-     * 机器内部和 GUI 都直接读取 SteamGodforgeProcessingMode。
-     */
-    public static final int MODE_LASER_ENGRAVER = SteamGodforgeProcessingMode.LASER_ENGRAVER.getId();
-    public static final int MODE_CUTTER = SteamGodforgeProcessingMode.CUTTER.getId();
-    public static final int MODE_BENDER = SteamGodforgeProcessingMode.BENDER.getId();
-    public static final int MODE_WIREMILL = SteamGodforgeProcessingMode.WIREMILL.getId();
-    public static final int MODE_GTPP_MIXER = SteamGodforgeProcessingMode.GTPP_MIXER.getId();
-    public static final int MODE_ASSEMBLER = SteamGodforgeProcessingMode.ASSEMBLER.getId();
-    public static final int MODE_FORMING_PRESS = SteamGodforgeProcessingMode.FORMING_PRESS.getId();
-    public static final int MODE_FLUID_SOLIDIFIER = SteamGodforgeProcessingMode.FLUID_SOLIDIFIER.getId();
-    public static final int MODE_COMPRESSOR = SteamGodforgeProcessingMode.COMPRESSOR.getId();
-
     private long currentEUt;
     private int currentParallel;
 

@@ -1,0 +1,8 @@
+This distribution incorporates and adapts source code from:
+
+TC4AutoResearch-weighted
+https://github.com/lekior/TC4AutoResearch-weighted
+Upstream revision: 67d5e21947ff8ae1d7e6aae170a96846c1a0063c (2026-08-06)
+
+The code was package-relocated and integrated into ScienceNotCool. The upstream
+MIT license is included in TC4AutoResearch-weighted-LICENSE.txt beside this file.

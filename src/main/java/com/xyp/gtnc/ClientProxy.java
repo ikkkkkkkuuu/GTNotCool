@@ -19,6 +19,11 @@ public class ClientProxy extends CommonProxy {
     public void preInit(FMLPreInitializationEvent event) {
         super.preInit(event);
 
+        com.xyp.gtnc.Client.research.Config.synchronizeConfiguration();
+        FMLCommonHandler.instance()
+            .bus()
+            .register(new com.xyp.gtnc.Client.research.ClientResearchTickHandler());
+
         // 注册所有按键绑定
         KeyBindManager.registerAllKeyBinds();
 
@@ -45,6 +50,7 @@ public class ClientProxy extends CommonProxy {
 
         // 注册所有客户端渲染器（实体已在CommonProxy中注册）
         RendererLoader.registerRenderers();
+        com.silvermoon.boxplusplus.client.BoxPlusPlusClientIntegration.init(event);
 
         // 建筑生成器 GUI 打开时的世界内线框预览渲染器
         MinecraftForge.EVENT_BUS.register(new com.xyp.gtnc.Common.building.client.BuildingBoundsRenderer());
@@ -61,9 +67,10 @@ public class ClientProxy extends CommonProxy {
         // loadComplete 里为客户端补生成一次；loadRecipesServerStarted 内部有幂等守卫，单人环境不会重复添加。
         RecipeLoader.loadRecipesServerStarted();
 
-        // Replace the Thaumcraft/ResearchTweaks client research GUI with GTNC's vanilla-based automatic table.
-        // This only changes NetworkRegistry's client map; the dedicated/integrated server GUI map is untouched.
-        com.xyp.gtnc.Client.research.ResearchGuiCompatibility.install();
+        if (cpw.mods.fml.common.Loader.isModLoaded("ThaumcraftResearchTweaks")) {
+            cpw.mods.fml.common.network.NetworkRegistry.INSTANCE
+                .registerGuiHandler("ThaumcraftResearchTweaks", new com.xyp.gtnc.Client.research.GuiHandler());
+        }
     }
 
     /**

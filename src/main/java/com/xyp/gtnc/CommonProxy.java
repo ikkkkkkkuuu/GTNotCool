@@ -79,6 +79,7 @@ public class CommonProxy {
         cpw.mods.fml.common.FMLCommonHandler.instance()
             .bus()
             .register(pixelHandler);
+        com.silvermoon.boxplusplus.BoxPlusPlusIntegration.preInit(event);
 
         // 初始化ME无线二合一接口终端（并入本mod的ae2thing移植）
         com.xyp.gtnc.ae2thing.AE2Thing.preInit(event, ScienceNotCool.instance);
@@ -90,6 +91,7 @@ public class CommonProxy {
         com.xyp.gtnc.Common.machines.bee.GTNCBeeAlleles.register();
 
         com.xyp.gtnc.ae2thing.AE2Thing.init(event);
+        com.silvermoon.boxplusplus.BoxPlusPlusIntegration.init(event);
     }
 
     // postInit "Handle interaction with other mods, complete your setup based on this." (Remove if not needed)
@@ -130,6 +132,7 @@ public class CommonProxy {
         RecipeLoader.loadRecipes();
 
         com.xyp.gtnc.ae2thing.AE2Thing.onLoadComplete(event);
+        com.silvermoon.boxplusplus.BoxPlusPlusIntegration.loadComplete(event);
     }
 
 }

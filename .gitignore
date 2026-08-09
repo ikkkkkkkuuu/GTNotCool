@@ -1,4 +1,5 @@
 .gradle
+.gradle-codex/
 .settings
 /.idea/
 /.vscode/

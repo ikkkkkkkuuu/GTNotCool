@@ -2,12 +2,16 @@
   "required": true,
   "minVersion": "0.8.5-GTNH",
   "package": "com.xyp.gtnc.mixins",
+  "plugin": "com.xyp.gtnc.mixins.GTNCMixinConfigPlugin",
   "refmap": "mixins.sciencenotcool.refmap.json",
   "target": "@env(DEFAULT)",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "minecraft.MixinInventoryCrafting",
     "minecraft.VanillaFurnaceMixin",
+    "tcautores.GuiResearchBrowserMixin",
+    "tcautores.GuiResearchTableMixin",
+    "tcautores.NetHandlerPlayClientMixin",
     "early.gregtech.AccessorGTLanguageManager",
     "early.energyMonitor.MixinBaseMetaTileEntityEnergyMonitor",
     "early.energyMonitor.MixinCommonMetaTileEntityEnergyMonitor"
