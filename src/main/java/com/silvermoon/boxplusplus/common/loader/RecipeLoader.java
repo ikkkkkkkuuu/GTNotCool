@@ -87,7 +87,7 @@ public class RecipeLoader implements Runnable {
                 ItemList.Super_Tank_LV.get(1),
                 ItemList.Super_Chest_LV.get(1),
                 GTModHandler.getModItem(AppliedEnergistics2.ID, "item.ItemMultiMaterial", 4, 33),
-                GTModHandler.getModItem(NewHorizonsCoreMod.ID, "tile.TitaniumPlatedReinforcedStone", 64))
+                GTModHandler.getModItem(NewHorizonsCoreMod.ID, "TitaniumPlatedReinforcedStone", 64))
             .fluidInputs(
                 FluidRegistry.getFluidStack("ic2coolant", 10000),
                 FluidRegistry.getFluidStack("molten.indalloy140", 1440))
