@@ -169,7 +169,8 @@ public class Config {
      * 生成心灵蜘蛛/古神守卫、召唤迷雾、发送幻觉聊天、强制解锁古神研究。
      * <p>
      * 实现方式：重定向 {@code WarpEvents.checkWarpEvent} 中触发事件的随机判定
-     * ({@code rand.nextInt(100)})，使触发条件恒不成立，从而跳过整个事件块；
+     * ({@code rand.nextInt(100)})，使触发条件恒不成立，从而跳过整个事件块；若安装了 WarpTheory，
+     * 还会跳过其独立的 {@code WarpEventHandler.livingUpdate} 事件处理器；
      * 而方法末尾的临时扭曲衰减({@code addWarpTemp(-1)})照常执行，
      * <b>扭曲值(perm/temp/sticky)完全不受影响</b>。
      */
@@ -690,7 +691,8 @@ public class Config {
                 "disableWarpEvents",
                 CATEGORY_THAUMCRAFT,
                 disableWarpEvents,
-                "开启后，神秘时代的「扭曲事件」永不触发(负面药水、心灵蜘蛛、古神守卫、迷雾、幻觉聊天、强制解锁古神研究)。" + "扭曲值本身(永久/临时/黏滞)完全不受影响，包括其正常的临时衰减。");
+                "开启后，神秘时代及 WarpTheory 的「扭曲事件」永不触发(负面药水、心灵蜘蛛、古神守卫、迷雾、幻觉聊天、强制解锁古神研究)。"
+                    + "扭曲值本身(永久/临时/黏滞)完全不受影响，包括其正常的临时衰减。");
 
             tcUnlockAllResearch = configuration.getBoolean(
                 "unlockAllResearch",

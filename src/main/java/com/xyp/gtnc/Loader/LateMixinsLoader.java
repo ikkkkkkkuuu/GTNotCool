@@ -22,6 +22,7 @@ public class LateMixinsLoader implements ILateMixinLoader {
     private static final String MOD_CROPSNH = "cropsnh";
     private static final String MOD_FORESTRY = "Forestry";
     private static final String MOD_THAUMCRAFT = "Thaumcraft";
+    private static final String MOD_WARP_THEORY = "WarpTheory";
     // endregion
 
     @Override
@@ -110,6 +111,10 @@ public class LateMixinsLoader implements ILateMixinLoader {
                 "Thaumcraft.MixinTileInfusionMatrix",
                 "Thaumcraft.MixinVisNetHandler");
 
+        }
+
+        if (loadedMods.contains(MOD_WARP_THEORY)) {
+            addAll(list, "WarpTheory.MixinWarpEventHandler");
         }
 
         return list;
