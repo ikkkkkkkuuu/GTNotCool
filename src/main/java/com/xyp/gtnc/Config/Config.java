@@ -46,28 +46,12 @@ public class Config {
     public static boolean recipeSpeedFullFluidOutput = true;
     // endregion
 
-    // region TimeAccelerator 配置
-    /**
-     * 世界加速器 (MTETimeAccelerator) TE 模式下跳过加速的 TileEntity 黑名单。
-     * 匹配方式：TileEntity 完整类名、或（GT 机器）其内部 MetaTileEntity 完整类名以列表中任一字符串开头。
-     * 默认排除 AE2 (appeng) 与 AE2FC (com.glodblock.github)，因为反复 tick ME 网络方块会造成严重卡顿；
-     * 以及本模组的超级样板仓 / 装配矩阵 / 量子计算机——这些是重型 AE/合成多方块，反复加速会拖垮 TPS。
-     */
-    public static String[] timeAcceleratorTileBlacklist = { "appeng.", "com.glodblock.github.",
-        "com.xyp.gtnc.Common.machines.hatch.VaultPortHatch",
-        "com.xyp.gtnc.Common.machines.hatch.SuperMTEHatchCraftingInputME",
-        "com.xyp.gtnc.Common.machines.multiblock.AssemblerMatrix",
-        "com.xyp.gtnc.Common.machines.multiblock.SingularityDataHub",
-        "com.xyp.gtnc.Common.machines.multiblock.QuantumComputer" };
-    /**
-     * 世界加速器 (MTETimeAccelerator) TE 模式下,单个 tick 内加速所有目标机器的总时间预算(毫秒)。
-     * <p>
-     * 加速循环每调用一次 {@code updateEntity()} 就检查是否超预算,一旦超过就立即结束本 tick 的加速——
-     * 没跑完的加速次数作废。蒸汽单方块机器的每次 tick 很贵(配方查询/排气),约 128 次就吃满原来写死的 25ms,
-     * 于是设成 128 倍以上也跑不满,表现为"128 以上无额外加速"。调高此值可让高倍率真正生效,
-     * <b>代价是重负载时更吃服务器 tick 时间(可能掉 TPS)</b>。默认 80ms。
-     */
-    public static int timeAcceleratorTickBudgetMs = 80;
+    // region Eternity Vial 配置
+    public static final int DEFAULT_ETERNITY_VIAL_INITIAL_MULTIPLIER = 16;
+    public static final int DEFAULT_ETERNITY_VIAL_DURATION_SECONDS = 120;
+    /** Configured first Eternity Vial stage; capped so the sixth stage still fits in a signed int. */
+    public static int eternityVialInitialMultiplier = DEFAULT_ETERNITY_VIAL_INITIAL_MULTIPLIER;
+    public static int eternityVialDurationSeconds = DEFAULT_ETERNITY_VIAL_DURATION_SECONDS;
     // endregion
 
     // region VeinMiningPickaxe 配置
@@ -379,7 +363,7 @@ public class Config {
     private static final String CATEGORY_ME_OUTPUT_HATCH = "ME_Output_Hatch";
     private static final String CATEGORY_QUANTUM_COMPUTER = "Quantum_Computer";
     private static final String CATEGORY_MIRACLE_DOOR = "Miracle_Door";
-    private static final String CATEGORY_TIME_ACCELERATOR = "Time_Accelerator";
+    private static final String CATEGORY_ETERNITY_VIAL = "Eternity_Vial";
     private static final String CATEGORY_CROPSNH = "CropsNH";
     private static final String CATEGORY_FORESTRY = "Forestry";
     private static final String CATEGORY_THAUMCRAFT = "Thaumcraft";
@@ -389,6 +373,7 @@ public class Config {
     // endregion
 
     // region 配置文件
+    private static final String LEGACY_WORLD_ACCELERATOR_CATEGORY = "Time_Accelerator";
     static final File cfgDirPath = new File(System.getProperty("user.dir"), "config/" + ScienceNotCool.MODID);
     static final Configuration configuration = new Configuration(
         new File(cfgDirPath, ScienceNotCool.MODID + ".cfg"),
@@ -404,6 +389,11 @@ public class Config {
     // endregion
 
     static {
+        for (String category : configuration.getCategoryNames()) {
+            if (LEGACY_WORLD_ACCELERATOR_CATEGORY.equalsIgnoreCase(category)) {
+                configuration.removeCategory(configuration.getCategory(category));
+            }
+        }
         categoryInit();
         {
             // Vein Miner Pickaxe 配置项
@@ -495,23 +485,21 @@ public class Config {
                 QuantumComputer.enableDebugMode,
                 "开启量子计算机结构检查的调试日志。");
 
-            // Time Accelerator 配置项
-            timeAcceleratorTileBlacklist = configuration.getStringList(
-                "tileBlacklist",
-                CATEGORY_TIME_ACCELERATOR,
-                timeAcceleratorTileBlacklist,
-                "世界加速器 TE 模式下跳过加速的 TileEntity 类名前缀列表。" + "凡完整类名以列表中任一前缀开头的方块都不会被加速。"
-                    + "默认排除 AE2(appeng.)与 AE2FC(com.glodblock.github.)，因为反复 tick ME 网络方块会造成严重卡顿。");
-
-            timeAcceleratorTickBudgetMs = configuration.getInt(
-                "tickBudgetMs",
-                CATEGORY_TIME_ACCELERATOR,
-                timeAcceleratorTickBudgetMs,
+            eternityVialInitialMultiplier = configuration.getInt(
+                "eternityVialInitialMultiplier",
+                CATEGORY_ETERNITY_VIAL,
+                eternityVialInitialMultiplier,
                 1,
-                1000,
-                "世界加速器 TE 模式下，单个 tick 内加速所有目标机器的总时间预算(毫秒)。" + "加速循环一旦超过此预算就立即结束本 tick 的加速，未跑完的加速次数作废。"
-                    + "蒸汽单方块机器每次 tick 很贵(配方查询/排气)，旧的写死 25ms 只够约 128 次，"
-                    + "导致 128 倍以上无额外加速。调高此值可让高倍率真正生效，代价是重负载时更吃服务器 tick 时间(可能掉 TPS)。默认 80。");
+                Integer.MAX_VALUE >> 5,
+                "永恒之瓶第一档的加速倍率。共六档，后续每档自动翻倍；材质始终按档位 0~5 切换，不受倍率数值影响。");
+
+            eternityVialDurationSeconds = configuration.getInt(
+                "eternityVialDurationSeconds",
+                CATEGORY_ETERNITY_VIAL,
+                eternityVialDurationSeconds,
+                1,
+                Integer.MAX_VALUE / 20,
+                "永恒之瓶每次放置的持续时间，单位为秒。修改后只影响新放置的加速实体，默认 120 秒。");
 
             // CropsNH 配置项
             enableCropInstantGrowth = configuration.getBoolean(
@@ -1044,7 +1032,7 @@ public class Config {
         configuration.addCustomCategoryComment(CATEGORY_TOOL_BELT, "工具腰带的配置设置");
         configuration.addCustomCategoryComment(CATEGORY_ME_OUTPUT_HATCH, "ME 输出仓/输出总线的配置设置");
         configuration.addCustomCategoryComment(CATEGORY_QUANTUM_COMPUTER, "量子计算机的配置设置");
-        configuration.addCustomCategoryComment(CATEGORY_TIME_ACCELERATOR, "世界加速器的配置设置");
+        configuration.addCustomCategoryComment(CATEGORY_ETERNITY_VIAL, "永恒之瓶的配置设置");
         configuration.addCustomCategoryComment(CATEGORY_CROPSNH, "CropsNH 作物生长的配置设置");
         configuration.addCustomCategoryComment(CATEGORY_FORESTRY, "林业(Forestry)蜜蜂的配置设置");
         configuration.addCustomCategoryComment(CATEGORY_MIRACLE_DOOR, "奇迹之门的配置设置");

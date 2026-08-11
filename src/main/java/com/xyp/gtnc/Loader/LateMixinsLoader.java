@@ -31,7 +31,12 @@ public class LateMixinsLoader implements ILateMixinLoader {
         List<String> list = new ArrayList<>();
 
         if (loadedMods.contains(MOD_ENDER_IO)) {
-            addAll(list, "EnderIO.MixinNetworkedInventory", "EnderIO.MixinItemConduit");
+            addAll(
+                list,
+                "EnderIO.MixinNetworkedInventory",
+                "EnderIO.MixinItemConduit",
+                "EnderIO.MixinTileEntityEnderTimeAcceleration",
+                "EnderIO.MixinPoweredMachineEnergyAcceleration");
         }
 
         if (loadedMods.contains(MOD_AE2)) {
@@ -71,6 +76,7 @@ public class LateMixinsLoader implements ILateMixinLoader {
                 "Gregtech.SteamGodforgePlasmaPowerMixin",
                 "Gregtech.SteamGodforgeExoticPowerMixin",
                 "Gregtech.MixinMTEBasicMachineFacing",
+                "Gregtech.MixinBaseMetaTileEntityTimeAcceleration",
                 "Gregtech.ModifySomeConfigs",
                 "Gregtech.MixinMTEAssemblyLine",
                 "Gregtech.MixinMTEAdvAssLine",

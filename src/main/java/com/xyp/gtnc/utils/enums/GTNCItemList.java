@@ -676,16 +676,6 @@ public enum GTNCItemList implements IItemContainer {
 
     WhiteLamp,
 
-    TimeAcceleratorLV,
-    TimeAcceleratorMV,
-    TimeAcceleratorHV,
-    TimeAcceleratorEV,
-    TimeAcceleratorIV,
-    TimeAcceleratorLuV,
-    TimeAcceleratorZPM,
-    TimeAcceleratorUV,
-    TimeAcceleratorUHV,
-
     MiracleDoor,
     MiracleDoorPhoton,
     MiracleDoorMold;

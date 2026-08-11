@@ -7,6 +7,7 @@ import com.xyp.gtnc.Client.GTNCCreativeTabs;
 import com.xyp.gtnc.Common.items.MetaItemAdder;
 import com.xyp.gtnc.Common.items.bee.EndlessFrameItem;
 import com.xyp.gtnc.Common.items.bee.MutagenicFrameItem;
+import com.xyp.gtnc.Common.items.timevial.EternityVial;
 import com.xyp.gtnc.Common.items.tools.VeinMiningPickaxe;
 import com.xyp.gtnc.Common.items.wildcard.WildcardPatternItem;
 import com.xyp.gtnc.utils.enums.GTNCItemList;
@@ -33,6 +34,9 @@ public class ItemsLoader {
     // 无尽框架（寿命无限 + 高产量，宇宙彩虹材质）
     public static Item endlessFrame;
 
+    // 永恒之瓶（仅移植时间瓶系列中的这一件物品）
+    public static Item eternityVial;
+
     // MetaItem 系统
     public static Item metaItem;
 
@@ -54,6 +58,9 @@ public class ItemsLoader {
         // 注册无尽框架（寿命无限 + 产量×30、不杂交、不衰变、永不磨损，宇宙彩虹材质）
         endlessFrame = new EndlessFrameItem();
         GameRegistry.registerItem(endlessFrame, EndlessFrameItem.ITEM_NAME);
+
+        eternityVial = new EternityVial();
+        GameRegistry.registerItem(eternityVial, EternityVial.ITEM_NAME);
     }
 
     public static void registryMetaItems() {

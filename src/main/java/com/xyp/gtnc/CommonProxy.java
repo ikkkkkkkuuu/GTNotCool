@@ -12,6 +12,7 @@ import com.xyp.gtnc.Common.machines.multiblock.AssemblerMatrix;
 import com.xyp.gtnc.Common.packet.NetWorkHandler;
 import com.xyp.gtnc.Common.vending.VMTradeRegistry;
 import com.xyp.gtnc.Loader.BlockLoader;
+import com.xyp.gtnc.Loader.EntityLoader;
 import com.xyp.gtnc.Loader.ItemsLoader;
 import com.xyp.gtnc.Loader.MachineLoader;
 import com.xyp.gtnc.Loader.MaterialLoader;
@@ -53,6 +54,9 @@ public class CommonProxy {
 
         // 注册物品（包括工具带）
         ItemsLoader.registry();
+
+        // 永恒之瓶放置的短时加速实体（通用端注册，渲染器仅客户端注册）
+        EntityLoader.registry();
 
         // 注册方块
         BlockLoader.registry();

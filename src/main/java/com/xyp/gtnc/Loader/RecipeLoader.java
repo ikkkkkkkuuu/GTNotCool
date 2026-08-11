@@ -18,6 +18,7 @@ import com.xyp.gtnc.Common.recipe.gtnc.CombProcessingRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.CraftingTableRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.CrucibleRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.DrillingRigRecipes;
+import com.xyp.gtnc.Common.recipe.gtnc.EternityVialRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.FuelRefiningComplexRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.GeneralChemicalFactoryRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.InfusionCraftingRecipes;
@@ -44,6 +45,7 @@ public class RecipeLoader {
         ExtruderRecipes.loadRecipes();
         AssemblingLineRecipes.loadrecipes();
         DrillingRigRecipes.loadRecipes();
+        EternityVialRecipes.loadRecipes();
         FuelRefiningComplexRecipes.loadRecipes();
         BloodSoulSacrificialArrayRecipes.loadRecipes();
         PlatinumBasedTreatmentRecipes.loadRecipes();
