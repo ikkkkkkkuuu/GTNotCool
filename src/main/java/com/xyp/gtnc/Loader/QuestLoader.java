@@ -33,13 +33,16 @@ public final class QuestLoader {
     private static final String BACK_TO_FUTURE_LINE = "BackToFuture-QkFDS1RPRlVUVVJFX0dUTg==";
     private static final UUID BACK_TO_FUTURE_LINE_ID = new UUID(4774171070805526101L, 6076853730111083598L);
     private static final String[] QUEST_FILES = { "StarterReward-U1RBUlRFUi1QQUNLLUdUTg==.json",
-        "TravelerTerminal-VFJBVkVMRVItVEVSTUlOQUw=.json", "ArcaneExemption-QVJDQU5FLUVYRU1QVElPTg==.json" };
+        "TravelerTerminal-VFJBVkVMRVItVEVSTUlOQUw=.json", "ArcaneExemption-QVJDQU5FLUVYRU1QVElPTg==.json",
+        "EternityVial-RVRFUk5JVFktVklBTA==.json" };
     private static final List<UUID> QUEST_IDS = Arrays.asList(
         new UUID(6004496025048666669L, 5782977386681685070L),
         new UUID(6004496025048666670L, 5782977386681685071L),
-        new UUID(6004496025048666671L, 5782977386681685072L));
+        new UUID(6004496025048666671L, 5782977386681685072L),
+        new UUID(6004496025048666672L, 5782977386681685073L));
     private static final String[] PLACEMENT_FILES = { "StarterReward-U1RBUlRFUi1QQUNLLUdUTg==.json",
-        "TravelerTerminal-VFJBVkVMRVItVEVSTUlOQUw=.json", "ArcaneExemption-QVJDQU5FLUVYRU1QVElPTg==.json" };
+        "TravelerTerminal-VFJBVkVMRVItVEVSTUlOQUw=.json", "ArcaneExemption-QVJDQU5FLUVYRU1QVElPTg==.json",
+        "EternityVial-RVRFUk5JVFktVklBTA==.json" };
 
     /*
      * BetterQuesting loads world progress before it optionally reloads the pack's default quest database. The default

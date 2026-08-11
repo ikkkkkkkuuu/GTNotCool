@@ -1,0 +1,56 @@
+{
+  "preRequisites:9": {
+    "0:10": {
+      "questIDHigh:4": 6004496025048666671,
+      "questIDLow:4": 5782977386681685072
+    }
+  },
+  "properties:10": {
+    "betterquesting:10": {
+      "autoClaim:1": 1,
+      "desc:8": "时间不再只是流逝的尺度，而成为可以握在手中的力量。\n\n点击下方的勾选按钮，领取永恒瓶。右键目标方块可施加时间加速，再次右键可提高倍率；Shift + 右键可移除加速。",
+      "globalShare:1": 0,
+      "icon:10": {
+        "Count:3": 1,
+        "Damage:2": 0,
+        "OreDict:8": "",
+        "id:8": "sciencenotcool:EternityVial"
+      },
+      "isMain:1": 1,
+      "isSilent:1": 0,
+      "lockedProgress:1": 0,
+      "name:8": "永恒流转：时间之瓶",
+      "questLogic:8": "AND",
+      "repeatTime:3": -1,
+      "repeat_relative:1": 1,
+      "simultaneous:1": 0,
+      "snd_complete:8": "random.levelup",
+      "snd_update:8": "random.levelup",
+      "taskLogic:8": "AND",
+      "visibility:8": "NORMAL"
+    }
+  },
+  "questIDHigh:4": 6004496025048666672,
+  "questIDLow:4": 5782977386681685073,
+  "rewards:9": {
+    "0:10": {
+      "ignoreDisabled:1": 0,
+      "index:3": 0,
+      "rewardID:8": "bq_standard:item",
+      "rewards:9": {
+        "0:10": {
+          "Count:3": 1,
+          "Damage:2": 0,
+          "OreDict:8": "",
+          "id:8": "sciencenotcool:EternityVial"
+        }
+      }
+    }
+  },
+  "tasks:9": {
+    "0:10": {
+      "index:3": 0,
+      "taskID:8": "bq_standard:checkbox"
+    }
+  }
+}
