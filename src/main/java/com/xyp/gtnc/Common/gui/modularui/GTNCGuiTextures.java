@@ -127,16 +127,39 @@ public final class GTNCGuiTextures {
     public static final UITexture OVERLAY_BUTTON_POWER_PANEL = UITexture
         .fullImage(MODID, "gui/overlay_button/power_panel");
 
-    // Godforge-themed extras
-
+    // Shared machine-mode overlays
     public static final UITexture OVERLAY_BUTTON_MACHINEMODE_LASER = UITexture
-        .fullImage(MODID, "gui/button/laser_engraver");
-
-    public static final UITexture OVERLAY_BUTTON_MACHINEMODE_MIXER = UITexture.fullImage(MODID, "gui/button/mixer");
-
+        .fullImage(MODID, "gui/overlay_button/machine_mode/laser_engraver");
+    public static final UITexture OVERLAY_BUTTON_MACHINEMODE_CUTTER = UITexture
+        .fullImage(MODID, "gui/overlay_button/machine_mode/cutter");
+    public static final UITexture OVERLAY_BUTTON_MACHINEMODE_CHEMICAL_REACTOR = UITexture
+        .fullImage(MODID, "gui/overlay_button/machine_mode/chemical_reactor");
+    public static final UITexture OVERLAY_BUTTON_MACHINEMODE_CIRCUIT_ASSEMBLER = UITexture
+        .fullImage(MODID, "gui/overlay_button/machine_mode/circuit_assembler");
+    public static final UITexture OVERLAY_BUTTON_MACHINEMODE_WIREMILL = UITexture
+        .fullImage(MODID, "gui/overlay_button/machine_mode/wiremill");
+    public static final UITexture OVERLAY_BUTTON_MACHINEMODE_MIXER = UITexture
+        .fullImage(MODID, "gui/overlay_button/machine_mode/mixer");
+    public static final UITexture OVERLAY_BUTTON_MACHINEMODE_FORMING_PRESS = UITexture
+        .fullImage(MODID, "gui/overlay_button/machine_mode/forming_press");
     public static final UITexture OVERLAY_BUTTON_MACHINEMODE_FLUID_SOLIDIFIER = UITexture
-        .fullImage(MODID, "gui/button/fluid_solidifier");
+        .fullImage(MODID, "gui/overlay_button/machine_mode/fluid_solidifier");
+    public static final UITexture OVERLAY_BUTTON_MACHINEMODE_ARCANE_ASSEMBLER = UITexture
+        .fullImage(MODID, "gui/overlay_button/machine_mode/arcane_assembler");
+    public static final UITexture OVERLAY_BUTTON_MACHINEMODE_INFUSION_MATRIX = UITexture
+        .fullImage(MODID, "gui/overlay_button/machine_mode/infusion_matrix");
+    public static final UITexture OVERLAY_BUTTON_MACHINEMODE_AUTOCLAVE = UITexture
+        .fullImage(MODID, "gui/overlay_button/machine_mode/autoclave");
+    public static final UITexture OVERLAY_BUTTON_MACHINEMODE_ELECTROLYZER = UITexture
+        .fullImage(MODID, "gui/overlay_button/machine_mode/electrolyzer");
+    public static final UITexture OVERLAY_BUTTON_MACHINEMODE_MACERATOR = UITexture
+        .fullImage(MODID, "gui/overlay_button/machine_mode/macerator");
+    public static final UITexture OVERLAY_BUTTON_MACHINEMODE_IMPLOSION_COMPRESSOR = UITexture
+        .fullImage(MODID, "gui/overlay_button/machine_mode/implosion_compressor");
+    public static final UITexture OVERLAY_BUTTON_MACHINEMODE_FUEL_REFINING = UITexture
+        .fullImage(MODID, "gui/overlay_button/machine_mode/fuel_refining");
 
+    // Godforge-themed extras
     public static final UITexture OVERLAY_BUTTON_FLAG = UITexture.fullImage(MODID, "gui/overlay_button/flag");
     public static final UITexture OVERLAY_BUTTON_HEAT_ON = UITexture.fullImage(MODID, "gui/overlay_button/heat_on");
     public static final UITexture OVERLAY_BUTTON_BATTERY_ON = UITexture

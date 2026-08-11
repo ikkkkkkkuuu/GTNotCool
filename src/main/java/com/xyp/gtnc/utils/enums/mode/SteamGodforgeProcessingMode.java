@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.cleanroommc.modularui.drawable.UITexture;
+import com.xyp.gtnc.Common.gui.modularui.GTNCGuiTextures;
 import com.xyp.gtnc.Loader.GTNCRecipeMaps;
 
 import bartworks.API.recipe.BartWorksRecipeMaps;
@@ -54,13 +55,13 @@ public enum SteamGodforgeProcessingMode {
     // # Laser Engraver
     // # zh_CN 激光蚀刻机
     LASER_ENGRAVER("gtnc.machine.steam_godforge_processing.mode.laser_engraver", RecipeMaps.laserEngraverRecipes,
-        GTGuiTextures.OVERLAY_BUTTON_MACHINEMODE_RESEARCH, false),
+        GTNCGuiTextures.OVERLAY_BUTTON_MACHINEMODE_LASER, false),
 
     // #tr gtnc.machine.steam_godforge_processing.mode.cutter
     // # Cutting Machine
     // # zh_CN 切割机
     CUTTER("gtnc.machine.steam_godforge_processing.mode.cutter", RecipeMaps.cutterRecipes,
-        GTGuiTextures.OVERLAY_BUTTON_MACHINEMODE_DISTILLATION_TOWER, false),
+        GTNCGuiTextures.OVERLAY_BUTTON_MACHINEMODE_CUTTER, false),
 
     // #tr gtnc.machine.steam_godforge_processing.mode.bender
     // # Bending Machine
@@ -72,13 +73,13 @@ public enum SteamGodforgeProcessingMode {
     // # Wiremill
     // # zh_CN 线材轧机
     WIREMILL("gtnc.machine.steam_godforge_processing.mode.wiremill", RecipeMaps.wiremillRecipes,
-        GTGuiTextures.OVERLAY_BUTTON_WIRELESS_ON, false),
+        GTNCGuiTextures.OVERLAY_BUTTON_MACHINEMODE_WIREMILL, false),
 
     // #tr gtnc.machine.steam_godforge_processing.mode.gtpp_mixer
     // # Industrial Mixer
     // # zh_CN 工业搅拌机
     GTPP_MIXER("gtnc.machine.steam_godforge_processing.mode.gtpp_mixer", GTPPRecipeMaps.mixerNonCellRecipes,
-        GTGuiTextures.OVERLAY_BUTTON_MACHINEMODE_RECYCLING, false),
+        GTNCGuiTextures.OVERLAY_BUTTON_MACHINEMODE_MIXER, false),
 
     // #tr gtnc.machine.steam_godforge_processing.mode.assembler
     // # Assembler
@@ -90,13 +91,13 @@ public enum SteamGodforgeProcessingMode {
     // # Forming Press
     // # zh_CN 压模机
     FORMING_PRESS("gtnc.machine.steam_godforge_processing.mode.forming_press", RecipeMaps.formingPressRecipes,
-        GTGuiTextures.OVERLAY_BUTTON_MACHINEMODE_FORMING, false),
+        GTNCGuiTextures.OVERLAY_BUTTON_MACHINEMODE_FORMING_PRESS, false),
 
     // #tr gtnc.machine.steam_godforge_processing.mode.fluid_solidifier
     // # Fluid Solidifier
     // # zh_CN 流体固化机
     FLUID_SOLIDIFIER("gtnc.machine.steam_godforge_processing.mode.fluid_solidifier", RecipeMaps.fluidSolidifierRecipes,
-        GTGuiTextures.OVERLAY_BUTTON_MACHINEMODE_PACKAGER, false),
+        GTNCGuiTextures.OVERLAY_BUTTON_MACHINEMODE_FLUID_SOLIDIFIER, false),
 
     // #tr gtnc.machine.steam_godforge_processing.mode.compressor
     // # Compressor
@@ -114,14 +115,15 @@ public enum SteamGodforgeProcessingMode {
     // # Industrial Arcane Assembler
     // # zh_CN 工业奥术装配室
     INDUSTRIAL_ARCANE_ASSEMBLER("gtnc.machine.steam_godforge_processing.mode.industrial_arcane_assembler",
-        GTNCRecipeMaps.IndustrialShapedArcaneCraftingRecipes, GTGuiTextures.OVERLAY_BUTTON_MACHINEMODE_LPF_FLUID,
-        false),
+        GTNCRecipeMaps.IndustrialShapedArcaneCraftingRecipes,
+        GTNCGuiTextures.OVERLAY_BUTTON_MACHINEMODE_ARCANE_ASSEMBLER, false),
 
     // #tr gtnc.machine.steam_godforge_processing.mode.IndustrialInfusionCrafting
     // # Industrial Infusion Matrix
     // # zh_CN 工业注魔矩阵
     INDUSTRIAL_INFUSION_CRAFTING("gtnc.machine.steam_godforge_processing.mode.IndustrialInfusionCrafting",
-        GTNCRecipeMaps.IndustrialInfusionCraftingRecipes, GTGuiTextures.OVERLAY_BUTTON_MACHINEMODE_LPF_METAL, false),
+        GTNCRecipeMaps.IndustrialInfusionCraftingRecipes, GTNCGuiTextures.OVERLAY_BUTTON_MACHINEMODE_INFUSION_MATRIX,
+        false),
 
     // #tr gtnc.machine.steam_godforge_processing.mode.polarizer
     // # Polarizer
@@ -133,7 +135,7 @@ public enum SteamGodforgeProcessingMode {
     // # Autoclave
     // # zh_CN 高压釜
     AUTOCLAVE("gtnc.machine.steam_godforge_processing.mode.autoclave", RecipeMaps.autoclaveRecipes,
-        GTGuiTextures.OVERLAY_BUTTON_MACHINEMODE_STEAM, false),
+        GTNCGuiTextures.OVERLAY_BUTTON_MACHINEMODE_AUTOCLAVE, false),
 
     // #tr gtnc.machine.steam_godforge_processing.mode.Precise_Assembler
     // # Precise Assembler
@@ -145,7 +147,7 @@ public enum SteamGodforgeProcessingMode {
     // # Electrolyzer
     // # zh_CN 电解机
     ELECTROLYZER("gtnc.machine.steam_godforge_processing.mode.electrolyzer", GTPPRecipeMaps.electrolyzerNonCellRecipes,
-        GTGuiTextures.OVERLAY_BUTTON_MACHINEMODE_CHEMBATH, false),
+        GTNCGuiTextures.OVERLAY_BUTTON_MACHINEMODE_ELECTROLYZER, false),
 
     // #tr gtnc.machine.steam_godforge_processing.mode.centrifuge
     // # Centrifuge
@@ -163,20 +165,39 @@ public enum SteamGodforgeProcessingMode {
     // # Macerator
     // # zh_CN 粉碎机
     MACERATOR("gtnc.machine.steam_godforge_processing.mode.Macerator", RecipeMaps.maceratorRecipes,
-        GTGuiTextures.OVERLAY_BUTTON_MACHINEMODE_IOF_MACERATOR, false),
+        GTNCGuiTextures.OVERLAY_BUTTON_MACHINEMODE_MACERATOR, false),
 
     // #tr gtnc.machine.steam_godforge_processing.mode.electric_implosion_compressor
     // # Electric Implosion Compressor
     // # zh_CN 电动聚爆压缩机
     ELECTRIC_IMPLOSION_COMPRESSOR("gtnc.machine.steam_godforge_processing.mode.electric_implosion_compressor",
-        BartWorksRecipeMaps.electricImplosionCompressorRecipes, GTGuiTextures.OVERLAY_BUTTON_MACHINEMODE_WASHPLANT,
-        false),
+        BartWorksRecipeMaps.electricImplosionCompressorRecipes,
+        GTNCGuiTextures.OVERLAY_BUTTON_MACHINEMODE_IMPLOSION_COMPRESSOR, false),
 
     // #tr gtnc.machine.steam_godforge_processing.mode.fuel_refining_complex
     // # Fuel Refining Complex
     // # zh_CN 燃料精炼复合体
     FUEL_REFINING_COMPLEX("gtnc.machine.steam_godforge_processing.mode.fuel_refining_complex",
-        GTNCRecipeMaps.FuelRefiningComplexRecipes, GTGuiTextures.OVERLAY_BUTTON_MACHINEMODE_MASS_FABRICATING, false);
+        GTNCRecipeMaps.FuelRefiningComplexRecipes, GTNCGuiTextures.OVERLAY_BUTTON_MACHINEMODE_FUEL_REFINING, false),
+
+    // #tr gtnc.machine.steam_godforge_processing.mode.stamping_machine
+    // # Stamping Machine
+    // # zh_CN 冲压机床
+    STAMPING_MACHINE("gtnc.machine.steam_godforge_processing.mode.stamping_machine", RecipeMaps.formingPressRecipes,
+        GTGuiTextures.OVERLAY_BUTTON_MACHINEMODE_FORMING, false),
+
+    // #tr gtnc.machine.steam_godforge_processing.mode.large_chemical_reactor
+    // # Large Chemical Reactor
+    // # zh_CN 大型化学反应釜
+    LARGE_CHEMICAL_REACTOR("gtnc.machine.steam_godforge_processing.mode.large_chemical_reactor",
+        RecipeMaps.multiblockChemicalReactorRecipes, GTNCGuiTextures.OVERLAY_BUTTON_MACHINEMODE_CHEMICAL_REACTOR,
+        false),
+
+    // #tr gtnc.machine.steam_godforge_processing.mode.circuit_assembler
+    // # Circuit Assembler
+    // # zh_CN 电路组装机
+    CIRCUIT_ASSEMBLER("gtnc.machine.steam_godforge_processing.mode.circuit_assembler",
+        RecipeMaps.circuitAssemblerRecipes, GTNCGuiTextures.OVERLAY_BUTTON_MACHINEMODE_CIRCUIT_ASSEMBLER, false);
 
     private static final SteamGodforgeProcessingMode[] VALUES = values();
     private static final List<RecipeMap<?>> AVAILABLE_RECIPE_MAPS;

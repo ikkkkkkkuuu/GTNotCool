@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -33,8 +34,19 @@ public final class QuestLoader {
     private static final UUID BACK_TO_FUTURE_LINE_ID = new UUID(4774171070805526101L, 6076853730111083598L);
     private static final String[] QUEST_FILES = { "StarterReward-U1RBUlRFUi1QQUNLLUdUTg==.json",
         "TravelerTerminal-VFJBVkVMRVItVEVSTUlOQUw=.json", "ArcaneExemption-QVJDQU5FLUVYRU1QVElPTg==.json" };
+    private static final List<UUID> QUEST_IDS = Arrays.asList(
+        new UUID(6004496025048666669L, 5782977386681685070L),
+        new UUID(6004496025048666670L, 5782977386681685071L),
+        new UUID(6004496025048666671L, 5782977386681685072L));
     private static final String[] PLACEMENT_FILES = { "StarterReward-U1RBUlRFUi1QQUNLLUdUTg==.json",
         "TravelerTerminal-VFJBVkVMRVItVEVSTUlOQUw=.json", "ArcaneExemption-QVJDQU5FLUVYRU1QVElPTg==.json" };
+
+    /*
+     * BetterQuesting loads world progress before it optionally reloads the pack's default quest database. The default
+     * reload temporarily removes addon quests, so BetterQuesting cannot re-attach their progress. Capture it from the
+     * DatabaseEvent.Load hook and restore it after this loader has injected the addon quests again.
+     */
+    private static NBTTagList startupProgressSnapshot;
 
     private QuestLoader() {}
 
@@ -51,10 +63,16 @@ public final class QuestLoader {
         return importTasks(true);
     }
 
+    public static void captureProgressBeforeDefaultReload() {
+        startupProgressSnapshot = snapshotProgress();
+    }
+
     private static boolean importTasks(boolean overwrite) {
+        NBTTagList progressSnapshot = overwrite ? snapshotProgress() : startupProgressSnapshot;
         try {
             List<UUID> updatedQuestIds = importQuests(overwrite);
             boolean lineChanged = importLine(overwrite);
+            restoreProgress(progressSnapshot);
             boolean changed = !updatedQuestIds.isEmpty() || lineChanged;
             if (changed) {
                 SaveLoadHandler.INSTANCE.markDirty();
@@ -67,13 +85,27 @@ public final class QuestLoader {
                 ScienceNotCool.LOG
                     .info("{} the Back to future BetterQuesting task line.", overwrite ? "Updated" : "Imported");
             }
+            if (!overwrite) {
+                startupProgressSnapshot = null;
+            }
             return true;
         } catch (IOException | RuntimeException exception) {
+            restoreProgress(progressSnapshot);
             ScienceNotCool.LOG.error(
                 "Failed to {} the Back to future BetterQuesting task line.",
                 overwrite ? "update" : "import",
                 exception);
             return false;
+        }
+    }
+
+    private static NBTTagList snapshotProgress() {
+        return QuestDatabase.INSTANCE.writeProgressToNBT(new NBTTagList(), QUEST_IDS);
+    }
+
+    private static void restoreProgress(NBTTagList progressSnapshot) {
+        if (progressSnapshot != null) {
+            QuestDatabase.INSTANCE.readProgressFromNBT(progressSnapshot, false);
         }
     }
 

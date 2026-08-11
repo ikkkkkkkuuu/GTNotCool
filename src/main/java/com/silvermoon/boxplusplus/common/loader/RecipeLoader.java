@@ -761,39 +761,27 @@ public class RecipeLoader implements Runnable {
         ItemStack boxModule = new ItemStack(BlockRegister.BoxModule, 1, 10);
         ItemStack tierFourRocketEngine = getNewHorizonsCoreItem("HeavyDutyRocketEngineTier4", 1);
 
-        if (isMissingRecipeStack("advanced box module upgrade", "Dyson Swarm Module", dysonSwarmModule)
-            || isMissingRecipeStack(
-                "advanced box module upgrade",
-                "GregTech machine gt.blockmachines:14001",
-                gregTechMachine)
-            || isMissingRecipeStack("advanced box module upgrade", "Galacticraft Mars machine meta 4", marsMachine)
-            || isMissingRecipeStack("advanced box module upgrade", "Stargate Shielding Foil", stargateShieldingFoil)
-            || isMissingRecipeStack("advanced box module upgrade", "base Box module", boxModule)
-            || isMissingRecipeStack(
-                "advanced box module upgrade",
-                "Heavy Duty Rocket Engine Tier 4",
-                tierFourRocketEngine)) {
+        Object[] recipeInputs = filterMissingCraftingInputs(
+            new String[] { "ABA", "FCF", "DED" },
+            'A',
+            dysonSwarmModule,
+            'B',
+            gregTechMachine,
+            'C',
+            marsMachine,
+            'F',
+            stargateShieldingFoil,
+            'E',
+            boxModule,
+            'D',
+            tierFourRocketEngine);
+        if (recipeInputs == null) {
+            boxplusplus.LOG.warn("Skipping advanced Box module upgrade recipe because no item inputs are registered.");
             return;
         }
 
         CraftingManager.getInstance()
-            .addRecipe(
-                new ItemStack(BlockRegister.BoxModuleUpgrad, 1, 12),
-                "ABA",
-                "FCF",
-                "DED",
-                'A',
-                dysonSwarmModule,
-                'B',
-                gregTechMachine,
-                'C',
-                marsMachine,
-                'F',
-                stargateShieldingFoil,
-                'E',
-                boxModule,
-                'D',
-                tierFourRocketEngine);
+            .addRecipe(new ItemStack(BlockRegister.BoxModuleUpgrad, 1, 12), recipeInputs);
     }
 
     @SafeVarargs
@@ -821,13 +809,32 @@ public class RecipeLoader implements Runnable {
         return filteredInputs;
     }
 
-    private static boolean isMissingRecipeStack(String recipeName, String ingredientName, ItemStack stack) {
-        if (stack != null) {
-            return false;
+    private static Object[] filterMissingCraftingInputs(String[] pattern, Object... mappings) {
+        String[] filteredPattern = Arrays.copyOf(pattern, pattern.length);
+        Object[] filteredInputs = new Object[pattern.length + mappings.length];
+        System.arraycopy(filteredPattern, 0, filteredInputs, 0, pattern.length);
+
+        int filteredIndex = pattern.length;
+        int missingInputCount = 0;
+        for (int mappingIndex = 0; mappingIndex < mappings.length; mappingIndex += 2) {
+            char key = (Character) mappings[mappingIndex];
+            Object input = mappings[mappingIndex + 1];
+            if (input == null) {
+                missingInputCount++;
+                for (int row = 0; row < filteredPattern.length; row++) {
+                    filteredPattern[row] = filteredPattern[row].replace(key, ' ');
+                    filteredInputs[row] = filteredPattern[row];
+                }
+                continue;
+            }
+            filteredInputs[filteredIndex++] = key;
+            filteredInputs[filteredIndex++] = input;
         }
-        boxplusplus.LOG
-            .warn("Skipping Box++ recipe '{}' because ingredient '{}' is not registered.", recipeName, ingredientName);
-        return true;
+        if (missingInputCount > 0) {
+            boxplusplus.LOG
+                .warn("Ignored {} missing item input(s) while registering a Box++ crafting recipe.", missingInputCount);
+        }
+        return filteredIndex == pattern.length ? null : Arrays.copyOf(filteredInputs, filteredIndex);
     }
 
     private static ItemStack getNewHorizonsCoreItem(String itemName, int amount) {

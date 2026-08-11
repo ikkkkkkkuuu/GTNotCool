@@ -4,6 +4,7 @@ import net.minecraftforge.common.MinecraftForge;
 
 import com.xyp.gtnc.Common.command.CommandQuestUpdate;
 import com.xyp.gtnc.Common.command.CommandSteamNetwork;
+import com.xyp.gtnc.Common.event.QuestProgressEventHandler;
 import com.xyp.gtnc.Common.items.toolbelt.common.BeltEvents;
 import com.xyp.gtnc.Common.items.toolbelt.common.BeltGuiHandler;
 import com.xyp.gtnc.Common.machines.hatch.SuperMTEHatchCraftingInputME;
@@ -69,6 +70,10 @@ public class CommonProxy {
 
         // 注册无线蒸汽网络事件处理器
         MinecraftForge.EVENT_BUS.register(new SteamNetworkEventHandler());
+
+        if (ModList.BetterQuesting.isModLoaded()) {
+            MinecraftForge.EVENT_BUS.register(new QuestProgressEventHandler());
+        }
 
         // 注册跨维度 ME 网桥频道注册表事件处理器
         MinecraftForge.EVENT_BUS.register(new com.xyp.gtnc.Common.mebridge.MEBridgeEventHandler());

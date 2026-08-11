@@ -42,8 +42,8 @@ public final class SteamGodforgeProcessingModuleGui
     private static final String MODE_SELECTOR_PANEL_SYNC_ID = "steamGodforgeProcessingModeSelectorPanel";
     private static final String MODE_SELECTOR_GUI_ID = "steam_godforge_processing_mode_selector";
 
-    private static final int SELECTOR_COLUMNS = 4;
-    private static final int SELECTOR_VISIBLE_ROWS = 4;
+    private static final int SELECTOR_COLUMNS = 5;
+    private static final int SELECTOR_VISIBLE_ROWS = 5;
     private static final int MODE_BUTTON_SIZE = 28;
     private static final int SELECTOR_PADDING = 7;
     private static final int SELECTOR_HEADER_HEIGHT = 38;
