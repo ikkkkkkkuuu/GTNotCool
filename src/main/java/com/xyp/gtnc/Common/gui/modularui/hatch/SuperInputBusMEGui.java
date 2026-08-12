@@ -21,9 +21,11 @@ import com.cleanroommc.modularui.screen.ModularPanel;
 import com.cleanroommc.modularui.screen.UISettings;
 import com.cleanroommc.modularui.utils.Alignment;
 import com.cleanroommc.modularui.utils.Color;
+import com.cleanroommc.modularui.utils.MouseData;
 import com.cleanroommc.modularui.value.sync.BooleanSyncValue;
 import com.cleanroommc.modularui.value.sync.IntSyncValue;
 import com.cleanroommc.modularui.value.sync.PanelSyncManager;
+import com.cleanroommc.modularui.value.sync.PhantomItemSlotSH;
 import com.cleanroommc.modularui.widget.Widget;
 import com.cleanroommc.modularui.widget.scroll.VerticalScrollData;
 import com.cleanroommc.modularui.widgets.ButtonWidget;
@@ -402,11 +404,35 @@ public class SuperInputBusMEGui extends MTEHatchBaseGui<SuperInputBusME> {
 
     public static class StoredStackSizeSlot extends StockingSlot {
 
+        public final BooleanSyncValue isLocked;
         public final IPanelHandler stackSizePanel;
 
         public StoredStackSizeSlot(BooleanSyncValue isLocked, IPanelHandler stackSizePanel) {
             super(isLocked);
+            this.isLocked = isLocked;
             this.stackSizePanel = stackSizePanel;
+        }
+
+        @Override
+        public StoredStackSizeSlot slot(ModularSlot slot) {
+            syncHandler(new PhantomItemSlotSH(slot) {
+
+                @Override
+                protected void phantomClick(MouseData mouseData, ItemStack cursorStack) {
+                    if (isLocked.getBoolValue() || mouseData.mouseButton != 0) return;
+
+                    if (cursorStack == null) {
+                        getSlot().putStack(null);
+                        return;
+                    }
+
+                    ItemStack marker = GTUtility.copyAmount(1, cursorStack);
+                    if (isItemValid(marker)) {
+                        getSlot().putStack(marker);
+                    }
+                }
+            });
+            return this;
         }
 
         @Override

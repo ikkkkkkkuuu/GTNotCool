@@ -181,9 +181,7 @@ public class SuperInputHatchME extends MTEHatchInputME implements IConfiguration
             while (iterator.hasNext() && index < SLOT_COUNT) {
                 IAEFluidStack currItem = iterator.next();
                 if (currItem.getStackSize() >= minAutoPullAmount) {
-                    FluidStack fluidStack = GTUtility.copyAmount(
-                        storedStackSizes[index] == Integer.MAX_VALUE ? 1 : storedStackSizes[index],
-                        currItem.getFluidStack());
+                    FluidStack fluidStack = GTUtility.copyAmount(1, currItem.getFluidStack());
                     if (expediteRecipeCheck) {
                         FluidStack previous = storedFluids[index];
                         if (fluidStack != null && previous != null) {
@@ -306,6 +304,9 @@ public class SuperInputHatchME extends MTEHatchInputME implements IConfiguration
 
     @Override
     public void startRecipeProcessing() {
+        // The parent implementation caches this before enabling recipe mode because
+        // isAllowedToWork() returns the cached value while a recipe is being checked.
+        cachedActivity = isAllowedToWork();
         processingRecipe = true;
         updateAllInformationSlots();
     }
@@ -318,27 +319,27 @@ public class SuperInputHatchME extends MTEHatchInputME implements IConfiguration
         for (int i = 0; i < SLOT_COUNT; ++i) {
             FluidStack oldStack = shadowStoredFluids[i];
             int toExtract = savedStackSizes[i] - (oldStack != null ? oldStack.amount : 0);
-            if (toExtract <= 0) continue;
+            if (toExtract > 0) {
+                try {
+                    IMEMonitor<IAEFluidStack> sg = proxy.getStorage()
+                        .getFluidInventory();
 
-            try {
-                IMEMonitor<IAEFluidStack> sg = proxy.getStorage()
-                    .getFluidInventory();
+                    IAEFluidStack request = AEFluidStack.create(storedFluids[i]);
+                    request.setStackSize(toExtract);
+                    IAEFluidStack extractionResult = sg.extractItems(request, Actionable.MODULATE, getRequestSource());
+                    proxy.getEnergy()
+                        .extractAEPower(toExtract, Actionable.MODULATE, PowerMultiplier.CONFIG);
 
-                IAEFluidStack request = AEFluidStack.create(storedFluids[i]);
-                request.setStackSize(toExtract);
-                IAEFluidStack extractionResult = sg.extractItems(request, Actionable.MODULATE, getRequestSource());
-                proxy.getEnergy()
-                    .extractAEPower(toExtract, Actionable.MODULATE, PowerMultiplier.CONFIG);
-
-                if (extractionResult == null || extractionResult.getStackSize() != toExtract) {
+                    if (extractionResult == null || extractionResult.getStackSize() != toExtract) {
+                        controller.stopMachine(ShutDownReasonRegistry.CRITICAL_NONE);
+                        checkRecipeResult = SimpleCheckRecipeResult
+                            .ofFailurePersistOnShutdown("stocking_hatch_fail_extraction");
+                    }
+                } catch (GridAccessException ignored) {
                     controller.stopMachine(ShutDownReasonRegistry.CRITICAL_NONE);
                     checkRecipeResult = SimpleCheckRecipeResult
                         .ofFailurePersistOnShutdown("stocking_hatch_fail_extraction");
                 }
-            } catch (GridAccessException ignored) {
-                controller.stopMachine(ShutDownReasonRegistry.CRITICAL_NONE);
-                checkRecipeResult = SimpleCheckRecipeResult
-                    .ofFailurePersistOnShutdown("stocking_hatch_fail_extraction");
             }
             setSavedFluid(i, null);
             if (storedInformationFluids[i] != null && storedInformationFluids[i].amount <= 0) {
@@ -649,7 +650,7 @@ public class SuperInputHatchME extends MTEHatchInputME implements IConfiguration
             for (int i = 0; i < c; i++) {
                 NBTTagCompound nbtTagCompound = nbtTagList.getCompoundTagAt(i);
                 FluidStack fluidStack = GTUtility.loadFluid(nbtTagCompound);
-                storedFluids[i] = fluidStack;
+                storedFluids[i] = GTUtility.copyAmount(1, fluidStack);
 
                 if (nbtTagCompound.hasKey("informationAmount")) {
                     int informationAmount = nbtTagCompound.getInteger("informationAmount");
@@ -707,7 +708,7 @@ public class SuperInputHatchME extends MTEHatchInputME implements IConfiguration
         if (!autoPullFluidList) {
             NBTTagList stockingFluids = aNBT.getTagList("fluidsToStock", 10);
             for (int i = 0; i < stockingFluids.tagCount(); i++) {
-                storedFluids[i] = GTUtility.loadFluid(stockingFluids.getCompoundTagAt(i));
+                storedFluids[i] = GTUtility.copyAmount(1, GTUtility.loadFluid(stockingFluids.getCompoundTagAt(i)));
             }
         }
         updateValidGridProxySides();
@@ -833,7 +834,7 @@ public class SuperInputHatchME extends MTEHatchInputME implements IConfiguration
         if (slot < 0 || slot >= storedFluids.length) {
             return;
         }
-        storedFluids[slot] = fluid;
+        storedFluids[slot] = GTUtility.copyAmount(1, fluid);
         updateInformationSlot(slot);
     }
 
@@ -910,7 +911,7 @@ public class SuperInputHatchME extends MTEHatchInputME implements IConfiguration
                         storedFluids[slotIndex] = null;
                     } else {
                         if (containsSuchStack(heldFluid)) return;
-                        storedFluids[slotIndex] = heldFluid;
+                        storedFluids[slotIndex] = GTUtility.copyAmount(1, heldFluid);
                     }
                     if (gtTE.isServerSide()) {
                         updateInformationSlot(slotIndex);

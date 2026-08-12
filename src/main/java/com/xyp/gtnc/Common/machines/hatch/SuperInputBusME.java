@@ -105,6 +105,9 @@ public class SuperInputBusME extends MTEHatchInputBusME implements IConfiguratio
 
         @Override
         public void onContentsChanged(int slot) {
+            if (slot >= 0 && slot < SIDE_SLOT_COUNT && mInventory[slot] != null && mInventory[slot].stackSize != 1) {
+                mInventory[slot] = GTUtility.copyAmount(1, mInventory[slot]);
+            }
             SuperInputBusME.this.onContentsChanged(slot);
         }
     };
@@ -212,7 +215,8 @@ public class SuperInputBusME extends MTEHatchInputBusME implements IConfiguratio
             NBTTagCompound stackTag = persistentInventory.getCompoundTagAt(i);
             int slot = stackTag.getInteger("slot");
             if (slot >= 0 && slot < mInventory.length) {
-                mInventory[slot] = GTUtility.loadItem(stackTag);
+                ItemStack stack = GTUtility.loadItem(stackTag);
+                mInventory[slot] = slot < SIDE_SLOT_COUNT ? GTUtility.copyAmount(1, stack) : stack;
             }
         }
 
@@ -283,7 +287,7 @@ public class SuperInputBusME extends MTEHatchInputBusME implements IConfiguratio
         if (!autoPullItemList) {
             NBTTagList stockingItems = nbt.getTagList("itemsToStock", 10);
             for (int i = 0; i < stockingItems.tagCount(); i++) {
-                this.mInventory[i] = GTUtility.loadItem(stockingItems.getCompoundTagAt(i));
+                this.mInventory[i] = GTUtility.copyAmount(1, GTUtility.loadItem(stockingItems.getCompoundTagAt(i)));
             }
         }
         setInventorySlotContents(getCircuitSlot(), circuit);
@@ -343,6 +347,9 @@ public class SuperInputBusME extends MTEHatchInputBusME implements IConfiguratio
     @Override
     public void setInventorySlotContents(int index, ItemStack stack) {
         if (index >= 0 && index < mInventory.length) {
+            if (index < SIDE_SLOT_COUNT && stack != null) {
+                stack = GTUtility.copyAmount(1, stack);
+            }
             mInventory[index] = stack;
             inventoryHandler.setStackInSlot(index, stack);
         }
@@ -380,46 +387,19 @@ public class SuperInputBusME extends MTEHatchInputBusME implements IConfiguratio
         // Display slots
         if (aIndex >= SIDE_SLOT_COUNT && aIndex < SIDE_SLOT_COUNT * 2) return null;
 
-        if (mInventory[aIndex] != null) {
+        // The recipe mutates this exact snapshot. Re-simulating here would replace the
+        // decremented stack and make endRecipeProcessing observe zero consumption.
+        return shadowInventory[aIndex];
+    }
 
-            AENetworkProxy proxy = getProxy();
-            if (proxy == null || !proxy.isActive()) {
-                return null;
-            }
-
-            if (!isAllowedToWork()) {
-                this.shadowInventory[aIndex] = null;
-                this.savedStackSizes[aIndex] = 0;
-                setInventorySlotContents(aIndex + SIDE_SLOT_COUNT, null);
-                return null;
-            }
-
-            try {
-                IMEMonitor<IAEItemStack> sg = proxy.getStorage()
-                    .getItemInventory();
-
-                IAEItemStack request = AEItemStack.create(mInventory[aIndex]);
-                request.setStackSize(storedStackSizes[aIndex]);
-
-                IAEItemStack result = sg.extractItems(request, Actionable.SIMULATE, getRequestSource());
-
-                if (result != null) {
-                    this.shadowInventory[aIndex] = result.getItemStack();
-                    this.savedStackSizes[aIndex] = this.shadowInventory[aIndex].stackSize;
-                    this.setInventorySlotContents(aIndex + SIDE_SLOT_COUNT, this.shadowInventory[aIndex]);
-                    return this.shadowInventory[aIndex];
-                } else {
-                    // Request failed
-                    this.setInventorySlotContents(aIndex + SIDE_SLOT_COUNT, null);
-                    return null;
-                }
-            } catch (final GridAccessException ignored) {}
-            return null;
-        } else {
-            // AE available but no items requested
-            this.setInventorySlotContents(aIndex + SIDE_SLOT_COUNT, null);
+    @Override
+    public void startRecipeProcessing() {
+        super.startRecipeProcessing();
+        for (int i = 0; i < SIDE_SLOT_COUNT; i++) {
+            ItemStack available = mInventory[i + SIDE_SLOT_COUNT];
+            shadowInventory[i] = available == null ? null : available.copy();
+            savedStackSizes[i] = shadowInventory[i] == null ? 0 : shadowInventory[i].stackSize;
         }
-        return mInventory[aIndex];
     }
 
     @Override
@@ -444,9 +424,7 @@ public class SuperInputBusME extends MTEHatchInputBusME implements IConfiguratio
             while (iterator.hasNext() && index < SIDE_SLOT_COUNT) {
                 IAEItemStack currItem = iterator.next();
                 if (currItem.getStackSize() >= minAutoPullStackSize) {
-                    ItemStack itemstack = GTUtility.copyAmount(
-                        storedStackSizes[index] == Integer.MAX_VALUE ? 1 : storedStackSizes[index],
-                        currItem.getItemStack());
+                    ItemStack itemstack = GTUtility.copyAmount(1, currItem.getItemStack());
                     if (expediteRecipeCheck) {
                         ItemStack previous = this.mInventory[index];
                         if (itemstack != null) {
