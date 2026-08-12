@@ -90,7 +90,7 @@ public enum SteamGodforgeProcessingMode {
     // #tr gtnc.machine.steam_godforge_processing.mode.forming_press
     // # Forming Press
     // # zh_CN 压模机
-    FORMING_PRESS("gtnc.machine.steam_godforge_processing.mode.forming_press", RecipeMaps.formingPressRecipes,
+    FORMING_PRESS("gtnc.machine.steam_godforge_processing.mode.forming_press", RecipeMaps.extruderRecipes,
         GTNCGuiTextures.OVERLAY_BUTTON_MACHINEMODE_FORMING_PRESS, false),
 
     // #tr gtnc.machine.steam_godforge_processing.mode.fluid_solidifier
