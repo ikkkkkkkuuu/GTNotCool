@@ -77,7 +77,9 @@ import appeng.core.AEConfig;
 import appeng.core.localization.GuiText;
 import appeng.core.sync.GuiBridge;
 import appeng.core.sync.network.NetworkHandler;
+import appeng.core.sync.packets.PacketInterfaceTerminalUpdate.PacketAdd;
 import appeng.core.sync.packets.PacketInterfaceTerminalUpdate.PacketEntry;
+import appeng.core.sync.packets.PacketInterfaceTerminalUpdate.PacketRename;
 
 /**
  * AE2Things-style single page: ME inventory on the left, the native interface
@@ -1381,6 +1383,46 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
 
         private EmbeddedInterfaceTerminal(Container container) {
             super(container);
+            // The old combined terminal always used human/numeric ordering (3, 13, 23). AE2's NATURAL option is
+            // plain String ordering (13, 23, 3), while ALPHANUM is the equivalent of the old terminal comparator.
+            AEConfig.instance.settings.putSetting(Settings.INTERFACE_TERMINAL_SECTION_ORDER, StringOrder.ALPHANUM);
+            changeSectionOrder(StringOrder.ALPHANUM);
+        }
+
+        @Override
+        public void postUpdate(List<PacketEntry> updates, int statusFlags) {
+            // Keep the old terminal's suffix presentation. GT sends one or more formatted suffix fragments such as
+            // " [2] [32]"; AE2 normally appends them verbatim, while the old combined terminal displayed " 2 32".
+            // Normalizing the packet before AE2 builds its entry also makes grouping and name searching use the same
+            // bracket-free text instead of changing only what is drawn.
+            for (PacketEntry update : updates) {
+                if (update instanceof PacketAdd add) {
+                    add.suffix = normalizeInterfaceSuffix(add.suffix);
+                } else if (update instanceof PacketRename rename) {
+                    rename.suffix = normalizeInterfaceSuffix(rename.suffix);
+                }
+            }
+            super.postUpdate(updates, statusFlags);
+        }
+
+        private void changeSectionOrder(StringOrder order) {
+            Object masterList = objectField(this, MASTER_LIST);
+            if (masterList == null) return;
+            try {
+                Method changeComparator = masterList.getClass()
+                    .getDeclaredMethod("changeSectionComparator", java.util.Comparator.class);
+                changeComparator.setAccessible(true);
+                changeComparator.invoke(masterList, order.comparator);
+            } catch (ReflectiveOperationException ignored) {}
+        }
+
+        private static String normalizeInterfaceSuffix(String suffix) {
+            if (suffix == null || suffix.isEmpty()) return suffix;
+            String cleaned = suffix.replace("[", "")
+                .replace("]", "")
+                .trim()
+                .replaceAll("\\s+", " ");
+            return cleaned.isEmpty() ? "" : " " + cleaned;
         }
 
         private void initialize(Minecraft minecraft, int width, int height) {
