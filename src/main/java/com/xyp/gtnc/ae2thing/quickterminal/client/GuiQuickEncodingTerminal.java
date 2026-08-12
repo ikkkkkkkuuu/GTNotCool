@@ -5,8 +5,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import net.minecraft.client.Minecraft;
@@ -1407,6 +1409,7 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
 
         private Object highlightedEntry;
         private InterfacePatternTarget highlightedTarget;
+        private String sectionOrderQuery = "";
 
         private EmbeddedInterfaceTerminal(Container container) {
             super(container);
@@ -1433,14 +1436,56 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
         }
 
         private void changeSectionOrder(StringOrder order) {
+            changeSectionOrder(order.comparator);
+        }
+
+        private void changeSectionOrder(Comparator<String> comparator) {
             Object masterList = objectField(this, MASTER_LIST);
             if (masterList == null) return;
             try {
                 Method changeComparator = masterList.getClass()
                     .getDeclaredMethod("changeSectionComparator", java.util.Comparator.class);
                 changeComparator.setAccessible(true);
-                changeComparator.invoke(masterList, order.comparator);
+                changeComparator.invoke(masterList, comparator);
             } catch (ReflectiveOperationException ignored) {}
+        }
+
+        private void updateSearchSectionOrder() {
+            MEGuiTextField field = textField(NAME_SEARCH);
+            String query = field == null ? ""
+                : field.getText()
+                    .trim()
+                    .toLowerCase(Locale.ROOT);
+            if (query.length() >= 2 && query.startsWith("\"") && query.endsWith("\"")) {
+                query = query.substring(1, query.length() - 1);
+            }
+            if (sectionOrderQuery.equals(query)) return;
+
+            sectionOrderQuery = query;
+            if (query.isEmpty()) {
+                changeSectionOrder(StringOrder.ALPHANUM);
+                return;
+            }
+
+            final String search = query;
+            Comparator<String> natural = StringOrder.ALPHANUM.comparator;
+            changeSectionOrder((left, right) -> {
+                int relevance = Integer.compare(searchRank(left, search), searchRank(right, search));
+                if (relevance != 0) return relevance;
+                int ordered = natural.compare(left, right);
+                return ordered != 0 ? ordered : left.compareTo(right);
+            });
+        }
+
+        private static int searchRank(String name, String query) {
+            String normalized = name == null ? "" : name;
+            int prioritySeparator = normalized.indexOf('\u0000');
+            if (prioritySeparator >= 0) normalized = normalized.substring(0, prioritySeparator);
+            normalized = normalized.toLowerCase(Locale.ROOT);
+            if (normalized.equals(query)) return 0;
+            if (normalized.startsWith(query)) return 1;
+            if (normalized.contains(query)) return 2;
+            return 3;
         }
 
         private static String normalizeInterfaceSuffix(String suffix) {
@@ -1490,6 +1535,7 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
         }
 
         private void drawCentralBackground(int x, int y, int mouseX, int mouseY) {
+            updateSearchSectionOrder();
             clearStaleEntryHitBoxes();
             super.drawBG(x, y, mouseX, mouseY);
         }
