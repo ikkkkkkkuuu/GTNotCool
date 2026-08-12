@@ -167,6 +167,7 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
     private boolean pendingAutoPlace;
     private long suppressExtensionClickUntil;
     private int suppressExtensionButton = -1;
+    private int storageScrollPosition;
     private boolean draggingStorageScrollBar;
     private boolean draggingInterfaceScrollBar;
 
@@ -455,6 +456,15 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
                 0,
                 Math.max(0, (size - visibleItemSlots + ITEM_COLUMNS - 1) / ITEM_COLUMNS),
                 Math.max(1, scrollRows / 6));
+        // GuiMEMonitorable still recalculates this shared scrollbar with its native nine-column geometry whenever
+        // the repository view changes. That can clamp the compact panel's valid four-column position before this
+        // method restores the correct range. Keep the compact position separately so it does not jump or lose rows.
+        getScrollBar().setCurrentScroll(storageScrollPosition);
+        rememberItemScrollPosition();
+    }
+
+    private void rememberItemScrollPosition() {
+        storageScrollPosition = getScrollBar().getCurrentScroll();
     }
 
     private void layoutButtons() {
@@ -753,6 +763,9 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
 
     @Override
     public void drawBG(int offsetX, int offsetY, int mouseX, int mouseY) {
+        // GuiMEMonitorable may have applied its native nine-column range immediately before AEBaseGui calls drawBG.
+        // Restore the compact range here, before virtual ME slots query ItemRepo with the current scroll position.
+        updateItemScrollBar();
         interfaceTerminal.drawCentralBackground(offsetX, offsetY, mouseX, mouseY);
         interfaceTerminal.drawHighlightedPatternSlot(offsetX, offsetY);
 
@@ -1015,6 +1028,7 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
         if (draggingStorageScrollBar && button == 0) {
             updateItemScrollBar();
             getScrollBar().clickMove(mouseY - guiTop);
+            rememberItemScrollPosition();
             return;
         }
         if (draggingInterfaceScrollBar && button == 0) {
@@ -1041,6 +1055,7 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
         int relativeY = mouseY - guiTop;
         if (!getScrollBar().contains(relativeX, relativeY)) return false;
         getScrollBar().click(this, relativeX, relativeY);
+        rememberItemScrollPosition();
         return true;
     }
 
@@ -1051,6 +1066,7 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
             if (super.mouseWheelEvent(mouseX, mouseY, wheel)) return true;
             updateItemScrollBar();
             getScrollBar().wheel(wheel);
+            rememberItemScrollPosition();
             return true;
         }
         if (mouseX >= guiLeft && mouseX < guiLeft + xSize) {
@@ -1406,6 +1422,9 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
         private static Field entryRenameButton;
         private static Field entrySection;
         private static Field sectionVisible;
+        private static Field entryBrokenRecipes;
+        private static Field entryFilteredRecipes;
+        private static Field entryUseSubstitute;
 
         private Object highlightedEntry;
         private InterfacePatternTarget highlightedTarget;
@@ -1433,6 +1452,7 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
                 }
             }
             super.postUpdate(updates, statusFlags);
+            repairEntrySlotArrays();
         }
 
         private void changeSectionOrder(StringOrder order) {
@@ -1535,9 +1555,30 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
         }
 
         private void drawCentralBackground(int x, int y, int mouseX, int mouseY) {
+            repairEntrySlotArrays();
             updateSearchSectionOrder();
             clearStaleEntryHitBoxes();
             super.drawBG(x, y, mouseX, mouseY);
+        }
+
+        /**
+         * AE2 recreates an interface entry's inventory when GT expands its pattern slots, but leaves two parallel
+         * recipe-state arrays at their previous length. Drawing the first slot past the old size then crashes the
+         * client GUI. Keep every per-slot cache aligned with the inventory before filtering or drawing the entry.
+         */
+        private void repairEntrySlotArrays() {
+            Object masterList = objectField(this, MASTER_LIST);
+            Object value = objectField(masterList, ENTRIES_BY_ID);
+            if (!(value instanceof Map<?, ?>entries)) return;
+            for (Object entry : entries.values()) {
+                IInventory inventory = entryInventory(entry);
+                if (inventory == null) continue;
+                cacheEntrySlotArrayFields(entry);
+                int size = inventory.getSizeInventory();
+                resizeBooleanArray(entry, entryFilteredRecipes, size);
+                resizeBoxedBooleanArray(entry, entryBrokenRecipes, size);
+                resizeBoxedBooleanArray(entry, entryUseSubstitute, size);
+            }
         }
 
         /**
@@ -1903,6 +1944,31 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
             entrySection = findField(entryClass, "section");
             Object section = objectField(entry, entrySection);
             if (section != null) sectionVisible = findField(section.getClass(), "visible");
+        }
+
+        private static void cacheEntrySlotArrayFields(Object entry) {
+            if (entry == null
+                || entryBrokenRecipes != null && entryFilteredRecipes != null && entryUseSubstitute != null) return;
+            Class<?> entryClass = entry.getClass();
+            entryBrokenRecipes = findField(entryClass, "brokenRecipes");
+            entryFilteredRecipes = findField(entryClass, "filteredRecipes");
+            entryUseSubstitute = findField(entryClass, "useSubstitute");
+        }
+
+        private static void resizeBooleanArray(Object entry, Field field, int size) {
+            Object value = objectField(entry, field);
+            if (!(value instanceof boolean[]values) || values.length == size) return;
+            try {
+                field.set(entry, Arrays.copyOf(values, size));
+            } catch (IllegalAccessException ignored) {}
+        }
+
+        private static void resizeBoxedBooleanArray(Object entry, Field field, int size) {
+            Object value = objectField(entry, field);
+            if (!(value instanceof Boolean[]values) || values.length == size) return;
+            try {
+                field.set(entry, Arrays.copyOf(values, size));
+            } catch (IllegalAccessException ignored) {}
         }
 
         private static void invalidateButtonY(Object entry, Field buttonField) {
