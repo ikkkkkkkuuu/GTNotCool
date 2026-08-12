@@ -33,6 +33,7 @@ import com.glodblock.github.client.gui.GuiFCImgButton;
 import com.xyp.gtnc.ScienceNotCool;
 import com.xyp.gtnc.ae2thing.AE2Thing;
 import com.xyp.gtnc.ae2thing.client.gui.widget.CompactItemTabButton;
+import com.xyp.gtnc.ae2thing.coremod.mixin.ae.AccessorGuiScrollbar;
 import com.xyp.gtnc.ae2thing.inventory.gui.GuiType;
 import com.xyp.gtnc.ae2thing.nei.QuickTerminalRecipeTransferHandler;
 import com.xyp.gtnc.ae2thing.network.CPacketSwitchGuis;
@@ -160,6 +161,7 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
     private boolean pendingAutoPlace;
     private long suppressExtensionClickUntil;
     private int suppressExtensionButton = -1;
+    private boolean draggingInterfaceScrollBar;
 
     public GuiQuickEncodingTerminal(InventoryPlayer inventoryPlayer, ITerminalHost host) {
         this(inventoryPlayer, host, new ContainerQuickEncodingTerminal(inventoryPlayer, host));
@@ -874,6 +876,11 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int button) {
         if (handleFluidCraftingControlClick(mouseX, mouseY, button)) return;
+        if (button == 0 && interfaceTerminal.clickScrollBar(mouseX, mouseY)) {
+            ((AccessorGuiScrollbar) getScrollBar()).setIsLatestClickOnScrollbar(false);
+            draggingInterfaceScrollBar = true;
+            return;
+        }
         if ((button == 0 || button == 1) && isInsideStoragePanel(mouseX, mouseY)) {
             // The storage panel is deliberately outside xSize. Mark the whole
             // visible panel as GUI space so clicking its search/background never
@@ -964,10 +971,23 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
     @Override
     protected void mouseMovedOrUp(int mouseX, int mouseY, int state) {
         super.mouseMovedOrUp(mouseX, mouseY, state);
+        if (draggingInterfaceScrollBar && state == 0) {
+            interfaceTerminal.stopDraggingScrollBar();
+            draggingInterfaceScrollBar = false;
+        }
         if (state == suppressExtensionButton) {
             suppressExtensionButton = -1;
             suppressExtensionClickUntil = 0;
         }
+    }
+
+    @Override
+    protected void mouseClickMove(int mouseX, int mouseY, int button, long timeSinceLastClick) {
+        if (draggingInterfaceScrollBar && button == 0) {
+            interfaceTerminal.dragScrollBar(mouseY);
+            return;
+        }
+        super.mouseClickMove(mouseX, mouseY, button, timeSinceLastClick);
     }
 
     private void suppressExtensionVanillaClick(int button) {
@@ -984,7 +1004,16 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
     @Override
     protected boolean mouseWheelEvent(int mouseX, int mouseY, int wheel) {
         if (isShiftKeyDown() && QuickTerminalRecipeTransferHandler.cycleRecipeIngredient(this, wheel)) return true;
-        if (mouseX >= guiLeft && mouseX < guiLeft + xSize && interfaceTerminal.wheel(mouseX, mouseY, wheel)) {
+        if (isInsideStoragePanel(mouseX, mouseY)) {
+            if (super.mouseWheelEvent(mouseX, mouseY, wheel)) return true;
+            getScrollBar().wheel(wheel);
+            return true;
+        }
+        if (mouseX >= guiLeft && mouseX < guiLeft + xSize) {
+            // AEBaseGui's fallback only checks the central GUI's broad X range,
+            // so an unhandled wheel event here would incorrectly move the ME
+            // storage scrollbar. Keep the two embedded panels independent.
+            interfaceTerminal.wheel(mouseX, mouseY, wheel);
             return true;
         }
         return super.mouseWheelEvent(mouseX, mouseY, wheel);
@@ -1315,6 +1344,10 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
 
     private static final class EmbeddedInterfaceTerminal extends GuiInterfaceTerminal {
 
+        private static final int VIEWPORT_LEFT = 10;
+        private static final int VIEWPORT_TOP = 52;
+        private static final int VIEWPORT_WIDTH = 174;
+
         private static final Field INPUT_SEARCH = findField(GuiInterfaceTerminal.class, "searchFieldInputs");
         private static final Field OUTPUT_SEARCH = findField(GuiInterfaceTerminal.class, "searchFieldOutputs");
         private static final Field NAME_SEARCH = findField(GuiInterfaceTerminal.class, "searchFieldNames");
@@ -1470,7 +1503,37 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
         }
 
         private boolean wheel(int mouseX, int mouseY, int wheel) {
-            return super.mouseWheelEvent(mouseX, mouseY, wheel);
+            if (!isInsideViewport(mouseX, mouseY) && !isOverScrollBar(mouseX, mouseY)) return false;
+            if (super.mouseWheelEvent(mouseX, mouseY, wheel)) return true;
+            getScrollBar().wheel(wheel);
+            return true;
+        }
+
+        private boolean clickScrollBar(int mouseX, int mouseY) {
+            if (!isOverScrollBar(mouseX, mouseY)) return false;
+            getScrollBar().click(this, mouseX - guiLeft, mouseY - guiTop);
+            return true;
+        }
+
+        private void dragScrollBar(int mouseY) {
+            getScrollBar().clickMove(mouseY - guiTop);
+        }
+
+        private void stopDraggingScrollBar() {
+            ((AccessorGuiScrollbar) getScrollBar()).setIsLatestClickOnScrollbar(false);
+        }
+
+        private boolean isInsideViewport(int mouseX, int mouseY) {
+            int viewHeight = VIEW_HEIGHT == null ? 0 : intField(this, VIEW_HEIGHT, 0);
+            return mouseX >= guiLeft + VIEWPORT_LEFT && mouseX < guiLeft + VIEWPORT_LEFT + VIEWPORT_WIDTH
+                && mouseY >= guiTop + VIEWPORT_TOP
+                && mouseY < guiTop + VIEWPORT_TOP + viewHeight;
+        }
+
+        private boolean isOverScrollBar(int mouseX, int mouseY) {
+            int relativeX = mouseX - guiLeft;
+            int relativeY = mouseY - guiTop;
+            return getScrollBar().contains(relativeX, relativeY);
         }
 
         private void perform(GuiButton button) {

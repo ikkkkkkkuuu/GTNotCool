@@ -5,7 +5,7 @@ import com.xyp.gtnc.Loader.QuestLoader;
 import betterquesting.api.events.DatabaseEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
-/** Preserves addon quest progress across BetterQuesting's startup default-database reload. */
+/** Captures only this addon's quest progress after BetterQuesting loads a world's databases. */
 public final class QuestProgressEventHandler {
 
     @SubscribeEvent

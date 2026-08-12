@@ -45,9 +45,8 @@ public final class QuestLoader {
         "EternityVial-RVRFUk5JVFktVklBTA==.json" };
 
     /*
-     * BetterQuesting loads world progress before it optionally reloads the pack's default quest database. The default
-     * reload temporarily removes addon quests, so BetterQuesting cannot re-attach their progress. Capture it from the
-     * DatabaseEvent.Load hook and restore it after this loader has injected the addon quests again.
+     * BetterQuesting may reload definitions without this addon's quests. Capture only this addon's quest progress from
+     * the DatabaseEvent.Load hook and restore it after the packaged quests have been injected again.
      */
     private static NBTTagList startupProgressSnapshot;
 
@@ -103,7 +102,19 @@ public final class QuestLoader {
     }
 
     private static NBTTagList snapshotProgress() {
-        return QuestDatabase.INSTANCE.writeProgressToNBT(new NBTTagList(), QUEST_IDS);
+        NBTTagList progress = new NBTTagList();
+        for (UUID questId : QUEST_IDS) {
+            IQuest quest = QuestDatabase.INSTANCE.get(questId);
+            if (quest == null) continue;
+
+            // IQuestDatabase.writeProgressToNBT's list argument filters player UUIDs, not quest UUIDs. Snapshot each
+            // owned quest directly with a null player filter so all real player progress is preserved, while vanilla
+            // GTNH quests are never included in (or cleared by) the later non-merge restore.
+            NBTTagCompound questProgress = quest.writeProgressToNBT(new NBTTagCompound(), null);
+            NBTConverter.UuidValueType.QUEST.writeId(questId, questProgress);
+            progress.appendTag(questProgress);
+        }
+        return progress;
     }
 
     private static void restoreProgress(NBTTagList progressSnapshot) {
