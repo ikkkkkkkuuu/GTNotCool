@@ -3,7 +3,6 @@ package com.xyp.gtnc.ae2thing.api;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.inventory.Container;
@@ -13,7 +12,6 @@ import com.xyp.gtnc.ae2thing.api.adapter.crafting.ICraftingTerminalAdapter;
 import com.xyp.gtnc.ae2thing.api.adapter.pattern.IPatternTerminalAdapter;
 import com.xyp.gtnc.ae2thing.api.adapter.terminal.ITerminal;
 import com.xyp.gtnc.ae2thing.api.adapter.terminal.item.ITerminalHandler;
-import com.xyp.gtnc.ae2thing.client.gui.widget.IGuiMonitor;
 import com.xyp.gtnc.ae2thing.nei.ButtonConstants;
 import com.xyp.gtnc.ae2thing.nei.NEI_TH_Config;
 import com.xyp.gtnc.ae2thing.util.Util;
@@ -22,7 +20,6 @@ import appeng.api.AEApi;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IItemList;
 import appeng.client.gui.AEBaseGui;
-import codechicken.nei.recipe.GuiRecipe;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -43,10 +40,6 @@ public class Terminal {
         terminal.add(clazz);
     }
 
-    public HashSet<Class<? extends AEBaseGui>> getTerminal() {
-        return terminal;
-    }
-
     public HashSet<ITerminal> getTerminalSet() {
         return terminalSet;
     }
@@ -62,14 +55,7 @@ public class Terminal {
     @SideOnly(Side.CLIENT)
     public boolean isTerminal(GuiScreen gui) {
         if (gui == null) return false;
-        if (gui instanceof IGuiMonitor) {
-            return true;
-        }
         return terminal.contains(gui.getClass());
-    }
-
-    public boolean isBackPackTerminal(GuiScreen gui) {
-        return false;
     }
 
     @SideOnly(Side.CLIENT)
@@ -80,9 +66,6 @@ public class Terminal {
         if (!NEI_TH_Config.getConfigValue(ButtonConstants.PINNED_BAR)) return false;
         if (gui == null || terminalBlackList.contains(gui.getClass())) {
             return false;
-        }
-        if (gui instanceof IGuiMonitor) {
-            return true;
         }
         return terminal.contains(gui.getClass());
     }
@@ -126,14 +109,6 @@ public class Terminal {
     public IPatternTerminalAdapter registerPatternTerminal(IPatternTerminalAdapter adapter) {
         patternTerminal.putIfAbsent(adapter.getContainer(), adapter);
         return adapter;
-    }
-
-    public boolean isPatternTerminal() {
-        GuiScreen gui = Minecraft.getMinecraft().currentScreen;
-        if (gui instanceof GuiRecipe<?>g) {
-            return patternTerminal.containsKey(g.getFirstScreen().inventorySlots.getClass());
-        }
-        return false;
     }
 
     public IPatternTerminalAdapter getPatternTerminal(Container c) {

@@ -6,33 +6,32 @@ import java.util.List;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.StatCollector;
+import net.minecraftforge.fluids.FluidStack;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import com.gtnewhorizon.gtnhlib.util.CoordinatePacker;
-import com.xyp.gtnc.ae2thing.AE2Thing;
-import com.xyp.gtnc.ae2thing.api.AE2ThingAPI;
-import com.xyp.gtnc.ae2thing.api.Constants;
-import com.xyp.gtnc.ae2thing.client.gui.GuiWirelessDualInterfaceTerminal;
 import com.xyp.gtnc.ae2thing.integration.Mods;
 import com.xyp.gtnc.ae2thing.nei.ButtonConstants;
 import com.xyp.gtnc.ae2thing.nei.NEI_TH_Config;
 import com.xyp.gtnc.ae2thing.nei.object.OrderStack;
-import com.xyp.gtnc.ae2thing.network.CPacketTransferRecipe;
+import com.xyp.gtnc.ae2thing.quickterminal.RecipeTransferPayload;
+import com.xyp.gtnc.ae2thing.quickterminal.client.GuiQuickEncodingTerminal;
 
+import appeng.api.storage.data.IAEStack;
+import appeng.util.item.AEFluidStack;
+import appeng.util.item.AEItemStack;
 import blockrenderer6343.client.renderer.WorldSceneRenderer;
 import codechicken.nei.NEIClientUtils;
 import codechicken.nei.recipe.GuiRecipe;
 
 /**
- * Ported from AE2Things: hooks BlockRenderer6343's multiblock structure preview so the "?" (NEI overlay) button dumps
- * every block the structure needs into the pattern terminal's input slots, using a renamed paper as the placeholder
- * output.
+ * Hooks BlockRenderer6343's multiblock structure preview so the NEI overlay button can fill the quick terminal's
+ * processing-pattern inputs and use a renamed paper as the placeholder output.
  */
 public class BRUtil {
 
@@ -52,7 +51,6 @@ public class BRUtil {
         ItemStack item;
         for (int i = 0; i < ingredients.size(); i++) {
             item = ingredients.get(i);
-            // When the "ignore hatches" option is on, drop functional hatch blocks so only the casing/coils are packed.
             if (!((Mods.isGt5UnofficialLoaded() || Mods.isLegacyGt5Loaded())
                 && NEI_TH_Config.getConfigValue(ButtonConstants.BLOCK_RENDER)
                 && GTUtil.isHatchItem(item))) {
@@ -78,42 +76,54 @@ public class BRUtil {
     }
 
     public static boolean sendToServer(List<ItemStack> ingredients) {
-        if (AE2ThingAPI.instance()
-            .terminal()
-            .isPatternTerminal()) {
-            try {
-                ImmutablePair<List<OrderStack<?>>, List<OrderStack<?>>> result = handler.handler(ingredients);
-                AE2Thing.proxy.netHandler.sendToServer(
-                    new CPacketTransferRecipe(
-                        result.left,
-                        result.right,
-                        false,
-                        GuiScreen.isShiftKeyDown(),
-                        Constants.NEI_BR));
-                GuiRecipe<?> currentScreen = (GuiRecipe<?>) Minecraft.getMinecraft().currentScreen;
-                Minecraft.getMinecraft()
-                    .displayGuiScreen(currentScreen.firstGui);
-                fillInterfaceName(currentScreen.firstGui);
+        if (!(Minecraft.getMinecraft().currentScreen instanceof GuiRecipe<?>recipeScreen)
+            || !(recipeScreen.firstGui instanceof GuiQuickEncodingTerminal terminal)) return false;
+        try {
+            ImmutablePair<List<OrderStack<?>>, List<OrderStack<?>>> result = handler.handler(ingredients);
+            if (result.left.size() > RecipeTransferPayload.SLOT_COUNT) {
+                terminal.showProcessingLimit(true);
                 return true;
-            } catch (Exception ignored) {}
+            }
+            if (result.right.size() > RecipeTransferPayload.SLOT_COUNT) {
+                terminal.showProcessingLimit(false);
+                return true;
+            }
+            String interfaceSearch = null;
+            if (NEI_TH_Config.getConfigValue(ButtonConstants.DUAL_INTERFACE_TERMINAL)) {
+                // #tr sciencenotcool.gui.multiblock_structure
+                // # Multiblock Structure
+                // # zh_CN 多方块结构
+                interfaceSearch = StatCollector.translateToLocal(NameConst.GUI_MULTIBLOCK_STRUCTURE);
+            }
+            terminal.transferRecipe(
+                new RecipeTransferPayload(
+                    false,
+                    GuiScreen.isShiftKeyDown(),
+                    4,
+                    false,
+                    toAEStacks(result.left),
+                    toAEStacks(result.right)),
+                interfaceSearch);
+            Minecraft.getMinecraft()
+                .displayGuiScreen(recipeScreen.firstGui);
+            return true;
+        } catch (Exception ignored) {
+            return false;
         }
-        return false;
     }
 
-    /**
-     * When overlaying a multiblock structure onto the dual interface terminal, autofill the interface name search field
-     * with the fixed "Multiblock Structure" name (governed by the same toggle as recipe-name autofill), so the user can
-     * jump straight to the interface they named "Multiblock Structure" and drop the pattern onto it.
-     */
-    private static void fillInterfaceName(GuiContainer firstGui) {
-        if (firstGui instanceof GuiWirelessDualInterfaceTerminal gui
-            && NEI_TH_Config.getConfigValue(ButtonConstants.DUAL_INTERFACE_TERMINAL)) {
-            // #tr sciencenotcool.gui.multiblock_structure
-            // # Multiblock Structure
-            // # zh_CN 多方块结构
-            gui.setSearchFieldText(StatCollector.translateToLocal(NameConst.GUI_MULTIBLOCK_STRUCTURE));
-            gui.setHighlightSlot();
+    private static IAEStack<?>[] toAEStacks(List<OrderStack<?>> stacks) {
+        IAEStack<?>[] result = new IAEStack<?>[RecipeTransferPayload.SLOT_COUNT];
+        for (int index = 0; index < stacks.size(); index++) {
+            Object stack = stacks.get(index)
+                .getStack();
+            if (stack instanceof ItemStack item) {
+                result[index] = AEItemStack.create(item.copy());
+            } else if (stack instanceof FluidStack fluid) {
+                result[index] = AEFluidStack.create(fluid.copy());
+            }
         }
+        return result;
     }
 
     public static List<ItemStack> getIngredients(WorldSceneRenderer renderer) {
@@ -143,7 +153,6 @@ public class BRUtil {
             }
             if (!added) ingredients.add(itemStacks.get(0));
         }
-
         return ingredients;
     }
 }

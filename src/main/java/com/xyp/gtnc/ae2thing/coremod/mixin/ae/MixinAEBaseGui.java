@@ -4,7 +4,6 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.common.MinecraftForge;
 
 import org.lwjgl.input.Mouse;
 import org.spongepowered.asm.mixin.Mixin;
@@ -14,7 +13,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.xyp.gtnc.ae2thing.api.TerminalMenu;
-import com.xyp.gtnc.ae2thing.client.event.AEGuiCloseEvent;
 
 import appeng.client.gui.AEBaseGui;
 import appeng.client.gui.widgets.GuiScrollbar;
@@ -51,11 +49,6 @@ public abstract class MixinAEBaseGui extends GuiContainer {
             }
 
         }
-    }
-
-    @Inject(method = "onGuiClosed", at = @At(value = "HEAD"))
-    public void onGuiClosed(CallbackInfo ci) {
-        MinecraftForge.EVENT_BUS.post(new AEGuiCloseEvent((AEBaseGui) (Object) this));
     }
 
     @Inject(method = "handleMouseInput", at = @At("HEAD"))

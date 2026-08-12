@@ -3,7 +3,7 @@ package com.xyp.gtnc.ae2thing;
 import net.minecraft.util.ResourceLocation;
 
 import com.xyp.gtnc.Tags;
-import com.xyp.gtnc.ae2thing.common.Config;
+import com.xyp.gtnc.ae2thing.common.item.ItemWirelessDualInterfaceTerminal;
 import com.xyp.gtnc.ae2thing.inventory.InventoryHandler;
 import com.xyp.gtnc.ae2thing.loader.ChannelLoader;
 import com.xyp.gtnc.ae2thing.loader.ItemAndBlockHolder;
@@ -40,10 +40,9 @@ public class AE2Thing {
     public static void preInit(FMLPreInitializationEvent event, Object hostInstance) {
         INSTANCE = hostInstance;
         proxy = FMLLaunchHandler.side() == Side.CLIENT ? new ClientProxy() : new CommonProxy();
-        Config.run();
         ChannelLoader.INSTANCE.run();
         proxy.preInit(event);
-        ItemAndBlockHolder.INSTANCE.run();
+        ItemAndBlockHolder.ITEM_WIRELESS_DUAL_INTERFACE_TERMINAL = new ItemWirelessDualInterfaceTerminal().register();
     }
 
     public static void init(FMLInitializationEvent event) {

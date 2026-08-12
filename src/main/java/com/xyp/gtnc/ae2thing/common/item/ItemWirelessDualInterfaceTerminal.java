@@ -22,7 +22,6 @@ import com.xyp.gtnc.ae2thing.common.tabs.AE2ThingTabs;
 import com.xyp.gtnc.ae2thing.inventory.gui.GuiType;
 import com.xyp.gtnc.ae2thing.inventory.item.IItemInventory;
 import com.xyp.gtnc.ae2thing.inventory.item.WirelessDualInterfaceTerminalInventory;
-import com.xyp.gtnc.ae2thing.loader.IRegister;
 import com.xyp.gtnc.ae2thing.util.NameConst;
 
 import appeng.api.AEApi;
@@ -30,8 +29,7 @@ import appeng.core.features.AEFeature;
 import appeng.core.localization.PlayerMessages;
 import cpw.mods.fml.common.registry.GameRegistry;
 
-public class ItemWirelessDualInterfaceTerminal extends ItemBaseWirelessTerminal
-    implements IItemInventory, IRegister<ItemWirelessDualInterfaceTerminal> {
+public class ItemWirelessDualInterfaceTerminal extends ItemBaseWirelessTerminal implements IItemInventory {
 
     public ItemWirelessDualInterfaceTerminal() {
         AEApi.instance()
@@ -130,7 +128,6 @@ public class ItemWirelessDualInterfaceTerminal extends ItemBaseWirelessTerminal
         return net.minecraft.client.settings.GameSettings.getKeyDisplayString(key.getKeyCode());
     }
 
-    @Override
     public ItemWirelessDualInterfaceTerminal register() {
         GameRegistry.registerItem(this, NameConst.ITEM_WIRELESS_DUAL_INTERFACE_TERMINAL, AE2Thing.MODID);
         setCreativeTab(AE2ThingTabs.INSTANCE);

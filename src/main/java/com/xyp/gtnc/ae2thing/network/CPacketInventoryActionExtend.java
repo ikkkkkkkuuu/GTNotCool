@@ -1,50 +1,22 @@
 package com.xyp.gtnc.ae2thing.network;
 
-import static appeng.api.networking.crafting.CraftingItemList.ACTIVE;
-
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 
 import javax.annotation.Nullable;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.tileentity.TileEntity;
 
-import com.xyp.gtnc.ae2thing.AE2Thing;
-import com.xyp.gtnc.ae2thing.api.Constants;
 import com.xyp.gtnc.ae2thing.api.InventoryActionExtend;
 import com.xyp.gtnc.ae2thing.api.WirelessObject;
-import com.xyp.gtnc.ae2thing.client.gui.container.ContainerPatternModifier;
-import com.xyp.gtnc.ae2thing.client.gui.container.ContainerPatternValueAmount;
-import com.xyp.gtnc.ae2thing.client.gui.container.ContainerPatternValueName;
 import com.xyp.gtnc.ae2thing.common.item.ItemWirelessDualInterfaceTerminal;
-import com.xyp.gtnc.ae2thing.inventory.InventoryHandler;
-import com.xyp.gtnc.ae2thing.inventory.gui.GuiType;
-import com.xyp.gtnc.ae2thing.inventory.item.WirelessTerminal;
-import com.xyp.gtnc.ae2thing.util.BlockPos;
-import com.xyp.gtnc.ae2thing.util.CPUCraftingPreview;
 import com.xyp.gtnc.ae2thing.util.InvUtil;
 
-import appeng.api.AEApi;
 import appeng.api.config.Actionable;
 import appeng.api.features.IWirelessTermHandler;
-import appeng.api.networking.crafting.ICraftingCPU;
-import appeng.api.networking.crafting.ICraftingGrid;
-import appeng.api.networking.security.IActionHost;
 import appeng.api.storage.data.IAEItemStack;
-import appeng.api.storage.data.IItemList;
-import appeng.container.AEBaseContainer;
-import appeng.container.ContainerOpenContext;
-import appeng.container.interfaces.IInventorySlotAware;
-import appeng.core.localization.GuiText;
-import appeng.me.cluster.implementations.CraftingCPUCluster;
 import appeng.util.item.AEItemStack;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
@@ -180,8 +152,7 @@ public class CPacketInventoryActionExtend implements IMessage {
         @Override
         public IMessage onMessage(CPacketInventoryActionExtend message, MessageContext ctx) {
             final EntityPlayerMP sender = ctx.getServerHandler().playerEntity;
-            if (message.action == InventoryActionExtend.REQUEST_ITEM
-                && message.stack != null
+            if (message.action == InventoryActionExtend.REQUEST_ITEM && message.stack != null
                 && message.slot >= 0
                 && message.slot < sender.inventory.mainInventory.length
                 && sender.inventory.mainInventory[message.slot] == null) {
@@ -213,124 +184,7 @@ public class CPacketInventoryActionExtend implements IMessage {
                 sender.inventoryContainer.detectAndSendChanges();
                 return null;
             }
-            if (sender.openContainer instanceof final AEBaseContainer baseContainer) {
-                Object target = baseContainer.getTarget();
-                if (message.action == InventoryActionExtend.SET_PATTERN_NAME) {
-                    final ContainerOpenContext context = baseContainer.getOpenContext();
-                    if (context != null && message.stack != null) {
-                        final TileEntity te = context.getTile();
-                        if (te != null) {
-                            InventoryHandler.openGui(
-                                    sender,
-                                    te.getWorldObj(),
-                                    new BlockPos(te),
-                                    Objects.requireNonNull(baseContainer.getOpenContext().getSide()),
-                                    GuiType.PATTERN_NAME_SET);
-                        }else{
-                            InventoryHandler.openGui(
-                                sender,
-                                sender.getEntityWorld(),
-                                new BlockPos(((WirelessTerminal) target).getInventorySlot(),0,0),
-                                Objects.requireNonNull(baseContainer.getOpenContext().getSide()),
-                                GuiType.PATTERN_NAME_SET_ITEM);
-                        }
-
-                        ItemStack itemStack = message.stack.getItemStack();
-                        if(itemStack.hasDisplayName()){
-                            String name = itemStack.getDisplayName();
-                            AE2Thing.proxy.netHandler.sendTo(new SPacketSetItemName(name), sender);
-                        }
-                        if (sender.openContainer instanceof final ContainerPatternValueName cpv) {
-                            if (baseContainer.getTargetStack() instanceof IAEItemStack ais) {
-                                cpv.setValueIndex(message.slot);
-                                cpv.getPatternValue().putStack(ais.getItemStack());
-                            }
-                            cpv.detectAndSendChanges();
-                        }
-                    }
-                } else if (message.action == InventoryActionExtend.GET_CRAFTING_STATE) {
-                    if(target instanceof IActionHost gh){
-                        ICraftingGrid craftingGrid = gh.getActionableNode()
-                            .getGrid()
-                            .getCache(ICraftingGrid.class);
-                        NBTTagCompound cpuData = new NBTTagCompound();
-                        NBTTagList tagList = new NBTTagList();
-                        cpuData.setTag(Constants.CPU_LIST,tagList);
-                        int i = 0;
-                        for (ICraftingCPU cpu: craftingGrid.getCpus()) {
-                            i++;
-                            if(cpu instanceof CraftingCPUCluster ccc && ccc.getFinalOutput() != null){
-                                if(message.stack.hashCode() == ccc.getFinalOutput().hashCode()){
-                                    IItemList<IAEItemStack> list =  AEApi.instance().storage().createPrimitiveItemList();
-                                    ccc.getListOfItem(list,ACTIVE);
-                                    List<IAEItemStack> activeItems = getActiveCraftingItems(list);
-                                    if(activeItems.isEmpty()){
-                                        continue;
-                                    }
-                                    NBTTagCompound data = new NBTTagCompound();
-                                    final String name;
-                                    if(ccc.getName().isEmpty()){
-                                        name = GuiText.CPUs.getLocal() + ": #" + i;
-                                    }else{
-                                        name =GuiText.CPUs.getLocal() + ": "  + ccc.getName().substring(0, Math.min(20, ccc.getName().length()));
-                                    }
-                                    new CPUCraftingPreview(name, ccc.getRemainingItemCount(),ccc.getElapsedTime(),  activeItems).writeToNBT(data);
-                                    tagList.appendTag(data);
-                                }
-                            }
-                        }
-                        AE2Thing.proxy.netHandler.sendTo(new SPacketCraftingStateUpdate(cpuData),ctx.getServerHandler().playerEntity);
-                    }
-                } else if (message.action == InventoryActionExtend.CLEAR_PATTERN && baseContainer instanceof ContainerPatternModifier patternModifier) {
-                    patternModifier.clearPattern();
-                } else if (message.action == InventoryActionExtend.REPLACE_PATTERN && baseContainer instanceof ContainerPatternModifier patternModifier) {
-                    patternModifier.replacePattern();
-                } else if (message.action == InventoryActionExtend.SET_PATTERN_VALUE) {
-                    final ContainerOpenContext context = baseContainer.getOpenContext();
-                    if (context != null && message.stack != null) {
-                        final TileEntity te = context.getTile();
-                        if (te != null) {
-                            InventoryHandler.openGui(
-                                    sender,
-                                    te.getWorldObj(),
-                                    new BlockPos(te),
-                                    Objects.requireNonNull(baseContainer.getOpenContext().getSide()),
-                                    GuiType.PATTERN_VALUE_SET);
-                        }else{
-                            InventoryHandler.openGui(
-                                sender,
-                                sender.getEntityWorld(),
-                                new BlockPos(((IInventorySlotAware)target).getInventorySlot(),0,0),
-                                Objects.requireNonNull(baseContainer.getOpenContext().getSide()),
-                                GuiType.PATTERN_VALUE_SET_ITEM);
-                        }
-                        int amt = (int) message.stack.getStackSize();
-                        AE2Thing.proxy.netHandler.sendTo(new SPacketSetItemAmount(amt), sender);
-                        if (sender.openContainer instanceof final ContainerPatternValueAmount cpv) {
-                            if (baseContainer.getTargetStack() instanceof IAEItemStack ais) {
-                                cpv.setValueIndex(message.slot);
-                                cpv.getPatternValue().putStack(ais.getItemStack());
-                            }
-                            cpv.detectAndSendChanges();
-                        }
-                    }
-                }
-            }
             return null;
-        }
-
-        private List<IAEItemStack> getActiveCraftingItems(IItemList<IAEItemStack> list) {
-            List<IAEItemStack> activeItems = new ArrayList<>();
-            for (IAEItemStack item : list) {
-                activeItems.add(item);
-            }
-            activeItems.sort(
-                Comparator.comparingLong(IAEItemStack::getStackSize)
-                    .reversed());
-            if (activeItems.size() <= CPUCraftingPreview.maxSize) {
-                return activeItems;
-            }
-            return new ArrayList<>(activeItems.subList(0, CPUCraftingPreview.maxSize));
         }
     }
 

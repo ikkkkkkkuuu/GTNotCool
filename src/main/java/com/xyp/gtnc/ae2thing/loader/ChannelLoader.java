@@ -9,10 +9,6 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.network.Packet;
-import net.minecraft.world.World;
-
 import com.xyp.gtnc.ae2thing.AE2Thing;
 import com.xyp.gtnc.ae2thing.network.wrapper.AE2ThingNetworkWrapper;
 
@@ -97,13 +93,5 @@ public class ChannelLoader implements Runnable {
             }
         } catch (Exception ignored) {}
 
-    }
-
-    public static void sendPacketToAllPlayers(Packet packet, World world) {
-        for (Object player : world.playerEntities) {
-            if (player instanceof EntityPlayerMP) {
-                ((EntityPlayerMP) player).playerNetServerHandler.sendPacket(packet);
-            }
-        }
     }
 }

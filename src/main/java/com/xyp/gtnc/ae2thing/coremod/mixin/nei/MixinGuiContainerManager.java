@@ -20,7 +20,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.xyp.gtnc.Common.compat.FluidDropCompat;
 import com.xyp.gtnc.ae2thing.api.AE2ThingAPI;
-import com.xyp.gtnc.ae2thing.client.gui.widget.IGuiMonitor;
 import com.xyp.gtnc.ae2thing.client.render.RenderHelper;
 import com.xyp.gtnc.ae2thing.nei.ButtonConstants;
 import com.xyp.gtnc.ae2thing.nei.NEI_TH_Config;
@@ -64,14 +63,11 @@ public abstract class MixinGuiContainerManager {
         boolean displayFluid = false;
         if (window instanceof GuiRecipe<?>gui) {
             IDisplayRepo repo = null;
-            if (gui.getFirstScreenGeneral() instanceof IGuiMonitor g) {
-                repo = g.getRepo();
-                displayFluid = true;
-            } else if (AE2ThingAPI.instance()
+            if (AE2ThingAPI.instance()
                 .terminal()
                 .isTerminal(gui.getFirstScreenGeneral())) {
-                    repo = Util.getDisplayRepo((AEBaseGui) gui.getFirstScreenGeneral());
-                }
+                repo = Util.getDisplayRepo((AEBaseGui) gui.getFirstScreenGeneral());
+            }
             if (!(repo instanceof ItemRepo)) return;
             IItemList<IAEStack<?>> list = Ae2ReflectClient.getList((ItemRepo) repo);
             FluidStack fs = StackInfo.getFluid(stack);

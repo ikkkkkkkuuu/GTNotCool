@@ -1,9 +1,9 @@
 package com.xyp.gtnc.ae2thing.nei;
 
 import com.xyp.gtnc.ae2thing.AE2Thing;
-import com.xyp.gtnc.ae2thing.client.gui.GuiWirelessDualInterfaceTerminal;
 import com.xyp.gtnc.ae2thing.integration.Mods;
 import com.xyp.gtnc.ae2thing.nei.recipes.FluidRecipe;
+import com.xyp.gtnc.ae2thing.quickterminal.client.GuiQuickEncodingTerminal;
 
 import codechicken.lib.config.ConfigTagParent;
 import codechicken.nei.NEIClientConfig;
@@ -18,11 +18,12 @@ public class NEI_TH_Config implements IConfigureNEI {
     @Override
     public void loadConfig() {
         API.registerNEIGuiHandler(new AE2TH_NEIGuiHandler());
+        NativePatternIngredientCycler.register();
         for (String identifier : FluidRecipe.getSupportRecipes()) {
-            if (!API.hasGuiOverlayHandler(GuiWirelessDualInterfaceTerminal.class, identifier)) {
+            if (!API.hasGuiOverlayHandler(GuiQuickEncodingTerminal.class, identifier)) {
                 API.registerGuiOverlayHandler(
-                    GuiWirelessDualInterfaceTerminal.class,
-                    PatternTerminalRecipeTransferHandler.INSTANCE,
+                    GuiQuickEncodingTerminal.class,
+                    QuickTerminalRecipeTransferHandler.INSTANCE,
                     identifier);
             }
         }

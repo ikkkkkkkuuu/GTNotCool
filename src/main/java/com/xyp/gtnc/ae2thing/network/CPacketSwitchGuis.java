@@ -12,6 +12,7 @@ import net.minecraftforge.common.util.ForgeDirection;
 
 import com.xyp.gtnc.ae2thing.inventory.InventoryHandler;
 import com.xyp.gtnc.ae2thing.inventory.gui.GuiType;
+import com.xyp.gtnc.ae2thing.quickterminal.ContainerQuickEncodingTerminal;
 import com.xyp.gtnc.ae2thing.util.BlockPos;
 import com.xyp.gtnc.ae2thing.util.Util;
 
@@ -88,6 +89,12 @@ public class CPacketSwitchGuis implements IMessage {
                 return null;
             }
             Container cont = player.openContainer;
+            if (cont instanceof ContainerQuickEncodingTerminal quickTerminal) {
+                // openGui constructs the next wireless host from the same ItemStack.
+                // Restore AE2's native 9-wide pin-row values before that host reads NBT;
+                // onContainerClosed alone can run too late in the GUI-switch sequence.
+                quickTerminal.restoreNativePinRows();
+            }
             if (message.guiType == GuiType.WIRELESS_DUAL_INTERFACE_TERMINAL
                 || message.guiType == GuiType.WIRELESS_CRAFTING_TERMINAL) {
                 int s = Util.findDualInterfaceTerminal(player);
@@ -96,14 +103,6 @@ public class CPacketSwitchGuis implements IMessage {
                     Util.setLastGuiMode(player, s, message.guiType);
                     InventoryHandler.openGui(player, w, new BlockPos(s, 0, 0), ForgeDirection.UNKNOWN, message.guiType);
                 }
-                return null;
-            } else if (message.guiType == GuiType.PATTERN_MODIFIER) {
-                InventoryHandler.openGui(
-                    player,
-                    w,
-                    new BlockPos(player.inventory.currentItem, 0, 0),
-                    ForgeDirection.UNKNOWN,
-                    message.guiType);
                 return null;
             }
             if (cont instanceof AEBaseContainer c) {

@@ -1,9 +1,6 @@
 package com.xyp.gtnc.ae2thing.util;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Future;
 
@@ -16,20 +13,14 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.IFluidContainerItem;
 
 import org.lwjgl.input.Mouse;
 
 import com.glodblock.github.client.gui.FCGuiTextField;
-import com.glodblock.github.common.item.ItemFluidPacket;
-import com.mojang.authlib.GameProfile;
 import com.xyp.gtnc.Common.compat.FluidDropCompat;
-import com.xyp.gtnc.ae2thing.api.AE2ThingAPI;
 import com.xyp.gtnc.ae2thing.api.Constants;
-import com.xyp.gtnc.ae2thing.client.gui.IGuiMonitorTerminal;
 import com.xyp.gtnc.ae2thing.common.item.ItemWirelessDualInterfaceTerminal;
 
 import appeng.api.AEApi;
@@ -46,7 +37,6 @@ import appeng.client.gui.widgets.MEGuiTextField;
 import appeng.client.me.ItemRepo;
 import appeng.container.implementations.ContainerCraftConfirm;
 import appeng.core.AELog;
-import appeng.core.worlddata.WorldData;
 import appeng.crafting.v2.CraftingJobV2;
 import appeng.integration.modules.NEI;
 import appeng.items.tools.powered.ToolWirelessTerminal;
@@ -154,23 +144,6 @@ public class Util {
             }
         }
         return false;
-    }
-
-    public static boolean isSameDimensionalCoord(DimensionalCoord a, DimensionalCoord b) {
-        return a != null && b != null && a.x == b.x && a.y == b.y && a.z == b.z && a.getDimension() == b.getDimension();
-    }
-
-    public static int getPlayerID(EntityPlayer player) {
-        final GameProfile profile = player.getGameProfile();
-        return WorldData.instance()
-            .playerData()
-            .getPlayerID(profile);
-    }
-
-    private static int randTickSeed = 0;
-
-    public static int findBackPackTerminal(EntityPlayer player) {
-        return -1;
     }
 
     /**
@@ -330,13 +303,6 @@ public class Util {
         }
     }
 
-    public static boolean isFluidPacket(ItemStack stack) {
-        // [液滴分类] 可迁原生：仅做流体类型判定的谓词，未参与合成计算
-        return stack != null
-            && (stack.getItem() instanceof ItemFluidPacket || FluidDropCompat.isFluidDrop(stack.getItem())
-                || stack.getItem() instanceof gregtech.common.items.ItemFluidDisplay);
-    }
-
     @Nonnull
     public static String getDisplayName(IAEItemStack item) {
         FluidStack fs = StackInfo.getFluid(item.getItemStack());
@@ -374,70 +340,17 @@ public class Util {
         return -1;
     }
 
-    public static long genSingularityFreq() {
-        long freq = (new Date()).getTime() * 100 + (randTickSeed) % 100;
-        randTickSeed++;
-        return freq;
-    }
-
-    public static FluidStack getFluidFromItem(ItemStack stack) {
-        if (stack != null) {
-            if (stack.getItem() instanceof IFluidContainerItem) {
-                FluidStack fluid = ((IFluidContainerItem) stack.getItem()).getFluid(stack);
-                if (fluid != null) {
-                    FluidStack fluid0 = fluid.copy();
-                    fluid0.amount *= stack.stackSize;
-                    return fluid0;
-                }
-            }
-            if (FluidContainerRegistry.isContainer(stack)) {
-                FluidStack fluid = FluidContainerRegistry.getFluidForFilledItem(stack);
-                if (fluid != null) {
-                    FluidStack fluid0 = fluid.copy();
-                    fluid0.amount *= stack.stackSize;
-                    return fluid0;
-                }
-            }
-        }
-        return null;
-    }
-
-    public static List<Integer> getBackpackSlot(EntityPlayer player) {
-        List<Integer> result = new ArrayList<>();
-        for (int x = 0; x < player.inventory.mainInventory.length; x++) {
-            ItemStack item = player.inventory.mainInventory[x];
-            if (item == null || item.getItem() == null) continue;
-            if (AE2ThingAPI.instance()
-                .isBackpackItem(item)) {
-                result.add(x);
-            }
-        }
-        return result;
-    }
-
     public static IDisplayRepo getDisplayRepo(AEBaseGui gui) {
-        if (gui instanceof IGuiMonitorTerminal gmt) {
-            return gmt.getRepo();
-        }
         return getDisplayRepo(gui, gui.getClass());
     }
 
     public static void setSearchFieldText(AEBaseGui gui, String text) {
         String displayName = NEI.searchField.getEscapedSearchText(text);
-        if (gui instanceof IGuiMonitorTerminal gmt) {
-            gmt.getSearchField()
-                .setText(displayName);
-            gmt.getRepo()
-                .setSearchString(displayName);
-            gmt.getRepo()
-                .updateView();
-        } else {
-            IDisplayRepo repo = getDisplayRepo(gui);
-            if (repo != null) {
-                setSearchFieldText(gui, gui.getClass(), displayName);
-                repo.setSearchString(displayName);
-                repo.updateView();
-            }
+        IDisplayRepo repo = getDisplayRepo(gui);
+        if (repo != null) {
+            setSearchFieldText(gui, gui.getClass(), displayName);
+            repo.setSearchString(displayName);
+            repo.updateView();
         }
     }
 

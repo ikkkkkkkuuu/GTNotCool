@@ -18,7 +18,6 @@ public class NameConst {
     public static final String ITEM_PART_THAUMATORIUM_INTERFACE = "part_thaumatorium_interface";
     public static final String ITEM_PART_WIRELESS_CONNECTOR_TERMINAL = "part_wireless_connector_terminal";
     public static final String ITEM_WIRELESS_CONNECTOR_TERMINAL = "wireless_connector_terminal";
-    public static final String ITEM_PATTERN_MODIFIER = "pattern_modifier";
     public static final String ITEM_WIRELESS_DUAL_INTERFACE_TERMINAL = "wireless_dual_interface_terminal";
     public static final String ITEM_PHIAL = "phial";
     public static final String ITEM_PART_MANA_IMPORT = "part_mana_import";
@@ -30,7 +29,6 @@ public class NameConst {
     public static final String BLOCK_WIRELESS_DISTRIBUTOR = "wireless_distributor";
     public static final String BLOCK_FLUID_PACKET_ENCODER = "fluid_packet_encoder";
     public static final String BLOCK_INFUSION_INTERFACE = "infusion_interface";
-    public static final String BLOCK_EX_IO_PORT = "ex_io_port";
     public static final String MANA = "botania.mana";
     public static final String TT_KEY = AE2Thing.MODID + ".tooltip.";
     public static final String TT_SHIFT_FOR_MORE = TT_KEY + "shift_for_more";
@@ -71,9 +69,6 @@ public class NameConst {
 
     public static final String GUI_KEY = AE2Thing.MODID + ".gui.";
     public static final String GUI_CELL_LINK = GUI_KEY + "cell_link";
-    public static final String GUI_PATTERN_MODIFIER = GUI_KEY + "pattern_modifier";
-    public static final String GUI_PATTERN_MODIFIER_REPLACE = GUI_PATTERN_MODIFIER + ".replace";
-    public static final String GUI_PATTERN_MODIFIER_CLEAR = GUI_PATTERN_MODIFIER + ".clear";
     public static final String GUI_TERMINAL = GUI_KEY + "terminal.";
     public static final String GUI_INFUSION_INTERFACE = GUI_KEY + "infusion_interface";
     public static final String GUI_PART_THAUMATORIUM_INTERFACE = GUI_KEY + "part_thaumatorium_interface";
@@ -100,7 +95,6 @@ public class NameConst {
     public static final String GUI_FLUID_PACKET_ENCODER = GUI_KEY + "fluid_packet_encoder";
     public static final String GUI_MANA_IMPORT = GUI_KEY + ITEM_PART_MANA_IMPORT;
     public static final String GUI_MANA_EXPORT = GUI_KEY + ITEM_PART_MANA_EXPORT;
-    public static final String GUI_PATTERN_RENAME = GUI_KEY + "pattern_rename";
     public static final String GUI_TERMINAL_MENU = GUI_KEY + "terminal_menu.";
     public static final String GUI_TERMINAL_MENU_PAGE = GUI_TERMINAL_MENU + "page";
     public static final String GUI_TERMINAL_MENU_MAX_PAGE = GUI_TERMINAL_MENU + "max_page";

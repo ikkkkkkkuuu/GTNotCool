@@ -18,7 +18,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.xyp.gtnc.ae2thing.api.AE2ThingAPI;
-import com.xyp.gtnc.ae2thing.client.me.AdvItemRepo;
 import com.xyp.gtnc.ae2thing.client.me.IDisplayRepoExtend;
 
 import appeng.api.storage.data.IAEItemStack;
@@ -82,17 +81,7 @@ public abstract class MixinItemRepo implements IDisplayRepo, IDisplayRepoExtend 
 
     @Inject(method = "updateView", at = @At(value = "HEAD"), remap = false)
     public void updateViewHead(CallbackInfo ci) {
-        if (((Object) this) instanceof AdvItemRepo repo) {
-            if (!repo.hasCache()) {
-                repo.getLock()
-                    .lock();
-                viewFilter();
-                repo.getLock()
-                    .unlock();
-            }
-        } else {
-            viewFilter();
-        }
+        viewFilter();
     }
 
     private void viewFilter() {

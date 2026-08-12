@@ -13,7 +13,6 @@ import org.spongepowered.asm.mixin.Mixin;
 
 import com.xyp.gtnc.Common.compat.FluidDropCompat;
 import com.xyp.gtnc.ae2thing.api.AE2ThingAPI;
-import com.xyp.gtnc.ae2thing.client.gui.widget.IGuiMonitor;
 import com.xyp.gtnc.ae2thing.nei.AEItemOverlayState;
 import com.xyp.gtnc.ae2thing.util.Ae2ReflectClient;
 import com.xyp.gtnc.ae2thing.util.Util;
@@ -42,17 +41,14 @@ public interface MixinIOverlayHandler extends IOverlayHandler {
         final List<PositionedStack> ingredients = recipe.getIngredientStacks(recipeIndex);
         IItemList<IAEStack<?>> list = null;
         boolean displayFluid = false;
-        if (firstGui instanceof IGuiMonitor gm) {
-            list = Ae2ReflectClient.getList(gm.getRepo());
-            displayFluid = true;
-        } else if (AE2ThingAPI.instance()
+        if (AE2ThingAPI.instance()
             .terminal()
             .isTerminal(firstGui)) {
-                IDisplayRepo repo = Util.getDisplayRepo((AEBaseGui) firstGui);
-                if (repo instanceof ItemRepo) {
-                    list = Ae2ReflectClient.getList((ItemRepo) repo);
-                }
+            IDisplayRepo repo = Util.getDisplayRepo((AEBaseGui) firstGui);
+            if (repo instanceof ItemRepo) {
+                list = Ae2ReflectClient.getList((ItemRepo) repo);
             }
+        }
         final List<ItemStack> invStacks = firstGui.inventorySlots.inventorySlots.stream()
             .filter(
                 s -> s != null && s.getStack() != null

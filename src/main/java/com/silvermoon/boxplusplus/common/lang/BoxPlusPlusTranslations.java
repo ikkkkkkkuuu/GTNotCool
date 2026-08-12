@@ -6,6 +6,7 @@ public final class BoxPlusPlusTranslations {
 
     public static void touch() {}
 
+    // spotless:off
     // #tr itemGroup.BoxPlusPlus
     // # BoxPlusPlus
     // # zh_CN BoxPlusPlus
@@ -41,7 +42,7 @@ public final class BoxPlusPlusTranslations {
     // # zh_CN 微缩星河
     // #tr tile.boxplusplus_craftitems.desc
     // # "Part of the 'Box' system"
-    // # zh_CN "Part of the 'Box' system"
+    // # zh_CN “盒”系统的一部分
     // #tr tile.boxplusplus.box
     // # Box
     // # zh_CN 盒
@@ -151,8 +152,7 @@ public final class BoxPlusPlusTranslations {
     // # Encapsulate any process you desire within one machine!
     // # zh_CN 在一台机器中封装任何你想要的工序!
     // #tr tile.boxplusplus.boxinfo.06
-    // # Place process machines and process materials into input buses and input hatches, then open the GUI to import
-    // processes.
+    // # Place process machines and process materials into input buses and input hatches, then open the GUI to import processes.
     // # zh_CN 将工序对应多方块主机、工序原料放入输入总线与输入仓, 然后打开GUI导入工序;
     // #tr tile.boxplusplus.boxinfo.07
     // # Please use multi-block machine hosts for processes instead of single-block machines.
@@ -161,30 +161,25 @@ public final class BoxPlusPlusTranslations {
     // # Confirm the final recipe once all processes are inputted, and cyclic byproducts will be eliminated.
     // # zh_CN 输入全部工序后即可确认最终配方, 循环产物将被消去
     // #tr tile.boxplusplus.boxinfo.09
-    // # Adjust the parallel coefficient of individual processes in the GUI to obtain the optimal recipe (or use the
-    // built-in matrix solver).
+    // # Adjust the parallel coefficient of individual processes in the GUI to obtain the optimal recipe (or use the built-in matrix solver).
     // # zh_CN 在GUI中调整单工序并行系数来获取最佳配方(或使用内置矩阵求解器)
     // #tr tile.boxplusplus.boxinfo.10
     // # All processes require corresponding module support to operate!
     // # zh_CN 所有工序需要对应模块支持才会运行! 在环的特定位置放置模块,然后在GUI中启用.
     // #tr tile.boxplusplus.boxinfo.11
-    // # View and enable 12 modules in the module configuration of the GUI, some modules have special structures and
-    // effects.
+    // # View and enable 12 modules in the module configuration of the GUI, some modules have special structures and effects.
     // # zh_CN 模块可以被替换升级为T2, 解锁更多机器.
     // #tr tile.boxplusplus.boxinfo.12
     // # Only when modules are enabled, the multi-block projector will indicate the module structure.
     // # zh_CN 仅当GUI中启用模块后, 多方块投影仪才会指示模块结构
     // #tr tile.boxplusplus.boxinfo.13
-    // # The structure ring count 'R' will affect the maximum number of processes, parallelism of individual processes,
-    // and overclocking.
+    // # The structure ring count 'R' will affect the maximum number of processes, parallelism of individual processes, and overclocking.
     // # zh_CN 结构环数R将影响最大工序数量，单工序并行与超频
     // #tr tile.boxplusplus.boxinfo.14
-    // # Upgrading to 3 rings will break through the high-dimensional barrier of the virtual realm. It can be disabled
-    // in the GUI to protect FPS.
+    // # Upgrading to 3 rings will break through the high-dimensional barrier of the virtual realm. It can be disabled in the GUI to protect FPS.
     // # zh_CN 升级3环将突破虚境的高维壁垒，可在GUI中关闭来保护FPS
     // #tr tile.boxplusplus.boxinfo.15
-    // # For more information (recipe time, power consumption, etc.) and tutorials, please refer to the built-in WIKI in
-    // the GUI.
+    // # For more information (recipe time, power consumption, etc.) and tutorials, please refer to the built-in WIKI in the GUI.
     // # zh_CN 更多信息(最终配方耗时、最终功率等)与教程请参阅GUI中内置WIKI
     // #tr tile.boxplusplus.boxStructure.01
     // # The Box System consists of a Core, Triple-Star Rings, and 14 modules. The structure is quite complex!
@@ -196,8 +191,7 @@ public final class BoxPlusPlusTranslations {
     // # There is no quantity limit for Input/Output Chambers.
     // # zh_CN 输入/输出类舱室没有数量限制, 支持合成输入总线.
     // #tr tile.boxplusplus.boxStructure.04
-    // # Install Laser Focus Module to use the Laser Chamber. Upgrade this module to enable wireless network access
-    // points.
+    // # Install Laser Focus Module to use the Laser Chamber. Upgrade this module to enable wireless network access points.
     // # zh_CN 安装激光聚焦器模块后可使用激光仓， 升级此模块开启无线网络接入点
     // #tr tile.boxplusplus.boxStructure.05
     // # All chambers must be installed on the Core and replace any Space Extension Machine Blocks.
@@ -212,8 +206,7 @@ public final class BoxPlusPlusTranslations {
     // # Materials and Processes
     // # zh_CN 原料及工序
     // #tr tile.boxplusplus.boxUI.04
-    // # Enter the desired number of processes in the box and then reopen the GUI. This parameter cannot be changed
-    // after generating the final recipe.
+    // # Enter the desired number of processes in the box and then reopen the GUI. This parameter cannot be changed after generating the final recipe.
     // # zh_CN 输入期望封装到盒中的工序数量，然后重新打开 GUI。生成最终配方后该参数无法更改。
     // #tr tile.boxplusplus.boxUI.05
     // # Box System Initializing..
@@ -432,8 +425,7 @@ public final class BoxPlusPlusTranslations {
     // # Precision Assembler
     // # zh_CN 精密组装机 | 终极工作台
     // #tr tile.boxplusplus.boxUI.module.context.2e
-    // # [Workbench] Place shape crafting materials in slots 1-9 of the input bus and the Molecular Assembler in the
-    // 10th slot, then check the recipe; shapeless recipe follows regular checks.
+    // # [Workbench] Place shape crafting materials in slots 1-9 of the input bus and the Molecular Assembler in the 10th slot, then check the recipe; shapeless recipe follows regular checks.
     // # zh_CN [工作台] 将有序合成材料按顺序1-9放置于输入总线内，而第10格放置分子装配室,然后检测配方. [终极工作台]检测成品
     // #tr tile.boxplusplus.boxUI.module.context.2f
     // # Ura!!!
@@ -469,8 +461,7 @@ public final class BoxPlusPlusTranslations {
     // # Cyclotron
     // # zh_CN 回旋加速器
     // #tr tile.boxplusplus.boxUI.module.context.4e
-    // # [Industrial Arc Furnace] Place a programming circuit in slot 1, with values 1/2 corresponding to arc/plasma
-    // arc.
+    // # [Industrial Arc Furnace] Place a programming circuit in slot 1, with values 1/2 corresponding to arc/plasma arc.
     // # zh_CN [工业电弧炉] 在第1格放置编程电路，其值按1-2对应电弧/等离子电弧
     // #tr tile.boxplusplus.boxUI.module.context.4f
     // # Gurgle gurgle gurgle (turbulence)
@@ -488,8 +479,7 @@ public final class BoxPlusPlusTranslations {
     // # PCB Factory | Circuit Assembly Line
     // # zh_CN PCB工厂 | 电路装配线
     // #tr tile.boxplusplus.boxUI.module.context.5e
-    // # [MultiMachine] Place a programming circuit in slot 1, with values 1-9 corresponding to the 9 machines listed in
-    // the tooltip. [Circuit Assembly Line] The host placed must have an imprinting circuit.
+    // # [MultiMachine] Place a programming circuit in slot 1, with values 1-9 corresponding to the 9 machines listed in the tooltip. [Circuit Assembly Line] The host placed must have an imprinting circuit.
     // # zh_CN [大型加工厂] 在第1格放置编程电路，其值按1-9对应Tooltip上9种机器 [电路装配线]放置的主机必须已蚀刻电路
     // #tr tile.boxplusplus.boxUI.module.context.5f
     // # Actually, NVIDIA doesn't have a semiconductor fab either, and this card is from AMD.
@@ -507,8 +497,7 @@ public final class BoxPlusPlusTranslations {
     // # Nuclear Fusion Reactor
     // # zh_CN 核聚变反应堆
     // #tr tile.boxplusplus.boxUI.module.context.6e
-    // # [RockCrusher] Place a programming circuit in slot 1, with values 1-3 corresponding to cobblestone, stone,
-    // obsidian, do not consuming fluid. [Fusion Reactor] Need a compressed fusion V host to check.
+    // # [RockCrusher] Place a programming circuit in slot 1, with values 1-3 corresponding to cobblestone, stone, obsidian, do not consuming fluid. [Fusion Reactor] Need a compressed fusion V host to check.
     // # zh_CN [工业碎石机] 在第1格放置编程电路，其值按1-3对应圆石,石头,黑曜石,不消耗流体 [核聚变反应堆] 使用压缩聚变V主机
     // #tr tile.boxplusplus.boxUI.module.context.6f
     // # Or do you prefer the Gross-Pitaevskii equation?
@@ -526,8 +515,7 @@ public final class BoxPlusPlusTranslations {
     // # Integrated Ore Factory
     // # zh_CN 矿物处理厂
     // #tr tile.boxplusplus.boxUI.module.context.7e
-    // # [Industrial Bender] Place a programming circuit in slot 1, with values 1/2 corresponding to the bender, press.
-    // [Mineral Processing Plant] Not yet implemented.
+    // # [Industrial Bender] Place a programming circuit in slot 1, with values 1/2 corresponding to the bender, press. [Mineral Processing Plant] Not yet implemented.
     // # zh_CN [工业滚压机] 在第1格放置编程电路，其值按1-2对应卷板机,冲压机床 [矿物处理厂] 暂未实装
     // #tr tile.boxplusplus.boxUI.module.context.7f
     // # Feels less impressive than 9-in-1...in terms of functionality.
@@ -545,9 +533,7 @@ public final class BoxPlusPlusTranslations {
     // # Dissolution Tank | Bio Vat
     // # zh_CN 溶解罐 | 细菌培养缸
     // #tr tile.boxplusplus.boxUI.module.context.8e
-    // # [Industrial Washing Plant] Place a programming circuit in slot 1, with values 1/2 corresponding to wash plant,
-    // chemical washer. [Electromagnetic Separator] Use a LuV-tier single-block machine. [Bio Vat] Currently not
-    // enabled.
+    // # [Industrial Washing Plant] Place a programming circuit in slot 1, with values 1/2 corresponding to wash plant, chemical washer. [Electromagnetic Separator] Use a LuV-tier single-block machine. [Bio Vat] Currently not enabled.
     // # zh_CN [工业洗矿厂] 在第1格放置编程电路，其值按1-2对应洗矿厂.化学浸洗 [电磁解离机] 使用LuV等级单方块机器 [细菌培养缸]暂未启用
     // #tr tile.boxplusplus.boxUI.module.context.8f
     // # Achievement unlocked: Behind the Scenes Chef!
@@ -565,8 +551,7 @@ public final class BoxPlusPlusTranslations {
     // # Nano Forge | TPM | TDPF (Youth Edition)
     // # zh_CN 纳米锻炉 | 超维度搅拌 | DTPF | 工业高炉(13501K)
     // #tr tile.boxplusplus.boxUI.module.context.9e
-    // # [Electric Blast Furnace] Temperature- T1: 1801K, T2: 13501K. [DTPF] Youth Edition time is §4400%§r, output is
-    // §475%§r.
+    // # [Electric Blast Furnace] Temperature- T1: 1801K, T2: 13501K. [DTPF] Youth Edition time is §4400%§r, output is §475%§r.
     // # zh_CN [DTPF] 青春版时间为§4400%§r,产出为§475%§r
     // #tr tile.boxplusplus.boxUI.module.context.9f
     // # Lu-H-N superconductivity is just for fun; for real superconductivity, you need red alloy cables.
@@ -584,8 +569,7 @@ public final class BoxPlusPlusTranslations {
     // # Component Assembly Line | Electric Implosion Compressor
     // # zh_CN 部件装配线 | 电动聚爆压缩机 | 太空组装机
     // #tr tile.boxplusplus.boxUI.module.context.10e
-    // # [Assembly Line] Only the host and flash drive need to be placed for recipe detection, no raw materials
-    // required. [Component Assembly Line] Speed is 1600%.
+    // # [Assembly Line] Only the host and flash drive need to be placed for recipe detection, no raw materials required. [Component Assembly Line] Speed is 1600%.
     // # zh_CN [装配线] 检测配方时仅需放置主机与闪存,不需要原料 [部件装配线] 速度为1600% [太空组装机] 检测需要3级模块
     // #tr tile.boxplusplus.boxUI.module.context.10f
     // # It's impossible to work, you can never work in this lifetime.
@@ -603,8 +587,7 @@ public final class BoxPlusPlusTranslations {
     // # Naquadah Fuel Refinery | QFT
     // # zh_CN 硅岩燃料精炼厂 | 量子操纵者 | 质量发生器
     // #tr tile.boxplusplus.boxUI.module.context.11e
-    // # [Quantum Force Transformer] Plasma cannot be input to gain amplification; all probabilities are based on
-    // expected output.
+    // # [Quantum Force Transformer] Plasma cannot be input to gain amplification; all probabilities are based on expected output.
     // # zh_CN [量子操纵者] 不能输入等离子获得增幅;所有概率按期望产出 | [质量发生器] 无需增幅液，固定速度为UEV/20t/1000L
     // #tr tile.boxplusplus.boxUI.module.context.11f
     // # May ORI be with you!
@@ -640,8 +623,7 @@ public final class BoxPlusPlusTranslations {
     // # Unlock wireless network
     // # zh_CN 解锁无线网络
     // #tr tile.boxplusplus.boxUI.module.context.13e
-    // # [Christen] Directly connects to the wireless network of the machine owner, time reduced to §41/10000§r of the
-    // recipe (but not less than §210t§r), constant power consumption equal to the recipe value.
+    // # [Christen] Directly connects to the wireless network of the machine owner, time reduced to §41/10000§r of the recipe (but not less than §210t§r), constant power consumption equal to the recipe value.
     // # zh_CN [克丽斯腾] 直接接入机器拥有者的无线网络,时间减少为配方的§5次根号§r(但不会低于§210t§r),消耗电力恒定为配方值.
     // #tr tile.boxplusplus.boxUI.module.context.13f
     // # I hope... Christen hopes that this will open up the next era.
@@ -701,47 +683,29 @@ public final class BoxPlusPlusTranslations {
     // # Box Modules
     // # zh_CN 盒模块
     // #tr tile.boxplusplus.boxwiki.8
-    // # Box.System (officially known as "Spatial Expansion-Compression-Constrained Nuclear Storage Container") is a GT
-    // multi-block machine with §4§lencapsulation capabilities§r. The goal of Box is to encapsulate highly complex
-    // multi-machine production lines into a single machine, significantly reducing TPS decay caused by cross-machine
-    // logistics (e.g., pipes, AE, etc.). To use Box, please refer to the next chapter, "Structure."
-    // # zh_CN
-    // Box.System(正式名称-§l空间延展-压缩-约束核存放容器§r)是一种具有§4§l封装功能§r的GT多方块机器。盒旨在将高度复杂的多机器产线封装到一台机器中，从而大幅减少跨机器物流(即管道,AE等)导致的TPS衰减。要使用盒，请参阅下一章节"结构"。
+    // # Box.System (officially known as "Spatial Expansion-Compression-Constrained Nuclear Storage Container") is a GT multi-block machine with §4§lencapsulation capabilities§r. The goal of Box is to encapsulate highly complex multi-machine production lines into a single machine, significantly reducing TPS decay caused by cross-machine logistics (e.g., pipes, AE, etc.). To use Box, please refer to the next chapter, "Structure."
+    // # zh_CN Box.System(正式名称-§l空间延展-压缩-约束核存放容器§r)是一种具有§4§l封装功能§r的GT多方块机器。盒旨在将高度复杂的多机器产线封装到一台机器中，从而大幅减少跨机器物流(即管道,AE等)导致的TPS衰减。要使用盒，请参阅下一章节"结构"。
     // #tr tile.boxplusplus.boxwiki.9
     // # The structure of Box is shaped like a §lstellar system.
     // # zh_CN 盒的结构形如同§l恒星系。
     // #tr tile.boxplusplus.boxwiki.10
-    // # The initial Box core is just a sphere, and at this stage, Box cannot perform any functions. You need to build
-    // three star rings from the inside out and insert modules on the star rings to enable Box functions. The number of
-    // star rings will affect multiple parameters of Box (refer to the "Box Data" section), and upgrading to three rings
-    // will activate the Box animation. To build a Box system, open the host GUI and follow these steps:
-    // # zh_CN
-    // 初始的盒核仅为一个球体，此时盒无法执行任何功能。你需要从内向外依此搭建3条星环，在星环上插入模块以启用盒功能。星环的数量将影响盒的多个参数(参阅-盒数据章节),并且升级到3环后将开启盒动画。要搭建盒系统，请打开主机GUI，执行:
+    // # The initial Box core is just a sphere, and at this stage, Box cannot perform any functions. You need to build three star rings from the inside out and insert modules on the star rings to enable Box functions. The number of star rings will affect multiple parameters of Box (refer to the "Box Data" section), and upgrading to three rings will activate the Box animation. To build a Box system, open the host GUI and follow these steps:
+    // # zh_CN 初始的盒核仅为一个球体，此时盒无法执行任何功能。你需要从内向外依此搭建3条星环，在星环上插入模块以启用盒功能。星环的数量将影响盒的多个参数(参阅-盒数据章节),并且升级到3环后将开启盒动画。要搭建盒系统，请打开主机GUI，执行:
     // #tr tile.boxplusplus.boxwiki.11
-    // # 1. Click the §lModule§r button; 2. Select the number of rings in the upper left corner; 3. Enable/disable the
-    // corresponding modules; 4. Use the multi-block projector to right-click the host and build according to the
-    // projection.
+    // # 1. Click the §lModule§r button; 2. Select the number of rings in the upper left corner; 3. Enable/disable the corresponding modules; 4. Use the multi-block projector to right-click the host and build according to the projection.
     // # zh_CN 1.点击§l模块§r按钮; 2.在左上角选择环数; 3.启用/关闭对应模块; 4.使用多方块投影仪右键主机,对照投影搭建。
     // #tr tile.boxplusplus.boxwiki.12
-    // # This chapter explains operating the Box system. The core concept is "process," where each is an NEI recipe. To
-    // initialize Box, input a list of processes until the final recipe is generated. The steps are:
+    // # This chapter explains operating the Box system. The core concept is "process," where each is an NEI recipe. To initialize Box, input a list of processes until the final recipe is generated. The steps are:
     // # zh_CN 本章介绍如何运行盒系统。盒系统的核心概念是”工序“,每个工序就是一条NEI配方。初始化盒的过程就是输入产线工序列表，直到生成最终配方. 导入有两种办法:
     // #tr tile.boxplusplus.boxwiki.13
-    // # 1. Open host GUI, click §lMaterials and Processes§r button; 2. Enter process count in §lProcess Count§r; 3.
-    // Close and reopen §lMaterials and Processes§r.
+    // # 1. Open host GUI, click §lMaterials and Processes§r button; 2. Enter process count in §lProcess Count§r; 3. Close and reopen §lMaterials and Processes§r.
     // # zh_CN 自动导入-打开NEI配方页面, 点击右下角的B按钮,配方即会导入; 手动导入: 1.打开主机GUI，点击§l原料及工序§r按钮;
     // #tr tile.boxplusplus.boxwiki.14
-    // # 4. Put §lfirst recipe§r, corresponding §4multi-block machine host§r, and §4one§r of the material in input bus
-    // and input chest; 5. Return to Materials and Processes, click §lDetect Process§r. If materials are correct, first
-    // process will be read; otherwise an error message will appear.
+    // # 4. Put §lfirst recipe§r, corresponding §4multi-block machine host§r, and §4one§r of the material in input bus and input chest; 5. Return to Materials and Processes, click §lDetect Process§r. If materials are correct, first process will be read; otherwise an error message will appear.
     // # zh_CN 2.将你想要封装的§l第一个配方§r，其对应§4多方块机器主机§r以及§4一份§r原料放入输入总线、输入仓; 3.回到原料及工序，点击§l检测工序§r, 如果原料正确，第一条工序会被读取；有误则会提示对应错误;
     // #tr tile.boxplusplus.boxwiki.15
-    // # 7. Click §lProcess Details§r to open process and modify the parallel coefficient of this process; 8. Repeat
-    // steps 5-8 until all processes are written, and the §lCalculate Final Recipe§r button will appear to the right of
-    // Materials and Processes; 9. Confirm the calculated final recipe, check the module requirements, and click the √
-    // below if everything is correct.
-    // # zh_CN 4.点击§l工序细节§r，打开第一条工序，修改这条工序的并行系数; 5.重复2-4，直到所有工序均写入，然后点击§l计算最终配方§r按钮;
-    // 6.确认计算后的最终配方，查看模块要求，确认无误即可点击下方√，配方将锁定。Box将按本配方运行。
+    // # 7. Click §lProcess Details§r to open process and modify the parallel coefficient of this process; 8. Repeat steps 5-8 until all processes are written, and the §lCalculate Final Recipe§r button will appear to the right of Materials and Processes; 9. Confirm the calculated final recipe, check the module requirements, and click the √ below if everything is correct.
+    // # zh_CN 4.点击§l工序细节§r，打开第一条工序，修改这条工序的并行系数; 5.重复2-4，直到所有工序均写入，然后点击§l计算最终配方§r按钮; 6.确认计算后的最终配方，查看模块要求，确认无误即可点击下方√，配方将锁定。Box将按本配方运行。
     // #tr tile.boxplusplus.boxwiki.16
     // # We assume: R (number of rings), N (maximum parallelism per process), and M (maximum number of processes).
     // # zh_CN 本页包含盒系统的详细参数。§l若记环数为R，总工序上限为M§r，全部工序总并行上限为N，则有：
@@ -791,7 +755,7 @@ public final class BoxPlusPlusTranslations {
     // # Box Data (Formulas Page)
     // # zh_CN 盒数据(公式页)
     // #tr tile.boxplusplus.boxwiki.52
-    // # In the formulas, T-process time, m-current process number, N-parallelism for a single recipe, t-time for a
-    // single recipe, v-power for a single recipe.
+    // # In the formulas, T-process time, m-current process number, N-parallelism for a single recipe, t-time for a single recipe, v-power for a single recipe.
     // # zh_CN 式中,T-工序耗时 m-当前工序数 N-单配方并行 t-单配方耗时 v-单配方功率
+    // spotless:on
 }

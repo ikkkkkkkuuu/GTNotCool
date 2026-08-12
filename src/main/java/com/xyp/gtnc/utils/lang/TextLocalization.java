@@ -520,8 +520,7 @@ public class TextLocalization {
         // # zh_CN 并行表前进1级；熔炼/熔融模块的压力插值进度×3，其他模块×2，最高100%。
         TextEnums.tr("steam_godforge.upgrade.tct.body"),
         // #tr steam_godforge.upgrade.ggebe.body
-        // # Sets the overclock time divisor to 2.3 for plasma or 2.15 for smelting/molten; exotic modules require PA
-        // and receive 2.0225.
+        // # Sets the overclock time divisor to 2.3 for plasma or 2.15 for smelting/molten; exotic modules require PA and receive 2.0225.
         // # zh_CN 超频时间除数变为等离子模块2.3、熔炼/熔融模块2.15；奇异模块需PA并获得2.0225。
         TextEnums.tr("steam_godforge.upgrade.ggebe.body"),
         // #tr steam_godforge.upgrade.tptp.body
@@ -590,11 +589,12 @@ public class TextLocalization {
         TextEnums.tr("steam_godforge.upgrade.end.body") };
     // spotless:on
 
+    // spotless:off
     // #tr steam_godforge.upgrade.lore
-    // # Values shown are the Steam Godforge's current formulas; configurable tables use their default values unless
-    // stated otherwise.
+    // # Values shown are the Steam Godforge's current formulas; configurable tables use their default values unless stated otherwise.
     // # zh_CN 以上均为蒸汽诸神之锻炉当前实际公式；未特别说明时，可配置数值按默认配置描述。
     public static final String STEAM_GODFORGE_UPGRADE_LORE = TextEnums.tr("steam_godforge.upgrade.lore");
+    // spotless:on
 
     // #tr steam_godforge.upgrade.materials
     // # Bronze engineering materials
@@ -1153,6 +1153,7 @@ public class TextLocalization {
     public static final String Tooltip_WirelessEnergyCover4A_04 = TextEnums.tr("Tooltip_WirelessEnergyCover4A_04");
 
     // == QuantumComputer == //
+    // spotless:off
 
     // #tr Tooltip_QuantumComputer_00
     // # Can perform crafting tasks like a conventional CPU
@@ -1160,8 +1161,7 @@ public class TextLocalization {
     public static final String Tooltip_QuantumComputer_00 = TextEnums.tr("Tooltip_QuantumComputer_00");
 
     // #tr Tooltip_QuantumComputer_01
-    // # The number of crafting tasks a Quantum Computer can execute simultaneously is unlimited, as long as capacity
-    // allows
+    // # The number of crafting tasks a Quantum Computer can execute simultaneously is unlimited, as long as capacity allows
     // # zh_CN 只要容量足够，量子计算机可以同时执行的合成任务数量不限
     public static final String Tooltip_QuantumComputer_01 = TextEnums.tr("Tooltip_QuantumComputer_01");
 
@@ -1176,20 +1176,17 @@ public class TextLocalization {
     public static final String Tooltip_QuantumComputer_03 = TextEnums.tr("Tooltip_QuantumComputer_03");
 
     // #tr Tooltip_QuantumComputer_04
-    // # Capacity = the amount consumed by this crafting task, Parallel threads = the number of threads available in
-    // this Quantum Computer
+    // # Capacity = the amount consumed by this crafting task, Parallel threads = the number of threads available in this Quantum Computer
     // # zh_CN 容量 = 该合成任务的占用，并行数 = 该量子计算机的并行数
     public static final String Tooltip_QuantumComputer_04 = TextEnums.tr("Tooltip_QuantumComputer_04");
 
     // #tr Tooltip_QuantumComputer_05
-    // # The allocated small CPU consumes the remaining capacity of the Quantum Computer. It can keep allocating as long
-    // as enough capacity remains
+    // # The allocated small CPU consumes the remaining capacity of the Quantum Computer. It can keep allocating as long as enough capacity remains
     // # zh_CN 分配出的小CPU会占用量子计算机的剩余容量。在还有足够的剩余容量时可不断分配，直到容量不足
     public static final String Tooltip_QuantumComputer_05 = TextEnums.tr("Tooltip_QuantumComputer_05");
 
     // #tr Tooltip_QuantumComputer_06
-    // # When a crafting task is completed, the allocated small CPU is "reclaimed" back into the Quantum Computer as
-    // free capacity
+    // # When a crafting task is completed, the allocated small CPU is "reclaimed" back into the Quantum Computer as free capacity
     // # zh_CN 在合成任务完成时，分配出的小CPU会重新"回收"进量子计算机中，作为空余容量
     public static final String Tooltip_QuantumComputer_06 = TextEnums.tr("Tooltip_QuantumComputer_06");
 
@@ -1214,14 +1211,12 @@ public class TextLocalization {
     public static final String Tooltip_QuantumComputer_10 = TextEnums.tr("Tooltip_QuantumComputer_10");
 
     // #tr Tooltip_QuantumComputer_11
-    // # §cNo blocks that could form part of the Quantum Computer can be placed on the outer surface, or the machine
-    // will fail
+    // # §cNo blocks that could form part of the Quantum Computer can be placed on the outer surface, or the machine will fail
     // # zh_CN §c在量子计算机的外表面上，不能放置任何可用于构成量子计算机的方块，否则会导致量子计算机失效
     public static final String Tooltip_QuantumComputer_11 = TextEnums.tr("Tooltip_QuantumComputer_11");
 
     // #tr Tooltip_QuantumComputer_12
-    // # §cWhen controller destroyed, it will try to return materials from the AE network above; if it fails, nothing is
-    // kept!
+    // # §cWhen controller destroyed, it will try to return materials from the AE network above; if it fails, nothing is kept!
     // # zh_CN §c量子计算机被破坏时会尝试获取上方AE网络退回CPU内材料，如果失败将不会保留！
     public static final String Tooltip_QuantumComputer_12 = TextEnums.tr("Tooltip_QuantumComputer_12");
 
@@ -1229,6 +1224,7 @@ public class TextLocalization {
     // # CPU
     // # zh_CN CPU
     public static final String QuantumComputerRecipeType = TextEnums.tr("QuantumComputerRecipeType");
+    // spotless:on
 
     // == LargeSteamVoidMiner == //
 

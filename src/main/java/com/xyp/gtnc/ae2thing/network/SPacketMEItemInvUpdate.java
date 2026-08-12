@@ -6,11 +6,9 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.item.ItemStack;
 
 import com.xyp.gtnc.ae2thing.api.AE2ThingAPI;
 import com.xyp.gtnc.ae2thing.api.Constants;
-import com.xyp.gtnc.ae2thing.client.gui.IGuiMonitorTerminal;
 
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
@@ -57,33 +55,24 @@ public class SPacketMEItemInvUpdate extends SPacketMEBaseInvUpdate implements IM
         @Override
         public IMessage onMessage(SPacketMEItemInvUpdate message, MessageContext ctx) {
             final GuiScreen gs = Minecraft.getMinecraft().currentScreen;
-            if (message.ref == Constants.MessageType.UPDATE_ITEMS.type && gs instanceof IGuiMonitorTerminal gmt) {
-                gmt.postStackUpdate(message.list);
-            } else if (message.ref == Constants.MessageType.UPDATE_PLAYER_ITEM.type
-                && gs instanceof IGuiMonitorTerminal gmt) {
-                    ItemStack is = null;
-                    if (!message.isEmpty() && message.list.get(0) instanceof IAEItemStack item) {
-                        is = item.getItemStack();
-                    }
-                    gmt.setPlayerInv(is);
-                } else if (message.ref == Constants.MessageType.UPDATE_PLAYER_CURRENT_ITEM.type) {
-                    if (gs == null) {
-                        Minecraft mc = Minecraft.getMinecraft();
-                        EntityClientPlayerMP player = mc.thePlayer;
-                        if (message.isEmpty() || !(message.list.get(0) instanceof IAEItemStack item)) return null;
-                        player.inventory.setInventorySlotContents(player.inventory.currentItem, item.getItemStack());
-                    }
-                } else if (message.ref == Constants.MessageType.UPDATE_PINNED_ITEMS.type) {
+            if (message.ref == Constants.MessageType.UPDATE_PLAYER_CURRENT_ITEM.type) {
+                if (gs == null) {
+                    Minecraft mc = Minecraft.getMinecraft();
+                    EntityClientPlayerMP player = mc.thePlayer;
+                    if (message.isEmpty() || !(message.list.get(0) instanceof IAEItemStack item)) return null;
+                    player.inventory.setInventorySlotContents(player.inventory.currentItem, item.getItemStack());
+                }
+            } else if (message.ref == Constants.MessageType.UPDATE_PINNED_ITEMS.type) {
+                AE2ThingAPI.instance()
+                    .getPinned()
+                    .updatePinnedItems(message.getItemStacks());
+            } else if (message.ref == Constants.MessageType.ADD_PINNED_ITEM.type) {
+                if (!message.isEmpty() && message.list.get(0) instanceof IAEItemStack item) {
                     AE2ThingAPI.instance()
                         .getPinned()
-                        .updatePinnedItems(message.getItemStacks());
-                } else if (message.ref == Constants.MessageType.ADD_PINNED_ITEM.type) {
-                    if (!message.isEmpty() && message.list.get(0) instanceof IAEItemStack item) {
-                        AE2ThingAPI.instance()
-                            .getPinned()
-                            .add(item);
-                    }
+                        .add(item);
                 }
+            }
             return null;
         }
     }

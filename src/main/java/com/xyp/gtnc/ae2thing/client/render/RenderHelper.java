@@ -4,7 +4,6 @@ import static net.minecraft.client.gui.Gui.drawRect;
 import static net.minecraft.client.renderer.RenderHelper.enableGUIStandardItemLighting;
 
 import java.awt.Color;
-import java.util.List;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.RenderItem;
@@ -13,16 +12,9 @@ import net.minecraft.item.ItemStack;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
-import com.xyp.gtnc.ae2thing.AE2Thing;
-import com.xyp.gtnc.ae2thing.api.AE2ThingAPI;
-import com.xyp.gtnc.ae2thing.api.Pinned;
-import com.xyp.gtnc.ae2thing.client.gui.BaseMEGui;
 import com.xyp.gtnc.ae2thing.util.Util;
 
-import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
-import appeng.client.gui.slots.VirtualMEMonitorableSlot;
-import appeng.client.gui.slots.VirtualMESlot;
 
 public class RenderHelper {
 
@@ -106,53 +98,6 @@ public class RenderHelper {
     public static void updateColorAndDrawItemBorder(int x, int y) {
         updateColor();
         drawItemBorder(x, y);
-    }
-
-    /**
-     * Draws the pinned-terminal header strip plus a colored border around every pinned stack currently shown in the ME
-     * grid. Replaces the old {@code SlotME}-based rendering now that ME stacks are {@link VirtualMESlot} render
-     * objects.
-     */
-    public static void drawPinnedSlots(BaseMEGui gui, List<VirtualMEMonitorableSlot> slots, int guiLeft, int guiTop,
-        boolean topRowVisible) {
-        if (!AE2ThingAPI.instance()
-            .terminal()
-            .isPinTerminal(gui)) {
-            return;
-        }
-        if (slots.isEmpty() || AE2ThingAPI.instance()
-            .getPinned()
-            .isEmpty()) {
-            return;
-        }
-        if (topRowVisible) {
-            VirtualMESlot first = slots.get(0);
-            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-            Minecraft.getMinecraft()
-                .getTextureManager()
-                .bindTexture(AE2Thing.resource("textures/gui/pinned.png"));
-            gui.drawTexturedModalRect(guiLeft + first.getX() - 1, guiTop + first.getY() - 1, 0, 0, 195, 18);
-        }
-        for (VirtualMESlot slot : slots) {
-            if (slot.isHidden()) {
-                continue;
-            }
-            IAEStack<?> stack = slot.getAEStack();
-            if (!(stack instanceof IAEItemStack item)) {
-                continue;
-            }
-            if (!AE2ThingAPI.instance()
-                .getPinned()
-                .isPinnedItem(item)) {
-                continue;
-            }
-            Pinned.PinInfo info = AE2ThingAPI.instance()
-                .getPinned()
-                .getPinInfo(item);
-            if (info != null && !info.canPrune) {
-                updateColorAndDrawItemBorder(guiLeft + slot.getX(), guiTop + slot.getY());
-            }
-        }
     }
 
     public static void drawPlus(int x, int y) {

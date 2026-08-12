@@ -28,8 +28,6 @@ public interface Constants {
     String MAGNET_MODE_KEY = "MagnetMode";
     String SIDE = "side";
     String CONFIG_INV = "ConfigInv";
-    String NEI_DEFAULT = "nei.default";
-    String NEI_BR = "nei.br";
     String NEI_MOUSE_WHEEL = "nei.mouse_wheel";
     String SLOT = "slot";
     String SIZE = "size";
@@ -66,8 +64,6 @@ public interface Constants {
 
     enum MessageType {
 
-        UPDATE_ITEMS(0),
-        UPDATE_PLAYER_ITEM(1),
         UPDATE_PLAYER_CURRENT_ITEM(-1),
         UPDATE_PINNED_ITEMS(-2),
         ADD_PINNED_ITEM(-3),

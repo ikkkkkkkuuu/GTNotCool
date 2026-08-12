@@ -18,7 +18,6 @@ public enum Mixins implements IMixins {
             "ae.MixinGuiCraftConfirm",
             "ae.MixinGuiCraftingTerm",
             "ae.MixinItemRepo",
-            "ae.MixinTileIOPort",
             "ae.MixinContainerCraftAmount")
         .addRequiredMod(Mods.AE2)
         .setPhase(Phase.LATE)),
@@ -28,7 +27,6 @@ public enum Mixins implements IMixins {
             "ae.MixinContainerCraftConfirm",
             "ae.MixinCraftingCPUClusterFollow",
             "ae.MixinPacketSwitchGuis",
-            "ae.MixinTileIOPort",
             "ae.MixinContainerCraftAmount")
         .addRequiredMod(Mods.AE2)
         .setPhase(Phase.LATE)),

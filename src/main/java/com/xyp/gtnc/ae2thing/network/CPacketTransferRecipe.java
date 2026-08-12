@@ -9,7 +9,6 @@ import net.minecraft.inventory.Container;
 import net.minecraft.nbt.NBTTagCompound;
 
 import com.xyp.gtnc.ae2thing.api.AE2ThingAPI;
-import com.xyp.gtnc.ae2thing.api.Constants;
 import com.xyp.gtnc.ae2thing.api.adapter.pattern.IPatternTerminalAdapter;
 import com.xyp.gtnc.ae2thing.nei.object.OrderStack;
 
@@ -29,14 +28,6 @@ public class CPacketTransferRecipe implements IMessage {
     public boolean shift;
 
     public CPacketTransferRecipe() {}
-
-    public CPacketTransferRecipe(List<OrderStack<?>> IN, List<OrderStack<?>> OUT, boolean craft) {
-        this(IN, OUT, craft, false);
-    }
-
-    public CPacketTransferRecipe(List<OrderStack<?>> IN, List<OrderStack<?>> OUT, boolean craft, boolean shift) {
-        this(IN, OUT, craft, shift, Constants.NEI_DEFAULT);
-    }
 
     public CPacketTransferRecipe(List<OrderStack<?>> IN, List<OrderStack<?>> OUT, boolean craft, boolean shift,
         String identifier) {

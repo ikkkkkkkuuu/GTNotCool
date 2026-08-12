@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.xyp.gtnc.ae2thing.AE2Thing;
-import com.xyp.gtnc.ae2thing.network.CPacketTerminalBtns;
+import com.xyp.gtnc.ae2thing.network.CPacketCraftConfirmReplan;
 import com.xyp.gtnc.ae2thing.util.NameConst;
 
 import appeng.api.storage.data.IAEItemStack;
@@ -64,7 +64,7 @@ public abstract class MixinGuiCraftConfirm extends AEBaseGui {
             clearList(this.pending);
             clearList(this.missing);
             this.visual.clear();
-            AE2Thing.proxy.netHandler.sendToServer(new CPacketTerminalBtns("GuiCraftConfirm.replan", true));
+            AE2Thing.proxy.netHandler.sendToServer(new CPacketCraftConfirmReplan());
         }
     }
 

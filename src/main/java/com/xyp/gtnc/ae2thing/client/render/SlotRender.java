@@ -18,7 +18,6 @@ public class SlotRender {
     private SlotRender() {
         registerSlotRenderHandler(RenderFluidDrop.class, new RenderFluidDrop());
         registerSlotRenderHandler(RenderFluidPacketPatternSlot.class, new RenderFluidPacketPatternSlot());
-        registerSlotRenderHandler(RenderEncodedPattern.class, new RenderEncodedPattern());
         registerSlotRenderHandler(RenderPatternSlotFake.class, new RenderPatternSlotFake());
     }
 

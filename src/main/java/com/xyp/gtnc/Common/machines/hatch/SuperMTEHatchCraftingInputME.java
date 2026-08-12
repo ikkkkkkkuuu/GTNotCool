@@ -54,6 +54,7 @@ import com.cleanroommc.modularui.value.sync.PanelSyncManager;
 import com.glodblock.github.common.item.ItemFluidPacket;
 import com.xyp.gtnc.Common.gui.modularui.hatch.SuperMTEHatchCraftingInputMEGui;
 import com.xyp.gtnc.Common.utils.MoldDataManager;
+import com.xyp.gtnc.ae2thing.quickterminal.ITerminalVisibilityToggle;
 import com.xyp.gtnc.utils.enums.GTNCItemList;
 
 import appeng.api.AEApi;
@@ -120,7 +121,7 @@ import mcp.mobius.waila.api.IWailaDataAccessor;
 @IMetaTileEntity.SkipGenerateDescription
 public class SuperMTEHatchCraftingInputME extends MTEHatchInputBus
     implements IAddGregtechLogo, IPowerChannelState, ICraftingProvider, IGridProxyable, IDualInputHatchWithPattern,
-    ICustomNameObject, IInterfaceViewable, IMEConnectable {
+    ICustomNameObject, IInterfaceViewable, IMEConnectable, ITerminalVisibilityToggle {
 
     // Each pattern slot in the crafting input hatch has its own internal inventory
     public static class PatternSlot<P extends IMetaTileEntity & IDualInputHatch>
@@ -784,6 +785,12 @@ public class SuperMTEHatchCraftingInputME extends MTEHatchInputBus
     @Override
     public boolean shouldDisplay() {
         return showPattern;
+    }
+
+    @Override
+    public void toggleTerminalVisibility() {
+        showPattern = !showPattern;
+        if (getBaseMetaTileEntity() != null) getBaseMetaTileEntity().markDirty();
     }
 
     @Override

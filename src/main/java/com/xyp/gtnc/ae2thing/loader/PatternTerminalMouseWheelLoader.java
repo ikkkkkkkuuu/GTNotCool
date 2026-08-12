@@ -9,8 +9,6 @@ import com.xyp.gtnc.ae2thing.api.AE2ThingAPI;
 import com.xyp.gtnc.ae2thing.api.Constants;
 import com.xyp.gtnc.ae2thing.api.adapter.pattern.FCPatternTerminal;
 import com.xyp.gtnc.ae2thing.api.adapter.pattern.IRecipeHandler;
-import com.xyp.gtnc.ae2thing.api.adapter.pattern.THDualInterfacePatternTerminal;
-import com.xyp.gtnc.ae2thing.client.gui.container.ContainerWirelessDualInterfaceTerminal;
 import com.xyp.gtnc.ae2thing.nei.object.OrderStack;
 
 import appeng.container.implementations.ContainerPatternTerm;
@@ -57,23 +55,6 @@ public class PatternTerminalMouseWheelLoader implements Runnable {
             }
         };
 
-        AE2ThingAPI.instance()
-            .terminal()
-            .registerPatternTerminal(new THDualInterfacePatternTerminal())
-            .registerIdentifier(
-                Constants.NEI_MOUSE_WHEEL,
-                (container, inputs, outputs, identifier, adapter, message) -> {
-                    if (container instanceof ContainerWirelessDualInterfaceTerminal c) {
-                        IInventory inv = adapter.getInventoryByName(
-                            container,
-                            c.getContainer()
-                                .getPatternTerminal()
-                                .isCraftingRecipe() ? Constants.CRAFTING : Constants.CRAFTING_EX);
-                        applySwap(inv, inputs.get(0), outputs.get(0));
-                        container.onCraftMatrixChanged(inv);
-                        c.saveChanges();
-                    }
-                });
         AE2ThingAPI.instance()
             .terminal()
             .registerPatternTerminal(new FCPatternTerminal(ContainerPatternTerm.class))

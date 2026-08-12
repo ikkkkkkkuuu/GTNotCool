@@ -391,6 +391,7 @@ public class GTNCGeneralChemicalFactory extends GTNCWirelessEnergyMultiMachineBa
     @Override
     protected MultiblockTooltipBuilder createTooltip() {
         MultiblockTooltipBuilder tt = new MultiblockTooltipBuilder();
+        // spotless:off
         // #tr GTNCGeneralChemicalFactoryRecipeType
         // # Chemical Factory
         // # zh_CN 化工厂
@@ -400,14 +401,14 @@ public class GTNCGeneralChemicalFactory extends GTNCWirelessEnergyMultiMachineBa
             // # zh_CN §eF.Haber
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNCGeneralChemicalFactory_01"))
             // #tr Tooltip_GTNCGeneralChemicalFactory_02
-            // # §ePerhaps people will not be free from hunger due to the birth of this machine, but the gluttons on
-            // your assembly lines will love it.
+            // # §ePerhaps people will not be free from hunger due to the birth of this machine, but the gluttons on your assembly lines will love it.
             // # zh_CN §e也许人们不会因为这台机器的诞生而免受饥饿之苦，但你流水线上的饕餮们会很喜欢这个的
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNCGeneralChemicalFactory_02"))
             // #tr Tooltip_GTNCGeneralChemicalFactory_03
             // # §4§nRecombination, exchange, condensation......
             // # zh_CN §4§n重组，交换，冷凝......
             .addInfo(StatCollector.translateToLocal("Tooltip_GTNCGeneralChemicalFactory_03"))
+            // spotless:on
             // #tr Tooltip_GTNCGeneralChemicalFactory_04
             // # §eHope your blast furnace can withstand such a huge amount of steel consumption.
             // # zh_CN §e希望你的高炉能经得住如此庞大的钢铁消耗量

@@ -12,6 +12,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.xyp.gtnc.ae2thing.AE2Thing;
+import com.xyp.gtnc.ae2thing.client.gui.widget.CompactItemTabButton;
 import com.xyp.gtnc.ae2thing.common.item.ItemWirelessDualInterfaceTerminal;
 import com.xyp.gtnc.ae2thing.inventory.gui.GuiType;
 import com.xyp.gtnc.ae2thing.network.CPacketSwitchGuis;
@@ -20,7 +21,6 @@ import appeng.api.storage.ITerminalHost;
 import appeng.client.gui.AEBaseGui;
 import appeng.client.gui.implementations.GuiCraftingTerm;
 import appeng.client.gui.widgets.GuiImgButton;
-import appeng.client.gui.widgets.GuiTabButton;
 import appeng.container.implementations.ContainerMEMonitorable;
 import appeng.helpers.WirelessTerminalGuiObject;
 
@@ -33,7 +33,7 @@ import appeng.helpers.WirelessTerminalGuiObject;
 @Mixin(GuiCraftingTerm.class)
 public abstract class MixinGuiCraftingTerm extends AEBaseGui {
 
-    private GuiTabButton switchBackButton = null;
+    private CompactItemTabButton switchBackButton = null;
 
     public MixinGuiCraftingTerm(Container container) {
         super(container);
@@ -50,28 +50,34 @@ public abstract class MixinGuiCraftingTerm extends AEBaseGui {
     @Inject(method = "initGui", at = @At("TAIL"))
     public void gtnc$addSwitchBackButton(CallbackInfo ci) {
         if (!openedFromDualInterfaceTerminal()) return;
-        // super.initGui() has already created and added the pins section button; read its live position (which
-        // already accounts for the terminal row count) and place our button directly below it. Falls back to a
-        // sensible left-side position if the pins button is somehow absent.
+        // Append both controls to AE2's existing left-side column. Deriving the
+        // next position from the live buttons keeps the layout valid for every
+        // terminal height and terminal-style setting.
         int x = this.guiLeft - 18;
         int y = this.guiTop;
+        GuiImgButton pinsButton = null;
         for (Object o : this.buttonList) {
             if (o instanceof GuiImgButton pinsBtn && pinsBtn.getSetting() == appeng.api.config.Settings.ACTIONS
                 && pinsBtn.getCurrentValue() == appeng.api.config.ActionItems.PINS) {
-                x = pinsBtn.xPosition;
-                y = pinsBtn.yPosition + 20;
-                break;
+                pinsButton = pinsBtn;
+            } else if (o instanceof GuiButton button && button.visible && button.xPosition == x) {
+                y = Math.max(y, button.yPosition + 20);
             }
+        }
+        if (pinsButton != null) {
+            pinsButton.xPosition = x;
+            pinsButton.yPosition = y;
+            y += 20;
         }
         // #tr sciencenotcool.tooltip.switch_to_dual_interface_terminal
         // # Switch to Dual Interface Terminal
         // # zh_CN 切换到二合一接口终端
-        this.switchBackButton = new GuiTabButton(
-            x,
-            y,
+        this.switchBackButton = new CompactItemTabButton(
             new ItemStack(Blocks.crafting_table),
             I18n.format("sciencenotcool.tooltip.switch_to_dual_interface_terminal"),
             AEBaseGui.aeRenderItem);
+        this.switchBackButton.xPosition = x;
+        this.switchBackButton.yPosition = y;
         this.buttonList.add(this.switchBackButton);
     }
 
