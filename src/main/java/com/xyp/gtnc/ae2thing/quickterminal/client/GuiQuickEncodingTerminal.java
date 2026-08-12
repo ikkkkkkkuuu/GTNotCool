@@ -75,6 +75,8 @@ import appeng.container.slot.SlotPatternTerm;
 import appeng.container.slot.SlotRestrictedInput;
 import appeng.core.AEConfig;
 import appeng.core.localization.GuiText;
+import appeng.core.sync.GuiBridge;
+import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketInterfaceTerminalUpdate.PacketEntry;
 
 /**
@@ -836,7 +838,10 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
             return;
         }
         if (button == craftingStatusButton) {
-            AE2Thing.proxy.netHandler.sendToServer(new CPacketSwitchGuis(GuiType.CRAFTING_STATUS_ITEM));
+            // Use AE2's native sub-GUI path so ContainerQuickEncodingTerminal#createPrimaryGui is attached to the
+            // crafting-status container. The legacy custom packet cannot establish this native parent/return link.
+            NetworkHandler.instance
+                .sendToServer(new appeng.core.sync.packets.PacketSwitchGuis(GuiBridge.GUI_CRAFTING_STATUS));
             return;
         }
         if (button == encodeButton) {
@@ -876,6 +881,14 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int button) {
         if (handleFluidCraftingControlClick(mouseX, mouseY, button)) return;
+        // This tab is deliberately placed partly above the central GUI. Dispatch
+        // it explicitly before the embedded interface viewport and GuiContainer
+        // outside-click handling get a chance to consume the click.
+        if (button == 0 && craftingStatusButton != null && craftingStatusButton.mousePressed(mc, mouseX, mouseY)) {
+            craftingStatusButton.func_146113_a(mc.getSoundHandler());
+            actionPerformed(craftingStatusButton);
+            return;
+        }
         if (button == 0 && interfaceTerminal.clickScrollBar(mouseX, mouseY)) {
             ((AccessorGuiScrollbar) getScrollBar()).setIsLatestClickOnScrollbar(false);
             draggingInterfaceScrollBar = true;
@@ -1357,6 +1370,11 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
             "list");
         private static final Field VIEW_HEIGHT = findField(GuiInterfaceTerminal.class, "viewHeight");
         private static final Field EXTRA_OPTIONS_TEXT = findField(GuiInterfaceTerminal.class, "extraOptionsText");
+        private static Field entryOptionsButton;
+        private static Field entryHideButton;
+        private static Field entryRenameButton;
+        private static Field entrySection;
+        private static Field sectionVisible;
 
         private Object highlightedEntry;
         private InterfacePatternTarget highlightedTarget;
@@ -1403,7 +1421,31 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
         }
 
         private void drawCentralBackground(int x, int y, int mouseX, int mouseY) {
+            clearStaleEntryHitBoxes();
             super.drawBG(x, y, mouseX, mouseY);
+        }
+
+        /**
+         * AE2 only updates hit boxes for sections visited by the current scrolled viewport. Entries that move below
+         * the viewport can otherwise retain an old on-screen button position, making a modified click select an
+         * arbitrary stale HashMap entry. Invalidate every entry first; drawBG restores only this frame's visible ones.
+         */
+        private void clearStaleEntryHitBoxes() {
+            Object masterList = objectField(this, MASTER_LIST);
+            Object value = objectField(masterList, ENTRIES_BY_ID);
+            if (!(value instanceof Map<?, ?>entries)) return;
+            for (Object entry : entries.values()) {
+                cacheEntryFields(entry);
+                invalidateButtonY(entry, entryOptionsButton);
+                invalidateButtonY(entry, entryHideButton);
+                invalidateButtonY(entry, entryRenameButton);
+                Object section = objectField(entry, entrySection);
+                if (section != null && sectionVisible != null) {
+                    try {
+                        sectionVisible.setBoolean(section, false);
+                    } catch (IllegalAccessException ignored) {}
+                }
+            }
         }
 
         private void drawHighlightedPatternSlot(int offsetX, int offsetY) {
@@ -1466,16 +1508,17 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
             int relativeY = mouseY - guiTop - 52;
             Object value = objectField(masterList, ENTRIES_BY_ID);
             if (!(value instanceof Map<?, ?>entries)) return false;
-            for (Map.Entry<?, ?> mapEntry : entries.entrySet()) {
-                Object entry = mapEntry.getValue();
-                Object optionValue = objectField(entry, findField(entry.getClass(), "optionsButton"));
+            for (Object entry : entries.values()) {
+                cacheEntryFields(entry);
+                Object section = objectField(entry, entrySection);
+                if (section == null || !readBooleanField(section, sectionVisible, false)) continue;
+                Object optionValue = objectField(entry, entryOptionsButton);
                 if (!(optionValue instanceof GuiButton option) || option.yPosition < 0) continue;
                 if (relativeX < option.xPosition || relativeX >= option.xPosition + option.width
                     || relativeY <= option.yPosition
                     || relativeY > option.yPosition + option.height) continue;
 
-                long entryId = mapEntry.getKey() instanceof Number number ? number.longValue()
-                    : longField(entry, "id", -1);
+                long entryId = longField(entry, "id", -1);
                 boolean ctrlDown = isCtrlKeyDown() || Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)
                     || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL);
                 boolean altDown = Keyboard.isKeyDown(Keyboard.KEY_LMENU) || Keyboard.isKeyDown(Keyboard.KEY_RMENU);
@@ -1725,6 +1768,31 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
             } catch (IllegalAccessException ignored) {
                 return fallback;
             }
+        }
+
+        private static boolean readBooleanField(Object owner, Field field, boolean fallback) {
+            if (field == null) return fallback;
+            try {
+                return field.getBoolean(owner);
+            } catch (IllegalAccessException ignored) {
+                return fallback;
+            }
+        }
+
+        private static void cacheEntryFields(Object entry) {
+            if (entry == null || entrySection != null && sectionVisible != null) return;
+            Class<?> entryClass = entry.getClass();
+            entryOptionsButton = findField(entryClass, "optionsButton");
+            entryHideButton = findField(entryClass, "hideButton");
+            entryRenameButton = findField(entryClass, "renameButton");
+            entrySection = findField(entryClass, "section");
+            Object section = objectField(entry, entrySection);
+            if (section != null) sectionVisible = findField(section.getClass(), "visible");
+        }
+
+        private static void invalidateButtonY(Object entry, Field buttonField) {
+            Object button = objectField(entry, buttonField);
+            if (button instanceof GuiButton guiButton) guiButton.yPosition = -1;
         }
 
         private static long longField(Object owner, String name, long fallback) {
