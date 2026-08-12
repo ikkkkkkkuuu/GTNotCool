@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -752,15 +751,15 @@ public class SuperMTEHatchCraftingInputME extends MTEHatchInputBus
             if (circuitSuffix != null) suffix.append(circuitSuffix);
         }
 
-        StringJoiner manualSlots = new StringJoiner(", ");
+        // Manual slots hold non-consumed recipe inputs. Use their metadata just like
+        // ghost circuits and the mold slot so the interface name matches NEI's
+        // auto-search rule (for example "Assembler 2 32"), instead of GT's
+        // default server-localized "{English Item Name}" suffix.
         for (int i = SLOT_MANUAL_START; i < SLOT_MANUAL_START + SLOT_MANUAL_SIZE; i++) {
-            if (mInventory[i] != null) {
-                manualSlots.add(mInventory[i].getDisplayName());
-            }
-        }
-        if (manualSlots.length() > 0) {
+            ItemStack manualStack = mInventory[i];
+            if (manualStack == null) continue;
             try {
-                suffix.append(String.format(Gregtech.machines.itemSlotsSuffixFormat, manualSlots));
+                suffix.append(String.format(Gregtech.machines.ghostCircuitSuffixFormat, manualStack.getItemDamage()));
             } catch (IllegalFormatException ignored) {}
         }
 
