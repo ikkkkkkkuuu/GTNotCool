@@ -9,8 +9,8 @@ import com.xyp.gtnc.utils.world.steam.SteamWirelessNetworkManager;
 /** Wireless-steam power adapter shared by the four Steam Godforge modules. */
 public final class SteamGodforgePower {
 
-    /** Steam Godforge modules consume one percent of their calculated recipe EU as wireless steam. */
-    private static final BigInteger RECIPE_EU_PERCENT_DENOMINATOR = BigInteger.valueOf(100L);
+    /** Steam Godforge modules consume one ten-thousandth of their calculated recipe EU as wireless steam. */
+    private static final BigInteger RECIPE_EU_RATIO_DENOMINATOR = BigInteger.valueOf(10_000L);
 
     public interface ControllerAware {
 
@@ -40,7 +40,9 @@ public final class SteamGodforgePower {
         if (eu == null || eu.signum() == 0) return true;
         BigInteger steamCost = euToSteamCeil(eu.abs());
         boolean drained = SteamWirelessNetworkManager.addSteamToGlobalSteamMap(owner, steamCost.negate());
-        if (drained && controller != null) controller.recordWirelessSteamConsumed(steamCost);
+        if (drained && controller != null) {
+            controller.recordWirelessSteamConsumed(steamCost);
+        }
         return drained;
     }
 
@@ -57,7 +59,7 @@ public final class SteamGodforgePower {
             .multiply(BigInteger.valueOf(Config.SteamForgeOfGods.moduleSteamMultiplierNumerator));
         BigInteger denominator = BigInteger.valueOf(Config.SteamForgeOfGods.steamPerEUDenominator)
             .multiply(BigInteger.valueOf(Config.SteamForgeOfGods.moduleSteamMultiplierDenominator))
-            .multiply(RECIPE_EU_PERCENT_DENOMINATOR);
+            .multiply(RECIPE_EU_RATIO_DENOMINATOR);
         return eu.multiply(numerator)
             .add(denominator.subtract(BigInteger.ONE))
             .divide(denominator);
@@ -69,9 +71,8 @@ public final class SteamGodforgePower {
             .multiply(BigInteger.valueOf(Config.SteamForgeOfGods.moduleSteamMultiplierNumerator));
         BigInteger denominator = BigInteger.valueOf(Config.SteamForgeOfGods.steamPerEUDenominator)
             .multiply(BigInteger.valueOf(Config.SteamForgeOfGods.moduleSteamMultiplierDenominator))
-            .multiply(RECIPE_EU_PERCENT_DENOMINATOR);
+            .multiply(RECIPE_EU_RATIO_DENOMINATOR);
         return steam.multiply(denominator)
             .divide(numerator);
     }
-
 }
