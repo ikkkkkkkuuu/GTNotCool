@@ -165,6 +165,7 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
     private boolean pendingAutoPlace;
     private long suppressExtensionClickUntil;
     private int suppressExtensionButton = -1;
+    private boolean draggingStorageScrollBar;
     private boolean draggingInterfaceScrollBar;
 
     public GuiQuickEncodingTerminal(InventoryPlayer inventoryPlayer, ITerminalHost host) {
@@ -710,6 +711,9 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
         // coordinates from drawFG instead.
         getScrollBar().setVisible(false);
         super.drawScreen(mouseX, mouseY, partialTicks);
+        // GuiMEMonitorable may update its repository during super.drawScreen and then restore the native nine-column
+        // range. The compact storage panel is four columns wide, so its final input state must use our own range.
+        updateItemScrollBar();
     }
 
     private void synchronizeNativePinRows() {
@@ -896,6 +900,10 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
             draggingInterfaceScrollBar = true;
             return;
         }
+        if (button == 0 && clickStorageScrollBar(mouseX, mouseY)) {
+            draggingStorageScrollBar = true;
+            return;
+        }
         if ((button == 0 || button == 1) && isInsideStoragePanel(mouseX, mouseY)) {
             // The storage panel is deliberately outside xSize. Mark the whole
             // visible panel as GUI space so clicking its search/background never
@@ -986,6 +994,10 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
     @Override
     protected void mouseMovedOrUp(int mouseX, int mouseY, int state) {
         super.mouseMovedOrUp(mouseX, mouseY, state);
+        if (draggingStorageScrollBar && state == 0) {
+            ((AccessorGuiScrollbar) getScrollBar()).setIsLatestClickOnScrollbar(false);
+            draggingStorageScrollBar = false;
+        }
         if (draggingInterfaceScrollBar && state == 0) {
             interfaceTerminal.stopDraggingScrollBar();
             draggingInterfaceScrollBar = false;
@@ -998,6 +1010,11 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
 
     @Override
     protected void mouseClickMove(int mouseX, int mouseY, int button, long timeSinceLastClick) {
+        if (draggingStorageScrollBar && button == 0) {
+            updateItemScrollBar();
+            getScrollBar().clickMove(mouseY - guiTop);
+            return;
+        }
         if (draggingInterfaceScrollBar && button == 0) {
             interfaceTerminal.dragScrollBar(mouseY);
             return;
@@ -1016,11 +1033,21 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
         return mouseX >= left && mouseX < left + ITEM_PANEL_WIDTH && mouseY >= top && mouseY < top + itemPanelHeight;
     }
 
+    private boolean clickStorageScrollBar(int mouseX, int mouseY) {
+        updateItemScrollBar();
+        int relativeX = mouseX - guiLeft;
+        int relativeY = mouseY - guiTop;
+        if (!getScrollBar().contains(relativeX, relativeY)) return false;
+        getScrollBar().click(this, relativeX, relativeY);
+        return true;
+    }
+
     @Override
     protected boolean mouseWheelEvent(int mouseX, int mouseY, int wheel) {
         if (isShiftKeyDown() && QuickTerminalRecipeTransferHandler.cycleRecipeIngredient(this, wheel)) return true;
         if (isInsideStoragePanel(mouseX, mouseY)) {
             if (super.mouseWheelEvent(mouseX, mouseY, wheel)) return true;
+            updateItemScrollBar();
             getScrollBar().wheel(wheel);
             return true;
         }

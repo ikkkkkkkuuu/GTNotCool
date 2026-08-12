@@ -100,7 +100,7 @@ public class Config {
         /** LV base processing voltage and the voltage added by each pressure factor above one. */
         public static long baseProcessingVoltage = 32L;
         public static long processingVoltagePerPressure = 32L;
-        /** Rational steam conversion. Defaults to 1 EU = 1 L steam. */
+        /** Additional rational multiplier applied after the base 1 L steam per 100 recipe EU conversion. */
         public static long steamPerEUNumerator = 1;
         public static long steamPerEUDenominator = 1;
         /** Critical Photons consumed for a cold start. Partial stacks are stored by the controller. */
@@ -794,12 +794,13 @@ public class Config {
                 "steamPerEUNumerator",
                 SteamForgeOfGods.steamPerEUNumerator,
                 1L,
-                "Numerator for wireless steam per EU. The default 1/1 means 1 EU = 1 L steam.");
+                "Numerator for the Steam Godforge's additional wireless-steam multiplier. "
+                    + "The default 1/1 keeps the base cost at 1% of recipe EU.");
             SteamForgeOfGods.steamPerEUDenominator = readLong(
                 "steamPerEUDenominator",
                 SteamForgeOfGods.steamPerEUDenominator,
                 1L,
-                "Denominator for wireless steam per EU.");
+                "Denominator for the Steam Godforge's additional wireless-steam multiplier.");
             SteamForgeOfGods.startupCriticalPhotons = configuration.getInt(
                 "startupCriticalPhotons",
                 CATEGORY_STEAM_FORGE_OF_GODS,

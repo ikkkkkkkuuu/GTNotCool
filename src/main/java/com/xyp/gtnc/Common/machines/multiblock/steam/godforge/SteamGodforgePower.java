@@ -9,6 +9,9 @@ import com.xyp.gtnc.utils.world.steam.SteamWirelessNetworkManager;
 /** Wireless-steam power adapter shared by the four Steam Godforge modules. */
 public final class SteamGodforgePower {
 
+    /** Steam Godforge modules consume one percent of their calculated recipe EU as wireless steam. */
+    private static final BigInteger RECIPE_EU_PERCENT_DENOMINATOR = BigInteger.valueOf(100L);
+
     public interface ControllerAware {
 
         void setSteamController(SteamForgeOfGods controller);
@@ -53,7 +56,8 @@ public final class SteamGodforgePower {
         BigInteger numerator = BigInteger.valueOf(Config.SteamForgeOfGods.steamPerEUNumerator)
             .multiply(BigInteger.valueOf(Config.SteamForgeOfGods.moduleSteamMultiplierNumerator));
         BigInteger denominator = BigInteger.valueOf(Config.SteamForgeOfGods.steamPerEUDenominator)
-            .multiply(BigInteger.valueOf(Config.SteamForgeOfGods.moduleSteamMultiplierDenominator));
+            .multiply(BigInteger.valueOf(Config.SteamForgeOfGods.moduleSteamMultiplierDenominator))
+            .multiply(RECIPE_EU_PERCENT_DENOMINATOR);
         return eu.multiply(numerator)
             .add(denominator.subtract(BigInteger.ONE))
             .divide(denominator);
@@ -64,7 +68,8 @@ public final class SteamGodforgePower {
         BigInteger numerator = BigInteger.valueOf(Config.SteamForgeOfGods.steamPerEUNumerator)
             .multiply(BigInteger.valueOf(Config.SteamForgeOfGods.moduleSteamMultiplierNumerator));
         BigInteger denominator = BigInteger.valueOf(Config.SteamForgeOfGods.steamPerEUDenominator)
-            .multiply(BigInteger.valueOf(Config.SteamForgeOfGods.moduleSteamMultiplierDenominator));
+            .multiply(BigInteger.valueOf(Config.SteamForgeOfGods.moduleSteamMultiplierDenominator))
+            .multiply(RECIPE_EU_PERCENT_DENOMINATOR);
         return steam.multiply(denominator)
             .divide(numerator);
     }
