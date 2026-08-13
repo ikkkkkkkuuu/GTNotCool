@@ -42,7 +42,7 @@ public class CombProcessingRecipes {
         ScienceNotCool.LOG.info("Loaded {} Steam Comb Processing Recipes", count);
     }
 
-    // ==================== 离心机 → 直接复制 + 熔融副配方 ====================
+    // ==================== 离心机 → 直接复制 ====================
 
     private static int importFromCentrifuge() {
         Collection<GTRecipe> recipes = RecipeMaps.centrifugeRecipes.getAllRecipes();
@@ -61,23 +61,6 @@ public class CombProcessingRecipes {
                 .duration(r.mDuration)
                 .addTo(RM);
             count++;
-            // 熔融配方：若粉尘输出有对应的熔融态，额外注册 circuit=24
-            // 配方以 1 个蜂窝为输入，熔融量按输入数量均分
-            FluidStack molten = getMolten(r.mOutputs);
-            if (molten != null) {
-                int inputCount = Math.max(1, r.mInputs[0].stackSize);
-                FluidStack perComb = new FluidStack(molten.getFluid(), molten.amount / inputCount);
-                if (perComb.amount > 0) {
-                    GTRecipeBuilder.builder()
-                        .itemInputs(copyAmount(r.mInputs[0], 1))
-                        .circuit(24)
-                        .fluidOutputs(perComb)
-                        .eut(30)
-                        .duration(100)
-                        .addTo(RM);
-                    count++;
-                }
-            }
         }
         return count;
     }
@@ -103,22 +86,8 @@ public class CombProcessingRecipes {
             if (!seenCombs.add(combId(r.mInputs[0]))) continue;
             ItemStack comb = copyAmount(r.mInputs[0], 1);
             ItemStack[] outputs = convertOutputsToDust(r.mOutputs);
-            // 配方1：circuit=24 → 熔融态（必须注册在前面，否则无电路配方会先匹配）
-            FluidStack molten = getMolten(outputs);
-            if (molten != null) {
-                GTRecipeBuilder.builder()
-                    .itemInputs(comb)
-                    .circuit(24)
-                    .fluidOutputs(molten)
-                    .eut(30)
-                    .duration(100)
-                    .addTo(RM);
-                count++;
-            }
-            // 配方2：circuit=1 → 粉（兜底）
             GTRecipeBuilder.builder()
                 .itemInputs(comb)
-                .circuit(1)
                 .itemOutputs(outputs)
                 .eut(30)
                 .duration(100)
@@ -245,18 +214,4 @@ public class CombProcessingRecipes {
         return copy;
     }
 
-    /** 从 dust 输出获取熔融流体，144mb = 1 dust */
-    private static FluidStack getMolten(ItemStack[] dustOutputs) {
-        if (dustOutputs == null) return null;
-        for (ItemStack s : dustOutputs) {
-            if (s == null) continue;
-            ItemData assoc = GTOreDictUnificator.getAssociation(s);
-            if (assoc != null && assoc.mPrefix == OrePrefixes.dust
-                && assoc.mMaterial != null
-                && assoc.mMaterial.mMaterial != null) {
-                return assoc.mMaterial.mMaterial.getMolten(144 * s.stackSize);
-            }
-        }
-        return null;
-    }
 }

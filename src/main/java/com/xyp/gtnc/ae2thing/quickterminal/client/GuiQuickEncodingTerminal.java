@@ -1467,7 +1467,15 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
                     .getDeclaredMethod("changeSectionComparator", java.util.Comparator.class);
                 changeComparator.setAccessible(true);
                 changeComparator.invoke(masterList, comparator);
+                markInterfaceListDirty(masterList);
             } catch (ReflectiveOperationException ignored) {}
+        }
+
+        private void markInterfaceListDirty(Object masterList) throws ReflectiveOperationException {
+            Method markDirty = masterList.getClass()
+                .getDeclaredMethod("markDirty");
+            markDirty.setAccessible(true);
+            markDirty.invoke(masterList);
         }
 
         private void updateSearchSectionOrder() {
@@ -1803,11 +1811,21 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
                     .equals(newText)) clearHighlight();
                 field.setText(newText);
             }
+            // Programmatic NEI searches run before drawBG. Apply the relevance comparator and rebuild the visible
+            // section list now, so auto-placement cannot observe one frame of the old natural ordering.
+            updateSearchSectionOrder();
+            Object masterList = objectField(this, MASTER_LIST);
+            if (masterList != null) {
+                try {
+                    markInterfaceListDirty(masterList);
+                } catch (ReflectiveOperationException ignored) {}
+            }
             getScrollBar().setCurrentScroll(0);
         }
 
         private InterfacePatternTarget highlightFirstEmptyPatternSlot() {
             clearHighlight();
+            updateSearchSectionOrder();
             Object masterList = objectField(this, MASTER_LIST);
             if (masterList == null) return null;
             try {
