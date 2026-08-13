@@ -165,7 +165,6 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
     private String pendingInterfaceSearch;
     private int pendingTargetSelectionTicks;
     private boolean pendingAutoPlace;
-    private long suppressExtensionClickUntil;
     private int suppressExtensionButton = -1;
     private int storageScrollPosition;
     private boolean draggingStorageScrollBar;
@@ -999,8 +998,7 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
         boolean extensionDuplicate = slotIdx == -999 || slot instanceof SlotRestrictedInput restricted
             && (restricted.getItemType() == SlotRestrictedInput.PlacableItemType.BLANK_PATTERN
                 || restricted.getItemType() == SlotRestrictedInput.PlacableItemType.ENCODED_PATTERN);
-        if (extensionDuplicate && clickedButton == suppressExtensionButton
-            && System.currentTimeMillis() <= suppressExtensionClickUntil) {
+        if (extensionDuplicate && clickedButton == suppressExtensionButton) {
             return;
         }
         super.handleMouseClick(slot, slotIdx, clickedButton, clickType);
@@ -1019,7 +1017,6 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
         }
         if (state == suppressExtensionButton) {
             suppressExtensionButton = -1;
-            suppressExtensionClickUntil = 0;
         }
     }
 
@@ -1040,7 +1037,6 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
 
     private void suppressExtensionVanillaClick(int button) {
         suppressExtensionButton = button;
-        suppressExtensionClickUntil = System.currentTimeMillis() + 1000;
     }
 
     private boolean isInsideStoragePanel(int mouseX, int mouseY) {

@@ -11,6 +11,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraftforge.common.util.ForgeDirection;
 
 import com.xyp.gtnc.ae2thing.api.Constants;
@@ -33,6 +34,7 @@ import appeng.api.storage.ITerminalHost;
 import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
+import appeng.api.storage.data.IAEStackType;
 import appeng.api.util.IInterfaceViewable;
 import appeng.container.ContainerOpenContext;
 import appeng.container.PrimaryGui;
@@ -47,6 +49,7 @@ import appeng.container.sync.handlers.IntSyncHandler;
 import appeng.core.AEConfig;
 import appeng.helpers.IInterfaceHost;
 import appeng.helpers.InventoryAction;
+import appeng.helpers.MonitorableAction;
 import appeng.tile.inventory.AppEngInternalInventory;
 import appeng.tile.inventory.IAEStackInventory;
 import appeng.util.Platform;
@@ -958,6 +961,65 @@ public final class ContainerQuickEncodingTerminal extends ContainerPatternTerm {
         } else {
             super.doAction(player, action, slot, id);
         }
+    }
+
+    @Override
+    public void doMonitorableAction(MonitorableAction action, int custom, EntityPlayerMP player) {
+        if (action == MonitorableAction.FILL_SINGLE_CONTAINER && !prepareSingleContainerFill(player)) return;
+        super.doMonitorableAction(action, custom, player);
+    }
+
+    /**
+     * AE2 normally sends the filled result from a stacked cursor into the player inventory and drops it when the
+     * inventory cannot accept it. This terminal keeps the one container being filled on the cursor instead, after
+     * safely moving the unused empty containers into the inventory.
+     */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private boolean prepareSingleContainerFill(EntityPlayerMP player) {
+        ItemStack hand = player.inventory.getItemStack();
+        IAEStack<?> target = getTargetStack();
+        if (hand == null || hand.stackSize <= 1 || target == null) return true;
+
+        IAEStackType type = target.getStackType();
+        if (!type.isContainerItemForType(hand)) return true;
+        ItemStack singleContainer = hand.copy();
+        singleContainer.stackSize = 1;
+        var simulatedFill = type.fillContainer(singleContainer.copy(), target);
+        if (simulatedFill.left() == null || simulatedFill.rightLong() <= 0) return true;
+
+        ItemStack unusedContainers = hand.copy();
+        unusedContainers.stackSize--;
+        if (!canFullyStore(player.inventory, unusedContainers)) {
+            // #tr gui.sciencenotcool.quick_terminal.container_inventory_full
+            // # No inventory space for the remaining empty containers.
+            // # zh_CN 物品栏没有空间存放剩余的空容器。
+            player.addChatMessage(
+                new ChatComponentTranslation("gui.sciencenotcool.quick_terminal.container_inventory_full"));
+            return false;
+        }
+
+        player.inventory.addItemStackToInventory(unusedContainers);
+        player.inventory.setItemStack(singleContainer);
+        player.inventory.markDirty();
+        return true;
+    }
+
+    private static boolean canFullyStore(InventoryPlayer inventory, ItemStack incoming) {
+        int remaining = incoming.stackSize;
+        for (ItemStack existing : inventory.mainInventory) {
+            if (existing == null || existing.getItem() != incoming.getItem()
+                || existing.getItemDamage() != incoming.getItemDamage()
+                || !ItemStack.areItemStackTagsEqual(existing, incoming)) continue;
+            int limit = Math.min(existing.getMaxStackSize(), inventory.getInventoryStackLimit());
+            remaining -= Math.max(0, limit - existing.stackSize);
+            if (remaining <= 0) return true;
+        }
+        for (ItemStack existing : inventory.mainInventory) {
+            if (existing != null) continue;
+            remaining -= Math.min(incoming.getMaxStackSize(), inventory.getInventoryStackLimit());
+            if (remaining <= 0) return true;
+        }
+        return false;
     }
 
     private boolean isInterfaceEntry(long id) {
