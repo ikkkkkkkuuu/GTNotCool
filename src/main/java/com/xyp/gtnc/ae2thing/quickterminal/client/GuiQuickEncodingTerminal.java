@@ -1755,9 +1755,7 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
             for (int i = 0; i < fields.length; i++) {
                 MEGuiTextField field = fields[i];
                 if (field == null || !field.isFocused()) continue;
-                if (key == 1 || key == Minecraft.getMinecraft().gameSettings.keyBindInventory.getKeyCode()) {
-                    return false;
-                }
+                if (key == 1) return false;
                 if (character == '\t') {
                     field.setFocused(false);
                     for (int step = 1; step < fields.length; step++) {

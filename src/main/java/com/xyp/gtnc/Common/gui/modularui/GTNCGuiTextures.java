@@ -132,32 +132,52 @@ public final class GTNCGuiTextures {
         .fullImage(MODID, "gui/overlay_button/machine_mode/laser_engraver");
     public static final UITexture OVERLAY_BUTTON_MACHINEMODE_CUTTER = UITexture
         .fullImage(MODID, "gui/overlay_button/machine_mode/cutter");
+    public static final UITexture OVERLAY_BUTTON_MACHINEMODE_BENDER = UITexture
+        .fullImage(MODID, "gui/overlay_button/machine_mode/bender");
     public static final UITexture OVERLAY_BUTTON_MACHINEMODE_CHEMICAL_REACTOR = UITexture
         .fullImage(MODID, "gui/overlay_button/machine_mode/chemical_reactor");
+    public static final UITexture OVERLAY_BUTTON_MACHINEMODE_CHEMICAL_BATH = UITexture
+        .fullImage(MODID, "gui/overlay_button/machine_mode/chemical_bath");
     public static final UITexture OVERLAY_BUTTON_MACHINEMODE_CIRCUIT_ASSEMBLER = UITexture
         .fullImage(MODID, "gui/overlay_button/machine_mode/circuit_assembler");
     public static final UITexture OVERLAY_BUTTON_MACHINEMODE_WIREMILL = UITexture
         .fullImage(MODID, "gui/overlay_button/machine_mode/wiremill");
     public static final UITexture OVERLAY_BUTTON_MACHINEMODE_MIXER = UITexture
         .fullImage(MODID, "gui/overlay_button/machine_mode/mixer");
+    public static final UITexture OVERLAY_BUTTON_MACHINEMODE_ASSEMBLER = UITexture
+        .fullImage(MODID, "gui/overlay_button/machine_mode/assembler");
     public static final UITexture OVERLAY_BUTTON_MACHINEMODE_FORMING_PRESS = UITexture
         .fullImage(MODID, "gui/overlay_button/machine_mode/forming_press");
     public static final UITexture OVERLAY_BUTTON_MACHINEMODE_FLUID_SOLIDIFIER = UITexture
         .fullImage(MODID, "gui/overlay_button/machine_mode/fluid_solidifier");
+    public static final UITexture OVERLAY_BUTTON_MACHINEMODE_COMPRESSOR = UITexture
+        .fullImage(MODID, "gui/overlay_button/machine_mode/compressor");
+    public static final UITexture OVERLAY_BUTTON_MACHINEMODE_ARC_FURNACE = UITexture
+        .fullImage(MODID, "gui/overlay_button/machine_mode/arc_furnace");
     public static final UITexture OVERLAY_BUTTON_MACHINEMODE_ARCANE_ASSEMBLER = UITexture
         .fullImage(MODID, "gui/overlay_button/machine_mode/arcane_assembler");
     public static final UITexture OVERLAY_BUTTON_MACHINEMODE_INFUSION_MATRIX = UITexture
         .fullImage(MODID, "gui/overlay_button/machine_mode/infusion_matrix");
+    public static final UITexture OVERLAY_BUTTON_MACHINEMODE_POLARIZER = UITexture
+        .fullImage(MODID, "gui/overlay_button/machine_mode/polarizer");
     public static final UITexture OVERLAY_BUTTON_MACHINEMODE_AUTOCLAVE = UITexture
         .fullImage(MODID, "gui/overlay_button/machine_mode/autoclave");
+    public static final UITexture OVERLAY_BUTTON_MACHINEMODE_PRECISE_ASSEMBLER = UITexture
+        .fullImage(MODID, "gui/overlay_button/machine_mode/precise_assembler");
     public static final UITexture OVERLAY_BUTTON_MACHINEMODE_ELECTROLYZER = UITexture
         .fullImage(MODID, "gui/overlay_button/machine_mode/electrolyzer");
+    public static final UITexture OVERLAY_BUTTON_MACHINEMODE_CENTRIFUGE = UITexture
+        .fullImage(MODID, "gui/overlay_button/machine_mode/centrifuge");
+    public static final UITexture OVERLAY_BUTTON_MACHINEMODE_SCANNER = UITexture
+        .fullImage(MODID, "gui/overlay_button/machine_mode/scanner");
     public static final UITexture OVERLAY_BUTTON_MACHINEMODE_MACERATOR = UITexture
         .fullImage(MODID, "gui/overlay_button/machine_mode/macerator");
     public static final UITexture OVERLAY_BUTTON_MACHINEMODE_IMPLOSION_COMPRESSOR = UITexture
         .fullImage(MODID, "gui/overlay_button/machine_mode/implosion_compressor");
     public static final UITexture OVERLAY_BUTTON_MACHINEMODE_FUEL_REFINING = UITexture
         .fullImage(MODID, "gui/overlay_button/machine_mode/fuel_refining");
+    public static final UITexture OVERLAY_BUTTON_MACHINEMODE_STAMPING = UITexture
+        .fullImage(MODID, "gui/overlay_button/machine_mode/stamping_machine");
 
     // Godforge-themed extras
     public static final UITexture OVERLAY_BUTTON_FLAG = UITexture.fullImage(MODID, "gui/overlay_button/flag");

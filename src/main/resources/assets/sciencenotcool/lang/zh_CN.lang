@@ -1234,6 +1234,7 @@ gtnc.machine.steam_godforge_processing.mode.fuel_refining_complex=燃料精炼�
 gtnc.machine.steam_godforge_processing.mode.stamping_machine=冲压机床
 gtnc.machine.steam_godforge_processing.mode.large_chemical_reactor=大型化学反应釜
 gtnc.machine.steam_godforge_processing.mode.circuit_assembler=电路组装机
+gtnc.machine.steam_godforge_processing.mode.chemical_bath=化学浸洗机
 key.categories.sciencenotcool=格雷不酷
 key.toolbelt.open=打开工具腰带菜单
 key.toolbelt.cycle.left=左切换

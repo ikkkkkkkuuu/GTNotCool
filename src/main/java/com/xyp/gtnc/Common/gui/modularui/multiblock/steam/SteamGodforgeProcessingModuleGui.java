@@ -45,6 +45,7 @@ public final class SteamGodforgeProcessingModuleGui
     private static final int SELECTOR_COLUMNS = 5;
     private static final int SELECTOR_VISIBLE_ROWS = 5;
     private static final int MODE_BUTTON_SIZE = 28;
+    private static final int MODE_ICON_SIZE = 16;
     private static final int SELECTOR_PADDING = 7;
     private static final int SELECTOR_HEADER_HEIGHT = 38;
     private static final int SELECTOR_WIDTH = SELECTOR_COLUMNS * MODE_BUTTON_SIZE + SELECTOR_PADDING * 2 + 4;
@@ -163,9 +164,12 @@ public final class SteamGodforgeProcessingModuleGui
                     () -> machineModeSyncer.getIntValue() == mode
                         ? new DrawableStack(GTGuiTextures.TT_BUTTON_CELESTIAL_32x32, GTGuiTextures.SLOT_OUTLINE_GREEN)
                         : GTGuiTextures.TT_BUTTON_CELESTIAL_32x32))
-            .overlay(
+            .child(
                 SteamGodforgeProcessingMode.fromId(mode)
-                    .getIcon())
+                    .getIcon()
+                    .asWidget()
+                    .size(MODE_ICON_SIZE)
+                    .pos((MODE_BUTTON_SIZE - MODE_ICON_SIZE) / 2, (MODE_BUTTON_SIZE - MODE_ICON_SIZE) / 2))
             .onMousePressed(mouseButton -> {
                 if (mouseButton != 0) {
                     return false;
