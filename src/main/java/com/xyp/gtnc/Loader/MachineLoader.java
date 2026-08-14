@@ -59,7 +59,10 @@ import com.xyp.gtnc.Common.machines.multiblock.steam.elevator.SteamAssemblerModu
 import com.xyp.gtnc.Common.machines.multiblock.steam.elevator.SteamElevator;
 import com.xyp.gtnc.Common.machines.multiblock.steam.elevator.SteamFormingModule;
 import com.xyp.gtnc.Common.machines.multiblock.steam.elevator.SteamIndustrialModule;
+import com.xyp.gtnc.Common.machines.multiblock.steam.elevator.SteamMoltenModule;
+import com.xyp.gtnc.Common.machines.multiblock.steam.elevator.SteamPlasmaModule;
 import com.xyp.gtnc.Common.machines.multiblock.steam.elevator.SteamProcessingModule;
+import com.xyp.gtnc.Common.machines.multiblock.steam.elevator.SteamSmeltingModule;
 import com.xyp.gtnc.Common.machines.multiblock.steam.godforge.SteamForgeOfGods;
 import com.xyp.gtnc.Common.machines.multiblock.steam.godforge.SteamGodforgeAlloyBlastSmelterModule;
 import com.xyp.gtnc.Common.machines.multiblock.steam.godforge.SteamGodforgeAlloySmelterModule;
@@ -693,6 +696,28 @@ public class MachineLoader {
                 TextLocalization.NameSteamIndustrialModule));
         AnimatedTooltipHandler
             .addItemTooltip(GTNCItemList.SteamIndustrialModule.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        GTNCItemList.SteamSmeltingModule.set(
+            new SteamSmeltingModule(
+                GTNCMachineID.STEAM_SMELTING_MODULE.ID,
+                "SteamSmeltingModule",
+                TextLocalization.NameSteamSmeltingModule));
+        AnimatedTooltipHandler
+            .addItemTooltip(GTNCItemList.SteamSmeltingModule.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        GTNCItemList.SteamMoltenModule.set(
+            new SteamMoltenModule(
+                GTNCMachineID.STEAM_MOLTEN_MODULE.ID,
+                "SteamMoltenModule",
+                TextLocalization.NameSteamMoltenModule));
+        AnimatedTooltipHandler.addItemTooltip(GTNCItemList.SteamMoltenModule.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        GTNCItemList.SteamPlasmaModule.set(
+            new SteamPlasmaModule(
+                GTNCMachineID.STEAM_PLASMA_MODULE.ID,
+                "SteamPlasmaModule",
+                TextLocalization.NameSteamPlasmaModule));
+        AnimatedTooltipHandler.addItemTooltip(GTNCItemList.SteamPlasmaModule.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
 
         // #tr NameSteamForgeOfGods
         // # Steam Forge of Gods

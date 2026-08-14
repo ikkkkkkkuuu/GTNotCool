@@ -2,6 +2,155 @@ package com.xyp.gtnc.utils.lang;
 
 public class TextLocalization {
 
+    // #tr NameSteamPlasmaModule
+    // # Steam Plasma Module
+    // # zh_CN 蒸汽等离子模块
+    public static final String NameSteamPlasmaModule = TextEnums.tr("NameSteamPlasmaModule");
+
+    // #tr SteamPlasmaModuleRecipeType
+    // # Steam Plasma Module
+    // # zh_CN 蒸汽等离子模块
+    public static final String SteamPlasmaModuleMachineType = TextEnums.tr("SteamPlasmaModuleRecipeType");
+
+    // #tr Tooltip_SteamPlasmaModule_00
+    // # A plasma-processing module for the Steam Stairway
+    // # zh_CN 蒸汽楼梯的等离子加工模块
+    public static final String Tooltip_SteamPlasmaModule_00 = TextEnums.tr("Tooltip_SteamPlasmaModule_00");
+
+    // #tr Tooltip_SteamPlasmaModule_01
+    // # Must be connected to a formed and running Steam Stairway
+    // # zh_CN 必须连接至已成型且运行中的蒸汽楼梯
+    public static final String Tooltip_SteamPlasmaModule_01 = TextEnums.tr("Tooltip_SteamPlasmaModule_01");
+
+    // #tr Tooltip_SteamPlasmaModule_02
+    // # Uses Forge of Gods plasma recipes
+    // # zh_CN 使用诸神之锻炉等离子配方
+    public static final String Tooltip_SteamPlasmaModule_02 = TextEnums.tr("Tooltip_SteamPlasmaModule_02");
+
+    // #tr Tooltip_SteamPlasmaModule_03
+    // # Plasma tier 0 is available by default; multistep plasma recipes are locked
+    // # zh_CN 默认支持 0 级等离子配方；多步等离子配方尚未解锁
+    public static final String Tooltip_SteamPlasmaModule_03 = TextEnums.tr("Tooltip_SteamPlasmaModule_03");
+
+    // #tr Tooltip_SteamPlasmaModule_04
+    // # Processing steam is distributed by the Steam Stairway controller
+    // # zh_CN 加工所需蒸汽由蒸汽楼梯控制器分发
+    public static final String Tooltip_SteamPlasmaModule_04 = TextEnums.tr("Tooltip_SteamPlasmaModule_04");
+
+    // #tr Tooltip_SteamPlasmaModule_Controller
+    // # Front center
+    // # zh_CN 正面中央
+    public static final String Tooltip_SteamPlasmaModule_Controller = TextEnums
+        .tr("Tooltip_SteamPlasmaModule_Controller");
+
+    // #tr NameSteamMoltenModule
+    // # Steam Molten Module
+    // # zh_CN 蒸汽熔融模块
+    public static final String NameSteamMoltenModule = TextEnums.tr("NameSteamMoltenModule");
+
+    // #tr SteamMoltenModuleRecipeType
+    // # Steam Molten Module
+    // # zh_CN 蒸汽熔融模块
+    public static final String SteamMoltenModuleMachineType = TextEnums.tr("SteamMoltenModuleRecipeType");
+
+    // #tr Tooltip_SteamMoltenModule_00
+    // # A molten-processing module for the Steam Stairway
+    // # zh_CN 蒸汽楼梯的熔融加工模块
+    public static final String Tooltip_SteamMoltenModule_00 = TextEnums.tr("Tooltip_SteamMoltenModule_00");
+
+    // #tr Tooltip_SteamMoltenModule_01
+    // # Must be connected to a formed and running Steam Stairway
+    // # zh_CN 必须连接至已成型且运行中的蒸汽楼梯
+    public static final String Tooltip_SteamMoltenModule_01 = TextEnums.tr("Tooltip_SteamMoltenModule_01");
+
+    // #tr Tooltip_SteamMoltenModule_02
+    // # Uses Forge of Gods molten recipes
+    // # zh_CN 使用诸神之锻炉熔融配方
+    public static final String Tooltip_SteamMoltenModule_02 = TextEnums.tr("Tooltip_SteamMoltenModule_02");
+
+    // #tr Tooltip_SteamMoltenModule_03
+    // # Processing steam is distributed by the Steam Stairway controller
+    // # zh_CN 加工所需蒸汽由蒸汽楼梯控制器分发
+    public static final String Tooltip_SteamMoltenModule_03 = TextEnums.tr("Tooltip_SteamMoltenModule_03");
+
+    // #tr Tooltip_SteamMoltenModule_04
+    // # Base maximum temperature: 15700 K
+    // # zh_CN 基础最高温度：15700 K
+    public static final String Tooltip_SteamMoltenModule_04 = TextEnums.tr("Tooltip_SteamMoltenModule_04");
+
+    // #tr Tooltip_SteamMoltenModule_05
+    // # Every 900 K above recipe heat multiplies steam consumption by 0.95
+    // # zh_CN 每高于配方温度 900 K，蒸汽消耗乘以 0.95
+    public static final String Tooltip_SteamMoltenModule_05 = TextEnums.tr("Tooltip_SteamMoltenModule_05");
+
+    // #tr Tooltip_SteamMoltenModule_Controller
+    // # Front center
+    // # zh_CN 正面中央
+    public static final String Tooltip_SteamMoltenModule_Controller = TextEnums
+        .tr("Tooltip_SteamMoltenModule_Controller");
+
+    // #tr NameSteamSmeltingModule
+    // # Steam Smelting Module
+    // # zh_CN 蒸汽熔炼模块
+    public static final String NameSteamSmeltingModule = TextEnums.tr("NameSteamSmeltingModule");
+
+    // #tr SteamSmeltingModuleRecipeType
+    // # Steam Smelting Module
+    // # zh_CN 高炉 | 熔炉
+    public static final String SteamSmeltingModuleMachineType = TextEnums.tr("SteamSmeltingModuleRecipeType");
+
+    // #tr SteamSmeltingModuleModeBlastFurnace
+    // # Blast Furnace
+    // # zh_CN 高炉
+    public static final String SteamSmeltingModuleModeBlastFurnace = TextEnums
+        .tr("SteamSmeltingModuleModeBlastFurnace");
+
+    // #tr SteamSmeltingModuleModeFurnace
+    // # Furnace
+    // # zh_CN 熔炉
+    public static final String SteamSmeltingModuleModeFurnace = TextEnums.tr("SteamSmeltingModuleModeFurnace");
+
+    // #tr Tooltip_SteamSmeltingModule_00
+    // # A smelting module for the Steam Stairway
+    // # zh_CN 蒸汽楼梯的熔炼模块
+    public static final String Tooltip_SteamSmeltingModule_00 = TextEnums.tr("Tooltip_SteamSmeltingModule_00");
+
+    // #tr Tooltip_SteamSmeltingModule_01
+    // # Must be connected to a formed and running Steam Stairway
+    // # zh_CN 必须连接至已成型且运行中的蒸汽楼梯
+    public static final String Tooltip_SteamSmeltingModule_01 = TextEnums.tr("Tooltip_SteamSmeltingModule_01");
+
+    // #tr Tooltip_SteamSmeltingModule_02
+    // # Supports Blast Furnace and Furnace recipes
+    // # zh_CN 支持高炉与熔炉配方
+    public static final String Tooltip_SteamSmeltingModule_02 = TextEnums.tr("Tooltip_SteamSmeltingModule_02");
+
+    // #tr Tooltip_SteamSmeltingModule_03
+    // # Defaults to Blast Furnace mode; use the mode button to switch
+    // # zh_CN 默认使用高炉模式；可通过模式按钮切换
+    public static final String Tooltip_SteamSmeltingModule_03 = TextEnums.tr("Tooltip_SteamSmeltingModule_03");
+
+    // #tr Tooltip_SteamSmeltingModule_04
+    // # Processing steam is distributed by the Steam Stairway controller
+    // # zh_CN 加工所需蒸汽由蒸汽楼梯控制器分发
+    public static final String Tooltip_SteamSmeltingModule_04 = TextEnums.tr("Tooltip_SteamSmeltingModule_04");
+
+    // #tr Tooltip_SteamSmeltingModule_05
+    // # Base maximum temperature: 15700 K
+    // # zh_CN 基础最高温度：15700 K
+    public static final String Tooltip_SteamSmeltingModule_05 = TextEnums.tr("Tooltip_SteamSmeltingModule_05");
+
+    // #tr Tooltip_SteamSmeltingModule_06
+    // # In Blast Furnace mode, every 900 K above recipe heat multiplies steam consumption by 0.95
+    // # zh_CN 高炉模式下，每高于配方温度 900 K，蒸汽消耗乘以 0.95
+    public static final String Tooltip_SteamSmeltingModule_06 = TextEnums.tr("Tooltip_SteamSmeltingModule_06");
+
+    // #tr Tooltip_SteamSmeltingModule_Controller
+    // # Front center
+    // # zh_CN 正面中央
+    public static final String Tooltip_SteamSmeltingModule_Controller = TextEnums
+        .tr("Tooltip_SteamSmeltingModule_Controller");
+
     // #tr NameSteamIndustrialModule
     // # Steam Industrial Module
     // # zh_CN 蒸汽工业模块
