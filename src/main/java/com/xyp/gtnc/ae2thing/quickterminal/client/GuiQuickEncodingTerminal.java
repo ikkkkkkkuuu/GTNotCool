@@ -57,6 +57,7 @@ import appeng.api.storage.ITerminalHost;
 import appeng.api.storage.data.AEStackTypeRegistry;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IAEStackType;
+import appeng.api.storage.data.IItemList;
 import appeng.client.gui.IInterfaceTerminalPostUpdate;
 import appeng.client.gui.ScreenColor;
 import appeng.client.gui.implementations.GuiInterfaceTerminal;
@@ -134,6 +135,7 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
         "textures/gui/quick_terminal/encoding4.png");
 
     private static final Field ITEM_REPO = findField(GuiMEMonitorable.class, "repo");
+    private static final Field ITEM_REPO_LIST = findField(ItemRepo.class, "list");
     private static final Field TYPE_TOGGLE_BUTTONS = findField(GuiMEMonitorable.class, "typeToggleButtons");
     private static final Field PATTERN_GUI_CRAFTING_MODE = findField(GuiPatternTerm.class, "craftingMode");
 
@@ -162,6 +164,7 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
     private GuiTabButton craftingStatusButton;
     private RightEncodingButton encodeButton;
     private boolean initializedOnce;
+    private boolean pendingPinRefresh;
     private String pendingInterfaceSearch;
     private int pendingTargetSelectionTicks;
     private boolean pendingAutoPlace;
@@ -251,9 +254,11 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
         buttonList.add(prioritizeDisabledButton);
 
         configureItemPanel();
+        registerCraftableIngredientOverlays();
         layoutButtons();
         layoutPatternSlots();
         layoutContainerSlots();
+        pendingPinRefresh = true;
 
         // Returning from NEI or another GUI calls initGui again on the same
         // screen. Focus only the first initialization so recipe hotkeys such as
@@ -409,6 +414,30 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
     }
 
     /**
+     * Draws AE2's encoded-pattern badge over recipe ingredients that are already craftable on the connected network.
+     * The badge uses a separate render-only slot so transient network craftability never enters the synchronized
+     * pattern inventory.
+     */
+    private void registerCraftableIngredientOverlays() {
+        if (craftingSlots == null) return;
+        for (VirtualMEPatternSlot slot : craftingSlots) {
+            registerVirtualSlots(new CraftableIngredientOverlaySlot(slot));
+        }
+    }
+
+    private boolean isCraftableOnNetwork(IAEStack<?> ingredient) {
+        if (ingredient == null || itemRepo == null || ITEM_REPO_LIST == null) return false;
+        try {
+            @SuppressWarnings("unchecked")
+            IItemList<IAEStack<?>> networkStacks = (IItemList<IAEStack<?>>) ITEM_REPO_LIST.get(itemRepo);
+            IAEStack<?> networkStack = networkStacks == null ? null : networkStacks.findPrecise(ingredient);
+            return networkStack != null && networkStack.isCraftable();
+        } catch (IllegalAccessException ignored) {
+            return false;
+        }
+    }
+
+    /**
      * The server still allocates pins in AE2's native groups of nine, while this
      * terminal exposes independently configured visual rows of four. Only the
      * requested prefix of each crafting/player section is visible; surplus
@@ -447,14 +476,15 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
 
     private void updateItemScrollBar() {
         int size = itemRepo == null ? 0 : itemRepo.size();
-        int scrollRows = Math.max(1, itemRows - pinDisplayRows);
         getScrollBar().setLeft(ITEM_PANEL_X + ITEM_PANEL_WIDTH - 20)
-            .setTop(itemPanelY + 18 + pinDisplayRows * 18)
-            .setHeight(scrollRows * 18 - 2)
+            // Pin slots stay fixed, but the scrollbar track covers the full
+            // storage grid so scroll zero remains the top of the grid.
+            .setTop(itemPanelY + 18)
+            .setHeight(itemRows * 18 - 2)
             .setRange(
                 0,
                 Math.max(0, (size - visibleItemSlots + ITEM_COLUMNS - 1) / ITEM_COLUMNS),
-                Math.max(1, scrollRows / 6));
+                Math.max(1, itemRows / 6));
         // GuiMEMonitorable still recalculates this shared scrollbar with its native nine-column geometry whenever
         // the repository view changes. That can clamp the compact panel's valid four-column position before this
         // method restores the correct range. Keep the compact position separately so it does not jump or lose rows.
@@ -706,6 +736,10 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+        if (pendingPinRefresh) {
+            pendingPinRefresh = false;
+            patternContainer.requestPinRefresh();
+        }
         if (configuredTerminalStyle != currentTerminalStyle()) {
             setWorldAndResolution(mc, width, height);
         }
@@ -989,6 +1023,13 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
     @Override
     protected boolean handleVirtualSlotClick(VirtualMESlot slot, int mouseButton) {
         boolean handled = super.handleVirtualSlotClick(slot, mouseButton);
+        if (slot instanceof VirtualMEPatternSlot) {
+            // AEBaseGui applies phantom pattern-slot clicks but returns false.
+            // The encoder sits outside the native container rectangle, so the
+            // same click must not continue as an outside-slot (-999) drop.
+            suppressExtensionVanillaClick(mouseButton);
+            return true;
+        }
         if (handled && slot instanceof VirtualMEMonitorableSlot) suppressExtensionVanillaClick(mouseButton);
         return handled;
     }
@@ -1244,6 +1285,38 @@ public final class GuiQuickEncodingTerminal extends GuiPatternTerm implements II
             return field.get(owner);
         } catch (IllegalAccessException ignored) {
             return null;
+        }
+    }
+
+    private final class CraftableIngredientOverlaySlot extends VirtualMESlot {
+
+        private final VirtualMEPatternSlot ingredientSlot;
+
+        private CraftableIngredientOverlaySlot(VirtualMEPatternSlot ingredientSlot) {
+            super(0, 0, ingredientSlot.getSlotIndex());
+            this.ingredientSlot = ingredientSlot;
+        }
+
+        @Override
+        public IAEStack<?> getAEStack() {
+            return ingredientSlot.getAEStack();
+        }
+
+        @Override
+        public boolean isHovered(int mouseX, int mouseY) {
+            return false;
+        }
+
+        @Override
+        public boolean drawStackAndOverlay(Minecraft minecraft, int mouseX, int mouseY) {
+            IAEStack<?> ingredient = ingredientSlot.getAEStack();
+            if (ingredientSlot.isHidden() || !isCraftableOnNetwork(ingredient)) return false;
+
+            IAEStack<?> overlay = ingredient.copy();
+            if (overlay.getStackSize() <= 0) overlay.setStackSize(1);
+            overlay.setCraftable(true);
+            overlay.drawOverlayInGui(minecraft, ingredientSlot.getX(), ingredientSlot.getY(), false, false, true, true);
+            return false;
         }
     }
 

@@ -11,6 +11,8 @@ import net.minecraftforge.fluids.FluidStack;
 
 import org.lwjgl.input.Keyboard;
 
+import com.glodblock.github.common.item.ItemFluidDrop;
+import com.glodblock.github.common.item.ItemFluidPacket;
 import com.glodblock.github.util.Util;
 import com.xyp.gtnc.ae2thing.integration.Mods;
 import com.xyp.gtnc.ae2thing.nei.object.OrderStack;
@@ -32,6 +34,7 @@ import codechicken.nei.PositionedStack;
 import codechicken.nei.api.IOverlayHandler;
 import codechicken.nei.recipe.GuiOverlayButton;
 import codechicken.nei.recipe.IRecipeHandler;
+import gregtech.common.items.ItemFluidDisplay;
 
 /** Transfers NEI recipes directly into the native-AE2 quick terminal container. */
 public final class QuickTerminalRecipeTransferHandler implements IOverlayHandler {
@@ -269,7 +272,9 @@ public final class QuickTerminalRecipeTransferHandler implements IOverlayHandler
     private static IAEStack<?> toProcessingStack(ItemStack item) {
         if (item == null) return null;
 
-        IAEStack<?> fluid = Util.getAEFluidFromItem(item);
+        // Filled cells, buckets, and other real containers are item ingredients.
+        // Only NEI's synthetic fluid representations belong in an AE fluid slot.
+        IAEStack<?> fluid = isFluidDisplay(item) ? Util.getAEFluidFromItem(item) : null;
         if (fluid != null) return fluid;
 
         for (IAEStackType<?> type : AEStackTypeRegistry.getSortedTypes()) {
@@ -278,5 +283,10 @@ public final class QuickTerminalRecipeTransferHandler implements IOverlayHandler
             if (converted != null) return converted;
         }
         return AEItemStack.create(item.copy());
+    }
+
+    private static boolean isFluidDisplay(ItemStack stack) {
+        return stack.getItem() instanceof ItemFluidDisplay || stack.getItem() instanceof ItemFluidDrop
+            || stack.getItem() instanceof ItemFluidPacket;
     }
 }

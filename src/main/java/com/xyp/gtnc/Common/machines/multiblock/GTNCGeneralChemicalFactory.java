@@ -2,7 +2,6 @@ package com.xyp.gtnc.Common.machines.multiblock;
 
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofBlock;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofBlockAnyMeta;
-import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofBlockUnlocalizedName;
 import static com.gtnewhorizon.structurelib.structure.StructureUtility.ofChain;
 import static gregtech.api.enums.HatchElement.Energy;
 import static gregtech.api.enums.HatchElement.ExoticEnergy;
@@ -35,6 +34,7 @@ import com.xyp.gtnc.Common.gui.modularui.multiblock.GTNCMultiBlockBaseGui;
 import com.xyp.gtnc.Common.machines.multiblock.multiMachineBase.GTNCWirelessEnergyMultiMachineBase;
 import com.xyp.gtnc.Loader.GTNCRecipeMaps;
 
+import bartworks.common.loaders.ItemRegistry;
 import gregtech.api.GregTechAPI;
 import gregtech.api.enums.HeatingCoilLevel;
 import gregtech.api.enums.Materials;
@@ -283,7 +283,7 @@ public class GTNCGeneralChemicalFactory extends GTNCWirelessEnergyMultiMachineBa
     public IStructureDefinition<GTNCGeneralChemicalFactory> getStructureDefinition() {
         return StructureDefinition.<GTNCGeneralChemicalFactory>builder()
             .addShape(STRUCTURE_PIECE_MAIN, SHAPE)
-            .addElement('A', ofBlockUnlocalizedName("IC2", "blockAlloyGlass", 0, true))
+            .addElement('A', ofBlock(ItemRegistry.bw_realglas, 0))
             .addElement(
                 'B',
                 ofChain(
@@ -446,7 +446,7 @@ public class GTNCGeneralChemicalFactory extends GTNCWirelessEnergyMultiMachineBa
             .addCasingInfoExactly("化学惰性机械方块", 118, false)
             .addCasingInfoExactly("活塞", 6, false)
             .addCasingInfoExactly("钢块", 6, false)
-            .addCasingInfoExactly("防爆玻璃", 9, false)
+            .addCasingInfoExactly("硼玻璃", 9, false)
             .addCasingInfoExactly("钢框架", 164, false)
             .addInputBus("任意脱氧钢机械方块")
             .addInputHatch("任意脱氧钢机械方块")
