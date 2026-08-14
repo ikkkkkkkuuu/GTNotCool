@@ -1,9 +1,9 @@
 package com.xyp.gtnc.Common.gui.modularui.multiblock.steam;
 
-import com.xyp.gtnc.Common.gui.modularui.multiblock.GTNCSteamMultiBlockBaseGui;
+import com.xyp.gtnc.Common.gui.modularui.multiblock.GTNCAdvancedSteamMultiBlockBaseGui;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamCropBreeder;
 
-public class LargeSteamCropBreederGui extends GTNCSteamMultiBlockBaseGui {
+public class LargeSteamCropBreederGui extends GTNCAdvancedSteamMultiBlockBaseGui {
 
     public LargeSteamCropBreederGui(LargeSteamCropBreeder multiblock) {
         super(multiblock);

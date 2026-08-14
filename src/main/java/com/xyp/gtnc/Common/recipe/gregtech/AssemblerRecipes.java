@@ -14,6 +14,7 @@ import static gregtech.api.enums.TierEU.RECIPE_ZPM;
 import static gregtech.api.util.GTRecipeBuilder.INGOTS;
 import static gregtech.api.util.GTRecipeBuilder.SECONDS;
 
+import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 
@@ -657,6 +658,38 @@ public class AssemblerRecipes {
                 GTUtility.getIntegratedCircuit(19))
             .itemOutputs(GTNCItemList.LargeSteamElectrolyzer.get(1))
             .duration(5 * SECONDS)
+            .eut(RECIPE_LV)
+            .addTo(As);
+
+        // Steam Elevator building materials and controller only. Concrete module recipes are intentionally absent.
+        GTValues.RA.stdBuilder()
+            .itemInputs(new ItemStack(Blocks.planks, 4), GTOreDictUnificator.get(OrePrefixes.plate, Materials.Steel, 4))
+            .itemOutputs(GTNCItemList.SteelReinforcedWood.get(4))
+            .circuit(4)
+            .duration(5 * SECONDS)
+            .eut(RECIPE_LV)
+            .addTo(As);
+
+        GTValues.RA.stdBuilder()
+            .itemInputs(
+                GTOreDictUnificator.get(OrePrefixes.pipeLarge, Materials.Steel, 8),
+                GTOreDictUnificator.get(OrePrefixes.plate, Materials.Steel, 8))
+            .itemOutputs(GTNCItemList.SteamCompactPipeCasing.get(4))
+            .circuit(4)
+            .duration(10 * SECONDS)
+            .eut(RECIPE_LV)
+            .addTo(As);
+
+        GTValues.RA.stdBuilder()
+            .itemInputs(
+                GTNCItemList.SteamCompactPipeCasing.get(4),
+                new ItemStack(Blocks.brick_block, 64),
+                GTOreDictUnificator.get(OrePrefixes.frameGt, Materials.Steel, 48),
+                ItemList.Electric_Pump_LV.get(8),
+                ItemList.Electric_Piston_LV.get(16))
+            .itemOutputs(GTNCItemList.SteamElevator.get(1))
+            .fluidInputs(Materials.Bronze.getMolten(1_296))
+            .duration(30 * SECONDS)
             .eut(RECIPE_LV)
             .addTo(As);
         loadcovers();

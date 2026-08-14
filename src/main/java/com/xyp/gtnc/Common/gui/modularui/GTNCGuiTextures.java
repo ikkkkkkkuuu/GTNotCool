@@ -5,6 +5,9 @@ import net.minecraft.util.ResourceLocation;
 import com.cleanroommc.modularui.drawable.UITexture;
 import com.xyp.gtnc.ScienceNotCool;
 
+import gregtech.api.enums.Textures;
+import gregtech.api.interfaces.IIconContainer;
+
 /**
  * Centralized GUI texture definitions for GTNC (ScienceNotCool) mod.
  * Mirrors gregtech.api.modularui2.GTGuiTextures pattern.
@@ -19,6 +22,11 @@ public final class GTNCGuiTextures {
     public static final UITexture BUTTON_TRANSPARENT_PRESSED_16x16 = UITexture
         .fullImage(MODID, "gui/button/transparent_pressed_16x16");
     public static final UITexture CLOSE_BUTTON_HOLLOW = UITexture.fullImage(MODID, "gui/button/transparent_x_10x10");
+
+    public static IIconContainer OVERLAY_FRONT_TECTECH_MULTIBLOCK = Textures.BlockIcons.custom("iconsets/EM_COMPUTER");
+    public static IIconContainer OVERLAY_FRONT_TECTECH_MULTIBLOCK_ACTIVE = Textures.BlockIcons
+        .custom("iconsets/EM_COMPUTER_ACTIVE");
+
     // ==================== Shared Modernity Theme ====================
     public static final ResourceLocation MODERN_BACKGROUND_LOCATION = new ResourceLocation(
         MODID,
@@ -152,6 +160,8 @@ public final class GTNCGuiTextures {
         .fullImage(MODID, "gui/overlay_button/machine_mode/fluid_solidifier");
     public static final UITexture OVERLAY_BUTTON_MACHINEMODE_COMPRESSOR = UITexture
         .fullImage(MODID, "gui/overlay_button/machine_mode/compressor");
+    public static final UITexture OVERLAY_BUTTON_MACHINEMODE_LATHE = UITexture
+        .fullImage(MODID, "gui/overlay_button/machine_mode/lathe");
     public static final UITexture OVERLAY_BUTTON_MACHINEMODE_ARC_FURNACE = UITexture
         .fullImage(MODID, "gui/overlay_button/machine_mode/arc_furnace");
     public static final UITexture OVERLAY_BUTTON_MACHINEMODE_ARCANE_ASSEMBLER = UITexture

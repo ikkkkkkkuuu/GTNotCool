@@ -299,6 +299,16 @@ public class BlockLoader {
                 metaCasing02,
                 new String[] { StatCollector.translateToLocal("Tooltip_QuantumComputerSingularityCore_00") }));
 
+        // #tr tile.MetaCasing02.25.name
+        // # Steel Reinforced Wood
+        // # zh_CN 钢强化木制方块
+        GTNCItemList.SteelReinforcedWood.set(MetaItemBlockCasing.initMetaBlockCasing(25, metaCasing02));
+
+        // #tr tile.MetaCasing02.31.name
+        // # Steam Compact Pipe Casing
+        // # zh_CN 蒸汽管道外壳
+        GTNCItemList.SteamCompactPipeCasing.set(MetaItemBlockCasing.initMetaBlockCasing(31, metaCasing02));
+
         // #tr tile.MetaBlockGlow.31.name
         // # Super Space Elevator Glow Block
         // # zh_CN 超级太空电梯发光方块

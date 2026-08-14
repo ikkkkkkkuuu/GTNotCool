@@ -36,7 +36,7 @@ import com.cleanroommc.modularui.widgets.slot.ItemSlot;
 import com.cleanroommc.modularui.widgets.slot.ModularSlot;
 import com.cleanroommc.modularui.widgets.textfield.TextFieldWidget;
 import com.xyp.gtnc.Common.gui.modularui.GTNCGuiTextures;
-import com.xyp.gtnc.Common.gui.modularui.multiblock.GTNCSteamMultiBlockBaseGui;
+import com.xyp.gtnc.Common.gui.modularui.multiblock.GTNCAdvancedSteamMultiBlockBaseGui;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamVoidMiner;
 
 import bwcrossmod.galacticgreg.VoidMinerUtility;
@@ -85,7 +85,7 @@ import gtneioreplugin.util.DimensionHelper;
 // # Clear Dimension
 // # zh_CN 清除维度
 
-public class LargeSteamVoidMinerGui extends GTNCSteamMultiBlockBaseGui {
+public class LargeSteamVoidMinerGui extends GTNCAdvancedSteamMultiBlockBaseGui {
 
     String search = "";
     private IPanelHandler filterPanel;

@@ -29,7 +29,7 @@ import com.gtnewhorizon.structurelib.alignment.constructable.ISurvivalConstructa
 import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
 import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
-import com.xyp.gtnc.Common.machines.multiblock.multiMachineBase.GTNCSteamMultiBlockBase;
+import com.xyp.gtnc.Common.machines.multiblock.multiMachineBase.GTNCAdvancedSteamMultiBlockBase;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -59,7 +59,7 @@ import gregtech.api.util.MultiblockTooltipBuilder;
 // # Machine casing
 // # zh_CN 机器外壳
 
-public class LargeSteamFluidSolidifier extends GTNCSteamMultiBlockBase<LargeSteamFluidSolidifier>
+public class LargeSteamFluidSolidifier extends GTNCAdvancedSteamMultiBlockBase<LargeSteamFluidSolidifier>
     implements ISurvivalConstructable {
 
     public LargeSteamFluidSolidifier(String aName) {

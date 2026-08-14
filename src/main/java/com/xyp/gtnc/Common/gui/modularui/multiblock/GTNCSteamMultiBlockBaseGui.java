@@ -2,15 +2,9 @@ package com.xyp.gtnc.Common.gui.modularui.multiblock;
 
 import static gregtech.api.metatileentity.BaseTileEntity.TOOLTIP_DELAY;
 
-import java.util.List;
-import java.util.Set;
-
-import net.minecraft.item.ItemStack;
-
 import com.cleanroommc.modularui.drawable.DynamicDrawable;
 import com.cleanroommc.modularui.screen.ModularPanel;
 import com.cleanroommc.modularui.utils.Alignment;
-import com.cleanroommc.modularui.utils.item.ItemStackHandler;
 import com.cleanroommc.modularui.value.sync.BooleanSyncValue;
 import com.cleanroommc.modularui.value.sync.PanelSyncManager;
 import com.cleanroommc.modularui.widgets.ButtonWidget;
@@ -19,7 +13,7 @@ import com.xyp.gtnc.Common.gui.modularui.GTNCGuiTextures;
 import com.xyp.gtnc.Common.machines.multiblock.multiMachineBase.GTNCSteamMultiBlockBase;
 import com.xyp.gtnc.utils.lang.TextLocalization;
 
-public class GTNCSteamMultiBlockBaseGui extends GTNCUpgradeableMultiBlockBaseGui<GTNCSteamMultiBlockBase<?>> {
+public class GTNCSteamMultiBlockBaseGui extends GTNCModernMultiBlockBaseGui<GTNCSteamMultiBlockBase<?>> {
 
     public GTNCSteamMultiBlockBaseGui(GTNCSteamMultiBlockBase<?> multiblock) {
         super(multiblock);
@@ -34,74 +28,32 @@ public class GTNCSteamMultiBlockBaseGui extends GTNCUpgradeableMultiBlockBaseGui
             .mainAxisAlignment(Alignment.MainAxis.END)
             .reverseLayout(true)
             .child(createPowerSwitchButton())
-            .childIf(isUpgradeTreeSupported(), () -> createUpgradeTreeButton(panel, syncManager))
             .child(createWirelessModeButton(syncManager))
             .child(createStructureUpdateButton(syncManager));
     }
 
-    @Override
-    protected List<ItemStack> getUpgradeCosts() {
-        return multiblock.getUpgradeCosts();
-    }
-
-    @Override
-    protected Set<Integer> getMachinePaidUpgradeCostIndices() {
-        return multiblock.getPaidUpgradeCostIndices();
-    }
-
-    @Override
-    protected boolean isUpgradeTreeSupported() {
-        return multiblock.supportsUpgradeTree();
-    }
-
-    @Override
-    protected boolean tryApplyUpgrade(ItemStackHandler inputs) {
-        return multiblock.tryApplyUpgrade(inputs);
-    }
-
-    @Override
-    protected int getUpgradeTier() {
-        return multiblock.getUpgradeTierForGui();
-    }
-
-    @Override
-    protected int getUpgradeSpeedPercent() {
-        return multiblock.getUpgradeSpeedPercentForGui();
-    }
-
-    @Override
-    protected int getUpgradeParallel() {
-        return multiblock.getUpgradeParallelForGui();
-    }
-
-    // #tr GTNC_gui_button_wireless_steam
-    // # Toggle Wireless Steam Mode
-    // # zh_CN 切换无线蒸汽模式
     protected ButtonWidget<?> createWirelessModeButton(PanelSyncManager syncManager) {
-        BooleanSyncValue wirelessSyncer = syncManager.findSyncHandler("wirelessMode", BooleanSyncValue.class);
+        BooleanSyncValue wireless = syncManager.findSyncHandler("wirelessMode", BooleanSyncValue.class);
         ButtonWidget<?> button = new ButtonWidget<>().size(16)
             .marginBottom(2)
-            .overlay(new DynamicDrawable(() -> {
-                if (wirelessSyncer.getBoolValue()) {
-                    return GTNCGuiTextures.OVERLAY_BUTTON_BATTERY_ON;
-                }
-                return GTNCGuiTextures.OVERLAY_BUTTON_BATTERY_OFF;
-            }))
-            .onMousePressed(d -> {
-                wirelessSyncer.setBoolValue(!wirelessSyncer.getBoolValue());
+            .overlay(
+                new DynamicDrawable(
+                    () -> wireless.getBoolValue() ? GTNCGuiTextures.OVERLAY_BUTTON_BATTERY_ON
+                        : GTNCGuiTextures.OVERLAY_BUTTON_BATTERY_OFF))
+            .onMousePressed(data -> {
+                wireless.setBoolValue(!wireless.getBoolValue());
                 return true;
             })
             .tooltip(t -> t.addLine(TextLocalization.GUI_WIRELESS_STEAM_BUTTON))
             .tooltipShowUpTimer(TOOLTIP_DELAY);
-        return applyModernStateButton(button, wirelessSyncer::getBoolValue, () -> true);
+        return applyModernStateButton(button, wireless::getBoolValue, () -> true);
     }
 
     @Override
     protected void registerSyncValues(PanelSyncManager syncManager) {
         super.registerSyncValues(syncManager);
-        BooleanSyncValue wirelessModeSyncer = new BooleanSyncValue(
-            () -> multiblock.wirelessMode,
-            val -> multiblock.wirelessMode = val).allowC2S();
-        syncManager.syncValue("wirelessMode", wirelessModeSyncer);
+        syncManager.syncValue(
+            "wirelessMode",
+            new BooleanSyncValue(() -> multiblock.wirelessMode, value -> multiblock.wirelessMode = value).allowC2S());
     }
 }

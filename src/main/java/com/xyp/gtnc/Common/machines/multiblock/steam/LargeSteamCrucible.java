@@ -24,7 +24,7 @@ import com.gtnewhorizon.structurelib.alignment.constructable.ISurvivalConstructa
 import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
 import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
-import com.xyp.gtnc.Common.machines.multiblock.multiMachineBase.GTNCSteamMultiBlockBase;
+import com.xyp.gtnc.Common.machines.multiblock.multiMachineBase.GTNCAdvancedSteamMultiBlockBase;
 import com.xyp.gtnc.Loader.GTNCRecipeMaps;
 
 import gregtech.api.GregTechAPI;
@@ -83,7 +83,7 @@ import gregtech.api.util.MultiblockTooltipBuilder;
 // # §aSpeed Bonus: %sx
 // # zh_CN §a速度加成：%s倍
 
-public abstract class LargeSteamCrucible extends GTNCSteamMultiBlockBase<LargeSteamCrucible>
+public abstract class LargeSteamCrucible extends GTNCAdvancedSteamMultiBlockBase<LargeSteamCrucible>
     implements ISurvivalConstructable {
 
     private static final String STRUCTURE_PIECE_MAIN = "main";

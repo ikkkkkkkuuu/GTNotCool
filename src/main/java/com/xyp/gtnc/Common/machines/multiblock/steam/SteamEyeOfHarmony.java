@@ -31,7 +31,7 @@ import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
 import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
 import com.xyp.gtnc.Common.gui.modularui.multiblock.steam.SteamEyeOfHarmonyGui;
-import com.xyp.gtnc.Common.machines.multiblock.multiMachineBase.GTNCSteamMultiBlockBase;
+import com.xyp.gtnc.Common.machines.multiblock.multiMachineBase.GTNCAdvancedSteamMultiBlockBase;
 import com.xyp.gtnc.Common.machines.multiblock.multiMachineBase.UpgradeTreeHelper;
 import com.xyp.gtnc.utils.world.steam.SteamWirelessNetworkManager;
 
@@ -106,7 +106,8 @@ import tectech.util.ItemStackLong;
 // # Machine casing
 // # zh_CN 机器外壳
 
-public class SteamEyeOfHarmony extends GTNCSteamMultiBlockBase<SteamEyeOfHarmony> implements ISurvivalConstructable {
+public class SteamEyeOfHarmony extends GTNCAdvancedSteamMultiBlockBase<SteamEyeOfHarmony>
+    implements ISurvivalConstructable {
 
     private static final String STRUCTURE_PIECE_MAIN = "main";
     private static final int HORIZONTAL_OFF_SET = 16;

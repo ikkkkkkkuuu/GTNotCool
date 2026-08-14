@@ -1,0 +1,4 @@
+interface:
+  display_name: "GT-Not-Cool Maintainer"
+  short_description: "Maintain GT-Not-Cool safely"
+  default_prompt: "Use $gt-not-cool-maintainer to implement and validate a GT-Not-Cool change."

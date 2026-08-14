@@ -2,6 +2,489 @@ package com.xyp.gtnc.utils.lang;
 
 public class TextLocalization {
 
+    // #tr NameSteamIndustrialModule
+    // # Steam Industrial Module
+    // # zh_CN 蒸汽工业模块
+    public static final String NameSteamIndustrialModule = TextEnums.tr("NameSteamIndustrialModule");
+
+    // #tr SteamIndustrialModuleRecipeType
+    // # Steam Industrial Module
+    // # zh_CN 粉碎机 | 化学反应釜 | 电路组装机 | 化学浸洗机
+    public static final String SteamIndustrialModuleMachineType = TextEnums.tr("SteamIndustrialModuleRecipeType");
+
+    // #tr SteamIndustrialModuleModeMacerator
+    // # Macerator
+    // # zh_CN 粉碎机
+    public static final String SteamIndustrialModuleModeMacerator = TextEnums.tr("SteamIndustrialModuleModeMacerator");
+
+    // #tr SteamIndustrialModuleModeChemicalReactor
+    // # Chemical Reactor
+    // # zh_CN 化学反应釜
+    public static final String SteamIndustrialModuleModeChemicalReactor = TextEnums
+        .tr("SteamIndustrialModuleModeChemicalReactor");
+
+    // #tr SteamIndustrialModuleModeCircuitAssembler
+    // # Circuit Assembler
+    // # zh_CN 电路组装机
+    public static final String SteamIndustrialModuleModeCircuitAssembler = TextEnums
+        .tr("SteamIndustrialModuleModeCircuitAssembler");
+
+    // #tr SteamIndustrialModuleModeChemicalBath
+    // # Chemical Bath
+    // # zh_CN 化学浸洗机
+    public static final String SteamIndustrialModuleModeChemicalBath = TextEnums
+        .tr("SteamIndustrialModuleModeChemicalBath");
+
+    // #tr Tooltip_SteamIndustrialModule_00
+    // # An industrial manufacturing module for the Steam Stairway
+    // # zh_CN 蒸汽楼梯的工业制造模块
+    public static final String Tooltip_SteamIndustrialModule_00 = TextEnums.tr("Tooltip_SteamIndustrialModule_00");
+
+    // #tr Tooltip_SteamIndustrialModule_01
+    // # Must be connected to a formed and running Steam Stairway
+    // # zh_CN 必须连接至已成型且运行中的蒸汽楼梯
+    public static final String Tooltip_SteamIndustrialModule_01 = TextEnums.tr("Tooltip_SteamIndustrialModule_01");
+
+    // #tr Tooltip_SteamIndustrialModule_02
+    // # Supports Macerator, Chemical Reactor, Circuit Assembler and Chemical Bath recipes
+    // # zh_CN 支持粉碎机、化学反应釜、电路组装机与化学浸洗机配方
+    public static final String Tooltip_SteamIndustrialModule_02 = TextEnums.tr("Tooltip_SteamIndustrialModule_02");
+
+    // #tr Tooltip_SteamIndustrialModule_03
+    // # Defaults to Macerator mode; use the mode button to switch
+    // # zh_CN 默认使用粉碎机模式；可通过模式按钮切换
+    public static final String Tooltip_SteamIndustrialModule_03 = TextEnums.tr("Tooltip_SteamIndustrialModule_03");
+
+    // #tr Tooltip_SteamIndustrialModule_04
+    // # Processing steam is distributed by the Steam Stairway controller
+    // # zh_CN 加工所需蒸汽由蒸汽楼梯控制器分发
+    public static final String Tooltip_SteamIndustrialModule_04 = TextEnums.tr("Tooltip_SteamIndustrialModule_04");
+
+    // #tr Tooltip_SteamIndustrialModule_Controller
+    // # Front center
+    // # zh_CN 正面中央
+    public static final String Tooltip_SteamIndustrialModule_Controller = TextEnums
+        .tr("Tooltip_SteamIndustrialModule_Controller");
+
+    // #tr NameSteamProcessingModule
+    // # Steam Processing Module
+    // # zh_CN 蒸汽处理模块
+    public static final String NameSteamProcessingModule = TextEnums.tr("NameSteamProcessingModule");
+
+    // #tr SteamProcessingModuleRecipeType
+    // # Steam Processing Module
+    // # zh_CN 离心机 | 电解机 | 高压釜 | 两级磁化机
+    public static final String SteamProcessingModuleMachineType = TextEnums.tr("SteamProcessingModuleRecipeType");
+
+    // #tr SteamProcessingModuleModeCentrifuge
+    // # Centrifuge
+    // # zh_CN 离心机
+    public static final String SteamProcessingModuleModeCentrifuge = TextEnums
+        .tr("SteamProcessingModuleModeCentrifuge");
+
+    // #tr SteamProcessingModuleModeElectrolyzer
+    // # Electrolyzer
+    // # zh_CN 电解机
+    public static final String SteamProcessingModuleModeElectrolyzer = TextEnums
+        .tr("SteamProcessingModuleModeElectrolyzer");
+
+    // #tr SteamProcessingModuleModeAutoclave
+    // # Autoclave
+    // # zh_CN 高压釜
+    public static final String SteamProcessingModuleModeAutoclave = TextEnums.tr("SteamProcessingModuleModeAutoclave");
+
+    // #tr SteamProcessingModuleModePolarizer
+    // # Polarizer
+    // # zh_CN 两级磁化机
+    public static final String SteamProcessingModuleModePolarizer = TextEnums.tr("SteamProcessingModuleModePolarizer");
+
+    // #tr Tooltip_SteamProcessingModule_00
+    // # A material-processing module for the Steam Stairway
+    // # zh_CN 蒸汽楼梯的材料处理模块
+    public static final String Tooltip_SteamProcessingModule_00 = TextEnums.tr("Tooltip_SteamProcessingModule_00");
+
+    // #tr Tooltip_SteamProcessingModule_01
+    // # Must be connected to a formed and running Steam Stairway
+    // # zh_CN 必须连接至已成型且运行中的蒸汽楼梯
+    public static final String Tooltip_SteamProcessingModule_01 = TextEnums.tr("Tooltip_SteamProcessingModule_01");
+
+    // #tr Tooltip_SteamProcessingModule_02
+    // # Supports Centrifuge, Electrolyzer, Autoclave and Polarizer recipes
+    // # zh_CN 支持离心机、电解机、高压釜与磁化机配方
+    public static final String Tooltip_SteamProcessingModule_02 = TextEnums.tr("Tooltip_SteamProcessingModule_02");
+
+    // #tr Tooltip_SteamProcessingModule_03
+    // # Defaults to Centrifuge mode; use the mode button to switch
+    // # zh_CN 默认使用离心机模式；可通过模式按钮切换
+    public static final String Tooltip_SteamProcessingModule_03 = TextEnums.tr("Tooltip_SteamProcessingModule_03");
+
+    // #tr Tooltip_SteamProcessingModule_04
+    // # Processing steam is distributed by the Steam Stairway controller
+    // # zh_CN 加工所需蒸汽由蒸汽楼梯控制器分发
+    public static final String Tooltip_SteamProcessingModule_04 = TextEnums.tr("Tooltip_SteamProcessingModule_04");
+
+    // #tr Tooltip_SteamProcessingModule_Controller
+    // # Front center
+    // # zh_CN 正面中央
+    public static final String Tooltip_SteamProcessingModule_Controller = TextEnums
+        .tr("Tooltip_SteamProcessingModule_Controller");
+
+    // #tr NameSteamFormingModule
+    // # Steam Forming Module
+    // # zh_CN 蒸汽固形模块
+    public static final String NameSteamFormingModule = TextEnums.tr("NameSteamFormingModule");
+
+    // #tr SteamFormingModuleRecipeType
+    // # Steam Forming Module
+    // # zh_CN 压模机 | 车床 | 压缩机 | 流体固化机 | 冲压机床
+    public static final String SteamFormingModuleMachineType = TextEnums.tr("SteamFormingModuleRecipeType");
+
+    // #tr SteamFormingModuleModeFluidSolidifier
+    // # Fluid Solidifier
+    // # zh_CN 流体固化机
+    public static final String SteamFormingModuleModeFluidSolidifier = TextEnums
+        .tr("SteamFormingModuleModeFluidSolidifier");
+
+    // #tr SteamFormingModuleModeExtruder
+    // # Extruder
+    // # zh_CN 压模机
+    public static final String SteamFormingModuleModeExtruder = TextEnums.tr("SteamFormingModuleModeExtruder");
+
+    // #tr SteamFormingModuleModeLathe
+    // # Lathe
+    // # zh_CN 车床
+    public static final String SteamFormingModuleModeLathe = TextEnums.tr("SteamFormingModuleModeLathe");
+
+    // #tr SteamFormingModuleModeCompressor
+    // # Compressor
+    // # zh_CN 压缩机
+    public static final String SteamFormingModuleModeCompressor = TextEnums.tr("SteamFormingModuleModeCompressor");
+
+    // #tr SteamFormingModuleModeStampingMachine
+    // # Stamping Machine
+    // # zh_CN 冲压机床
+    public static final String SteamFormingModuleModeStampingMachine = TextEnums
+        .tr("SteamFormingModuleModeStampingMachine");
+
+    // #tr Tooltip_SteamFormingModule_00
+    // # A solid-forming processing module for the Steam Stairway
+    // # zh_CN 蒸汽楼梯的固形加工模块
+    public static final String Tooltip_SteamFormingModule_00 = TextEnums.tr("Tooltip_SteamFormingModule_00");
+
+    // #tr Tooltip_SteamFormingModule_01
+    // # Must be connected to a formed and running Steam Stairway
+    // # zh_CN 必须连接至已成型且运行中的蒸汽楼梯
+    public static final String Tooltip_SteamFormingModule_01 = TextEnums.tr("Tooltip_SteamFormingModule_01");
+
+    // #tr Tooltip_SteamFormingModule_02
+    // # Supports Fluid Solidifier, Extruder, Lathe, Compressor and Stamping Machine recipes
+    // # zh_CN 支持流体固化机、压模机、车床、压缩机与冲压机床配方
+    public static final String Tooltip_SteamFormingModule_02 = TextEnums.tr("Tooltip_SteamFormingModule_02");
+
+    // #tr Tooltip_SteamFormingModule_03
+    // # Defaults to Fluid Solidifier mode; use the mode button to switch
+    // # zh_CN 默认使用流体固化机模式；可通过模式按钮切换
+    public static final String Tooltip_SteamFormingModule_03 = TextEnums.tr("Tooltip_SteamFormingModule_03");
+
+    // #tr Tooltip_SteamFormingModule_04
+    // # Processing steam is distributed by the Steam Stairway controller
+    // # zh_CN 加工所需蒸汽由蒸汽楼梯控制器分发
+    public static final String Tooltip_SteamFormingModule_04 = TextEnums.tr("Tooltip_SteamFormingModule_04");
+
+    // #tr Tooltip_SteamFormingModule_Controller
+    // # Front center
+    // # zh_CN 正面中央
+    public static final String Tooltip_SteamFormingModule_Controller = TextEnums
+        .tr("Tooltip_SteamFormingModule_Controller");
+
+    // #tr NameSteamAssemblerModule
+    // # Steam Assembler Module
+    // # zh_CN 蒸汽组装模块
+    public static final String NameSteamAssemblerModule = TextEnums.tr("NameSteamAssemblerModule");
+
+    // #tr SteamAssemblerModuleRecipeType
+    // # Steam Assembler Module
+    // # zh_CN 组装机 | 精密组装机 | 太空组装机
+    public static final String SteamAssemblerModuleMachineType = TextEnums.tr("SteamAssemblerModuleRecipeType");
+
+    // #tr SteamAssemblerModuleModeAssembler
+    // # Assembler
+    // # zh_CN 组装机
+    public static final String SteamAssemblerModuleModeAssembler = TextEnums.tr("SteamAssemblerModuleModeAssembler");
+
+    // #tr SteamAssemblerModuleModePreciseAssembler
+    // # Precise Assembler
+    // # zh_CN 精密组装机
+    public static final String SteamAssemblerModuleModePreciseAssembler = TextEnums
+        .tr("SteamAssemblerModuleModePreciseAssembler");
+
+    // #tr SteamAssemblerModuleModeSpaceAssembler
+    // # Space Assembler
+    // # zh_CN 太空组装机
+    public static final String SteamAssemblerModuleModeSpaceAssembler = TextEnums
+        .tr("SteamAssemblerModuleModeSpaceAssembler");
+
+    // #tr Tooltip_SteamAssemblerModule_00
+    // # An assembly processing module for the Steam Stairway
+    // # zh_CN 蒸汽楼梯的组装加工模块
+    public static final String Tooltip_SteamAssemblerModule_00 = TextEnums.tr("Tooltip_SteamAssemblerModule_00");
+
+    // #tr Tooltip_SteamAssemblerModule_01
+    // # Must be connected to a formed and running Steam Stairway
+    // # zh_CN 必须连接至已成型且运行中的蒸汽楼梯
+    public static final String Tooltip_SteamAssemblerModule_01 = TextEnums.tr("Tooltip_SteamAssemblerModule_01");
+
+    // #tr Tooltip_SteamAssemblerModule_02
+    // # Supports Assembler, Precise Assembler and Space Assembler recipes
+    // # zh_CN 支持组装机、精密组装机与太空组装机配方
+    public static final String Tooltip_SteamAssemblerModule_02 = TextEnums.tr("Tooltip_SteamAssemblerModule_02");
+
+    // #tr Tooltip_SteamAssemblerModule_03
+    // # Defaults to Assembler mode; use the mode button to switch
+    // # zh_CN 默认使用组装机模式；可通过模式按钮切换
+    public static final String Tooltip_SteamAssemblerModule_03 = TextEnums.tr("Tooltip_SteamAssemblerModule_03");
+
+    // #tr Tooltip_SteamAssemblerModule_04
+    // # Processing steam is distributed by the Steam Stairway controller
+    // # zh_CN 加工所需蒸汽由蒸汽楼梯控制器分发
+    public static final String Tooltip_SteamAssemblerModule_04 = TextEnums.tr("Tooltip_SteamAssemblerModule_04");
+
+    // #tr Tooltip_SteamAssemblerModule_Controller
+    // # Front center
+    // # zh_CN 正面中央
+    public static final String Tooltip_SteamAssemblerModule_Controller = TextEnums
+        .tr("Tooltip_SteamAssemblerModule_Controller");
+
+    // #tr SteamElevatorRecipeType
+    // # Steam Stairway
+    // # zh_CN 蒸汽楼梯
+    public static final String SteamElevatorRecipeType = TextEnums.tr("SteamElevatorRecipeType");
+
+    // #tr Tooltip_SteamElevator_00
+    // # §a§lA Stairway to the Sky?
+    // # zh_CN §a§l通向天空的楼梯?
+    public static final String Tooltip_SteamElevator_00 = TextEnums.tr("Tooltip_SteamElevator_00");
+
+    // #tr Tooltip_SteamElevator_01
+    // # Each module has its own independent input and output space, except for steam
+    // # zh_CN 每个模块有各自独立的输入输出空间，除了蒸汽
+    public static final String Tooltip_SteamElevator_01 = TextEnums.tr("Tooltip_SteamElevator_01");
+
+    // #tr Tooltip_SteamElevator_02
+    // # The controller receives and distributes the steam supply
+    // # zh_CN 本控制器接收蒸汽供应并将蒸汽分发
+    public static final String Tooltip_SteamElevator_02 = TextEnums.tr("Tooltip_SteamElevator_02");
+
+    // #tr Tooltip_SteamElevator_03
+    // # Automatically enters wireless mode when the main structure has no steam input hatch
+    // # zh_CN 当主结构未安装蒸汽输入仓时自动进入无线模式
+    public static final String Tooltip_SteamElevator_03 = TextEnums.tr("Tooltip_SteamElevator_03");
+
+    // #tr Tooltip_SteamElevator_04
+    // # Turn off the controller to pause all modules
+    // # zh_CN 关闭控制器即可暂停所有模块
+    public static final String Tooltip_SteamElevator_04 = TextEnums.tr("Tooltip_SteamElevator_04");
+
+    // #tr Tooltip_SteamElevator_05
+    // # The 35x43x35 base supports four optional 35x6x35 extension layers below it
+    // # zh_CN 35x43x35 主体下方可连续安装四层可选的 35x6x35 拓展层
+    public static final String Tooltip_SteamElevator_05 = TextEnums.tr("Tooltip_SteamElevator_05");
+
+    // #tr Tooltip_SteamElevator_06
+    // # GPCI, REC, QGPIU and TCT unlock extension layers in order; each layer adds 12 module slots
+    // # zh_CN GPCI、REC、QGPIU、TCT 依次解锁四层拓展层；每层增加 12 个模块位
+    public static final String Tooltip_SteamElevator_06 = TextEnums.tr("Tooltip_SteamElevator_06");
+
+    // #tr Tooltip_SteamElevator_Casing
+    // # Any Bricked Steel Casing
+    // # zh_CN 任意砖砌钢外壳
+    public static final String Tooltip_SteamElevator_Casing = TextEnums.tr("Tooltip_SteamElevator_Casing");
+
+    // #tr gui.steam_elevator.milestone.button
+    // # Open the Steam Stairway milestones
+    // # zh_CN 打开蒸汽楼梯里程碑
+    public static final String GUI_STEAM_ELEVATOR_MILESTONE_BUTTON = TextEnums
+        .tr("gui.steam_elevator.milestone.button");
+
+    // #tr gui.steam_elevator.milestone.title
+    // # Steam Stairway Milestones
+    // # zh_CN 蒸汽楼梯里程碑
+    public static final String GUI_STEAM_ELEVATOR_MILESTONE_TITLE = TextEnums.tr("gui.steam_elevator.milestone.title");
+
+    // #tr gui.steam_elevator.evolution.points
+    // # Evolution Points: %d available / %d earned
+    // # zh_CN 进化点：可用 %d / 累计获得 %d
+    public static final String GUI_STEAM_ELEVATOR_EVOLUTION_POINTS = TextEnums
+        .tr("gui.steam_elevator.evolution.points");
+
+    // spotless:off
+    public static final String[] GUI_STEAM_ELEVATOR_MILESTONE_NAMES = {
+        // #tr gui.steam_elevator.milestone.steam_distributed
+        // # Steam Distribution
+        // # zh_CN 蒸汽分发
+        TextEnums.tr("gui.steam_elevator.milestone.steam_distributed"),
+        // #tr gui.steam_elevator.milestone.module_charges
+        // # Module Charging
+        // # zh_CN 模块充能
+        TextEnums.tr("gui.steam_elevator.milestone.module_charges"),
+        // #tr gui.steam_elevator.milestone.active_time
+        // # Operating Time
+        // # zh_CN 有效运行
+        TextEnums.tr("gui.steam_elevator.milestone.active_time"),
+        // #tr gui.steam_elevator.milestone.composition
+        // # Module Composition
+        // # zh_CN 模块组成
+        TextEnums.tr("gui.steam_elevator.milestone.composition") };
+    // spotless:on
+
+    // #tr gui.steam_elevator.milestone.complete
+    // # Complete
+    // # zh_CN 已完成
+    public static final String GUI_STEAM_ELEVATOR_MILESTONE_COMPLETE = TextEnums
+        .tr("gui.steam_elevator.milestone.complete");
+
+    // #tr gui.steam_elevator.evolution.button
+    // # Open the Steam Stairway evolution tree
+    // # zh_CN 打开蒸汽楼梯进化树
+    public static final String GUI_STEAM_ELEVATOR_EVOLUTION_BUTTON = TextEnums
+        .tr("gui.steam_elevator.evolution.button");
+
+    // #tr gui.steam_elevator.evolution.available
+    // # Available Evolution Points: %d
+    // # zh_CN 可用进化点：%d
+    public static final String GUI_STEAM_ELEVATOR_EVOLUTION_AVAILABLE = TextEnums
+        .tr("gui.steam_elevator.evolution.available");
+
+    // #tr gui.steam_elevator.evolution.node
+    // # Evolution Node: %s
+    // # zh_CN 进化节点：%s
+    public static final String GUI_STEAM_ELEVATOR_EVOLUTION_NODE = TextEnums.tr("gui.steam_elevator.evolution.node");
+
+    // #tr gui.steam_elevator.evolution.cost
+    // # Cost: %d Evolution Points
+    // # zh_CN 消耗：%d 进化点
+    public static final String GUI_STEAM_ELEVATOR_EVOLUTION_COST = TextEnums.tr("gui.steam_elevator.evolution.cost");
+
+    // #tr gui.steam_elevator.evolution.interaction
+    // # Left click to unlock; right click to respec. Nodes with active dependents cannot be removed.
+    // # zh_CN 左键解锁，右键回退；存在已激活后继节点时不可回退。
+    public static final String GUI_STEAM_ELEVATOR_EVOLUTION_INTERACTION = TextEnums
+        .tr("gui.steam_elevator.evolution.interaction");
+
+    // #tr gui.steam_elevator.evolution.igcc.effect
+    // # Unlocks independent processing-voltage configuration for every module in its Power Control Panel.
+    // # zh_CN 解锁所有模块的独立加工电压设置，可在各模块的电力控制面板中配置。
+    public static final String GUI_STEAM_ELEVATOR_EVOLUTION_IGCC_EFFECT = TextEnums
+        .tr("gui.steam_elevator.evolution.igcc.effect");
+
+    // #tr gui.steam_elevator.evolution.stem.effect
+    // # Unlocks perfect overclocking for every module: each overclock uses 4x power for 4x speed.
+    // # zh_CN 解锁所有模块的完美超频：每次超频以4倍功耗换取4倍速度。
+    public static final String GUI_STEAM_ELEVATOR_EVOLUTION_STEM_EFFECT = TextEnums
+        .tr("gui.steam_elevator.evolution.stem.effect");
+
+    // #tr gui.steam_elevator.evolution.cfce.effect
+    // # Raises the maximum parallel of every module to 64.
+    // # zh_CN 将所有模块的最大并行提升至64。
+    public static final String GUI_STEAM_ELEVATOR_EVOLUTION_CFCE_EFFECT = TextEnums
+        .tr("gui.steam_elevator.evolution.cfce.effect");
+
+    // #tr gui.steam_elevator.evolution.giss.effect
+    // # Reduces recipe duration by 10% for every module.
+    // # zh_CN 使所有模块的配方耗时减少10%。
+    public static final String GUI_STEAM_ELEVATOR_EVOLUTION_GISS_EFFECT = TextEnums
+        .tr("gui.steam_elevator.evolution.giss.effect");
+
+    // #tr gui.steam_elevator.evolution.fdim.effect
+    // # Reduces steam consumption by 5% for every module.
+    // # zh_CN 使所有模块的蒸汽消耗减少5%。
+    public static final String GUI_STEAM_ELEVATOR_EVOLUTION_FDIM_EFFECT = TextEnums
+        .tr("gui.steam_elevator.evolution.fdim.effect");
+
+    // #tr gui.steam_elevator.evolution.sa.effect
+    // # Raises the maximum parallel of every module to 128.
+    // # zh_CN 将所有模块的最大并行提升至128。
+    public static final String GUI_STEAM_ELEVATOR_EVOLUTION_SA_EFFECT = TextEnums
+        .tr("gui.steam_elevator.evolution.sa.effect");
+
+    // #tr gui.steam_elevator.evolution.gpci.effect
+    // # Unlocks Steam Stairway extension layer 1 and 12 additional module slots.
+    // # zh_CN 解锁蒸汽楼梯第 1 拓展层及额外 12 个模块位。
+    public static final String GUI_STEAM_ELEVATOR_EVOLUTION_GPCI_EFFECT = TextEnums
+        .tr("gui.steam_elevator.evolution.gpci.effect");
+
+    // #tr gui.steam_elevator.evolution.rec.effect
+    // # Unlocks Steam Stairway extension layer 2 and 12 additional module slots.
+    // # zh_CN 解锁蒸汽楼梯第 2 拓展层及额外 12 个模块位。
+    public static final String GUI_STEAM_ELEVATOR_EVOLUTION_REC_EFFECT = TextEnums
+        .tr("gui.steam_elevator.evolution.rec.effect");
+
+    // #tr gui.steam_elevator.evolution.qgpiu.effect
+    // # Unlocks Steam Stairway extension layer 3 and 12 additional module slots.
+    // # zh_CN 解锁蒸汽楼梯第 3 拓展层及额外 12 个模块位。
+    public static final String GUI_STEAM_ELEVATOR_EVOLUTION_QGPIU_EFFECT = TextEnums
+        .tr("gui.steam_elevator.evolution.qgpiu.effect");
+
+    // #tr gui.steam_elevator.evolution.tct.effect
+    // # Unlocks Steam Stairway extension layer 4 and 12 additional module slots.
+    // # zh_CN 解锁蒸汽楼梯第 4 拓展层及额外 12 个模块位。
+    public static final String GUI_STEAM_ELEVATOR_EVOLUTION_TCT_EFFECT = TextEnums
+        .tr("gui.steam_elevator.evolution.tct.effect");
+
+    // #tr gui.steam_elevator.module.refresh
+    // # Reconnect Steam Stairway modules
+    // # zh_CN 重新连接蒸汽楼梯模块
+    public static final String GUI_STEAM_ELEVATOR_MODULE_REFRESH_BUTTON = TextEnums
+        .tr("gui.steam_elevator.module.refresh");
+
+    // #tr gui.steam_elevator.module.connection_status
+    // # Module connection:
+    // # zh_CN 模块连接：
+    public static final String GUI_STEAM_ELEVATOR_MODULE_CONNECTION_STATUS = TextEnums
+        .tr("gui.steam_elevator.module.connection_status");
+
+    // #tr gui.steam_elevator.module.connected
+    // # Connected
+    // # zh_CN 已连接
+    public static final String GUI_STEAM_ELEVATOR_MODULE_CONNECTED = TextEnums
+        .tr("gui.steam_elevator.module.connected");
+
+    // #tr gui.steam_elevator.module.disconnected
+    // # Disconnected
+    // # zh_CN 未连接
+    public static final String GUI_STEAM_ELEVATOR_MODULE_DISCONNECTED = TextEnums
+        .tr("gui.steam_elevator.module.disconnected");
+
+    // #tr gui.steam_elevator.module.voltage.button
+    // # Configure module processing voltage
+    // # zh_CN 配置模块加工电压
+    public static final String GUI_STEAM_ELEVATOR_MODULE_VOLTAGE_BUTTON = TextEnums
+        .tr("gui.steam_elevator.module.voltage.button");
+
+    // #tr gui.steam_elevator.module.voltage.locked
+    // # Unlock IGCC in the Steam Stairway evolution tree first
+    // # zh_CN 需要先在蒸汽楼梯进化树中解锁 IGCC
+    public static final String GUI_STEAM_ELEVATOR_MODULE_VOLTAGE_LOCKED = TextEnums
+        .tr("gui.steam_elevator.module.voltage.locked");
+
+    // #tr gui.steam_elevator.module.voltage.title
+    // # Module Voltage Configuration
+    // # zh_CN 模块电压配置
+    public static final String GUI_STEAM_ELEVATOR_MODULE_VOLTAGE_TITLE = TextEnums
+        .tr("gui.steam_elevator.module.voltage.title");
+
+    // #tr gui.steam_elevator.module.voltage.label
+    // # Voltage Per Parallel
+    // # zh_CN 每并行电压
+    public static final String GUI_STEAM_ELEVATOR_MODULE_VOLTAGE_LABEL = TextEnums
+        .tr("gui.steam_elevator.module.voltage.label");
+
+    // #tr gui.steam_elevator.module.voltage.info
+    // # Applied independently to this module
+    // # zh_CN 仅对当前模块独立生效
+    public static final String GUI_STEAM_ELEVATOR_MODULE_VOLTAGE_INFO = TextEnums
+        .tr("gui.steam_elevator.module.voltage.info");
+
     public static final String Tooltip_GTNC_Upgrade_00 = TextEnums.tr("Tooltip_GTNC_Upgrade_00");
     public static final String Tooltip_GTNC_Upgrade_01 = TextEnums.tr("Tooltip_GTNC_Upgrade_01");
     public static final String Tooltip_GTNC_Upgrade_02 = TextEnums.tr("Tooltip_GTNC_Upgrade_02");

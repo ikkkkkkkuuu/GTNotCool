@@ -47,7 +47,7 @@ import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
 import com.xyp.gtnc.Common.gui.modularui.GTNCGuiTextures;
 import com.xyp.gtnc.Common.gui.modularui.multiblock.steam.LargeSteamCropBreederGui;
-import com.xyp.gtnc.Common.machines.multiblock.multiMachineBase.GTNCSteamMultiBlockBase;
+import com.xyp.gtnc.Common.machines.multiblock.multiMachineBase.GTNCAdvancedSteamMultiBlockBase;
 import com.xyp.gtnc.Loader.GTNCRecipeMaps;
 import com.xyp.gtnc.utils.lang.TextLocalization;
 
@@ -68,7 +68,7 @@ import gregtech.api.structure.error.StructureErrorRegistry;
 import gregtech.api.util.MultiblockTooltipBuilder;
 import gregtech.common.gui.modularui.multiblock.base.MTEMultiBlockBaseGui;
 
-public class LargeSteamCropBreeder extends GTNCSteamMultiBlockBase<LargeSteamCropBreeder>
+public class LargeSteamCropBreeder extends GTNCAdvancedSteamMultiBlockBase<LargeSteamCropBreeder>
     implements ISurvivalConstructable {
 
     private static final int MODE_DETERMINISTIC = 0;

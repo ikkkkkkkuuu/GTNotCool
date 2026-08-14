@@ -7,10 +7,10 @@ import com.cleanroommc.modularui.widgets.layout.Flow;
 import com.cleanroommc.modularui.widgets.slot.ItemSlot;
 import com.cleanroommc.modularui.widgets.slot.ModularSlot;
 import com.xyp.gtnc.Common.gui.modularui.GTNCGuiTextures;
-import com.xyp.gtnc.Common.gui.modularui.multiblock.GTNCSteamMultiBlockBaseGui;
+import com.xyp.gtnc.Common.gui.modularui.multiblock.GTNCAdvancedSteamMultiBlockBaseGui;
 import com.xyp.gtnc.Common.machines.multiblock.steam.SteamEyeOfHarmony;
 
-public class SteamEyeOfHarmonyGui extends GTNCSteamMultiBlockBaseGui {
+public class SteamEyeOfHarmonyGui extends GTNCAdvancedSteamMultiBlockBaseGui {
 
     public SteamEyeOfHarmonyGui(SteamEyeOfHarmony multiblock) {
         super(multiblock);

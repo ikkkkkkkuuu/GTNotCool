@@ -32,7 +32,7 @@ import com.gtnewhorizon.structurelib.alignment.constructable.ISurvivalConstructa
 import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
 import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
-import com.xyp.gtnc.Common.machines.multiblock.multiMachineBase.GTNCSteamMultiBlockBase;
+import com.xyp.gtnc.Common.machines.multiblock.multiMachineBase.GTNCAdvancedSteamMultiBlockBase;
 
 import bartworks.common.loaders.ItemRegistry;
 import cpw.mods.fml.relauncher.Side;
@@ -69,7 +69,7 @@ import gtPlusPlus.api.recipe.GTPPRecipeMaps;
 // # Machine casing
 // # zh_CN 机器外壳
 
-public class LargeSteamCentrifuge extends GTNCSteamMultiBlockBase<LargeSteamCentrifuge>
+public class LargeSteamCentrifuge extends GTNCAdvancedSteamMultiBlockBase<LargeSteamCentrifuge>
     implements ISurvivalConstructable {
 
     public LargeSteamCentrifuge(String aName) {

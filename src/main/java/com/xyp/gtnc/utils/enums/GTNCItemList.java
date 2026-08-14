@@ -648,6 +648,11 @@ public enum GTNCItemList implements IItemContainer {
     LargeOreProcessor,
     MegaIndustrialApiary,
     SuperSpaceElevator,
+    SteamElevator,
+    SteamAssemblerModule,
+    SteamFormingModule,
+    SteamProcessingModule,
+    SteamIndustrialModule,
     QuantumComputer,
     AssemblerMatrix,
     FuelRefiningComplex,
@@ -673,6 +678,8 @@ public enum GTNCItemList implements IItemContainer {
     QuantumComputerMultiThreader,
     QuantumComputerCore,
     QuantumComputerSingularityCore,
+    SteelReinforcedWood,
+    SteamCompactPipeCasing,
 
     WhiteLamp,
 

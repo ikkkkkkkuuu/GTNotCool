@@ -55,6 +55,11 @@ import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamTurbine;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamVoidMiner;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamWireMill;
 import com.xyp.gtnc.Common.machines.multiblock.steam.SteamEyeOfHarmony;
+import com.xyp.gtnc.Common.machines.multiblock.steam.elevator.SteamAssemblerModule;
+import com.xyp.gtnc.Common.machines.multiblock.steam.elevator.SteamElevator;
+import com.xyp.gtnc.Common.machines.multiblock.steam.elevator.SteamFormingModule;
+import com.xyp.gtnc.Common.machines.multiblock.steam.elevator.SteamIndustrialModule;
+import com.xyp.gtnc.Common.machines.multiblock.steam.elevator.SteamProcessingModule;
 import com.xyp.gtnc.Common.machines.multiblock.steam.godforge.SteamForgeOfGods;
 import com.xyp.gtnc.Common.machines.multiblock.steam.godforge.SteamGodforgeAlloyBlastSmelterModule;
 import com.xyp.gtnc.Common.machines.multiblock.steam.godforge.SteamGodforgeAlloySmelterModule;
@@ -67,6 +72,7 @@ import com.xyp.gtnc.Common.machines.multiblock.steam.godforge.SteamGodforgeSmelt
 import com.xyp.gtnc.Common.machines.multiblock.steam.godforge.SteamGodforgeSolarMuonCatalystModule;
 import com.xyp.gtnc.utils.enums.GTNCItemList;
 import com.xyp.gtnc.utils.enums.GTNCMachineID;
+import com.xyp.gtnc.utils.lang.TextLocalization;
 import com.xyp.gtnc.utils.text.AnimatedText;
 import com.xyp.gtnc.utils.text.AnimatedTooltipHandler;
 
@@ -646,6 +652,47 @@ public class MachineLoader {
                 "SteamEyeOfHarmony",
                 StatCollector.translateToLocal("NameSteamEyeOfHarmony")));
         AnimatedTooltipHandler.addItemTooltip(GTNCItemList.SteamEyeOfHarmony.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        // #tr NameSteamElevator
+        // # Steam Stairway
+        // # zh_CN 蒸汽楼梯
+        GTNCItemList.SteamElevator.set(
+            new SteamElevator(
+                GTNCMachineID.STEAM_ELEVATOR.ID,
+                "SteamElevator",
+                StatCollector.translateToLocal("NameSteamElevator")));
+        AnimatedTooltipHandler.addItemTooltip(GTNCItemList.SteamElevator.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        GTNCItemList.SteamAssemblerModule.set(
+            new SteamAssemblerModule(
+                GTNCMachineID.STEAM_ASSEMBLER_MODULE.ID,
+                "SteamAssemblerModule",
+                TextLocalization.NameSteamAssemblerModule));
+        AnimatedTooltipHandler
+            .addItemTooltip(GTNCItemList.SteamAssemblerModule.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        GTNCItemList.SteamFormingModule.set(
+            new SteamFormingModule(
+                GTNCMachineID.STEAM_FORMING_MODULE.ID,
+                "SteamFormingModule",
+                TextLocalization.NameSteamFormingModule));
+        AnimatedTooltipHandler.addItemTooltip(GTNCItemList.SteamFormingModule.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        GTNCItemList.SteamProcessingModule.set(
+            new SteamProcessingModule(
+                GTNCMachineID.STEAM_PROCESSING_MODULE.ID,
+                "SteamProcessingModule",
+                TextLocalization.NameSteamProcessingModule));
+        AnimatedTooltipHandler
+            .addItemTooltip(GTNCItemList.SteamProcessingModule.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+
+        GTNCItemList.SteamIndustrialModule.set(
+            new SteamIndustrialModule(
+                GTNCMachineID.STEAM_INDUSTRIAL_MODULE.ID,
+                "SteamIndustrialModule",
+                TextLocalization.NameSteamIndustrialModule));
+        AnimatedTooltipHandler
+            .addItemTooltip(GTNCItemList.SteamIndustrialModule.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
 
         // #tr NameSteamForgeOfGods
         // # Steam Forge of Gods

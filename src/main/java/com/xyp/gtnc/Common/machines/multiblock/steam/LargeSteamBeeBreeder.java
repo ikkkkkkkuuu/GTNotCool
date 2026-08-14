@@ -39,7 +39,7 @@ import com.xyp.gtnc.Common.gui.modularui.multiblock.steam.LargeSteamBeeBreederGu
 import com.xyp.gtnc.Common.machines.bee.BeeBreedingHelper;
 import com.xyp.gtnc.Common.machines.bee.BeeBreedingPlanner;
 import com.xyp.gtnc.Common.machines.bee.DronePool;
-import com.xyp.gtnc.Common.machines.multiblock.multiMachineBase.GTNCSteamMultiBlockBase;
+import com.xyp.gtnc.Common.machines.multiblock.multiMachineBase.GTNCAdvancedSteamMultiBlockBase;
 import com.xyp.gtnc.utils.Utils;
 
 import forestry.api.apiculture.IAlleleBeeSpecies;
@@ -115,7 +115,7 @@ import gregtech.common.gui.modularui.multiblock.base.MTEMultiBlockBaseGui;
 // # Machine casing
 // # zh_CN 机器外壳
 
-public class LargeSteamBeeBreeder extends GTNCSteamMultiBlockBase<LargeSteamBeeBreeder>
+public class LargeSteamBeeBreeder extends GTNCAdvancedSteamMultiBlockBase<LargeSteamBeeBreeder>
     implements ISurvivalConstructable {
 
     // ==================== 常量 ====================

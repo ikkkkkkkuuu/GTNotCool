@@ -43,7 +43,7 @@ import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
 import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
 import com.xyp.gtnc.Common.gui.modularui.multiblock.steam.LargeSteamVoidMinerGui;
-import com.xyp.gtnc.Common.machines.multiblock.multiMachineBase.GTNCSteamMultiBlockBase;
+import com.xyp.gtnc.Common.machines.multiblock.multiMachineBase.GTNCAdvancedSteamMultiBlockBase;
 import com.xyp.gtnc.utils.lang.TextLocalization;
 import com.xyp.gtnc.utils.world.steam.SteamWirelessNetworkManager;
 
@@ -68,7 +68,7 @@ import gregtech.api.util.MultiblockTooltipBuilder;
 import gregtech.api.util.shutdown.ShutDownReasonRegistry;
 import gregtech.common.gui.modularui.multiblock.base.MTEMultiBlockBaseGui;
 
-public class LargeSteamVoidMiner extends GTNCSteamMultiBlockBase<LargeSteamVoidMiner>
+public class LargeSteamVoidMiner extends GTNCAdvancedSteamMultiBlockBase<LargeSteamVoidMiner>
     implements ISurvivalConstructable {
 
     // Same shape as VMLUV (7x9x7) with tiered steam blocks
