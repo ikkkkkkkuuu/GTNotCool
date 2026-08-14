@@ -35,6 +35,7 @@ public class LateMixinsLoader implements ILateMixinLoader {
                 list,
                 "EnderIO.MixinNetworkedInventory",
                 "EnderIO.MixinItemConduit",
+                "EnderIO.MixinItemSoulVessel",
                 "EnderIO.MixinTileEntityEnderTimeAcceleration",
                 "EnderIO.MixinPoweredMachineEnergyAcceleration");
         }
