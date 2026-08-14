@@ -14,6 +14,8 @@ import com.xyp.gtnc.ScienceNotCool;
 public class TileMEBridgeSender extends TileMEBridgeBase implements IGuiHolder<PosGuiData> {
 
     private String channelName = "";
+    private int channelColor = MEBridgeChannelColor.defaultFor("");
+    private boolean channelColorAssigned;
     private long receiverTopologyRevision = Long.MIN_VALUE;
     private String receiverTopologyChannel = "";
     private String receiverTopologySnapshot = "";
@@ -25,6 +27,24 @@ public class TileMEBridgeSender extends TileMEBridgeBase implements IGuiHolder<P
 
     public String getChannelName() {
         return channelName;
+    }
+
+    public int getChannelColor() {
+        return channelColor;
+    }
+
+    public void setChannelColor(int color) {
+        if (worldObj == null || worldObj.isRemote) return;
+        int sanitized = MEBridgeChannelColor.sanitize(color);
+        if (channelColor == sanitized) {
+            channelColorAssigned = true;
+            return;
+        }
+        channelColor = sanitized;
+        channelColorAssigned = true;
+        if (!channelName.isEmpty()) registerSelf();
+        MEWirelessLinkManager.onChannelColorChanged();
+        markDirty();
     }
 
     public int getDimensionId() {
@@ -45,12 +65,18 @@ public class TileMEBridgeSender extends TileMEBridgeBase implements IGuiHolder<P
         String normalized = MEBridgeChannelName.normalize(name);
         if (!MEBridgeChannelName.isValid(normalized)) return MEBridgeChannelChangeResult.INVALID_NAME;
 
+        if (channelName.isEmpty() && !channelColorAssigned) {
+            channelColor = MEBridgeChannelColor.defaultFor(normalized);
+            channelColorAssigned = true;
+        }
+
         MEBridgeChannelInfo info = new MEBridgeChannelInfo(
             normalized,
             xCoord,
             yCoord,
             zCoord,
             worldObj.provider.dimensionId,
+            channelColor,
             null);
         MEBridgeChannelChangeResult result = MEBridgeChannelManager.replaceSenderChannel(channelName, info, this);
         if (!result.isSuccess()) return result;
@@ -69,6 +95,7 @@ public class TileMEBridgeSender extends TileMEBridgeBase implements IGuiHolder<P
             yCoord,
             zCoord,
             worldObj.provider.dimensionId,
+            channelColor,
             null);
         return MEBridgeChannelManager.register(info, this);
     }
@@ -105,6 +132,9 @@ public class TileMEBridgeSender extends TileMEBridgeBase implements IGuiHolder<P
         super.readFromNBT(nbt);
         String savedName = MEBridgeChannelName.normalize(nbt.getString("mebridge_channel"));
         channelName = MEBridgeChannelName.isValid(savedName) ? savedName : "";
+        channelColorAssigned = nbt.hasKey("mebridge_channel_color");
+        channelColor = channelColorAssigned ? MEBridgeChannelColor.sanitize(nbt.getInteger("mebridge_channel_color"))
+            : MEBridgeChannelColor.defaultFor(channelName);
         receiverTopologyRevision = Long.MIN_VALUE;
     }
 
@@ -112,6 +142,7 @@ public class TileMEBridgeSender extends TileMEBridgeBase implements IGuiHolder<P
     public void writeToNBT(NBTTagCompound nbt) {
         super.writeToNBT(nbt);
         nbt.setString("mebridge_channel", channelName == null ? "" : channelName);
+        nbt.setInteger("mebridge_channel_color", channelColor);
     }
 
     @Override

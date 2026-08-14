@@ -54,6 +54,9 @@ public class ClientProxy extends CommonProxy {
 
         // 建筑生成器 GUI 打开时的世界内线框预览渲染器
         MinecraftForge.EVENT_BUS.register(new com.xyp.gtnc.Common.building.client.BuildingBoundsRenderer());
+
+        // 手持 ME 无线收发器时，高亮仅由收发器创建的无线目标节点。
+        MinecraftForge.EVENT_BUS.register(new com.xyp.gtnc.Client.mebridge.MEWirelessNodeRenderer());
     }
 
     @Override

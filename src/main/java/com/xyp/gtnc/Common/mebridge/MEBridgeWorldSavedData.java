@@ -68,13 +68,14 @@ public class MEBridgeWorldSavedData extends WorldSavedData {
                 int y = tag.getInteger("y");
                 int z = tag.getInteger("z");
                 int dim = tag.getInteger("dim");
+                int color = tag.hasKey("color") ? tag.getInteger("color") : MEBridgeChannelColor.defaultFor(name);
                 UUID owner = null;
                 if (tag.hasKey("owner")) {
                     try {
                         owner = UUID.fromString(tag.getString("owner"));
                     } catch (RuntimeException ignored) {}
                 }
-                MEBridgeChannelManager.loadEntry(new MEBridgeChannelInfo(name, x, y, z, dim, owner));
+                MEBridgeChannelManager.loadEntry(new MEBridgeChannelInfo(name, x, y, z, dim, color, owner));
             } catch (RuntimeException e) {
                 ScienceNotCool.LOG.warn("[MEBridge] Skipping invalid channel entry {}", i);
             }
@@ -92,6 +93,7 @@ public class MEBridgeWorldSavedData extends WorldSavedData {
             tag.setInteger("y", info.y);
             tag.setInteger("z", info.z);
             tag.setInteger("dim", info.dim);
+            tag.setInteger("color", info.color);
             if (info.owner != null) tag.setString("owner", info.owner.toString());
             list.appendTag(tag);
         }

@@ -20,18 +20,21 @@ public class MEBridgeChannelInfo {
     public final int y;
     public final int z;
     public final int dim;
+    /** RGB colour chosen by the sender for visualising every wireless node on this channel. */
+    public final int color;
     /** 发起端 owner UUID(可能为 null)。 */
     public final UUID owner;
 
     /** 对发起端 tile 的弱引用;区块卸载后为 null,重新加载时由 Sender 重新注册刷新。 */
     private WeakReference<TileMEBridgeSender> senderTile = new WeakReference<>(null);
 
-    public MEBridgeChannelInfo(String name, int x, int y, int z, int dim, UUID owner) {
+    public MEBridgeChannelInfo(String name, int x, int y, int z, int dim, int color, UUID owner) {
         this.name = name;
         this.x = x;
         this.y = y;
         this.z = z;
         this.dim = dim;
+        this.color = MEBridgeChannelColor.sanitize(color);
         this.owner = owner;
     }
 
@@ -59,6 +62,7 @@ public class MEBridgeChannelInfo {
         tag.setInteger("y", y);
         tag.setInteger("z", z);
         tag.setInteger("dim", dim);
+        tag.setInteger("color", color);
         if (owner != null) tag.setString("owner", owner.toString());
         return tag;
     }
@@ -70,12 +74,14 @@ public class MEBridgeChannelInfo {
                 owner = UUID.fromString(tag.getString("owner"));
             } catch (RuntimeException ignored) {}
         }
+        String name = tag.getString("name");
         return new MEBridgeChannelInfo(
-            tag.getString("name"),
+            name,
             tag.getInteger("x"),
             tag.getInteger("y"),
             tag.getInteger("z"),
             tag.getInteger("dim"),
+            tag.hasKey("color") ? tag.getInteger("color") : MEBridgeChannelColor.defaultFor(name),
             owner);
     }
 }

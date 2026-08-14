@@ -179,6 +179,7 @@ public abstract class TileMEBridgeBase extends TileEntity implements IGridProxya
     }
 
     public EntityPlayer getOwnerPlayer() {
-        return null;
+        if (worldObj == null || ownerName == null || ownerName.isEmpty()) return null;
+        return worldObj.getPlayerEntityByName(ownerName);
     }
 }

@@ -9,6 +9,7 @@ import com.xyp.gtnc.Common.items.toolbelt.common.BeltEvents;
 import com.xyp.gtnc.Common.items.toolbelt.common.BeltGuiHandler;
 import com.xyp.gtnc.Common.machines.hatch.SuperMTEHatchCraftingInputME;
 import com.xyp.gtnc.Common.machines.multiblock.AssemblerMatrix;
+import com.xyp.gtnc.Common.mebridge.MEWirelessLinkEventHandler;
 import com.xyp.gtnc.Common.packet.NetWorkHandler;
 import com.xyp.gtnc.Common.vending.VMTradeRegistry;
 import com.xyp.gtnc.Loader.BlockLoader;
@@ -81,6 +82,12 @@ public class CommonProxy {
 
         // 注册跨维度 ME 网桥频道注册表事件处理器
         MinecraftForge.EVENT_BUS.register(new com.xyp.gtnc.Common.mebridge.MEBridgeEventHandler());
+
+        MEWirelessLinkEventHandler wirelessLinkHandler = new MEWirelessLinkEventHandler();
+        MinecraftForge.EVENT_BUS.register(wirelessLinkHandler);
+        FMLCommonHandler.instance()
+            .bus()
+            .register(wirelessLinkHandler);
 
         // 注册建筑生成器持久化世界事件处理器（World/ChunkWatch 在 MinecraftForge bus，ServerTick 在 FML bus，两边都注册）
         com.xyp.gtnc.Common.building.PixelBuildingEventHandler pixelHandler = new com.xyp.gtnc.Common.building.PixelBuildingEventHandler();

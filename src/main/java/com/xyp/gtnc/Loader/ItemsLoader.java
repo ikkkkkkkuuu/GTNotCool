@@ -10,6 +10,7 @@ import com.xyp.gtnc.Common.items.bee.MutagenicFrameItem;
 import com.xyp.gtnc.Common.items.timevial.EternityVial;
 import com.xyp.gtnc.Common.items.tools.VeinMiningPickaxe;
 import com.xyp.gtnc.Common.items.wildcard.WildcardPatternItem;
+import com.xyp.gtnc.Common.mebridge.ItemMEWirelessTransceiver;
 import com.xyp.gtnc.utils.enums.GTNCItemList;
 import com.xyp.gtnc.utils.lang.TextLocalization;
 
@@ -37,6 +38,9 @@ public class ItemsLoader {
     // 永恒之瓶（仅移植时间瓶系列中的这一件物品）
     public static Item eternityVial;
 
+    // Handheld channel selector and programmer for wireless ME links.
+    public static Item meWirelessTransceiver;
+
     // MetaItem 系统
     public static Item metaItem;
 
@@ -61,6 +65,9 @@ public class ItemsLoader {
 
         eternityVial = new EternityVial();
         GameRegistry.registerItem(eternityVial, EternityVial.ITEM_NAME);
+
+        meWirelessTransceiver = new ItemMEWirelessTransceiver();
+        GameRegistry.registerItem(meWirelessTransceiver, ItemMEWirelessTransceiver.ITEM_NAME);
     }
 
     public static void registryMetaItems() {

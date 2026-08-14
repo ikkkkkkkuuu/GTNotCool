@@ -6,6 +6,7 @@ import static gregtech.api.util.GTRecipeBuilder.SECONDS;
 import net.minecraft.item.ItemStack;
 
 import com.xyp.gtnc.Loader.BlockLoader;
+import com.xyp.gtnc.Loader.ItemsLoader;
 
 import gregtech.api.enums.GTValues;
 import gregtech.api.enums.Materials;
@@ -51,6 +52,16 @@ public class MEBridgeRecipes {
             .itemOutputs(new ItemStack(BlockLoader.blockMEBridgeReceiver, 4))
             .eut(RECIPE_LV)
             .duration(15 * SECONDS)
+            .addTo(RecipeMaps.assemblerRecipes);
+
+        GTValues.RA.stdBuilder()
+            .itemInputs(
+                new ItemStack(BlockLoader.blockMEBridgeSender),
+                new ItemStack(BlockLoader.blockMEBridgeReceiver),
+                GTOreDictUnificator.get(OrePrefixes.circuit, Materials.LV, 1))
+            .itemOutputs(new ItemStack(ItemsLoader.meWirelessTransceiver))
+            .eut(RECIPE_LV)
+            .duration(10 * SECONDS)
             .addTo(RecipeMaps.assemblerRecipes);
     }
 }

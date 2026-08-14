@@ -1,5 +1,7 @@
 package com.xyp.gtnc.Common.packet;
 
+import com.xyp.gtnc.Common.mebridge.MessageMEWirelessNodeAction;
+import com.xyp.gtnc.Common.mebridge.MessageMEWirelessVisualization;
 import com.xyp.gtnc.Common.packet.wildcard.MessageUpdateWildcardConfig;
 import com.xyp.gtnc.Common.teleport.MessageTeleportAction;
 import com.xyp.gtnc.Common.teleport.MessageTeleportDestinations;
@@ -61,6 +63,17 @@ public class NetWorkHandler {
         registerMessage(
             MessageTeleportDestinations.class,
             MessageTeleportDestinations.Handler.class,
+            id++,
+            Side.CLIENT);
+
+        registerMessage(
+            MessageMEWirelessNodeAction.class,
+            MessageMEWirelessNodeAction.Handler.class,
+            id++,
+            Side.SERVER);
+        registerMessage(
+            MessageMEWirelessVisualization.class,
+            MessageMEWirelessVisualization.Handler.class,
             id++,
             Side.CLIENT);
 

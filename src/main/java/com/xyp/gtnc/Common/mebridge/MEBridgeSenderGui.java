@@ -6,12 +6,15 @@ import net.minecraft.util.StatCollector;
 
 import com.cleanroommc.modularui.api.drawable.IKey;
 import com.cleanroommc.modularui.api.widget.IWidget;
+import com.cleanroommc.modularui.drawable.Rectangle;
 import com.cleanroommc.modularui.screen.ModularPanel;
 import com.cleanroommc.modularui.utils.Alignment;
 import com.cleanroommc.modularui.value.sync.DynamicLinkedSyncHandler;
+import com.cleanroommc.modularui.value.sync.IntSyncValue;
 import com.cleanroommc.modularui.value.sync.PanelSyncManager;
 import com.cleanroommc.modularui.value.sync.StringSyncValue;
 import com.cleanroommc.modularui.widget.ParentWidget;
+import com.cleanroommc.modularui.widgets.ButtonWidget;
 import com.cleanroommc.modularui.widgets.DynamicSyncedWidget;
 import com.cleanroommc.modularui.widgets.ListWidget;
 import com.cleanroommc.modularui.widgets.layout.Flow;
@@ -21,6 +24,7 @@ import com.xyp.gtnc.Common.gui.modularui.GTNCGuiTextures;
 final class MEBridgeSenderGui {
 
     private static final String CHANNEL_SYNC_KEY = "mebridge_channel";
+    private static final String CHANNEL_COLOR_SYNC_KEY = "mebridge_channel_color";
     private static final String RECEIVER_COUNT_SYNC_KEY = "mebridge_count";
     private static final String CONNECTION_SYNC_KEY = "mebridge_connection";
     private static final String TOPOLOGY_SYNC_KEY = "mebridge_topology";
@@ -31,6 +35,8 @@ final class MEBridgeSenderGui {
     static ModularPanel build(TileMEBridgeSender sender, PanelSyncManager syncManager) {
         StringSyncValue channelSync = MEBridgeGuiSync.editableChannel(sender::getChannelName, sender::setChannelName);
         syncManager.syncValue(CHANNEL_SYNC_KEY, channelSync);
+        IntSyncValue channelColorSync = new IntSyncValue(sender::getChannelColor, sender::setChannelColor).allowC2S();
+        syncManager.syncValue(CHANNEL_COLOR_SYNC_KEY, channelColorSync);
 
         StringSyncValue receiverCountSync = MEBridgeGuiSync
             .readOnly(() -> String.valueOf(sender.getConnectedReceiverCount()));
@@ -92,6 +98,36 @@ final class MEBridgeSenderGui {
         channelSection.child(
             MEBridgeGuiTheme
                 .text(IKey.lang("gui.mebridge.sender.hint"), 8, 46, 196, MEBridgeGuiTheme.MUTED, Alignment.CenterLeft));
+        // #tr gui.mebridge.sender.channel_color
+        // # Channel Color
+        // # zh_CN 频道颜色
+        channelSection.child(
+            MEBridgeGuiTheme.text(
+                IKey.lang("gui.mebridge.sender.channel_color"),
+                8,
+                66,
+                196,
+                MEBridgeGuiTheme.ACCENT,
+                Alignment.CenterLeft));
+        int[] colors = MEBridgeChannelColor.palette();
+        for (int index = 0; index < colors.length; index++) {
+            int color = colors[index];
+            int column = index & 7;
+            int row = index >> 3;
+            channelSection.child(
+                new ButtonWidget<>().pos(8 + column * 24, 82 + row * 19)
+                    .size(20, 15)
+                    .background(new Rectangle().color(0xFF000000 | color))
+                    .hoverBackground(new Rectangle().color(0xFF000000 | color))
+                    .overlay(
+                        IKey.dynamic(() -> channelColorSync.getIntValue() == color ? "\u2713" : "")
+                            .color(MEBridgeChannelColor.textColor(color))
+                            .alignment(Alignment.Center))
+                    .onMousePressed(mouseButton -> {
+                        channelColorSync.setIntValue(color, true, true);
+                        return true;
+                    }));
+        }
         // #tr gui.mebridge.sender.location
         // # Location
         // # zh_CN 发起端位置
@@ -102,7 +138,7 @@ final class MEBridgeSenderGui {
                     + "  "
                     + sender.getCoordinates(),
                 8,
-                78,
+                124,
                 196,
                 MEBridgeGuiTheme.TEXT,
                 Alignment.CenterLeft));

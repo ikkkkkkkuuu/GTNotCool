@@ -27,10 +27,15 @@ import appeng.api.networking.IGridNode;
 public class TileMEBridgeReceiver extends TileMEBridgeBase implements IGuiHolder<PosGuiData> {
 
     private static final int RECONNECT_INTERVAL = 40;
+    private static final String LOCAL_PLAYER_ID_NBT_KEY = "mebridge_local_player_id";
 
     private String channelName = "";
     private IGridConnection connection;
     private int reconnectCooldown;
+    /**
+     * The receiver owner's AE2 security ID, preserved while connection creation temporarily impersonates the sender.
+     */
+    private int localPlayerId = -1;
 
     public static int countReceiversOnChannel(String name) {
         return MEBridgeReceiverRegistry.count(name);
@@ -103,6 +108,7 @@ public class TileMEBridgeReceiver extends TileMEBridgeBase implements IGuiHolder
 
     @Override
     protected void onProxyReady() {
+        restoreLocalPlayerId(getGridNode(ForgeDirection.UNKNOWN));
         reconnectCooldown = Math
             .floorMod(xCoord * 31 + yCoord * 17 + zCoord * 13 + getDimensionId(), RECONNECT_INTERVAL);
     }
@@ -131,7 +137,10 @@ public class TileMEBridgeReceiver extends TileMEBridgeBase implements IGuiHolder
         if (connection != null) {
             IGridNode first = connection.a();
             IGridNode second = connection.b();
-            boolean isCurrentConnection = senderNode != null
+            boolean isCurrentConnection = senderNode != null && receiverNode.getConnections()
+                .contains(connection)
+                && senderNode.getConnections()
+                    .contains(connection)
                 && ((first == receiverNode || second == receiverNode) && (first == senderNode || second == senderNode));
             if (isCurrentConnection) return;
             disconnect();
@@ -155,6 +164,7 @@ public class TileMEBridgeReceiver extends TileMEBridgeBase implements IGuiHolder
     }
 
     private void connect(IGridNode receiverNode, IGridNode senderNode) {
+        if (!captureLocalPlayerId(receiverNode)) return;
         try {
             receiverNode.setPlayerID(senderNode.getPlayerID());
             connection = AEApi.instance()
@@ -171,18 +181,45 @@ public class TileMEBridgeReceiver extends TileMEBridgeBase implements IGuiHolder
                 exception.getClass()
                     .getSimpleName() + " - "
                     + exception.getMessage());
+        } finally {
+            restoreLocalPlayerId(receiverNode);
         }
     }
 
     private void disconnect() {
-        if (connection == null) return;
-        try {
-            connection.destroy();
-        } catch (RuntimeException exception) {
-            ScienceNotCool.LOG.warn("[MEBridge] receiver connection destroy failed", exception);
+        IGridNode receiverNode = getGridNode(ForgeDirection.UNKNOWN);
+        if (connection != null) {
+            try {
+                connection.destroy();
+            } catch (RuntimeException exception) {
+                ScienceNotCool.LOG.warn("[MEBridge] receiver connection destroy failed", exception);
+            }
+            connection = null;
         }
-        connection = null;
         MEBridgeReceiverRegistry.remove(channelName, this);
+        restoreLocalPlayerId(receiverNode);
+    }
+
+    private boolean captureLocalPlayerId(IGridNode receiverNode) {
+        if (receiverNode == null) return false;
+        if (localPlayerId >= 0) return true;
+
+        net.minecraft.entity.player.EntityPlayer owner = getOwnerPlayer();
+        if (owner == null) return false;
+
+        int ownerPlayerId = AEApi.instance()
+            .registries()
+            .players()
+            .getID(owner);
+        if (ownerPlayerId < 0) return false;
+
+        localPlayerId = ownerPlayerId;
+        markDirty();
+        return true;
+    }
+
+    private void restoreLocalPlayerId(IGridNode receiverNode) {
+        if (receiverNode != null && localPlayerId >= 0) receiverNode.setPlayerID(localPlayerId);
     }
 
     private static Arrival findSafeArrival(WorldServer world, MEBridgeChannelInfo target) {
@@ -247,12 +284,14 @@ public class TileMEBridgeReceiver extends TileMEBridgeBase implements IGuiHolder
         super.readFromNBT(nbt);
         String savedName = MEBridgeChannelName.normalize(nbt.getString("mebridge_channel"));
         channelName = MEBridgeChannelName.isValid(savedName) ? savedName : "";
+        localPlayerId = nbt.hasKey(LOCAL_PLAYER_ID_NBT_KEY) ? nbt.getInteger(LOCAL_PLAYER_ID_NBT_KEY) : -1;
     }
 
     @Override
     public void writeToNBT(NBTTagCompound nbt) {
         super.writeToNBT(nbt);
         nbt.setString("mebridge_channel", getChannelName());
+        if (localPlayerId >= 0) nbt.setInteger(LOCAL_PLAYER_ID_NBT_KEY, localPlayerId);
     }
 
     @Override
