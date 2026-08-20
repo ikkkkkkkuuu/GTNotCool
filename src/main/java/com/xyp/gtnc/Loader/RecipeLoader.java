@@ -27,7 +27,6 @@ import com.xyp.gtnc.Common.recipe.gtnc.OreProcessingRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.PetrochemicalPlantRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.PlatinumBasedTreatmentRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.ShapedArcaneCraftingRecipes;
-import com.xyp.gtnc.Common.recipe.gtnc.SteamCropBreederRecipes;
 import com.xyp.gtnc.Common.recipe.gtnc.StellarForgeRecipePool;
 import com.xyp.gtnc.Common.recipe.machine.MachineRecipes;
 
@@ -63,7 +62,6 @@ public class RecipeLoader {
         MixerRecipes.loadRecipes();
         ThinkTechRecipes.loadRecipes();
         CombProcessingRecipes.loadRecipes();
-        SteamCropBreederRecipes.loadRecipes();
         StellarForgeRecipePool.loadRecipes();
     }
 

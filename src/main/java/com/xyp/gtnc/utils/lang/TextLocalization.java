@@ -1359,19 +1359,14 @@ public class TextLocalization {
     public static final String LargeSteamCropBreederModeMutationPool = TextEnums
         .tr("LargeSteamCropBreederModeMutationPool");
 
-    // #tr LargeSteamCropBreederRecipeType
-    // # Deterministic Crop Breeding
-    // # zh_CN 确定性作物杂交
-    public static final String LargeSteamCropBreederRecipeType = TextEnums.tr("LargeSteamCropBreederRecipeType");
-
     // #tr Tooltip_LargeSteamCropBreeder_00
     // # A large steam-powered CropsNH breeding machine
     // # zh_CN 使用蒸汽进行 CropsNH 作物杂交的大型机器
     public static final String Tooltip_LargeSteamCropBreeder_00 = TextEnums.tr("Tooltip_LargeSteamCropBreeder_00");
 
     // #tr Tooltip_LargeSteamCropBreeder_01
-    // # Accepts 2-4 analyzed parent seeds and all catalysts required by deterministic mutations
-    // # zh_CN 接受 2-4 种已分析亲本种子及确定性杂交所需的全部催化物
+    // # Stores analyzed seeds in a crop archive and breeds the GUI-selected target
+    // # zh_CN 将已分析种子存入作物档案，并繁育 GUI 中选择的目标
     public static final String Tooltip_LargeSteamCropBreeder_01 = TextEnums.tr("Tooltip_LargeSteamCropBreeder_01");
 
     // #tr Tooltip_LargeSteamCropBreeder_02
@@ -1380,18 +1375,18 @@ public class TextLocalization {
     public static final String Tooltip_LargeSteamCropBreeder_02 = TextEnums.tr("Tooltip_LargeSteamCropBreeder_02");
 
     // #tr Tooltip_LargeSteamCropBreeder_03
-    // # Deterministic offspring inherit the average Growth, Gain and Resistance of their parents
-    // # zh_CN 确定性杂交后代的生长、产量和抗性取参与亲本的平均值
+    // # Deterministic steps average parent stats; pool fallback uses CropsNH stat variation
+    // # zh_CN 确定性步骤取亲本属性平均值，杂交池补缺沿用 CropsNH 属性浮动
     public static final String Tooltip_LargeSteamCropBreeder_03 = TextEnums.tr("Tooltip_LargeSteamCropBreeder_03");
 
     // #tr Tooltip_LargeSteamCropBreeder_04
-    // # Crop tier and machine-only catalyst requirements from CropsNH are respected
-    // # zh_CN 遵守 CropsNH 的作物等级与机器专用催化条件
+    // # Crop tier and explicit machine-only catalysts are respected; under-block requirements are ignored
+    // # zh_CN 遵守 CropsNH 作物等级与显式机器催化条件，忽略下方方块条件
     public static final String Tooltip_LargeSteamCropBreeder_04 = TextEnums.tr("Tooltip_LargeSteamCropBreeder_04");
 
     // #tr Tooltip_LargeSteamCropBreeder_05
-    // # Use the GUI mode button to switch between deterministic breeding and mutation-pool breeding
-    // # zh_CN 使用 GUI 模式按钮切换确定性杂交和杂交池杂交
+    // # Concrete crop mutations are not registered as NEI recipes for this machine
+    // # zh_CN 本机器不向 NEI 注册具体作物杂交配方
     public static final String Tooltip_LargeSteamCropBreeder_05 = TextEnums.tr("Tooltip_LargeSteamCropBreeder_05");
 
     // #tr Tooltip_LargeSteamCropBreeder_06

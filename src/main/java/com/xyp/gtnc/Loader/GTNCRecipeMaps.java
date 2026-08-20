@@ -84,18 +84,6 @@ public class GTNCRecipeMaps {
         .frontend(GTNCLogoFrontend::new)
         .build();
 
-    // #tr gtnc.recipe.LargeSteamCropBreederRecipes
-    // # Deterministic Crop Breeding
-    // # zh_CN 确定性作物杂交
-    public static RecipeMap<RecipeMapBackend> LargeSteamCropBreederRecipes = RecipeMapBuilder
-        .of("gtnc.recipe.LargeSteamCropBreederRecipes")
-        .maxIO(6, 1, 0, 0)
-        .minInputs(2, 0)
-        .progressBar(GTUITextures.PROGRESSBAR_ARROW_MULTIPLE)
-        .frontend(GTNCLogoFrontend::new)
-        .neiHandlerInfo(builder -> builder.setDisplayStack(GTNCItemList.LargeSteamCropBreeder.get(1)))
-        .build();
-
     // #tr gtnc.recipe.SteamCrucibleRecipes
     // # Crucible
     // # zh_CN 坩埚

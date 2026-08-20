@@ -730,24 +730,6 @@ public abstract class GTNCAdvancedSteamMultiBlockBase<T extends GTNCAdvancedStea
                     + EnumChatFormatting.GOLD
                     + mUpgradeTier);
         }
-        info.add(
-            StatCollector.translateToLocal("GT5U.turbine.wireless_mode") + ": "
-                + (wirelessMode ? EnumChatFormatting.GREEN + "ON" : EnumChatFormatting.RED + "OFF")
-                + EnumChatFormatting.RESET);
-        if (wirelessMode && ownerUUID != null) {
-            info.add(
-                StatCollector.translateToLocal("GTNC.info.wireless_steam") + ": "
-                    + EnumChatFormatting.GOLD
-                    + SteamWirelessNetworkManager.getUserSteam(ownerUUID)
-                    + EnumChatFormatting.RESET
-                    + " L");
-        }
-        info.add(
-            StatCollector.translateToLocal("GTNC.info.steam_consumed") + ": "
-                + EnumChatFormatting.AQUA
-                + totalSteamConsumed
-                + EnumChatFormatting.RESET
-                + " L");
         return info.toArray(new String[0]);
     }
 
@@ -787,19 +769,6 @@ public abstract class GTNCAdvancedSteamMultiBlockBase<T extends GTNCAdvancedStea
                         + "+"
                         + tag.getInteger("upgradeParallel"));
             }
-        }
-        if (tag.getBoolean("wirelessMode")) {
-            currenttip.add(
-                StatCollector.translateToLocal("GT5U.turbine.wireless_mode") + ": "
-                    + EnumChatFormatting.GREEN
-                    + "ON"
-                    + EnumChatFormatting.RESET);
-            currenttip.add(
-                StatCollector.translateToLocal("GTNC.info.wireless_steam") + ": "
-                    + EnumChatFormatting.GOLD
-                    + tag.getString("networkSteam")
-                    + EnumChatFormatting.RESET
-                    + " L");
         }
         currenttip.add(
             StatCollector.translateToLocal("GTNC.info.steam_consumed") + ": "
