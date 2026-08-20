@@ -5,9 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.fluids.FluidStack;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -16,57 +14,54 @@ import com.xyp.gtnc.Common.gui.modularui.multiblock.SteamElevator.SteamElevatorM
 import com.xyp.gtnc.Common.machines.hatch.SuperMTEHatchCraftingInputME;
 import com.xyp.gtnc.utils.lang.TextLocalization;
 
-import goodgenerator.api.recipe.GoodGeneratorRecipeMaps;
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
-import gregtech.api.logic.ProcessingLogic;
 import gregtech.api.metatileentity.implementations.MTEHatchInput;
 import gregtech.api.metatileentity.implementations.MTEHatchInputBus;
 import gregtech.api.recipe.RecipeMap;
 import gregtech.api.recipe.RecipeMaps;
-import gregtech.api.recipe.check.CheckRecipeResult;
-import gregtech.api.recipe.check.CheckRecipeResultRegistry;
-import gregtech.api.util.GTRecipe;
 import gregtech.api.util.GTUtility;
 import gregtech.api.util.MultiblockTooltipBuilder;
 import gregtech.common.gui.modularui.multiblock.base.MTEMultiBlockBaseGui;
 import gregtech.common.tileentities.machines.IDualInputHatch;
 import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.MTEHatchSteamBusInput;
-import gtnhintergalactic.recipe.IGRecipeMaps;
 
-/** Three-mode assembly processor connected to a Steam Elevator controller. */
-public final class SteamAssemblerModule extends SteamElevatorModuleBase {
+/** Four-mode precision-processing module connected to a Steam Elevator controller. */
+public final class SteamPrecisionProcessingModule extends SteamElevatorModuleBase {
 
-    private static final int MODE_ASSEMBLER = 0;
-    private static final int MODE_PRECISE_ASSEMBLER = 1;
-    private static final int MODE_SPACE_ASSEMBLER = 2;
-    private static final int MODE_COUNT = 3;
+    private static final int MODE_LASER_ENGRAVER = 0;
+    private static final int MODE_CUTTER = 1;
+    private static final int MODE_BENDER = 2;
+    private static final int MODE_WIREMILL = 3;
+    private static final int MODE_COUNT = 4;
     private static final int MODULE_TIER = 14;
     private static final List<RecipeMap<?>> AVAILABLE_RECIPE_MAPS = Collections.unmodifiableList(
         Arrays.asList(
-            RecipeMaps.assemblerRecipes,
-            GoodGeneratorRecipeMaps.preciseAssemblerRecipes,
-            IGRecipeMaps.spaceAssemblerRecipes));
+            RecipeMaps.laserEngraverRecipes,
+            RecipeMaps.cutterRecipes,
+            RecipeMaps.benderRecipes,
+            RecipeMaps.wiremillRecipes));
 
-    public SteamAssemblerModule(int id, String name, String regionalName) {
+    public SteamPrecisionProcessingModule(int id, String name, String regionalName) {
         super(id, name, regionalName, MODULE_TIER);
     }
 
-    public SteamAssemblerModule(String name) {
+    public SteamPrecisionProcessingModule(String name) {
         super(name, MODULE_TIER);
     }
 
     @Override
     public IMetaTileEntity newMetaEntity(IGregTechTileEntity tileEntity) {
-        return new SteamAssemblerModule(mName);
+        return new SteamPrecisionProcessingModule(mName);
     }
 
     @Override
     public RecipeMap<?> getRecipeMap() {
         return switch (machineMode) {
-            case MODE_PRECISE_ASSEMBLER -> GoodGeneratorRecipeMaps.preciseAssemblerRecipes;
-            case MODE_SPACE_ASSEMBLER -> IGRecipeMaps.spaceAssemblerRecipes;
-            default -> RecipeMaps.assemblerRecipes;
+            case MODE_CUTTER -> RecipeMaps.cutterRecipes;
+            case MODE_BENDER -> RecipeMaps.benderRecipes;
+            case MODE_WIREMILL -> RecipeMaps.wiremillRecipes;
+            default -> RecipeMaps.laserEngraverRecipes;
         };
     }
 
@@ -88,16 +83,17 @@ public final class SteamAssemblerModule extends SteamElevatorModuleBase {
 
     @Override
     public void setMachineMode(int mode) {
-        super.setMachineMode(mode >= 0 && mode < MODE_COUNT ? mode : MODE_ASSEMBLER);
+        super.setMachineMode(mode >= 0 && mode < MODE_COUNT ? mode : MODE_LASER_ENGRAVER);
         refreshInputRecipeMaps();
     }
 
     @Override
     public String getMachineModeName() {
         return switch (machineMode) {
-            case MODE_PRECISE_ASSEMBLER -> TextLocalization.SteamAssemblerModuleModePreciseAssembler;
-            case MODE_SPACE_ASSEMBLER -> TextLocalization.SteamAssemblerModuleModeSpaceAssembler;
-            default -> TextLocalization.SteamAssemblerModuleModeAssembler;
+            case MODE_CUTTER -> TextLocalization.SteamPrecisionProcessingModuleModeCutter;
+            case MODE_BENDER -> TextLocalization.SteamPrecisionProcessingModuleModeBender;
+            case MODE_WIREMILL -> TextLocalization.SteamPrecisionProcessingModuleModeWiremill;
+            default -> TextLocalization.SteamPrecisionProcessingModuleModeLaserEngraver;
         };
     }
 
@@ -105,45 +101,6 @@ public final class SteamAssemblerModule extends SteamElevatorModuleBase {
     public void loadNBTData(NBTTagCompound tag) {
         super.loadNBTData(tag);
         setMachineMode(machineMode);
-    }
-
-    private static boolean hasRealInput(GTRecipe recipe) {
-        if (recipe.mInputs != null) {
-            for (ItemStack input : recipe.mInputs) {
-                if (input != null && input.getItem() != null && input.stackSize > 0) return true;
-            }
-        }
-        if (recipe.mFluidInputs != null) {
-            for (FluidStack input : recipe.mFluidInputs) {
-                if (input != null && input.getFluid() != null && input.amount > 0) return true;
-            }
-        }
-        return false;
-    }
-
-    private static boolean hasSafeItemOutputs(GTRecipe recipe) {
-        if (recipe.mOutputs == null || recipe.mOutputs.length == 0) return false;
-        for (ItemStack output : recipe.mOutputs) {
-            if (output == null || output.getItem() == null || output.stackSize <= 0) return false;
-        }
-        return true;
-    }
-
-    @Override
-    protected ProcessingLogic createProcessingLogic() {
-        return new ProcessingLogic() {
-
-            @NotNull
-            @Override
-            protected CheckRecipeResult validateRecipe(@NotNull GTRecipe recipe) {
-                if (machineMode == MODE_ASSEMBLER && (recipe.mFakeRecipe || !recipe.mEnabled
-                    || !hasRealInput(recipe)
-                    || !hasSafeItemOutputs(recipe))) {
-                    return CheckRecipeResultRegistry.NO_RECIPE;
-                }
-                return CheckRecipeResultRegistry.SUCCESSFUL;
-            }
-        };
     }
 
     private void refreshInputRecipeMaps() {
@@ -165,19 +122,19 @@ public final class SteamAssemblerModule extends SteamElevatorModuleBase {
 
     @Override
     public String getMachineType() {
-        return TextLocalization.SteamAssemblerModuleMachineType;
+        return TextLocalization.SteamPrecisionProcessingModuleMachineType;
     }
 
     @Override
     protected MultiblockTooltipBuilder createTooltip() {
         return new MultiblockTooltipBuilder().addMachineType(getMachineType())
-            .addInfo(TextLocalization.Tooltip_SteamAssemblerModule_00)
-            .addInfo(TextLocalization.Tooltip_SteamAssemblerModule_01)
-            .addInfo(TextLocalization.Tooltip_SteamAssemblerModule_02)
-            .addInfo(TextLocalization.Tooltip_SteamAssemblerModule_03)
-            .addInfo(TextLocalization.Tooltip_SteamAssemblerModule_04)
+            .addInfo(TextLocalization.Tooltip_SteamPrecisionProcessingModule_00)
+            .addInfo(TextLocalization.Tooltip_SteamPrecisionProcessingModule_01)
+            .addInfo(TextLocalization.Tooltip_SteamPrecisionProcessingModule_02)
+            .addInfo(TextLocalization.Tooltip_SteamPrecisionProcessingModule_03)
+            .addInfo(TextLocalization.Tooltip_SteamPrecisionProcessingModule_04)
             .beginStructureBlock(1, 2, 1, false)
-            .addController(TextLocalization.Tooltip_SteamAssemblerModule_Controller)
+            .addController(TextLocalization.Tooltip_SteamPrecisionProcessingModule_Controller)
             .addSteamInputBus(TextLocalization.Tooltip_SteamElevator_Casing, 1)
             .addSteamOutputBus(TextLocalization.Tooltip_SteamElevator_Casing, 1)
             .addInputBus(TextLocalization.Tooltip_SteamElevator_Casing, 1)
@@ -191,8 +148,9 @@ public final class SteamAssemblerModule extends SteamElevatorModuleBase {
     @Override
     protected MTEMultiBlockBaseGui<?> getGui() {
         return new SteamElevatorModuleGui(this).withMachineModeIcons(
-            GTNCGuiTextures.OVERLAY_BUTTON_MACHINEMODE_ASSEMBLER,
-            GTNCGuiTextures.OVERLAY_BUTTON_MACHINEMODE_PRECISE_ASSEMBLER,
-            GTNCGuiTextures.OVERLAY_BUTTON_MACHINEMODE_ARCANE_ASSEMBLER);
+            GTNCGuiTextures.OVERLAY_BUTTON_MACHINEMODE_LASER,
+            GTNCGuiTextures.OVERLAY_BUTTON_MACHINEMODE_CUTTER,
+            GTNCGuiTextures.OVERLAY_BUTTON_MACHINEMODE_BENDER,
+            GTNCGuiTextures.OVERLAY_BUTTON_MACHINEMODE_WIREMILL);
     }
 }

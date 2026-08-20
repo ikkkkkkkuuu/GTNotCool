@@ -16,7 +16,7 @@ import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
 import com.cleanroommc.modularui.utils.item.ItemStackHandler;
-import com.xyp.gtnc.Common.gui.modularui.multiblock.GTNCMultiBlockBaseGui;
+import com.xyp.gtnc.Common.gui.modularui.multiblock.BaseGui.GTNCMultiBlockBaseGui;
 import com.xyp.gtnc.utils.enums.GTNCItemList;
 
 import gregtech.api.metatileentity.implementations.MTEExtendedPowerMultiBlockBase;

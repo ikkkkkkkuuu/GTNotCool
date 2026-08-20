@@ -9,6 +9,7 @@ import com.xyp.gtnc.utils.enums.GTNCItemList;
 
 import appeng.api.AEApi;
 import cpw.mods.fml.common.registry.GameRegistry;
+import gregtech.api.GregTechAPI;
 import gregtech.api.enums.ItemList;
 import gregtech.api.enums.Materials;
 import gregtech.api.enums.OrePrefixes;
@@ -51,19 +52,6 @@ public class CraftingTableRecipes {
                 'B', "plankWood",
                 'C', GTNCItemList.ChipTier1.get(1)
             });
-
-        GTModHandler.addCraftingRecipe(
-            GTNCItemList.SteamForgeOfGods.get(1),
-            new Object[] { "AGA", "PCP", "FBF",
-                'A', ItemList.Block_BronzePlate.get(1),
-                'G', ItemList.Casing_Gearbox_Bronze.get(1),
-                'P', ItemList.Casing_Pipe_Bronze.get(1),
-                'C', OrePrefixes.circuit.get(Materials.LV),
-                'F', ItemList.Casing_Firebox_Bronze.get(1),
-                'B', GTOreDictUnificator.get(OrePrefixes.frameGt, Materials.Bronze, 1L)
-            });
-
-
 
         GTModHandler.addCraftingRecipe(
             GTNCItemList.DieselGeneratorLV.get(1),
@@ -249,197 +237,62 @@ public class CraftingTableRecipes {
                 'E', ItemList.Casing_Firebox_TungstenSteel.get(1)
             });
 
-        GTModHandler.addCraftingRecipe(
-            GTNCItemList.LargeSteamLaserEngraver.get(1),
-            new Object[] { "ABA", "BCB", "ABA",
-                'A', GTOreDictUnificator.get(OrePrefixes.plateDouble, Materials.Bronze, 1),
-                'B', OrePrefixes.circuit.get(Materials.LV),
-                'C', ItemList.Machine_LV_LaserEngraver.get(1)
-            });
-
-        GTModHandler.addCraftingRecipe(
-            GTNCItemList.LargeSteamAssembler.get(1),
-            new Object[] { "ABA", "BCB", "ABA",
-                'A', GTOreDictUnificator.get(OrePrefixes.plateDouble, Materials.Bronze, 1),
-                'B', OrePrefixes.circuit.get(Materials.LV),
-                'C', ItemList.Machine_LV_Assembler.get(1)
-            });
-
-        GTModHandler.addCraftingRecipe(
-            GTNCItemList.LargeSteamCentrifuge.get(1),
-            new Object[] { "ABA", "BCB", "ABA",
-                'A', GTOreDictUnificator.get(OrePrefixes.plateDouble, Materials.Bronze, 1),
-                'B', OrePrefixes.circuit.get(Materials.LV),
-                'C', ItemList.Machine_LV_Centrifuge.get(1)
-            });
-
-        GTModHandler.addCraftingRecipe(
-            GTNCItemList.LargeSteamBending.get(1),
-            new Object[] { "ABA", "BCB", "ABA",
-                'A', GTOreDictUnificator.get(OrePrefixes.plateDouble, Materials.Bronze, 1),
-                'B', OrePrefixes.circuit.get(Materials.LV),
-                'C', ItemList.Machine_LV_Bender.get(1)
-            });
-
-        GTModHandler.addCraftingRecipe(
-            GTNCItemList.LargeSteamFluidExtractor.get(1),
-            new Object[] { "ABA", "BCB", "ABA",
-                'A', GTOreDictUnificator.get(OrePrefixes.plateDouble, Materials.Bronze, 1),
-                'B', OrePrefixes.circuit.get(Materials.LV),
-                'C', ItemList.Machine_LV_FluidExtractor.get(1)
-            });
-
-        GTModHandler.addCraftingRecipe(
-            GTNCItemList.LargeSteamFluidSolidifier.get(1),
-            new Object[] { "ABA", "BCB", "ABA",
-                'A', GTOreDictUnificator.get(OrePrefixes.plateDouble, Materials.Bronze, 1),
-                'B', OrePrefixes.circuit.get(Materials.LV),
-                'C', ItemList.Machine_LV_FluidSolidifier.get(1)
-            });
-
-        GTModHandler.addCraftingRecipe(
-            GTNCItemList.LargeSteamChemicalReactor.get(1),
-            new Object[] { "ABA", "BCB", "ABA",
-                'A', GTOreDictUnificator.get(OrePrefixes.plateDouble, Materials.Bronze, 1),
-                'B', OrePrefixes.circuit.get(Materials.LV),
-                'C', ItemList.Machine_LV_ChemicalReactor.get(1)
-            });
-
-        GTModHandler.addCraftingRecipe(
-            GTNCItemList.LargeSteamWireMill.get(1),
-            new Object[] { "ABA", "BCB", "ABA",
-                'A', GTOreDictUnificator.get(OrePrefixes.plateDouble, Materials.Bronze, 1),
-                'B', OrePrefixes.circuit.get(Materials.LV),
-                'C', ItemList.Machine_LV_Wiremill.get(1)
-            });
-
-        GTModHandler.addCraftingRecipe(
-            GTNCItemList.LargeSteamMixer.get(1),
-            new Object[] { "ABA", "BCB", "ABA",
-                'A', GTOreDictUnificator.get(OrePrefixes.plateDouble, Materials.Bronze, 1),
-                'B', OrePrefixes.circuit.get(Materials.LV),
-                'C', ItemList.Machine_LV_Mixer.get(1)
-            });
-
-        GTModHandler.addCraftingRecipe(
-            GTNCItemList.LargeSteamAlloySmelter.get(1),
-            new Object[] { "ABA", "BCB", "ABA",
-                'A', GTOreDictUnificator.get(OrePrefixes.plateDouble, Materials.Bronze, 1),
-                'B', OrePrefixes.circuit.get(Materials.LV),
-                'C', ItemList.Machine_LV_AlloySmelter.get(1)
-            });
-
-        GTModHandler.addCraftingRecipe(
-            GTNCItemList.LargeSteamCircuitAssembler.get(1),
-            new Object[] { "ABA", "BCB", "ABA",
-                'A', GTOreDictUnificator.get(OrePrefixes.plateDouble, Materials.Bronze, 1),
-                'B', OrePrefixes.circuit.get(Materials.LV),
-                'C', ItemList.Machine_LV_CircuitAssembler.get(1)
-            });
-
-        GTModHandler.addCraftingRecipe(
-            GTNCItemList.LargeSteamCompressor.get(1),
-            new Object[] { "ABA", "BCB", "ABA",
-                'A', GTOreDictUnificator.get(OrePrefixes.plateDouble, Materials.Bronze, 1),
-                'B', OrePrefixes.circuit.get(Materials.LV),
-                'C', ItemList.Machine_LV_Compressor.get(1)
-            });
-
-        GTModHandler.addCraftingRecipe(
-            GTNCItemList.LargeSteamCutting.get(1),
-            new Object[] { "ABA", "BCB", "ABA",
-                'A', GTOreDictUnificator.get(OrePrefixes.plateDouble, Materials.Bronze, 1),
-                'B', OrePrefixes.circuit.get(Materials.LV),
-                'C', ItemList.Machine_LV_Cutter.get(1)
-            });
-
-        GTModHandler.addCraftingRecipe(
-            GTNCItemList.LargeSteamElectrolyzer.get(1),
-            new Object[] { "ABA", "BCB", "ABA",
-                'A', GTOreDictUnificator.get(OrePrefixes.plateDouble, Materials.Bronze, 1),
-                'B', OrePrefixes.circuit.get(Materials.LV),
-                'C', ItemList.Machine_LV_Electrolyzer.get(1)
-            });
-
-        GTModHandler.addCraftingRecipe(
-            GTNCItemList.LargeSteamFormingPress.get(1),
-            new Object[] { "ABA", "BCB", "ABA",
-                'A', GTOreDictUnificator.get(OrePrefixes.plateDouble, Materials.Bronze, 1),
-                'B', OrePrefixes.circuit.get(Materials.LV),
-                'C', ItemList.Machine_LV_Press.get(1)
-            });
-
-        GTModHandler.addCraftingRecipe(
-            GTNCItemList.LargeSteamHammer.get(1),
-            new Object[] { "ABA", "BCB", "ABA",
-                'A', GTOreDictUnificator.get(OrePrefixes.plateDouble, Materials.Bronze, 1),
-                'B', OrePrefixes.circuit.get(Materials.LV),
-                'C', ItemList.Machine_LV_Hammer.get(1)
-            });
-
-        GTModHandler.addCraftingRecipe(
-            GTNCItemList.LargeSteamExtruder.get(1),
-            new Object[] { "ABA", "BCB", "ABA",
-                'A', GTOreDictUnificator.get(OrePrefixes.plateDouble, Materials.Bronze, 1),
-                'B', OrePrefixes.circuit.get(Materials.LV),
-                'C', ItemList.Machine_LV_Extruder.get(1)
-            });
-
-        GTModHandler.addCraftingRecipe(
-            GTNCItemList.LargeSteamDistillationTower.get(1),
-            new Object[] { "ABA", "BCB", "ABA",
-                'A', GTOreDictUnificator.get(OrePrefixes.plateDouble, Materials.Bronze, 1),
-                'B', OrePrefixes.circuit.get(Materials.LV),
-                'C', ItemList.Machine_LV_Distillery.get(1)
-            });
-
-        GTModHandler.addCraftingRecipe(
-            GTNCItemList.SteamGodforgeProcessingModule.get(1),
-            new Object[] { "ABC", "DEF", "GHI",
-                'A', ItemList.Machine_LV_Mixer.get(1),
-                'B', ItemList.Machine_LV_Press.get(1),
-                'C', ItemList.Machine_LV_Compressor.get(1),
-                'D', ItemList.Machine_LV_Assembler.get(1),
-                'E', ItemList.Machine_LV_Wiremill.get(1),
-                'F', ItemList.Machine_LV_FluidSolidifier.get(1),
-                'G', ItemList.Machine_LV_Extruder.get(1),
-                'H', ItemList.Machine_LV_Cutter.get(1),
-                'I', ItemList.Machine_LV_LaserEngraver.get(1)
-            });
         // spotless:on
-        addSteamGodforgeModuleRecipe(
-            GTNCItemList.SteamGodforgeSmeltingModule.get(1),
-            ItemList.Machine_LV_AlloySmelter.get(1));
-        addSteamGodforgeModuleRecipe(
-            GTNCItemList.SteamGodforgeMoltenModule.get(1),
-            ItemList.Machine_LV_FluidExtractor.get(1));
-        addSteamGodforgeModuleRecipe(
-            GTNCItemList.SteamGodforgePlasmaModule.get(1),
+
+        addSteamElevatorModuleRecipe(
+            GTNCItemList.SteamAssemblerModule.get(1),
+            ItemList.Machine_LV_Assembler.get(1),
+            ItemList.Machine_LV_CircuitAssembler.get(1));
+        addSteamElevatorModuleRecipe(
+            GTNCItemList.SteamFormingModule.get(1),
+            ItemList.Machine_LV_FluidSolidifier.get(1),
+            ItemList.Machine_LV_Press.get(1));
+        addSteamElevatorModuleRecipe(
+            GTNCItemList.SteamProcessingModule.get(1),
+            ItemList.Machine_LV_Centrifuge.get(1),
             ItemList.Machine_LV_Electrolyzer.get(1));
-        addSteamGodforgeModuleRecipe(GTNCItemList.SteamGodforgeExoticModule.get(1), ItemList.Machine_LV_Mixer.get(1));
-        addSteamGodforgeModuleRecipe(
-            GTNCItemList.SteamGodforgeAlloyBlastSmelterModule.get(1),
-            ItemList.Machine_MV_AlloySmelter.get(1));
-        addSteamGodforgeModuleRecipe(
-            GTNCItemList.SteamGodforgeAlloySmelterModule.get(1),
-            ItemList.Machine_LV_Bender.get(1));
-        addSteamGodforgeModuleRecipe(
-            GTNCItemList.SteamGodforgeExtractorModule.get(1),
-            ItemList.Machine_LV_Extractor.get(1));
-        addSteamGodforgeModuleRecipe(
-            GTNCItemList.SteamGodforgeSolarMuonCatalystModule.get(1),
-            ItemList.Machine_LV_Assembler.get(1));
+        addSteamElevatorModuleRecipe(
+            GTNCItemList.SteamIndustrialModule.get(1),
+            ItemList.Machine_LV_Macerator.get(1),
+            ItemList.Machine_LV_ChemicalReactor.get(1));
+        addSteamElevatorModuleRecipe(
+            GTNCItemList.SteamSmeltingModule.get(1),
+            ItemList.Machine_LV_E_Furnace.get(1),
+            ItemList.Machine_LV_ArcFurnace.get(1));
+        addSteamElevatorModuleRecipe(
+            GTNCItemList.SteamMoltenModule.get(1),
+            ItemList.Machine_LV_FluidExtractor.get(1),
+            ItemList.Machine_LV_FluidSolidifier.get(1));
+        addSteamElevatorModuleRecipe(
+            GTNCItemList.SteamPlasmaModule.get(1),
+            ItemList.Machine_LV_PlasmaArcFurnace.get(1),
+            ItemList.Machine_LV_Electrolyzer.get(1));
+        addSteamElevatorModuleRecipe(
+            GTNCItemList.SteamAlloyBlastSmelterModule.get(1),
+            ItemList.Machine_LV_AlloySmelter.get(1),
+            ItemList.Machine_LV_Mixer.get(1));
+        addSteamElevatorModuleRecipe(
+            GTNCItemList.SteamAlloySmelterModule.get(1),
+            ItemList.Machine_LV_AlloySmelter.get(1),
+            ItemList.Machine_LV_AlloySmelter.get(1));
+        addSteamElevatorModuleRecipe(
+            GTNCItemList.SteamExtractorModule.get(1),
+            ItemList.Machine_LV_Extractor.get(1),
+            ItemList.Machine_LV_FluidExtractor.get(1));
+        addSteamElevatorModuleRecipe(
+            GTNCItemList.SteamPrecisionProcessingModule.get(1),
+            ItemList.Machine_LV_LaserEngraver.get(1),
+            ItemList.Machine_LV_Wiremill.get(1));
 
     }
 
-    private static void addSteamGodforgeModuleRecipe(ItemStack output, ItemStack lvMachine) {
+    private static void addSteamElevatorModuleRecipe(ItemStack output, ItemStack leftMachine, ItemStack rightMachine) {
         GTModHandler.addCraftingRecipe(
             output,
-            new Object[] { "PFP", "GMG", "PBP", 'P',
-                GTOreDictUnificator.get(OrePrefixes.plateDouble, Materials.Bronze, 1L), 'F',
-                ItemList.Casing_Firebox_Bronze.get(1), 'G',
-                GTOreDictUnificator.get(OrePrefixes.gearGt, Materials.Bronze, 1L), 'M', lvMachine, 'B',
-                GTOreDictUnificator.get(OrePrefixes.frameGt, Materials.Bronze, 1L) });
+            new Object[] { "PFP", "LCR", "PFP", 'P',
+                GTOreDictUnificator.get(OrePrefixes.plateDouble, Materials.Steel, 1L), 'F',
+                GTOreDictUnificator.get(OrePrefixes.frameGt, Materials.Steel, 1L), 'L', leftMachine, 'C',
+                new ItemStack(GregTechAPI.sBlockCasings2, 1, 0), 'R', rightMachine });
     }
 
 }

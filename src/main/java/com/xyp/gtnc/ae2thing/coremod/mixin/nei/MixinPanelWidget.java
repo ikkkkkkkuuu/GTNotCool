@@ -63,6 +63,14 @@ public abstract class MixinPanelWidget extends Widget implements IContainerToolt
                 draggedStack = null;
                 cir.setReturnValue(true);
             } else if (gui instanceof AEBaseGui g) {
+                if (!NEIClientUtils.altKey() && !NEIClientUtils.shiftKey()
+                    && !GuiScreen.isCtrlKeyDown()
+                    && g instanceof com.xyp.gtnc.ae2thing.quickterminal.client.GuiQuickEncodingTerminal quickTerminal
+                    && quickTerminal.requestFluidCraft(is)) {
+                    draggedStack = null;
+                    cir.setReturnValue(true);
+                    return;
+                }
                 IDisplayRepo repo = Util.getDisplayRepo(g);
                 if (repo == null) return;
                 if (NEIClientUtils.altKey()) {

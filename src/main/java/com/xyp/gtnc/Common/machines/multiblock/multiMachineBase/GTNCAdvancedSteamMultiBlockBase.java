@@ -27,7 +27,7 @@ import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 
 import com.cleanroommc.modularui.utils.item.ItemStackHandler;
-import com.xyp.gtnc.Common.gui.modularui.multiblock.GTNCAdvancedSteamMultiBlockBaseGui;
+import com.xyp.gtnc.Common.gui.modularui.multiblock.BaseGui.GTNCSteamMultiBlockBaseGui;
 import com.xyp.gtnc.Common.machines.hatch.SuperMTEHatchCraftingInputME;
 import com.xyp.gtnc.utils.enums.GTNCItemList;
 import com.xyp.gtnc.utils.world.steam.SteamWirelessNetworkManager;
@@ -937,7 +937,7 @@ public abstract class GTNCAdvancedSteamMultiBlockBase<T extends GTNCAdvancedStea
 
     @Override
     protected MTEMultiBlockBaseGui<?> getGui() {
-        return new GTNCAdvancedSteamMultiBlockBaseGui(this);
+        return new GTNCSteamMultiBlockBaseGui(this);
     }
 
     /**

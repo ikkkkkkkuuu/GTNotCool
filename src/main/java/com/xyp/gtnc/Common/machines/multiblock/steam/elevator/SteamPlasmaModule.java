@@ -8,7 +8,7 @@ import java.util.Collections;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.xyp.gtnc.Common.gui.modularui.multiblock.SteamElevatorModuleGui;
+import com.xyp.gtnc.Common.gui.modularui.multiblock.SteamElevator.SteamElevatorModuleGui;
 import com.xyp.gtnc.utils.lang.TextLocalization;
 
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
@@ -30,7 +30,7 @@ public final class SteamPlasmaModule extends SteamElevatorModuleBase {
     private static final Collection<RecipeMap<?>> AVAILABLE_RECIPE_MAPS = Collections
         .singletonList(TecTechRecipeMaps.godforgePlasmaRecipes);
 
-    private int plasmaTier;
+    private int plasmaTier = 1;
     private boolean multiStepPlasmaUnlocked;
 
     public SteamPlasmaModule(int id, String name, String regionalName) {
@@ -92,7 +92,7 @@ public final class SteamPlasmaModule extends SteamElevatorModuleBase {
     @Override
     public void disconnect() {
         super.disconnect();
-        plasmaTier = 0;
+        plasmaTier = 1;
         multiStepPlasmaUnlocked = false;
     }
 

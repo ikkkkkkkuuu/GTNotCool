@@ -35,7 +35,7 @@ import com.gtnewhorizon.structurelib.alignment.constructable.ISurvivalConstructa
 import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
 import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
-import com.xyp.gtnc.Common.gui.modularui.multiblock.GTNCMultiBlockBaseGui;
+import com.xyp.gtnc.Common.gui.modularui.multiblock.BaseGui.GTNCMultiBlockBaseGui;
 import com.xyp.gtnc.Common.machines.multiblock.multiMachineBase.GTNCMultiBlockBase;
 import com.xyp.gtnc.Loader.GTNCRecipeMaps;
 import com.xyp.gtnc.utils.StructureUtils;

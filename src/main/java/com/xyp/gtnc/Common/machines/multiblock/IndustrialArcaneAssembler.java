@@ -30,7 +30,7 @@ import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
 import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
 import com.gtnewhorizon.structurelib.structure.StructureUtility;
-import com.xyp.gtnc.Common.gui.modularui.multiblock.GTNCModernMultiBlockBaseGui;
+import com.xyp.gtnc.Common.gui.modularui.multiblock.BaseGui.GTNCModernMultiBlockBaseGui;
 import com.xyp.gtnc.Loader.GTNCRecipeMaps;
 import com.xyp.gtnc.ScienceNotCool;
 import com.xyp.gtnc.utils.StructureUtils;

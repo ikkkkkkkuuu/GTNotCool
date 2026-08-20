@@ -34,7 +34,7 @@ import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
 import com.gtnewhorizon.structurelib.structure.StructureUtility;
 import com.xyp.gtnc.Common.gui.modularui.GTNCGuiTextures;
-import com.xyp.gtnc.Common.gui.modularui.multiblock.SteamElevatorGui;
+import com.xyp.gtnc.Common.gui.modularui.multiblock.SteamElevator.SteamElevatorGui;
 import com.xyp.gtnc.Common.machines.multiblock.multiMachineBase.GTNCSteamMultiBlockBase;
 import com.xyp.gtnc.utils.StructureUtils;
 import com.xyp.gtnc.utils.enums.SteamTypes;
@@ -502,6 +502,18 @@ public class SteamElevator extends GTNCSteamMultiBlockBase<SteamElevator>
         module.setSpeedUpgradeUnlocked(evolutionData.isUpgradeActive(ForgeOfGodsUpgrade.GISS));
         module.setSteamEfficiencyUpgradeUnlocked(evolutionData.isUpgradeActive(ForgeOfGodsUpgrade.FDIM));
         module.setAdvancedParallelUpgradeUnlocked(evolutionData.isUpgradeActive(ForgeOfGodsUpgrade.SA));
+        module.setExtremeParallelUpgradeUnlocked(evolutionData.isUpgradeActive(ForgeOfGodsUpgrade.SEFCP));
+        if (module instanceof SteamPlasmaModule plasmaModule) {
+            plasmaModule.setMultiStepPlasmaUnlocked(evolutionData.isUpgradeActive(ForgeOfGodsUpgrade.GEM));
+        }
+        if (module instanceof SteamSmeltingModule smeltingModule) {
+            smeltingModule.setHeatUpgradeUnlocked(evolutionData.isUpgradeActive(ForgeOfGodsUpgrade.CTCDD));
+            smeltingModule.setAdvancedHeatUpgradeUnlocked(evolutionData.isUpgradeActive(ForgeOfGodsUpgrade.GGEBE));
+        }
+        if (module instanceof SteamMoltenModule moltenModule) {
+            moltenModule.setHeatUpgradeUnlocked(evolutionData.isUpgradeActive(ForgeOfGodsUpgrade.CTCDD));
+            moltenModule.setAdvancedHeatUpgradeUnlocked(evolutionData.isUpgradeActive(ForgeOfGodsUpgrade.GGEBE));
+        }
     }
 
     @Override

@@ -31,48 +31,24 @@ import com.xyp.gtnc.Common.machines.multiblock.QuantumComputer;
 import com.xyp.gtnc.Common.machines.multiblock.SingularityDataHub;
 import com.xyp.gtnc.Common.machines.multiblock.SuperSpaceElevator;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeBoiler;
-import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamAlloySmelter;
-import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamAssembler;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamBeeBreeder;
-import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamBending;
-import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamCentrifuge;
-import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamChemicalReactor;
-import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamCircuitAssembler;
-import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamCompressor;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamCropBreeder;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamCrucible;
-import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamCutting;
-import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamDistillationTower;
-import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamElectrolyzer;
-import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamExtruder;
-import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamFluidExtractor;
-import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamFluidSolidifier;
-import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamFormingPress;
-import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamHammer;
-import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamLaserEngraver;
-import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamMixer;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamTurbine;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamVoidMiner;
-import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamWireMill;
 import com.xyp.gtnc.Common.machines.multiblock.steam.SteamEyeOfHarmony;
+import com.xyp.gtnc.Common.machines.multiblock.steam.elevator.SteamAlloyBlastSmelterModule;
+import com.xyp.gtnc.Common.machines.multiblock.steam.elevator.SteamAlloySmelterModule;
 import com.xyp.gtnc.Common.machines.multiblock.steam.elevator.SteamAssemblerModule;
 import com.xyp.gtnc.Common.machines.multiblock.steam.elevator.SteamElevator;
+import com.xyp.gtnc.Common.machines.multiblock.steam.elevator.SteamExtractorModule;
 import com.xyp.gtnc.Common.machines.multiblock.steam.elevator.SteamFormingModule;
 import com.xyp.gtnc.Common.machines.multiblock.steam.elevator.SteamIndustrialModule;
 import com.xyp.gtnc.Common.machines.multiblock.steam.elevator.SteamMoltenModule;
 import com.xyp.gtnc.Common.machines.multiblock.steam.elevator.SteamPlasmaModule;
+import com.xyp.gtnc.Common.machines.multiblock.steam.elevator.SteamPrecisionProcessingModule;
 import com.xyp.gtnc.Common.machines.multiblock.steam.elevator.SteamProcessingModule;
 import com.xyp.gtnc.Common.machines.multiblock.steam.elevator.SteamSmeltingModule;
-import com.xyp.gtnc.Common.machines.multiblock.steam.godforge.SteamForgeOfGods;
-import com.xyp.gtnc.Common.machines.multiblock.steam.godforge.SteamGodforgeAlloyBlastSmelterModule;
-import com.xyp.gtnc.Common.machines.multiblock.steam.godforge.SteamGodforgeAlloySmelterModule;
-import com.xyp.gtnc.Common.machines.multiblock.steam.godforge.SteamGodforgeExoticModule;
-import com.xyp.gtnc.Common.machines.multiblock.steam.godforge.SteamGodforgeExtractorModule;
-import com.xyp.gtnc.Common.machines.multiblock.steam.godforge.SteamGodforgeMoltenModule;
-import com.xyp.gtnc.Common.machines.multiblock.steam.godforge.SteamGodforgePlasmaModule;
-import com.xyp.gtnc.Common.machines.multiblock.steam.godforge.SteamGodforgeProcessingModule;
-import com.xyp.gtnc.Common.machines.multiblock.steam.godforge.SteamGodforgeSmeltingModule;
-import com.xyp.gtnc.Common.machines.multiblock.steam.godforge.SteamGodforgeSolarMuonCatalystModule;
 import com.xyp.gtnc.utils.enums.GTNCItemList;
 import com.xyp.gtnc.utils.enums.GTNCMachineID;
 import com.xyp.gtnc.utils.lang.TextLocalization;
@@ -314,198 +290,6 @@ public class MachineLoader {
         AnimatedTooltipHandler
             .addItemTooltip(GTNCItemList.LargeSteamTurbineTungstenSteel.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
 
-        // #tr NameLargeSteamLaserEngraver
-        // # Large Steam Laser Engraver
-        // # zh_CN 大型蒸汽激光雕刻机
-        GTNCItemList.LargeSteamLaserEngraver.set(
-            new LargeSteamLaserEngraver(
-                GTNCMachineID.LARGE_STEAM_LASER_ENGRAVER.ID,
-                "LargeSteamLaserEngraver",
-                StatCollector.translateToLocal("NameLargeSteamLaserEngraver")));
-        AnimatedTooltipHandler
-            .addItemTooltip(GTNCItemList.LargeSteamLaserEngraver.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
-
-        // #tr NameLargeSteamAssembler
-        // # Large Steam Assembler
-        // # zh_CN 大型蒸汽组装机
-        GTNCItemList.LargeSteamAssembler.set(
-            new LargeSteamAssembler(
-                GTNCMachineID.LARGE_STEAM_ASSEMBLER.ID,
-                "LargeSteamAssembler",
-                StatCollector.translateToLocal("NameLargeSteamAssembler")));
-        AnimatedTooltipHandler
-            .addItemTooltip(GTNCItemList.LargeSteamAssembler.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
-
-        // #tr NameLargeSteamCentrifuge
-        // # Large Steam Centrifuge
-        // # zh_CN 大型蒸汽离心机
-        GTNCItemList.LargeSteamCentrifuge.set(
-            new LargeSteamCentrifuge(
-                GTNCMachineID.LARGE_STEAM_CENTRIFUGE.ID,
-                "LargeSteamCentrifuge",
-                StatCollector.translateToLocal("NameLargeSteamCentrifuge")));
-        AnimatedTooltipHandler
-            .addItemTooltip(GTNCItemList.LargeSteamCentrifuge.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
-
-        // #tr NameLargeSteamElectrolyzer
-        // # Large Steam Electrolyzer
-        // # zh_CN 大型蒸汽电解机
-        GTNCItemList.LargeSteamElectrolyzer.set(
-            new LargeSteamElectrolyzer(
-                GTNCMachineID.LARGE_STEAM_ELECTROLYZER.ID,
-                "LargeSteamElectrolyzer",
-                StatCollector.translateToLocal("NameLargeSteamElectrolyzer")));
-        AnimatedTooltipHandler
-            .addItemTooltip(GTNCItemList.LargeSteamElectrolyzer.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
-
-        // #tr NameLargeSteamBending
-        // # Large Steam Bending Machine
-        // # zh_CN 大型蒸汽卷板机
-        GTNCItemList.LargeSteamBending.set(
-            new LargeSteamBending(
-                GTNCMachineID.LARGE_STEAM_BENDING.ID,
-                "LargeSteamBending",
-                StatCollector.translateToLocal("NameLargeSteamBending")));
-        AnimatedTooltipHandler.addItemTooltip(GTNCItemList.LargeSteamBending.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
-
-        // #tr NameLargeSteamFluidExtractor
-        // # Large Steam Fluid Extractor
-        // # zh_CN 大型蒸汽流体提取机
-        GTNCItemList.LargeSteamFluidExtractor.set(
-            new LargeSteamFluidExtractor(
-                GTNCMachineID.LARGE_STEAM_FLUID_EXTRACTOR.ID,
-                "LargeSteamFluidExtractor",
-                StatCollector.translateToLocal("NameLargeSteamFluidExtractor")));
-        AnimatedTooltipHandler
-            .addItemTooltip(GTNCItemList.LargeSteamFluidExtractor.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
-
-        // #tr NameLargeSteamFluidSolidifier
-        // # Large Steam Fluid Solidifier
-        // # zh_CN 大型蒸汽流体固化机
-        GTNCItemList.LargeSteamFluidSolidifier.set(
-            new LargeSteamFluidSolidifier(
-                GTNCMachineID.LARGE_STEAM_FLUID_SOLIDIFIER.ID,
-                "LargeSteamFluidSolidifier",
-                StatCollector.translateToLocal("NameLargeSteamFluidSolidifier")));
-        AnimatedTooltipHandler
-            .addItemTooltip(GTNCItemList.LargeSteamFluidSolidifier.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
-
-        // #tr NameLargeSteamChemicalReactor
-        // # Large Steam Chemical Reactor
-        // # zh_CN 大型蒸汽化学反应釜
-        GTNCItemList.LargeSteamChemicalReactor.set(
-            new LargeSteamChemicalReactor(
-                GTNCMachineID.LARGE_STEAM_CHEMICAL_REACTOR.ID,
-                "LargeSteamChemicalReactor",
-                StatCollector.translateToLocal("NameLargeSteamChemicalReactor")));
-        AnimatedTooltipHandler
-            .addItemTooltip(GTNCItemList.LargeSteamChemicalReactor.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
-
-        // #tr NameLargeSteamWireMill
-        // # Large Steam Wire Mill
-        // # zh_CN 大型蒸汽线材轧机
-        GTNCItemList.LargeSteamWireMill.set(
-            new LargeSteamWireMill(
-                GTNCMachineID.LARGE_STEAM_WIRE_MILL.ID,
-                "LargeSteamWireMill",
-                StatCollector.translateToLocal("NameLargeSteamWireMill")));
-        AnimatedTooltipHandler.addItemTooltip(GTNCItemList.LargeSteamWireMill.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
-
-        // #tr NameLargeSteamMixer
-        // # Large Steam Mixer
-        // # zh_CN 大型蒸汽搅拌机
-        GTNCItemList.LargeSteamMixer.set(
-            new LargeSteamMixer(
-                GTNCMachineID.LARGE_STEAM_MIXER.ID,
-                "LargeSteamMixer",
-                StatCollector.translateToLocal("NameLargeSteamMixer")));
-        AnimatedTooltipHandler.addItemTooltip(GTNCItemList.LargeSteamMixer.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
-
-        // #tr NameLargeSteamAlloySmelter
-        // # Large Steam Alloy Smelter
-        // # zh_CN 大型蒸汽合金炉
-        GTNCItemList.LargeSteamAlloySmelter.set(
-            new LargeSteamAlloySmelter(
-                GTNCMachineID.LARGE_STEAM_ALLOY_SMELTER.ID,
-                "LargeSteamAlloySmelter",
-                StatCollector.translateToLocal("NameLargeSteamAlloySmelter")));
-        AnimatedTooltipHandler
-            .addItemTooltip(GTNCItemList.LargeSteamAlloySmelter.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
-
-        // #tr NameLargeSteamCircuitAssembler
-        // # Large Steam Circuit Assembler
-        // # zh_CN 大型蒸汽电路组装机
-        GTNCItemList.LargeSteamCircuitAssembler.set(
-            new LargeSteamCircuitAssembler(
-                GTNCMachineID.LARGE_STEAM_CIRCUIT_ASSEMBLER.ID,
-                "LargeSteamCircuitAssembler",
-                StatCollector.translateToLocal("NameLargeSteamCircuitAssembler")));
-        AnimatedTooltipHandler
-            .addItemTooltip(GTNCItemList.LargeSteamCircuitAssembler.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
-
-        // #tr NameLargeSteamCompressor
-        // # Large Steam Compressor
-        // # zh_CN 大型蒸汽压缩机
-        GTNCItemList.LargeSteamCompressor.set(
-            new LargeSteamCompressor(
-                GTNCMachineID.LARGE_STEAM_COMPRESSOR.ID,
-                "LargeSteamCompressor",
-                StatCollector.translateToLocal("NameLargeSteamCompressor")));
-        AnimatedTooltipHandler
-            .addItemTooltip(GTNCItemList.LargeSteamCompressor.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
-
-        // #tr NameLargeSteamCutting
-        // # Large Steam Cutting Machine
-        // # zh_CN 大型蒸汽切割机
-        GTNCItemList.LargeSteamCutting.set(
-            new LargeSteamCutting(
-                GTNCMachineID.LARGE_STEAM_CUTTING.ID,
-                "LargeSteamCutting",
-                StatCollector.translateToLocal("NameLargeSteamCutting")));
-        AnimatedTooltipHandler.addItemTooltip(GTNCItemList.LargeSteamCutting.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
-
-        // #tr NameLargeSteamFormingPress
-        // # Large Steam Forming Press
-        // # zh_CN 大型蒸汽冲压机床
-        GTNCItemList.LargeSteamFormingPress.set(
-            new LargeSteamFormingPress(
-                GTNCMachineID.LARGE_STEAM_FORMING_PRESS.ID,
-                "LargeSteamFormingPress",
-                StatCollector.translateToLocal("NameLargeSteamFormingPress")));
-        AnimatedTooltipHandler
-            .addItemTooltip(GTNCItemList.LargeSteamFormingPress.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
-
-        // #tr NameLargeSteamHammer
-        // # Large Steam Forge Hammer
-        // # zh_CN 大型蒸汽锻造锤
-        GTNCItemList.LargeSteamHammer.set(
-            new LargeSteamHammer(
-                GTNCMachineID.LARGE_STEAM_HAMMER.ID,
-                "LargeSteamHammer",
-                StatCollector.translateToLocal("NameLargeSteamHammer")));
-        AnimatedTooltipHandler.addItemTooltip(GTNCItemList.LargeSteamHammer.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
-
-        // #tr NameLargeSteamExtruder
-        // # Large Steam Extruder
-        // # zh_CN 大型蒸汽压模机
-        GTNCItemList.LargeSteamExtruder.set(
-            new LargeSteamExtruder(
-                GTNCMachineID.LARGE_STEAM_EXTRUDER.ID,
-                "LargeSteamExtruder",
-                StatCollector.translateToLocal("NameLargeSteamExtruder")));
-        AnimatedTooltipHandler.addItemTooltip(GTNCItemList.LargeSteamExtruder.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
-
-        // #tr NameLargeSteamDistillationTower
-        // # Large Steam Distillation Tower
-        // # zh_CN 大型蒸汽蒸馏塔
-        GTNCItemList.LargeSteamDistillationTower.set(
-            new LargeSteamDistillationTower(
-                GTNCMachineID.LARGE_STEAM_DISTILLATION_TOWER.ID,
-                "LargeSteamDistillationTower",
-                StatCollector.translateToLocal("NameLargeSteamDistillationTower")));
-        AnimatedTooltipHandler
-            .addItemTooltip(GTNCItemList.LargeSteamDistillationTower.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
-
         // #tr NameLargeSteamBeeBreeder
         // # Large Steam Bee Breeder
         // # zh_CN 大型蒸汽养蜂机
@@ -719,105 +503,37 @@ public class MachineLoader {
                 TextLocalization.NameSteamPlasmaModule));
         AnimatedTooltipHandler.addItemTooltip(GTNCItemList.SteamPlasmaModule.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
 
-        // #tr NameSteamForgeOfGods
-        // # Steam Forge of Gods
-        // # zh_CN 蒸汽诸神之锻炉
-        GTNCItemList.SteamForgeOfGods.set(
-            new SteamForgeOfGods(
-                GTNCMachineID.STEAM_FORGE_OF_GODS.ID,
-                "SteamForgeOfGods",
-                StatCollector.translateToLocal("NameSteamForgeOfGods")));
-        addItemTooltip(GTNCItemList.SteamForgeOfGods.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+        GTNCItemList.SteamAlloyBlastSmelterModule.set(
+            new SteamAlloyBlastSmelterModule(
+                GTNCMachineID.STEAM_ALLOY_BLAST_SMELTER_MODULE.ID,
+                "SteamAlloyBlastSmelterModule",
+                TextLocalization.NameSteamAlloyBlastSmelterModule));
+        AnimatedTooltipHandler
+            .addItemTooltip(GTNCItemList.SteamAlloyBlastSmelterModule.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
 
-        // #tr NameSteamGodforgeSmeltingModule
-        // # Steam Godforge Smelting Module
-        // # zh_CN 蒸汽诸神之锻炉熔炼模块
-        GTNCItemList.SteamGodforgeSmeltingModule.set(
-            new SteamGodforgeSmeltingModule(
-                GTNCMachineID.STEAM_GODFORGE_SMELTING_MODULE.ID,
-                "SteamGodforgeSmeltingModule",
-                StatCollector.translateToLocal("NameSteamGodforgeSmeltingModule")));
-        addItemTooltip(GTNCItemList.SteamGodforgeSmeltingModule.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+        GTNCItemList.SteamAlloySmelterModule.set(
+            new SteamAlloySmelterModule(
+                GTNCMachineID.STEAM_ALLOY_SMELTER_MODULE.ID,
+                "SteamAlloySmelterModule",
+                TextLocalization.NameSteamAlloySmelterModule));
+        AnimatedTooltipHandler
+            .addItemTooltip(GTNCItemList.SteamAlloySmelterModule.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
 
-        // #tr NameSteamGodforgeMoltenModule
-        // # Steam Godforge Molten Module
-        // # zh_CN 蒸汽诸神之锻炉熔融模块
-        GTNCItemList.SteamGodforgeMoltenModule.set(
-            new SteamGodforgeMoltenModule(
-                GTNCMachineID.STEAM_GODFORGE_MOLTEN_MODULE.ID,
-                "SteamGodforgeMoltenModule",
-                StatCollector.translateToLocal("NameSteamGodforgeMoltenModule")));
-        addItemTooltip(GTNCItemList.SteamGodforgeMoltenModule.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+        GTNCItemList.SteamExtractorModule.set(
+            new SteamExtractorModule(
+                GTNCMachineID.STEAM_EXTRACTOR_MODULE.ID,
+                "SteamExtractorModule",
+                TextLocalization.NameSteamExtractorModule));
+        AnimatedTooltipHandler
+            .addItemTooltip(GTNCItemList.SteamExtractorModule.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
 
-        // #tr NameSteamGodforgePlasmaModule
-        // # Steam Godforge Plasma Module
-        // # zh_CN 蒸汽诸神之锻炉等离子模块
-        GTNCItemList.SteamGodforgePlasmaModule.set(
-            new SteamGodforgePlasmaModule(
-                GTNCMachineID.STEAM_GODFORGE_PLASMA_MODULE.ID,
-                "SteamGodforgePlasmaModule",
-                StatCollector.translateToLocal("NameSteamGodforgePlasmaModule")));
-        addItemTooltip(GTNCItemList.SteamGodforgePlasmaModule.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
-
-        // #tr NameSteamGodforgeExoticModule
-        // # Steam Godforge Exotic Module
-        // # zh_CN 蒸汽诸神之锻炉奇异模块
-        GTNCItemList.SteamGodforgeExoticModule.set(
-            new SteamGodforgeExoticModule(
-                GTNCMachineID.STEAM_GODFORGE_EXOTIC_MODULE.ID,
-                "SteamGodforgeExoticModule",
-                StatCollector.translateToLocal("NameSteamGodforgeExoticModule")));
-        addItemTooltip(GTNCItemList.SteamGodforgeExoticModule.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
-
-        // #tr NameSteamGodforgeAlloyBlastSmelterModule
-        // # Steam Godforge Alloy Blast Smelter Module
-        // # zh_CN 蒸汽诸神之锻炉合金冶炼炉模块
-        GTNCItemList.SteamGodforgeAlloyBlastSmelterModule.set(
-            new SteamGodforgeAlloyBlastSmelterModule(
-                GTNCMachineID.STEAM_GODFORGE_ALLOY_BLAST_SMELTER_MODULE.ID,
-                "SteamGodforgeAlloyBlastSmelterModule",
-                StatCollector.translateToLocal("NameSteamGodforgeAlloyBlastSmelterModule")));
-        addItemTooltip(GTNCItemList.SteamGodforgeAlloyBlastSmelterModule.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
-
-        // #tr NameSteamGodforgeAlloySmelterModule
-        // # Steam Godforge Alloy Smelter Module
-        // # zh_CN 蒸汽诸神之锻炉合金炉模块
-        GTNCItemList.SteamGodforgeAlloySmelterModule.set(
-            new SteamGodforgeAlloySmelterModule(
-                GTNCMachineID.STEAM_GODFORGE_ALLOY_SMELTER_MODULE.ID,
-                "SteamGodforgeAlloySmelterModule",
-                StatCollector.translateToLocal("NameSteamGodforgeAlloySmelterModule")));
-        addItemTooltip(GTNCItemList.SteamGodforgeAlloySmelterModule.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
-
-        // #tr NameSteamGodforgeExtractorModule
-        // # Steam Godforge Extractor Module
-        // # zh_CN 蒸汽诸神之锻炉提取模块
-        GTNCItemList.SteamGodforgeExtractorModule.set(
-            new SteamGodforgeExtractorModule(
-                GTNCMachineID.STEAM_GODFORGE_EXTRACTOR_MODULE.ID,
-                "SteamGodforgeExtractorModule",
-                StatCollector.translateToLocal("NameSteamGodforgeExtractorModule")));
-        addItemTooltip(GTNCItemList.SteamGodforgeExtractorModule.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
-
-        // #tr NameSteamGodforgeSolarMuonCatalystModule
-        // # Steam Godforge Solar Muon Catalyst Module
-        // # zh_CN 蒸汽诸神之锻炉太阳μ子催化器
-        GTNCItemList.SteamGodforgeSolarMuonCatalystModule.set(
-            new SteamGodforgeSolarMuonCatalystModule(
-                GTNCMachineID.STEAM_GODFORGE_SOLAR_MUON_CATALYST_MODULE.ID,
-                "SteamGodforgeSolarMuonCatalystModule",
-                StatCollector.translateToLocal("NameSteamGodforgeSolarMuonCatalystModule")));
-        addItemTooltip(GTNCItemList.SteamGodforgeSolarMuonCatalystModule.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
-
-        // #tr NameSteamGodforgeProcessingModule
-        // # Steam Godforge Processing Module
-        // # zh_CN 蒸汽诸神之锻炉加工模块
-        GTNCItemList.SteamGodforgeProcessingModule.set(
-            new SteamGodforgeProcessingModule(
-                GTNCMachineID.STEAM_GODFORGE_PROCESSING_MODULE.ID,
-                "SteamGodforgeProcessingModule",
-                StatCollector.translateToLocal("NameSteamGodforgeProcessingModule")));
-        addItemTooltip(GTNCItemList.SteamGodforgeProcessingModule.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
+        GTNCItemList.SteamPrecisionProcessingModule.set(
+            new SteamPrecisionProcessingModule(
+                GTNCMachineID.STEAM_PRECISION_PROCESSING_MODULE.ID,
+                "SteamPrecisionProcessingModule",
+                TextLocalization.NameSteamPrecisionProcessingModule));
+        AnimatedTooltipHandler
+            .addItemTooltip(GTNCItemList.SteamPrecisionProcessingModule.get(1), AnimatedText.SCIENCE_NOT_LEISURE);
 
     }
 

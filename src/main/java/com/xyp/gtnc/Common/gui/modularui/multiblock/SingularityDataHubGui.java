@@ -26,6 +26,7 @@ import com.cleanroommc.modularui.widget.Widget;
 import com.cleanroommc.modularui.widgets.SlotGroupWidget;
 import com.cleanroommc.modularui.widgets.layout.Flow;
 import com.xyp.gtnc.Common.gui.modularui.GTNCGuiTextures;
+import com.xyp.gtnc.Common.gui.modularui.multiblock.BaseGui.GTNCModernMultiBlockBaseGui;
 import com.xyp.gtnc.Common.machines.multiblock.SingularityDataHub;
 
 public class SingularityDataHubGui extends GTNCModernMultiBlockBaseGui<SingularityDataHub> {

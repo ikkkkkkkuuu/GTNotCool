@@ -22,6 +22,7 @@ import com.cleanroommc.modularui.widgets.slot.ModularSlot;
 import com.cleanroommc.modularui.widgets.textfield.TextFieldWidget;
 import com.gtnewhorizon.gtnhlib.util.numberformatting.NumberFormatUtil;
 import com.xyp.gtnc.Common.gui.modularui.GTNCGuiTextures;
+import com.xyp.gtnc.Common.gui.modularui.multiblock.BaseGui.GTNCModernMultiBlockBaseGui;
 import com.xyp.gtnc.Common.machines.multiblock.QuantumComputer;
 import com.xyp.gtnc.utils.Utils;
 

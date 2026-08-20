@@ -135,7 +135,7 @@ public class BoxModule {
                 2, 0 };
             case "multimachine.multifurnace", "industrialthermalcentrifuge.controller.tier.single", "industrialarcfurnace.controller.tier.single", "industrialalloysmelter.controller.tier.single" -> new int[] {
                 3, 0 };
-            case "industrialmultimachine.controller.tier.single", "multimachine.basiccompressor", "multimachine.lathe", "multimachine.electromagneticseparator", "multimachine.extractor", "multimachine.fluidextractor", "multimachine.engraver", "multimachine.autoclave", "multimachine.solidifier", "multimachine.mass_solidifier", "LargeSteamFluidSolidifier" -> new int[] {
+            case "industrialmultimachine.controller.tier.single", "multimachine.basiccompressor", "multimachine.lathe", "multimachine.electromagneticseparator", "multimachine.extractor", "multimachine.fluidextractor", "multimachine.engraver", "multimachine.autoclave", "multimachine.solidifier", "multimachine.mass_solidifier" -> new int[] {
                 4, 0 };
             case "industrialrockcrusher.controller.tier.single", "industrialfluidheater.controller.tier.single", "multimachine.neutroniumcompressor" -> new int[] {
                 5, 0 };

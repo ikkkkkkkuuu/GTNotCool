@@ -5,7 +5,7 @@ import java.util.Collections;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.xyp.gtnc.Common.gui.modularui.multiblock.SteamElevatorModuleGui;
+import com.xyp.gtnc.Common.gui.modularui.multiblock.SteamElevator.SteamElevatorModuleGui;
 import com.xyp.gtnc.utils.lang.TextLocalization;
 
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
@@ -25,8 +25,13 @@ public final class SteamMoltenModule extends SteamElevatorModuleBase {
 
     private static final int MODULE_TIER = 14;
     private static final int BASE_MAX_HEAT = 15_700;
+    private static final int UPGRADED_MAX_HEAT = 17_700;
+    private static final int ADVANCED_MAX_HEAT = 19_700;
     private static final Collection<RecipeMap<?>> AVAILABLE_RECIPE_MAPS = Collections
         .singletonList(TecTechRecipeMaps.godforgeMoltenRecipes);
+
+    private boolean heatUpgradeUnlocked;
+    private boolean advancedHeatUpgradeUnlocked;
 
     public SteamMoltenModule(int id, String name, String regionalName) {
         super(id, name, regionalName, MODULE_TIER);
@@ -77,11 +82,27 @@ public final class SteamMoltenModule extends SteamElevatorModuleBase {
     }
 
     public int getMaxHeat() {
-        return BASE_MAX_HEAT;
+        if (advancedHeatUpgradeUnlocked) return ADVANCED_MAX_HEAT;
+        return heatUpgradeUnlocked ? UPGRADED_MAX_HEAT : BASE_MAX_HEAT;
+    }
+
+    public void setHeatUpgradeUnlocked(boolean unlocked) {
+        heatUpgradeUnlocked = unlocked;
+    }
+
+    public void setAdvancedHeatUpgradeUnlocked(boolean unlocked) {
+        advancedHeatUpgradeUnlocked = unlocked;
     }
 
     public double getHeatDiscountMultiplier() {
         return 0.95;
+    }
+
+    @Override
+    public void disconnect() {
+        super.disconnect();
+        heatUpgradeUnlocked = false;
+        advancedHeatUpgradeUnlocked = false;
     }
 
     @Override

@@ -36,7 +36,7 @@ import com.cleanroommc.modularui.widgets.textfield.TextFieldWidget;
 import com.silvermoon.boxplusplus.common.tileentities.GTMachineBox;
 import com.silvermoon.boxplusplus.util.BoxRoutings;
 import com.silvermoon.boxplusplus.util.Util;
-import com.xyp.gtnc.Common.gui.modularui.multiblock.GTNCModernMultiBlockBaseGui;
+import com.xyp.gtnc.Common.gui.modularui.multiblock.BaseGui.GTNCModernMultiBlockBaseGui;
 
 import gregtech.api.modularui2.GTGuiTextures;
 import gregtech.api.modularui2.GTGuis;

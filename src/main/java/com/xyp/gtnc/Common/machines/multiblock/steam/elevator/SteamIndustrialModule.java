@@ -10,7 +10,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import org.jetbrains.annotations.NotNull;
 
 import com.xyp.gtnc.Common.gui.modularui.GTNCGuiTextures;
-import com.xyp.gtnc.Common.gui.modularui.multiblock.SteamElevatorModuleGui;
+import com.xyp.gtnc.Common.gui.modularui.multiblock.SteamElevator.SteamElevatorModuleGui;
 import com.xyp.gtnc.Common.machines.hatch.SuperMTEHatchCraftingInputME;
 import com.xyp.gtnc.utils.lang.TextLocalization;
 
@@ -26,21 +26,23 @@ import gregtech.common.gui.modularui.multiblock.base.MTEMultiBlockBaseGui;
 import gregtech.common.tileentities.machines.IDualInputHatch;
 import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.MTEHatchSteamBusInput;
 
-/** Four-mode industrial module connected to a Steam Elevator controller. */
+/** Five-mode industrial module connected to a Steam Elevator controller. */
 public final class SteamIndustrialModule extends SteamElevatorModuleBase {
 
     private static final int MODE_MACERATOR = 0;
     private static final int MODE_CHEMICAL_REACTOR = 1;
     private static final int MODE_CIRCUIT_ASSEMBLER = 2;
     private static final int MODE_CHEMICAL_BATH = 3;
-    private static final int MODE_COUNT = 4;
+    private static final int MODE_MIXER = 4;
+    private static final int MODE_COUNT = 5;
     private static final int MODULE_TIER = 14;
     private static final List<RecipeMap<?>> AVAILABLE_RECIPE_MAPS = Collections.unmodifiableList(
         Arrays.asList(
             RecipeMaps.maceratorRecipes,
-            RecipeMaps.chemicalReactorRecipes,
+            RecipeMaps.multiblockChemicalReactorRecipes,
             RecipeMaps.circuitAssemblerRecipes,
-            RecipeMaps.chemicalBathRecipes));
+            RecipeMaps.chemicalBathRecipes,
+            RecipeMaps.mixerRecipes));
 
     public SteamIndustrialModule(int id, String name, String regionalName) {
         super(id, name, regionalName, MODULE_TIER);
@@ -58,9 +60,10 @@ public final class SteamIndustrialModule extends SteamElevatorModuleBase {
     @Override
     public RecipeMap<?> getRecipeMap() {
         return switch (machineMode) {
-            case MODE_CHEMICAL_REACTOR -> RecipeMaps.chemicalReactorRecipes;
+            case MODE_CHEMICAL_REACTOR -> RecipeMaps.multiblockChemicalReactorRecipes;
             case MODE_CIRCUIT_ASSEMBLER -> RecipeMaps.circuitAssemblerRecipes;
             case MODE_CHEMICAL_BATH -> RecipeMaps.chemicalBathRecipes;
+            case MODE_MIXER -> RecipeMaps.mixerRecipes;
             default -> RecipeMaps.maceratorRecipes;
         };
     }
@@ -93,6 +96,7 @@ public final class SteamIndustrialModule extends SteamElevatorModuleBase {
             case MODE_CHEMICAL_REACTOR -> TextLocalization.SteamIndustrialModuleModeChemicalReactor;
             case MODE_CIRCUIT_ASSEMBLER -> TextLocalization.SteamIndustrialModuleModeCircuitAssembler;
             case MODE_CHEMICAL_BATH -> TextLocalization.SteamIndustrialModuleModeChemicalBath;
+            case MODE_MIXER -> TextLocalization.SteamIndustrialModuleModeMixer;
             default -> TextLocalization.SteamIndustrialModuleModeMacerator;
         };
     }
@@ -151,6 +155,7 @@ public final class SteamIndustrialModule extends SteamElevatorModuleBase {
             GTNCGuiTextures.OVERLAY_BUTTON_MACHINEMODE_MACERATOR,
             GTNCGuiTextures.OVERLAY_BUTTON_MACHINEMODE_CHEMICAL_REACTOR,
             GTNCGuiTextures.OVERLAY_BUTTON_MACHINEMODE_CIRCUIT_ASSEMBLER,
-            GTNCGuiTextures.OVERLAY_BUTTON_MACHINEMODE_CHEMICAL_BATH);
+            GTNCGuiTextures.OVERLAY_BUTTON_MACHINEMODE_CHEMICAL_BATH,
+            GTNCGuiTextures.OVERLAY_BUTTON_MACHINEMODE_MIXER);
     }
 }

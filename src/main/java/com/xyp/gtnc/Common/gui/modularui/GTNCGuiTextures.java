@@ -156,6 +156,8 @@ public final class GTNCGuiTextures {
         .fullImage(MODID, "gui/overlay_button/machine_mode/assembler");
     public static final UITexture OVERLAY_BUTTON_MACHINEMODE_FORMING_PRESS = UITexture
         .fullImage(MODID, "gui/overlay_button/machine_mode/forming_press");
+    public static final UITexture OVERLAY_BUTTON_MACHINEMODE_HAMMER = UITexture
+        .fullImage(MODID, "gui/overlay_button/machine_mode/hammer");
     public static final UITexture OVERLAY_BUTTON_MACHINEMODE_FLUID_SOLIDIFIER = UITexture
         .fullImage(MODID, "gui/overlay_button/machine_mode/fluid_solidifier");
     public static final UITexture OVERLAY_BUTTON_MACHINEMODE_COMPRESSOR = UITexture
@@ -211,9 +213,6 @@ public final class GTNCGuiTextures {
         .fullImage(MODID, "gui/overlay_button/furnace_mode_on");
     public static final UITexture OVERLAY_BUTTON_FURNACE_MODE_OFF = UITexture
         .fullImage(MODID, "gui/overlay_button/furnace_mode_off");
-    public static final UITexture GODFORGE_SOUND_ON = UITexture.fullImage(MODID, "gui/overlay_button/sound_on");
-    public static final UITexture GODFORGE_SOUND_OFF = UITexture.fullImage(MODID, "gui/overlay_button/sound_off");
-
     // ==================== Picture ====================
     public static final UITexture PICTURE_GODFORGE_LOGO = UITexture.fullImage(MODID, "gui/picture/gorge_logo");
     public static final UITexture PICTURE_HEAT_SINK_16x8 = UITexture.fullImage(MODID, "gui/picture/heat_sink_16x8");
@@ -225,9 +224,6 @@ public final class GTNCGuiTextures {
     public static final UITexture BACKGROUND_SPACE = UITexture.fullImage(MODID, "gui/background/space");
 
     // ==================== Progressbar ====================
-    public static final UITexture PROGRESSBAR_GODFORGE_PLASMA = UITexture
-        .fullImage(MODID, "gui/progressbar/godforge_plasma");
-
     // ==================== Overlay Slot ====================
     public static final UITexture OVERLAY_SLOT_MESH = UITexture.fullImage(MODID, "gui/overlay_slot/mesh");
 }

@@ -37,7 +37,7 @@ import org.jetbrains.annotations.NotNull;
 
 import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
 import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
-import com.xyp.gtnc.Common.gui.modularui.multiblock.GTNCModernMultiBlockBaseGui;
+import com.xyp.gtnc.Common.gui.modularui.multiblock.BaseGui.GTNCModernMultiBlockBaseGui;
 import com.xyp.gtnc.Common.machines.multiblock.multiMachineBase.GTNCWirelessBase;
 import com.xyp.gtnc.Config.Config;
 import com.xyp.gtnc.Loader.BlockLoader;

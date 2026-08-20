@@ -24,7 +24,7 @@ import com.cleanroommc.modularui.widgets.ListWidget;
 import com.cleanroommc.modularui.widgets.TextWidget;
 import com.cleanroommc.modularui.widgets.layout.Flow;
 import com.xyp.gtnc.Common.gui.modularui.GTNCGuiTextures;
-import com.xyp.gtnc.Common.gui.modularui.multiblock.GTNCModernMultiBlockBaseGui;
+import com.xyp.gtnc.Common.gui.modularui.multiblock.BaseGui.GTNCModernMultiBlockBaseGui;
 import com.xyp.gtnc.Common.gui.modularui.widget.BeeSpeciesDropTextField;
 import com.xyp.gtnc.Common.machines.bee.BeeBreedingHelper;
 import com.xyp.gtnc.Common.machines.multiblock.steam.LargeSteamBeeBreeder;

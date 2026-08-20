@@ -15,54 +15,43 @@ import com.xyp.gtnc.utils.lang.TextLocalization;
 
 import gregtech.api.interfaces.metatileentity.IMetaTileEntity;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
-import gregtech.api.logic.ProcessingLogic;
 import gregtech.api.metatileentity.implementations.MTEHatchInput;
 import gregtech.api.metatileentity.implementations.MTEHatchInputBus;
 import gregtech.api.modularui2.GTGuiTextures;
 import gregtech.api.recipe.RecipeMap;
 import gregtech.api.recipe.RecipeMaps;
-import gregtech.api.recipe.check.CheckRecipeResult;
-import gregtech.api.recipe.check.CheckRecipeResultRegistry;
-import gregtech.api.util.GTRecipe;
 import gregtech.api.util.GTUtility;
 import gregtech.api.util.MultiblockTooltipBuilder;
-import gregtech.api.util.OverclockCalculator;
 import gregtech.common.gui.modularui.multiblock.base.MTEMultiBlockBaseGui;
 import gregtech.common.tileentities.machines.IDualInputHatch;
 import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.MTEHatchSteamBusInput;
 
-/** Two-mode smelting module connected to a Steam Elevator controller. */
-public final class SteamSmeltingModule extends SteamElevatorModuleBase {
+/** Two-mode extraction module connected to a Steam Elevator controller. */
+public final class SteamExtractorModule extends SteamElevatorModuleBase {
 
-    private static final int MODE_BLAST_FURNACE = 0;
-    private static final int MODE_FURNACE = 1;
+    private static final int MODE_EXTRACTOR = 0;
+    private static final int MODE_FLUID_EXTRACTOR = 1;
     private static final int MODE_COUNT = 2;
     private static final int MODULE_TIER = 14;
-    private static final int BASE_MAX_HEAT = 15_700;
-    private static final int UPGRADED_MAX_HEAT = 17_700;
-    private static final int ADVANCED_MAX_HEAT = 19_700;
     private static final List<RecipeMap<?>> AVAILABLE_RECIPE_MAPS = Collections
-        .unmodifiableList(Arrays.asList(RecipeMaps.blastFurnaceRecipes, RecipeMaps.furnaceRecipes));
+        .unmodifiableList(Arrays.asList(RecipeMaps.extractorRecipes, RecipeMaps.fluidExtractionRecipes));
 
-    private boolean heatUpgradeUnlocked;
-    private boolean advancedHeatUpgradeUnlocked;
-
-    public SteamSmeltingModule(int id, String name, String regionalName) {
+    public SteamExtractorModule(int id, String name, String regionalName) {
         super(id, name, regionalName, MODULE_TIER);
     }
 
-    public SteamSmeltingModule(String name) {
+    public SteamExtractorModule(String name) {
         super(name, MODULE_TIER);
     }
 
     @Override
     public IMetaTileEntity newMetaEntity(IGregTechTileEntity tileEntity) {
-        return new SteamSmeltingModule(mName);
+        return new SteamExtractorModule(mName);
     }
 
     @Override
     public RecipeMap<?> getRecipeMap() {
-        return machineMode == MODE_FURNACE ? RecipeMaps.furnaceRecipes : RecipeMaps.blastFurnaceRecipes;
+        return machineMode == MODE_FLUID_EXTRACTOR ? RecipeMaps.fluidExtractionRecipes : RecipeMaps.extractorRecipes;
     }
 
     @NotNull
@@ -83,70 +72,20 @@ public final class SteamSmeltingModule extends SteamElevatorModuleBase {
 
     @Override
     public void setMachineMode(int mode) {
-        super.setMachineMode(mode == MODE_FURNACE ? MODE_FURNACE : MODE_BLAST_FURNACE);
+        super.setMachineMode(mode == MODE_FLUID_EXTRACTOR ? MODE_FLUID_EXTRACTOR : MODE_EXTRACTOR);
         refreshInputRecipeMaps();
     }
 
     @Override
     public String getMachineModeName() {
-        return machineMode == MODE_FURNACE ? TextLocalization.SteamSmeltingModuleModeFurnace
-            : TextLocalization.SteamSmeltingModuleModeBlastFurnace;
+        return machineMode == MODE_FLUID_EXTRACTOR ? TextLocalization.SteamExtractorModuleModeFluidExtractor
+            : TextLocalization.SteamExtractorModuleModeExtractor;
     }
 
     @Override
     public void loadNBTData(NBTTagCompound tag) {
         super.loadNBTData(tag);
         setMachineMode(machineMode);
-    }
-
-    @Override
-    protected ProcessingLogic createProcessingLogic() {
-        return new ProcessingLogic() {
-
-            @NotNull
-            @Override
-            protected CheckRecipeResult validateRecipe(@NotNull GTRecipe recipe) {
-                if (machineMode == MODE_BLAST_FURNACE && recipe.mSpecialValue > getMaxHeat()) {
-                    return CheckRecipeResultRegistry.insufficientHeat(recipe.mSpecialValue);
-                }
-                return CheckRecipeResultRegistry.SUCCESSFUL;
-            }
-
-            @NotNull
-            @Override
-            protected OverclockCalculator createOverclockCalculator(@NotNull GTRecipe recipe) {
-                OverclockCalculator calculator = super.createOverclockCalculator(recipe);
-                if (machineMode != MODE_BLAST_FURNACE) return calculator;
-                return calculator.setRecipeHeat(recipe.mSpecialValue)
-                    .setHeatDiscount(true)
-                    .setMachineHeat(Math.max(recipe.mSpecialValue, getMaxHeat()))
-                    .setHeatDiscountMultiplier(getHeatDiscountMultiplier());
-            }
-        };
-    }
-
-    public int getMaxHeat() {
-        if (advancedHeatUpgradeUnlocked) return ADVANCED_MAX_HEAT;
-        return heatUpgradeUnlocked ? UPGRADED_MAX_HEAT : BASE_MAX_HEAT;
-    }
-
-    public void setHeatUpgradeUnlocked(boolean unlocked) {
-        heatUpgradeUnlocked = unlocked;
-    }
-
-    public void setAdvancedHeatUpgradeUnlocked(boolean unlocked) {
-        advancedHeatUpgradeUnlocked = unlocked;
-    }
-
-    public double getHeatDiscountMultiplier() {
-        return 0.95;
-    }
-
-    @Override
-    public void disconnect() {
-        super.disconnect();
-        heatUpgradeUnlocked = false;
-        advancedHeatUpgradeUnlocked = false;
     }
 
     private void refreshInputRecipeMaps() {
@@ -168,21 +107,19 @@ public final class SteamSmeltingModule extends SteamElevatorModuleBase {
 
     @Override
     public String getMachineType() {
-        return TextLocalization.SteamSmeltingModuleMachineType;
+        return TextLocalization.SteamExtractorModuleMachineType;
     }
 
     @Override
     protected MultiblockTooltipBuilder createTooltip() {
         return new MultiblockTooltipBuilder().addMachineType(getMachineType())
-            .addInfo(TextLocalization.Tooltip_SteamSmeltingModule_00)
-            .addInfo(TextLocalization.Tooltip_SteamSmeltingModule_01)
-            .addInfo(TextLocalization.Tooltip_SteamSmeltingModule_02)
-            .addInfo(TextLocalization.Tooltip_SteamSmeltingModule_03)
-            .addInfo(TextLocalization.Tooltip_SteamSmeltingModule_04)
-            .addInfo(TextLocalization.Tooltip_SteamSmeltingModule_05)
-            .addInfo(TextLocalization.Tooltip_SteamSmeltingModule_06)
+            .addInfo(TextLocalization.Tooltip_SteamExtractorModule_00)
+            .addInfo(TextLocalization.Tooltip_SteamExtractorModule_01)
+            .addInfo(TextLocalization.Tooltip_SteamExtractorModule_02)
+            .addInfo(TextLocalization.Tooltip_SteamExtractorModule_03)
+            .addInfo(TextLocalization.Tooltip_SteamExtractorModule_04)
             .beginStructureBlock(1, 2, 1, false)
-            .addController(TextLocalization.Tooltip_SteamSmeltingModule_Controller)
+            .addController(TextLocalization.Tooltip_SteamExtractorModule_Controller)
             .addSteamInputBus(TextLocalization.Tooltip_SteamElevator_Casing, 1)
             .addSteamOutputBus(TextLocalization.Tooltip_SteamElevator_Casing, 1)
             .addInputBus(TextLocalization.Tooltip_SteamElevator_Casing, 1)

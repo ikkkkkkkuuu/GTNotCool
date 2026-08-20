@@ -62,6 +62,7 @@ public abstract class SteamElevatorModuleBase extends GTNCSteamMultiBlockBase<St
     private boolean speedUpgradeUnlocked;
     private boolean steamEfficiencyUpgradeUnlocked;
     private boolean advancedParallelUpgradeUnlocked;
+    private boolean extremeParallelUpgradeUnlocked;
     private long configuredProcessingVoltage;
     private long storedModuleSteam;
 
@@ -249,7 +250,8 @@ public abstract class SteamElevatorModuleBase extends GTNCSteamMultiBlockBase<St
     public final int getMaxParallelRecipes() {
         int baseParallel = Math.max(1, getBaseMaxParallelRecipes());
         int upgradedParallel = parallelUpgradeUnlocked ? Math.max(64, baseParallel) : baseParallel;
-        return advancedParallelUpgradeUnlocked ? Math.max(128, upgradedParallel) : upgradedParallel;
+        int advancedParallel = advancedParallelUpgradeUnlocked ? Math.max(128, upgradedParallel) : upgradedParallel;
+        return extremeParallelUpgradeUnlocked ? Math.max(256, advancedParallel) : advancedParallel;
     }
 
     protected int getBaseMaxParallelRecipes() {
@@ -330,6 +332,11 @@ public abstract class SteamElevatorModuleBase extends GTNCSteamMultiBlockBase<St
         refreshPowerPanelParallelLimit();
     }
 
+    public void setExtremeParallelUpgradeUnlocked(boolean unlocked) {
+        extremeParallelUpgradeUnlocked = unlocked;
+        refreshPowerPanelParallelLimit();
+    }
+
     private void refreshPowerPanelParallelLimit() {
         int maximum = getMaxParallelRecipes();
         setPowerPanelMaxParallel(isAlwaysMaxParallel() ? maximum : Math.min(maximum, getPowerPanelMaxParallel()));
@@ -355,6 +362,7 @@ public abstract class SteamElevatorModuleBase extends GTNCSteamMultiBlockBase<St
         speedUpgradeUnlocked = false;
         steamEfficiencyUpgradeUnlocked = false;
         advancedParallelUpgradeUnlocked = false;
+        extremeParallelUpgradeUnlocked = false;
     }
 
     @Override
@@ -388,6 +396,7 @@ public abstract class SteamElevatorModuleBase extends GTNCSteamMultiBlockBase<St
         speedUpgradeUnlocked = false;
         steamEfficiencyUpgradeUnlocked = false;
         advancedParallelUpgradeUnlocked = false;
+        extremeParallelUpgradeUnlocked = false;
     }
 
     @Override

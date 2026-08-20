@@ -10,7 +10,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import org.jetbrains.annotations.NotNull;
 
 import com.xyp.gtnc.Common.gui.modularui.GTNCGuiTextures;
-import com.xyp.gtnc.Common.gui.modularui.multiblock.SteamElevatorModuleGui;
+import com.xyp.gtnc.Common.gui.modularui.multiblock.SteamElevator.SteamElevatorModuleGui;
 import com.xyp.gtnc.Common.machines.hatch.SuperMTEHatchCraftingInputME;
 import com.xyp.gtnc.utils.lang.TextLocalization;
 
@@ -26,7 +26,7 @@ import gregtech.common.gui.modularui.multiblock.base.MTEMultiBlockBaseGui;
 import gregtech.common.tileentities.machines.IDualInputHatch;
 import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.MTEHatchSteamBusInput;
 
-/** Five-mode solid-forming processor connected to a Steam Elevator controller. */
+/** Six-mode solid-forming processor connected to a Steam Elevator controller. */
 public final class SteamFormingModule extends SteamElevatorModuleBase {
 
     private static final int MODE_FLUID_SOLIDIFIER = 0;
@@ -34,7 +34,8 @@ public final class SteamFormingModule extends SteamElevatorModuleBase {
     private static final int MODE_LATHE = 2;
     private static final int MODE_COMPRESSOR = 3;
     private static final int MODE_STAMPING_MACHINE = 4;
-    private static final int MODE_COUNT = 5;
+    private static final int MODE_HAMMER = 5;
+    private static final int MODE_COUNT = 6;
     private static final int MODULE_TIER = 14;
     private static final List<RecipeMap<?>> AVAILABLE_RECIPE_MAPS = Collections.unmodifiableList(
         Arrays.asList(
@@ -42,7 +43,8 @@ public final class SteamFormingModule extends SteamElevatorModuleBase {
             RecipeMaps.extruderRecipes,
             RecipeMaps.latheRecipes,
             RecipeMaps.compressorRecipes,
-            RecipeMaps.formingPressRecipes));
+            RecipeMaps.formingPressRecipes,
+            RecipeMaps.hammerRecipes));
 
     public SteamFormingModule(int id, String name, String regionalName) {
         super(id, name, regionalName, MODULE_TIER);
@@ -64,6 +66,7 @@ public final class SteamFormingModule extends SteamElevatorModuleBase {
             case MODE_LATHE -> RecipeMaps.latheRecipes;
             case MODE_COMPRESSOR -> RecipeMaps.compressorRecipes;
             case MODE_STAMPING_MACHINE -> RecipeMaps.formingPressRecipes;
+            case MODE_HAMMER -> RecipeMaps.hammerRecipes;
             default -> RecipeMaps.fluidSolidifierRecipes;
         };
     }
@@ -97,6 +100,7 @@ public final class SteamFormingModule extends SteamElevatorModuleBase {
             case MODE_LATHE -> TextLocalization.SteamFormingModuleModeLathe;
             case MODE_COMPRESSOR -> TextLocalization.SteamFormingModuleModeCompressor;
             case MODE_STAMPING_MACHINE -> TextLocalization.SteamFormingModuleModeStampingMachine;
+            case MODE_HAMMER -> TextLocalization.SteamFormingModuleModeHammer;
             default -> TextLocalization.SteamFormingModuleModeFluidSolidifier;
         };
     }
@@ -156,6 +160,7 @@ public final class SteamFormingModule extends SteamElevatorModuleBase {
             GTNCGuiTextures.OVERLAY_BUTTON_MACHINEMODE_FORMING_PRESS,
             GTNCGuiTextures.OVERLAY_BUTTON_MACHINEMODE_LATHE,
             GTNCGuiTextures.OVERLAY_BUTTON_MACHINEMODE_COMPRESSOR,
-            GTNCGuiTextures.OVERLAY_BUTTON_MACHINEMODE_STAMPING);
+            GTNCGuiTextures.OVERLAY_BUTTON_MACHINEMODE_STAMPING,
+            GTNCGuiTextures.OVERLAY_BUTTON_MACHINEMODE_HAMMER);
     }
 }

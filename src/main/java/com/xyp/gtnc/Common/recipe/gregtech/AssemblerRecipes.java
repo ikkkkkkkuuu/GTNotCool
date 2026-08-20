@@ -431,7 +431,7 @@ public class AssemblerRecipes {
         // 蒸汽蜜蜂
         GTRecipeBuilder.builder()
             .itemInputs(
-                GTNCItemList.LargeSteamAssembler.get(1L),
+                GTNCItemList.SteamAssemblerModule.get(1L),
                 GTOreDictUnificator.get(OrePrefixes.circuit, Materials.LV, 8),
                 GTOreDictUnificator.get(OrePrefixes.plate, Materials.Steel, 2),
                 GTUtility.getIntegratedCircuit(24))
@@ -443,7 +443,7 @@ public class AssemblerRecipes {
         // 蒸汽作物杂交机
         GTRecipeBuilder.builder()
             .itemInputs(
-                GTNCItemList.LargeSteamAssembler.get(1L),
+                GTNCItemList.SteamAssemblerModule.get(1L),
                 CropsNHItemList.cropSticks.get(16),
                 GTOreDictUnificator.get(OrePrefixes.circuit, Materials.LV, 8),
                 GTOreDictUnificator.get(OrePrefixes.plate, Materials.Bronze, 8),
@@ -456,7 +456,7 @@ public class AssemblerRecipes {
         // 养蜂机
         GTRecipeBuilder.builder()
             .itemInputs(
-                GTNCItemList.LargeSteamAssembler.get(1L),
+                GTNCItemList.SteamAssemblerModule.get(1L),
                 GTOreDictUnificator.get(OrePrefixes.circuit, Materials.LV, 8),
                 GTOreDictUnificator.get(OrePrefixes.plate, Materials.Copper, 2),
                 GTUtility.getIntegratedCircuit(24))
@@ -468,7 +468,7 @@ public class AssemblerRecipes {
         // 蜂窝处理
         GTRecipeBuilder.builder()
             .itemInputs(
-                GTNCItemList.LargeSteamAssembler.get(1L),
+                GTNCItemList.SteamAssemblerModule.get(1L),
                 GTOreDictUnificator.get(OrePrefixes.circuit, Materials.LV, 8),
                 GTOreDictUnificator.get(OrePrefixes.plate, Materials.Bronze, 2),
                 GTUtility.getIntegratedCircuit(24))
@@ -648,17 +648,6 @@ public class AssemblerRecipes {
             .itemOutputs(GTNCItemList.BiowareSMDInductor.get(32))
             .duration(SECONDS)
             .eut(RECIPE_EV)
-            .addTo(As);
-
-        GTValues.RA.stdBuilder()
-            .itemInputs(
-                ItemList.Machine_LV_Electrolyzer.get(1L),
-                GTOreDictUnificator.get(OrePrefixes.circuit, Materials.LV, 4),
-                GTOreDictUnificator.get(OrePrefixes.plate, Materials.Steel, 2),
-                GTUtility.getIntegratedCircuit(19))
-            .itemOutputs(GTNCItemList.LargeSteamElectrolyzer.get(1))
-            .duration(5 * SECONDS)
-            .eut(RECIPE_LV)
             .addTo(As);
 
         // Steam Elevator building materials and controller only. Concrete module recipes are intentionally absent.

@@ -39,6 +39,7 @@ import com.cleanroommc.modularui.widgets.TextWidget;
 import com.cleanroommc.modularui.widgets.layout.Flow;
 import com.cleanroommc.modularui.widgets.textfield.TextFieldWidget;
 import com.xyp.gtnc.Common.gui.modularui.GTNCGuiTextures;
+import com.xyp.gtnc.Common.gui.modularui.multiblock.BaseGui.GTNCModernMultiBlockBaseGui;
 import com.xyp.gtnc.Common.machines.multiblock.AssemblerMatrix;
 
 import appeng.api.storage.data.IAEItemStack;

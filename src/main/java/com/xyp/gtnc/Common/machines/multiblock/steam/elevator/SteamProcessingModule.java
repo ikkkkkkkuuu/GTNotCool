@@ -10,7 +10,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import org.jetbrains.annotations.NotNull;
 
 import com.xyp.gtnc.Common.gui.modularui.GTNCGuiTextures;
-import com.xyp.gtnc.Common.gui.modularui.multiblock.SteamElevatorModuleGui;
+import com.xyp.gtnc.Common.gui.modularui.multiblock.SteamElevator.SteamElevatorModuleGui;
 import com.xyp.gtnc.Common.machines.hatch.SuperMTEHatchCraftingInputME;
 import com.xyp.gtnc.utils.lang.TextLocalization;
 
@@ -24,6 +24,7 @@ import gregtech.api.util.GTUtility;
 import gregtech.api.util.MultiblockTooltipBuilder;
 import gregtech.common.gui.modularui.multiblock.base.MTEMultiBlockBaseGui;
 import gregtech.common.tileentities.machines.IDualInputHatch;
+import gtPlusPlus.api.recipe.GTPPRecipeMaps;
 import gtPlusPlus.xmod.gregtech.api.metatileentity.implementations.MTEHatchSteamBusInput;
 
 /** Four-mode material-processing module connected to a Steam Elevator controller. */
@@ -38,7 +39,7 @@ public final class SteamProcessingModule extends SteamElevatorModuleBase {
     private static final List<RecipeMap<?>> AVAILABLE_RECIPE_MAPS = Collections.unmodifiableList(
         Arrays.asList(
             RecipeMaps.centrifugeRecipes,
-            RecipeMaps.electrolyzerRecipes,
+            GTPPRecipeMaps.electrolyzerNonCellRecipes,
             RecipeMaps.autoclaveRecipes,
             RecipeMaps.polarizerRecipes));
 
@@ -58,7 +59,7 @@ public final class SteamProcessingModule extends SteamElevatorModuleBase {
     @Override
     public RecipeMap<?> getRecipeMap() {
         return switch (machineMode) {
-            case MODE_ELECTROLYZER -> RecipeMaps.electrolyzerRecipes;
+            case MODE_ELECTROLYZER -> GTPPRecipeMaps.electrolyzerNonCellRecipes;
             case MODE_AUTOCLAVE -> RecipeMaps.autoclaveRecipes;
             case MODE_POLARIZER -> RecipeMaps.polarizerRecipes;
             default -> RecipeMaps.centrifugeRecipes;

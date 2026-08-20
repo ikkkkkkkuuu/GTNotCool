@@ -52,6 +52,7 @@ import com.cleanroommc.modularui.widgets.layout.Flow;
 import com.cleanroommc.modularui.widgets.slot.ModularSlot;
 import com.cleanroommc.modularui.widgets.slot.SlotGroup;
 import com.xyp.gtnc.Common.gui.modularui.GTNCGuiTextures;
+import com.xyp.gtnc.Common.gui.modularui.multiblock.BaseGui.GTNCModernMultiBlockBaseGui;
 import com.xyp.gtnc.Common.machines.multiblock.MTEMegaIndustrialApiary;
 import com.xyp.gtnc.Common.machines.multiblock.MTEMegaIndustrialApiary.BeeSimulator;
 

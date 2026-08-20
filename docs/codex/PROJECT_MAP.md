@@ -108,7 +108,7 @@ Before adding or changing a multiblock, determine which existing contract owns t
 - Use `GTNCMultiBlockBase` for the general project multiblock contract.
 - Use `GTNCSteamMultiBlockBase` for the clean steam/ME I/O and wireless-steam foundation.
 - Use `GTNCAdvancedSteamMultiBlockBase` for the existing large-steam family that also needs tier helpers,
-  chip upgrades, cross-recipe processing, and its advanced GUI.
+  chip upgrades, cross-recipe processing, and the optional legacy upgrade panel in the shared steam GUI.
 - Use `GTNCWirelessEnergyMultiMachineBase` or `GTNCWirelessBase` when the machine participates in established wireless-energy accounting.
 - Inspect at least one concrete sibling with the same recipe, structure, hatch, and UI behavior before changing a base class.
 
@@ -223,7 +223,7 @@ Large or high-churn files deserve narrower edits and extra review:
 - `TextLocalization` — roughly 1.7k lines.
 - `AssemblerMatrix` — roughly 1.5k lines.
 
-Recent architectural churn at the audit point included the quick-terminal refactor, the ME wireless transceiver/link manager, an EnderIO soul-vessel Mixin, Steam Godforge, and the shared steam multiblock base.
+Recent architectural churn at the audit point included the quick-terminal refactor, the ME wireless transceiver/link manager, an EnderIO soul-vessel Mixin, and the shared steam multiblock base.
 
 ## Validation matrix
 
